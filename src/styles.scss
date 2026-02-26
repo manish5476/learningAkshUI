@@ -1,0 +1,134 @@
+/* You can add global styles to this file, and also import other style files */
+// /* Import your theme variables */
+// @import './assets/styles/themes/_variables.scss';
+// @import './assets/styles/themes/_tokens.scss';
+
+/* Global styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  transition: var(--transition-colors);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--spacing-lg);
+}
+
+h1 { font-size: var(--font-size-5xl); }
+h2 { font-size: var(--font-size-4xl); }
+h3 { font-size: var(--font-size-3xl); }
+h4 { font-size: var(--font-size-2xl); }
+h5 { font-size: var(--font-size-xl); }
+h6 { font-size: var(--font-size-lg); }
+
+/* Links */
+a {
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: var(--transition-colors);
+
+  &:hover {
+    color: var(--accent-hover);
+  }
+}
+
+/* Focus styles for accessibility */
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--accent-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scroll-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: var(--ui-border-radius);
+
+  &:hover {
+    background: var(--accent-primary);
+  }
+}
+
+/* Utility classes */
+.glass-effect {
+  background: var(--glass-bg-c);
+  backdrop-filter: blur(var(--glass-blur-c));
+  border: 1px solid var(--glass-border-c);
+  box-shadow: var(--glass-shadow-c);
+}
+
+.card {
+  background: var(--component-surface-raised);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--ui-border-radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-lg);
+  transition: var(--transition-base);
+
+  &:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent-secondary);
+  }
+}
+
+/* Responsive container */
+.container {
+  width: 100%;
+  padding-right: var(--spacing-lg);
+  padding-left: var(--spacing-lg);
+  margin-right: auto;
+  margin-left: auto;
+}
+
+/* Responsive breakpoints */
+@media (min-width: 576px) {
+  .container {
+    max-width: 540px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 720px;
+  }
+}
+
+@media (min-width: 992px) {
+  .container {
+    max-width: 960px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1140px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1320px;
+  }
+}
