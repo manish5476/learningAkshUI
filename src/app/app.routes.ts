@@ -1,38 +1,37 @@
 import { Routes } from '@angular/router';
-import { DashboardLayoutComponent } from './layout/dashboard-layout/dashboard-layout.component';
+import { MainScreen } from './layout/main-screen/main-screen';
 
 export const routes: Routes = [
+  // Public / authenticated pages that use the dashboard layout
   {
-    // 1. The main shell of the app (Header + Sidebar + Content area)
     path: '',
-    component: DashboardLayoutComponent,
+    component: MainScreen,
     children: [
       {
         path: '',
-        redirectTo: 'home',
+        redirectTo: '/home', // ✅ Redirects CAN have a leading slash (absolute redirect)
         pathMatch: 'full'
       },
-      // 🟢 PUBLIC ROUTES (Loads inside the layout)
       {
-        path: 'home',
-        // Note: Make sure the file name and class name below match your actual file exactly!
-        loadComponent: () => import('../app/features/dashboard/home-screen/home-screen').then(m => m.HomeScreen),
+        path: 'home',        // ✅ Paths CANNOT have a leading slash. Changed from '/home'
+        loadComponent: () =>
+          // Make sure this path exactly matches your folder structure!
+          import('./features/dashboard/home-screen/home-screen').then(m => m.HomeScreen),
         title: 'Home - EdTech Platform'
-      }
-      
-      // ... You can uncomment your explore, projects, and locked routes here later!
+      },
+      // ← Add more protected / dashboard routes here later
     ]
   },
-  
-  // 🔵 AUTHENTICATION ROUTES (Loads outside the layout, taking up the whole screen)
+
+  // Auth routes — NO layout, usually plain auth pages
   {
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
   },
 
-  // ⚠️ FALLBACK ROUTE (Catches bad URLs and sends them home)
+  // Wildcard — must be LAST
   {
     path: '**',
-    redirectTo: 'home'
+    redirectTo: '/home'      // ✅ Added the leading slash so it redirects reliably from anywhere
   }
 ];

@@ -1,113 +1,44 @@
-import { Injectable, signal, inject, NgZone, DestroyRef } from '@angular/core';
+import { Injectable, signal, computed, effect } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class LayoutService {
-  isSidebarOpen = signal<boolean>(window.innerWidth > 992);
-  isMobile = signal<boolean>(window.innerWidth <= 992);
-  
-  private ngZone = inject(NgZone);
-  private destroyRef = inject(DestroyRef);
+  isPinned = signal(localStorage.getItem('sidebarPinned') === 'true');
+  isHovered = signal(false);
+  isMobileMenuOpen = signal(false);
+  screenWidth = signal(0);
+
+  isMobile = computed(() => this.screenWidth() < 768);
+  isTablet = computed(() =>
+    this.screenWidth() >= 768 && this.screenWidth() < 1024
+  );
+  isDesktop = computed(() => this.screenWidth() >= 1024);
+
+  // Existing logic
+  isExpanded = computed(() => {
+    if (this.isMobile() || this.isTablet()) {
+      return this.isMobileMenuOpen();
+    }
+    return this.isPinned() || this.isHovered();
+  });
+
+  // 👇 ADD THIS LINE
+  isCollapsed = computed(() => !this.isExpanded());
 
   constructor() {
-    // Listen to window resize outside of Angular's cycle for performance
-    this.ngZone.runOutsideAngular(() => {
-      window.addEventListener('resize', this.onResize);
-    });
-
-    // Modern Angular 16+ way to handle cleanup
-    this.destroyRef.onDestroy(() => {
-      window.removeEventListener('resize', this.onResize);
-    });
+    effect(() =>
+      localStorage.setItem('sidebarPinned', String(this.isPinned()))
+    );
   }
 
-  private onResize = () => {
-    this.ngZone.run(() => {
-      this.checkScreenSize();
-    });
-  };
-
-  private checkScreenSize() {
-    const mobile = window.innerWidth <= 992;
-    
-    if (this.isMobile() !== mobile) {
-      this.isMobile.set(mobile);
-    }
-    
-    // Auto-adjust sidebar when crossing the mobile/desktop boundary
-    if (mobile && this.isSidebarOpen()) {
-      this.isSidebarOpen.set(false);
-    } else if (!mobile && !this.isSidebarOpen()) {
-      this.isSidebarOpen.set(true);
-    }
+  togglePin() {
+    this.isPinned.update(v => !v);
   }
 
-  toggleSidebar() {
-    this.isSidebarOpen.update(v => !v);
+  toggleMobile() {
+    this.isMobileMenuOpen.update(v => !v);
   }
 
-  closeSidebarOnMobile() {
-    if (this.isMobile()) {
-      this.isSidebarOpen.set(false);
-    }
+  closeMobile() {
+    this.isMobileMenuOpen.set(false);
   }
 }
-// import { Injectable, signal, inject, NgZone, OnDestroy } from '@angular/core';
-
-// @Injectable({
-//   providedIn: 'root'
-// })
-// export class LayoutService implements OnDestroy {
-//   // Signals for reactive state
-//   isSidebarOpen = signal<boolean>(window.innerWidth > 992);
-//   isMobile = signal<boolean>(window.innerWidth <= 992);
-  
-//   private ngZone = inject(NgZone);
-
-//   constructor() {
-//     // Run outside Angular to prevent UI lag on every single pixel movement
-//     this.ngZone.runOutsideAngular(() => {
-//       window.addEventListener('resize', this.onResize);
-//     });
-//   }
-
-//   // Arrow function to preserve 'this' context in the event listener
-//   private onResize = () => {
-//     // Bring it back INTO Angular's zone to visually update the UI
-//     this.ngZone.run(() => {
-//       this.checkScreenSize();
-//     });
-//   };
-
-//   private checkScreenSize() {
-//     const mobile = window.innerWidth <= 992;
-    
-//     // Only update the mobile signal if the state actually changed
-//     if (this.isMobile() !== mobile) {
-//       this.isMobile.set(mobile);
-//     }
-    
-//     // Auto-adjust sidebar based on screen size crossing the threshold
-//     if (mobile && this.isSidebarOpen()) {
-//       this.isSidebarOpen.set(false);
-//     } else if (!mobile && !this.isSidebarOpen()) {
-//       this.isSidebarOpen.set(true);
-//     }
-//   }
-
-//   toggleSidebar() {
-//     this.isSidebarOpen.update(open => !open);
-//   }
-
-//   closeSidebarOnMobile() {
-//     if (this.isMobile()) {
-//       this.isSidebarOpen.set(false);
-//     }
-//   }
-
-//   // Always clean up native event listeners to prevent memory leaks!
-//   ngOnDestroy() {
-//     window.removeEventListener('resize', this.onResize);
-//   }
-// }

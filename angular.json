@@ -2,7 +2,8 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "analytics": "4c77f089-638f-4bfd-a94d-a7881784ed56"
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -30,7 +31,12 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles/styles.scss",
+              "src/styles/animation.scss",
+              "src/styles/themes.scss",
+              "src/styles/base-styles.scss",
+              "src/styles/primeng-theme.scss",
+              "node_modules/primeicons/primeicons.css"
             ]
           },
           "configurations": {

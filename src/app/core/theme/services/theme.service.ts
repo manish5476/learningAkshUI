@@ -1,56 +1,130 @@
-import { Injectable, Renderer2, RendererFactory2 } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+/**
+ * Defines the structure for saved theme settings.
+ */
+export interface ThemeSettings {
+  lightThemeClass: string; // e.g. 'theme-light', 'theme-premium'
+  isDarkMode: boolean;     // true or false
+  textScale: number;       // Percentage: 100, 110, 125, etc.
+}
+
+@Injectable({ providedIn: 'root' })
 export class ThemeService {
-  private renderer: Renderer2;
-  private currentThemeSubject = new BehaviorSubject<string>('theme-luminous');
-  public currentTheme$ = this.currentThemeSubject.asObservable();
-  
-  private availableThemes = ['theme-luminous', 'theme-midnight', 'theme-bio-frost', 'theme-solar-flare'];
+  private readonly STORAGE_KEY = 'themeSettings-v3'; // Bumped version for new schema
 
-  constructor(rendererFactory: RendererFactory2) {
-    this.renderer = rendererFactory.createRenderer(null, null);
-    this.loadSavedTheme();
+  // Default settings (100% scale = 16px browser default)
+  private readonly defaultSettings: ThemeSettings = {
+    lightThemeClass: 'theme-light', 
+    isDarkMode: false,
+    textScale: 100 
+  };
+
+  private settingsSubject = new BehaviorSubject<ThemeSettings>(this.loadSettings());
+  settings$ = this.settingsSubject.asObservable();
+
+  constructor() {
+    this.applyTheme(this.settingsSubject.value);
   }
 
-  private loadSavedTheme(): void {
-    const savedTheme = localStorage.getItem('app-theme');
-    if (savedTheme && this.availableThemes.includes(savedTheme)) {
-      this.setTheme(savedTheme);
-    } else {
-      this.setTheme('theme-luminous'); // Default theme
+  // ----------------------------------------------------------------
+  // ✅ Load Settings
+  // ----------------------------------------------------------------
+  private loadSettings(): ThemeSettings {
+    try {
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Merge with defaults to ensure 'textScale' exists if loading old data
+        return { ...this.defaultSettings, ...parsed };
+      }
+      return this.defaultSettings;
+    } catch {
+      return this.defaultSettings;
     }
   }
 
-  setTheme(themeClass: string): void {
-    // Remove all theme classes
-    this.availableThemes.forEach(theme => {
-      this.renderer.removeClass(document.body, theme);
+  // ----------------------------------------------------------------
+  // ✅ Save Settings
+  // ----------------------------------------------------------------
+  private saveSettings(settings: ThemeSettings) {
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(settings));
+    } catch {
+      console.warn('ThemeService: Unable to save theme settings.');
+    }
+  }
+
+  // ----------------------------------------------------------------
+  // ✅ Apply Theme (Updated for Font Scale)
+  // ----------------------------------------------------------------
+  private applyTheme(settings: ThemeSettings) {
+    const body = document.body;
+    const html = document.documentElement; // Target <html> for rem scaling
+
+    // 1. Remove all previous theme classes
+    body.classList.forEach(cls => {
+      if (cls.startsWith('theme-')) {
+        body.classList.remove(cls);
+      }
     });
-    
-    // Add new theme class
-    this.renderer.addClass(document.body, themeClass);
-    
-    // Save to localStorage
-    localStorage.setItem('app-theme', themeClass);
-    this.currentThemeSubject.next(themeClass);
+
+    // 2. Apply the correct theme class
+    if (settings.isDarkMode) {
+      body.classList.add('theme-dark');
+    } else {
+      body.classList.add(settings.lightThemeClass);
+    }
+
+    // 3. Apply Font Scale (Scale root font size)
+    // 100% = 16px (standard), 110% = 17.6px, etc.
+    html.style.fontSize = `${settings.textScale}%`;
+
+    // 4. Cleanup legacy props
+    body.style.removeProperty('--accent-color');
   }
 
-  toggleTheme(): void {
-    const currentIndex = this.availableThemes.indexOf(this.currentThemeSubject.value);
-    const nextIndex = (currentIndex + 1) % this.availableThemes.length;
-    this.setTheme(this.availableThemes[nextIndex]);
+  // ----------------------------------------------------------------
+  // ✅ Public Methods
+  // ----------------------------------------------------------------
+
+  setLightTheme(themeClass: string) {
+    const newSettings: ThemeSettings = {
+      ...this.settingsSubject.value,
+      lightThemeClass: themeClass,
+      isDarkMode: false,
+    };
+    this.updateSettings(newSettings);
   }
 
-  getCurrentTheme(): string {
-    return this.currentThemeSubject.value;
+  setDarkMode(isDarkMode: boolean) {
+    const newSettings: ThemeSettings = {
+      ...this.settingsSubject.value,
+      isDarkMode,
+    };
+    this.updateSettings(newSettings);
   }
 
-  isDarkMode(): boolean {
-    const currentTheme = this.currentThemeSubject.value;
-    return currentTheme === 'theme-midnight' || currentTheme === 'theme-bio-frost';
+  /**
+   * Updates the text scale percentage.
+   * @param scale Percentage number (e.g., 100, 110, 125)
+   */
+  setTextScale(scale: number) {
+    const newSettings: ThemeSettings = {
+      ...this.settingsSubject.value,
+      textScale: scale,
+    };
+    this.updateSettings(newSettings);
+  }
+
+  resetTheme() {
+    this.updateSettings(this.defaultSettings);
+  }
+
+  private updateSettings(settings: ThemeSettings) {
+    this.settingsSubject.next(settings);
+    this.saveSettings(settings);
+    this.applyTheme(settings);
   }
 }
