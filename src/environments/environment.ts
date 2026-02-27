@@ -1,7 +1,7 @@
 export const environment = {
   production: false,
   apiUrl: 'https://learningaksh.onrender.com/api/v1',
-  socketUrl: 'http://localhost:3000',
+  socketUrl: 'https://learningaksh.onrender.com',
   appName: 'EdTech Platform',
   appVersion: '2.0.0',
   
@@ -42,3 +42,4 @@ export const environment = {
   }
 
 };
+
