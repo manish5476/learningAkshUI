@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.edtech.com/v1',
-  socketUrl: 'https://api.edtech.com',
+apiUrl: 'https://learningaksh.onrender.com/api/v1',
+  socketUrl: 'https://learningaksh.onrender.com',
   appName: 'EdTech Platform',
   appVersion: '2.0.0',
   
@@ -35,4 +35,5 @@ export const environment = {
     default: 'theme-luminous',
     available: ['theme-luminous', 'theme-midnight', 'theme-bio-frost', 'theme-solar-flare']
   }
+
 };
