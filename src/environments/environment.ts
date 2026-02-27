@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000/api/v1',
+  apiUrl: 'https://learningaksh.onrender.com/api/v1',
   socketUrl: 'http://localhost:3000',
   appName: 'EdTech Platform',
   appVersion: '2.0.0',
@@ -40,4 +40,5 @@ export const environment = {
     default: 'theme-luminous',
     available: ['theme-luminous', 'theme-midnight', 'theme-bio-frost', 'theme-solar-flare']
   }
+
 };
