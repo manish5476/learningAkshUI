@@ -40,15 +40,15 @@ export class UserService {
   }
 
   // --- Admin Only Methods ---
-  getAllUsers(params?: any): Observable<ApiResponse<User[]>> {
-    return this.baseApi.get<User[]>(this.endpoint, { params });
+  getAllUsers(params?: any): Observable<ApiResponse<any>> {
+    return this.baseApi.get<any[]>(this.endpoint, { params });
   }
 
-  getUserById(id: string): Observable<ApiResponse<User>> {
+  getUserById(id: string): Observable<ApiResponse<any>> {
     return this.baseApi.get<User>(`${this.endpoint}/${id}`);
   }
 
-  updateUser(id: string, userData: Partial<User>): Observable<ApiResponse<User>> {
+  updateUser(id: any, userData: Partial<User>): Observable<ApiResponse<User>> {
     return this.baseApi.patch<User>(`${this.endpoint}/${id}`, userData);
   }
 

@@ -15,6 +15,7 @@ export interface User {
   isEmailVerified: boolean;
   lastLogin?: Date;
   createdAt: Date;
+  isActive:boolean,
   updatedAt: Date;
 }
 

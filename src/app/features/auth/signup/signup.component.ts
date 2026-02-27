@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
+import {AuthService} from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-signup-immersive',
@@ -10,13 +11,13 @@ import { Subscription } from 'rxjs';
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   template: `
     <div class="immersive-signup">
-      
+
       <div class="bg-visual" style="background-image: url('https://images.pexels.com/photos/33784246/pexels-photo-33784246.jpeg')">
         <div class="bg-overlay"></div>
       </div>
 
       <div class="layout-grid">
-        
+
         <div class="hero-panel">
           <div class="brand-header">
             <div class="logo-mark">
@@ -36,7 +37,7 @@ import { Subscription } from 'rxjs';
             <p class="hero-desc">
               Create your account today and join thousands of students and expert instructors building the future of education.
             </p>
-            
+
             <div class="social-proof">
               <div class="avatars">
                 <span class="avatar-img"><i class="fas fa-user"></i></span>
@@ -63,23 +64,23 @@ import { Subscription } from 'rxjs';
         <div class="form-panel glass-sidebar">
           <div class="form-scroll-container">
             <div class="form-content-wrapper">
-              
+
               <div class="auth-header">
                 <h2 class="auth-title">Get Started</h2>
                 <p class="auth-subtitle">Select your role and set up your profile.</p>
               </div>
 
               <div class="role-selector-glass mb-xl">
-                <button 
-                  type="button" 
-                  class="role-btn" 
+                <button
+                  type="button"
+                  class="role-btn"
                   [class.active]="signupForm.get('role')?.value === 'student'"
                   (click)="setRole('student')">
                   <i class="fas fa-book-open"></i> Student
                 </button>
-                <button 
-                  type="button" 
-                  class="role-btn" 
+                <button
+                  type="button"
+                  class="role-btn"
                   [class.active]="signupForm.get('role')?.value === 'instructor'"
                   (click)="setRole('instructor')">
                   <i class="fas fa-chalkboard-teacher"></i> Instructor
@@ -87,13 +88,13 @@ import { Subscription } from 'rxjs';
               </div>
 
               <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="auth-form">
-                
+
                 <div class="form-row-split">
                   <div class="form-group">
                     <label class="input-label">First Name <span class="req">*</span></label>
                     <div class="input-wrapper">
                       <i class="field-icon fas fa-user"></i>
-                      <input type="text" formControlName="firstName" placeholder="John" class="glass-input-field" 
+                      <input type="text" formControlName="firstName" placeholder="John" class="glass-input-field"
                              [class.invalid]="isFieldInvalid('firstName')" />
                     </div>
                   </div>
@@ -101,7 +102,7 @@ import { Subscription } from 'rxjs';
                     <label class="input-label">Last Name <span class="req">*</span></label>
                     <div class="input-wrapper">
                       <i class="field-icon fas fa-user"></i>
-                      <input type="text" formControlName="lastName" placeholder="Doe" class="glass-input-field" 
+                      <input type="text" formControlName="lastName" placeholder="Doe" class="glass-input-field"
                              [class.invalid]="isFieldInvalid('lastName')"/>
                     </div>
                   </div>
@@ -111,7 +112,7 @@ import { Subscription } from 'rxjs';
                   <label class="input-label">Email Address <span class="req">*</span></label>
                   <div class="input-wrapper">
                     <i class="field-icon fas fa-envelope"></i>
-                    <input type="email" formControlName="email" placeholder="you@example.com" class="glass-input-field" 
+                    <input type="email" formControlName="email" placeholder="you@example.com" class="glass-input-field"
                            [class.invalid]="isFieldInvalid('email')"/>
                   </div>
                 </div>
@@ -121,7 +122,7 @@ import { Subscription } from 'rxjs';
                     <label class="input-label">Password <span class="req">*</span></label>
                     <div class="input-wrapper">
                       <i class="field-icon fas fa-lock"></i>
-                      <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="••••••••" class="glass-input-field pr-10" 
+                      <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="••••••••" class="glass-input-field pr-10"
                              [class.invalid]="isFieldInvalid('password')"/>
                       <button type="button" class="eye-btn" (click)="togglePassword('password')">
                         <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
@@ -133,7 +134,7 @@ import { Subscription } from 'rxjs';
                     <label class="input-label">Confirm <span class="req">*</span></label>
                     <div class="input-wrapper">
                       <i class="field-icon fas fa-check-circle"></i>
-                      <input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirmPassword" placeholder="••••••••" class="glass-input-field pr-10" 
+                      <input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirmPassword" placeholder="••••••••" class="glass-input-field pr-10"
                              [class.invalid]="isFieldInvalid('confirmPassword') || signupForm.hasError('mismatch')"/>
                       <button type="button" class="eye-btn" (click)="togglePassword('confirm')">
                         <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
@@ -225,10 +226,10 @@ import { Subscription } from 'rxjs';
       position: absolute;
       inset: 0;
       background: linear-gradient(
-        90deg, 
-        rgba(15, 23, 42, 0.85) 0%,   
-        rgba(30, 27, 75, 0.4) 50%,   
-        rgba(15, 23, 42, 0.95) 100% 
+        90deg,
+        rgba(15, 23, 42, 0.85) 0%,
+        rgba(30, 27, 75, 0.4) 50%,
+        rgba(15, 23, 42, 0.95) 100%
       );
     }
 
@@ -281,7 +282,7 @@ import { Subscription } from 'rxjs';
       backdrop-filter: blur(8px);
     }
     .badge-pill .dot { width: 8px; height: 8px; background: #c084fc; border-radius: 50%; box-shadow: 0 0 8px #c084fc; }
-    
+
     .display-title {
       font-size: clamp(3rem, 5vw, 4.5rem); line-height: 1.1; font-weight: 800; color: var(--text-primary); margin: 0 0 24px 0; letter-spacing: -2px;
     }
@@ -371,7 +372,7 @@ import { Subscription } from 'rxjs';
       display: block; font-size: 0.85rem; font-weight: 500; color: rgba(255, 255, 255, 0.8); margin-bottom: 8px;
     }
     .req { color: var(--accent-color); }
-    
+
     .input-wrapper { position: relative; width: 100%; }
     .field-icon {
       position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
@@ -457,9 +458,8 @@ import { Subscription } from 'rxjs';
 })
 export class SignupComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
   private router = inject(Router);
-  // private authService = inject(AuthService); // Assuming you have this
-
   signupForm!: FormGroup;
   isLoading = false;
   showPassword = false;
@@ -467,10 +467,10 @@ export class SignupComponent implements OnInit, OnDestroy {
 
   expertiseOptions = ['Web Dev', 'Data Science', 'UI/UX Design', 'Cloud', 'Marketing'];
   interestOptions = ['Programming', 'Design', 'Business', 'AI/ML', 'Photography'];
-  
+
   selectedExpertise: string[] = [];
   selectedInterests: string[] = [];
-  
+
   private subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
@@ -534,12 +534,25 @@ export class SignupComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading = true;
-    
-    // Simulate API call
-    setTimeout(() => {
-      this.isLoading = false;
-      console.log('Form Submitted', this.signupForm.value);
-      // this.router.navigate(['/dashboard']);
-    }, 1500);
-  }
-}
+
+    // Prepare the signup data matching the SignupRequest interface
+    const signupData: any = {
+      ...this.signupForm.value,
+      expertise: this.selectedExpertise,
+      interests: this.selectedInterests
+    };
+
+    this.authService.signup(signupData).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        console.log('Signup successful', response);
+        // Navigate to dashboard or email verification page
+        this.router.navigate(['/dashboard']);
+      },
+      error: (error) => {
+        this.isLoading = false;
+        console.error('Signup failed', error);
+        // Handle error (show toast, etc.)
+      }
+    });
+  }}

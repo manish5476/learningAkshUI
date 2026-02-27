@@ -2,36 +2,51 @@ import { Routes } from '@angular/router';
 import { MainScreen } from './layout/main-screen/main-screen';
 
 export const routes: Routes = [
-  // Public / authenticated pages that use the dashboard layout
+  // ==========================================
+  // 1. AUTHENTICATED ROUTES (Uses Main Layout)
+  // ==========================================
   {
     path: '',
     component: MainScreen,
     children: [
       {
         path: '',
-        redirectTo: '/home', // ✅ Redirects CAN have a leading slash (absolute redirect)
+        redirectTo: '/home',
         pathMatch: 'full'
       },
       {
-        path: 'home',        // ✅ Paths CANNOT have a leading slash. Changed from '/home'
+        path: 'home',
         loadComponent: () =>
-          // Make sure this path exactly matches your folder structure!
           import('./features/dashboard/home-screen/home-screen').then(m => m.HomeScreen),
-        title: 'Home - EdTech Platform'
+        title: 'Dashboard - EdTech Platform'
       },
-      // ← Add more protected / dashboard routes here later
+      // Cleaned up path: URLs will now be /instructor/courses instead of /course/instructor/courses
+      {
+        path: '', 
+        loadChildren: () =>
+          import('./features/courses/course.routes').then(m => m.COURSE_ROUTES)
+      },
+      {
+        path: '', 
+        loadChildren: () =>
+          import('./features/Users/admin.routes').then(m => m.ADMIN_ROUTES)
+      }
     ]
   },
 
-  // Auth routes — NO layout, usually plain auth pages
+  // ==========================================
+  // 2. PUBLIC / AUTH ROUTES (No Layout)
+  // ==========================================
   {
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
   },
 
-  // Wildcard — must be LAST
+  // ==========================================
+  // 3. WILDCARD / FALLBACK
+  // ==========================================
   {
     path: '**',
-    redirectTo: '/home'      // ✅ Added the leading slash so it redirects reliably from anywhere
+    redirectTo: '/home'
   }
 ];

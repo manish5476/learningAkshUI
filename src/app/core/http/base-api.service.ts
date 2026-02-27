@@ -49,7 +49,7 @@ export class BaseApiService {
   /**
    * GET request
    */
-  get<T>(endpoint: string, options: ApiOptions = {}): Observable<ApiResponse<T>> {
+  get<T>(endpoint: string, options: any= {}): Observable<ApiResponse<T>> {
     return this.request<T>('GET', endpoint, null, options);
   }
 
