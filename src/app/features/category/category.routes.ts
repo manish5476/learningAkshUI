@@ -8,6 +8,11 @@ export const CATEGORY_ROUTES: Routes = [
     children: [
       // Public routes
       {
+        path: 'list',
+        loadComponent: () => import('./components/category-list.component').then(m => m.CategoryListComponent),
+        title: 'Category Tree'
+      },
+      {
         path: 'tree',
         loadComponent: () => import('./components/category-tree.component').then(m => m.CategoryTreeComponent),
         title: 'Category Tree'
@@ -21,7 +26,7 @@ export const CATEGORY_ROUTES: Routes = [
       // Admin routes (protected)
       {
         path: 'admin',
-        canActivate: [AuthGuard],
+        // canActivate: [AuthGuard],
         children: [
           {
             path: '',

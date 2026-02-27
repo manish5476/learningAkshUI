@@ -9,46 +9,81 @@ export interface MenuItem {
 
 export const SIDEBAR_MENU: MenuItem[] = [
   // ==========================
-  // 1. DASHBOARD
+  // 1. DASHBOARD / PUBLIC
   // ==========================
   {
     label: 'Overview',
     icon: 'pi pi-home',
+    expanded: true,
     items: [
       { 
         label: 'Home', 
         icon: 'pi pi-th-large', 
         routerLink: ['/home'] 
+      },
+      {
+        label: 'Browse Courses',
+        icon: 'pi pi-search',
+        routerLink: ['/courses']
+      },
+      {
+        label: 'Categories (List)',
+        icon: 'pi pi-tags',
+        routerLink: ['/categories/list']
+      },
+      {
+        label: 'Category Tree',
+        icon: 'pi pi-sitemap',
+        routerLink: ['/categories/tree'] // Newly added route mapped to the Canvas component
       }
     ]
   },
-
   // ==========================
   // 2. INSTRUCTOR AREA
   // ==========================
   {
     label: 'Teaching',
     icon: 'pi pi-graduation-cap',
-    expanded: true, // Keep this open by default for instructors
+    expanded: true,
     items: [
       { 
         label: 'My Courses', 
         icon: 'pi pi-book', 
-        routerLink: ['/instructor/courses'] 
+        routerLink: ['/courses/instructor']
       },
       { 
         label: 'Create Course', 
         icon: 'pi pi-plus-circle', 
-        routerLink: ['/instructor/courses/new'] 
-      },
-      // Placeholders for future expansion:
-      // { label: 'My Students', icon: 'pi pi-users', routerLink: ['/instructor/students'] },
-      // { label: 'Assignments', icon: 'pi pi-file-edit', routerLink: ['/instructor/assignments'] }
+        routerLink: ['/courses/instructor/new']
+      }
     ]
   },
-
   // ==========================
-  // 3. USER ACCOUNT
+  // 3. ADMIN AREA
+  // ==========================
+  {
+    label: 'Administration',
+    icon: 'pi pi-briefcase',
+    items: [
+      { 
+        label: 'User Management', 
+        icon: 'pi pi-users', 
+        routerLink: ['/users']
+      },
+      {
+        label: 'Manage Categories',
+        icon: 'pi pi-sliders-h',
+        routerLink: ['/categories/admin']
+      },
+      {
+        label: 'Create Category',
+        icon: 'pi pi-folder-plus',
+        routerLink: ['/categories/admin/new']
+      }
+    ]
+  },
+  // ==========================
+  // 4. USER ACCOUNT
   // ==========================
   {
     label: 'Account',
@@ -57,15 +92,8 @@ export const SIDEBAR_MENU: MenuItem[] = [
       { 
         label: 'Profile Settings', 
         icon: 'pi pi-cog', 
-        routerLink: ['/settings/profile'] 
+        routerLink: ['/settings/profile']
       },
-      { 
-        label: 'user Settings', 
-        icon: 'pi pi-cog', 
-        routerLink: ['/users'] 
-      },
-      // The logout action usually doesn't use routerLink directly (it triggers a service),
-      // but you can route them back to the auth module.
       { 
         label: 'Logout', 
         icon: 'pi pi-sign-out', 

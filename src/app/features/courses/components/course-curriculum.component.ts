@@ -8,7 +8,6 @@ import { CardModule } from 'primeng/card';
 import { AccordionModule } from 'primeng/accordion';
 import { DragDropModule } from 'primeng/dragdrop';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
@@ -20,8 +19,9 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { CourseService } from '../../../core/services/course.service';
 import { SectionService } from '../../../core/services/section.service';
 import { LessonService } from '../../../core/services/lesson.service';
-import { DurationPipe } from '../../../shared/pipes/duration.pipe';
-import { LessonListComponent } from '../../lessons/components/lesson-list/lesson-list.component';
+import { DurationPipe } from '../../../core/pipes/duration.pipe';
+import { LessonListComponent } from '../../lesson/components/lesson-list.component';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
   selector: 'app-course-curriculum',
@@ -31,11 +31,10 @@ import { LessonListComponent } from '../../lessons/components/lesson-list/lesson
     RouterModule,
     FormsModule,
     ButtonModule,
-    CardModule,
+    CardModule,CheckboxModule,
     AccordionModule,
     DragDropModule,
     InputTextModule,
-    InputTextareaModule,
     DialogModule,
     ConfirmDialogModule,
     ToastModule,
@@ -147,7 +146,7 @@ import { LessonListComponent } from '../../lessons/components/lesson-list/lesson
                         <i class="pi pi-clock"></i> {{ (section.totalDuration || 0) | duration }}
                       </span>
                       @if (!section.isPublished) {
-                        <p-tag value="Draft" severity="warning" [rounded]="true"></p-tag>
+                        <p-tag value="Draft" severity="warn" [rounded]="true"></p-tag>
                       }
                     </div>
                   </div>
@@ -205,7 +204,7 @@ import { LessonListComponent } from '../../lessons/components/lesson-list/lesson
         </div>
 
         <!-- Section Form Dialog -->
-        <p-dialog 
+        <p-dialog appendTo="body" 
           [(visible)]="showSectionDialog" 
           [style]="{width: '500px'}" 
           [header]="sectionDialogTitle"
@@ -235,11 +234,11 @@ import { LessonListComponent } from '../../lessons/components/lesson-list/lesson
 
             <div class="form-group">
               <div class="flex align-items-center">
-                <p-checkbox 
+                <p-checkbox  
                   [(ngModel)]="sectionForm.isPublished" 
                   [binary]="true"
                   inputId="isPublished">
-                </p-checkbox>
+                </p-checkbox >
                 <label for="isPublished" class="ml-2">Publish section immediately</label>
               </div>
             </div>
@@ -595,7 +594,7 @@ export class CourseCurriculumComponent implements OnInit, OnDestroy {
 
   loadCurriculum(): void {
     this.loading = true;
-    const sub = this.courseService.getCourseWithCurriculum(this.courseId).subscribe({
+    const sub = this.courseService.getBySlug(this.courseId).subscribe({
       next: (res) => {
         this.course = res.data;
         this.sections = (res.data?.sections || []).map((section: any) => ({

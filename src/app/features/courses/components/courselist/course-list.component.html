@@ -1,0 +1,265 @@
+<div class="page-container">
+      <!-- Header -->
+      <div class="page-header">
+        <div class="header-titles">
+          <h1 class="title">My Courses</h1>
+          <p class="subtitle">Manage, monitor, and publish your courses</p>
+        </div>
+        <button routerLink="/courses/instructor/new" class="btn-primary">
+          <i class="pi pi-plus"></i> Create New Course
+        </button>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon icon-primary"><i class="pi pi-book"></i></div>
+          <div class="stat-content">
+            <p class="stat-label">Total Courses</p>
+            <p class="stat-value">{{ stats.total }}</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-success"><i class="pi pi-users"></i></div>
+          <div class="stat-content">
+            <p class="stat-label">Total Students</p>
+            <p class="stat-value">{{ stats.students }}</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-warning"><i class="pi pi-star-fill"></i></div>
+          <div class="stat-content">
+            <p class="stat-label">Avg Rating</p>
+            <p class="stat-value">{{ stats.rating | number:'1.1-1' }}</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-info"><i class="pi pi-wallet"></i></div>
+          <div class="stat-content">
+            <p class="stat-label">Estimated Revenue</p>
+            <p class="stat-value">{{ stats.revenue | currency:'INR' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Table Container -->
+      <div class="table-container">
+        
+        <!-- Table Toolbar -->
+        <div class="table-toolbar">
+          <span class="toolbar-title">Course Directory</span>
+          <div class="toolbar-actions">
+            <button (click)="clearFilters()" class="btn-secondary">
+              <i class="pi pi-filter-slash"></i> Clear
+            </button>
+            <div class="search-input-wrapper">
+              <i class="pi pi-search search-icon"></i>
+              <input 
+                type="text" 
+                placeholder="Search courses..." 
+                (input)="onGlobalFilter($event)"
+                class="search-input"
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Table Loading State -->
+        <div *ngIf="isLoading" class="loading-state">
+          <i class="pi pi-spin pi-spinner loading-icon"></i>
+          <p>Loading your courses...</p>
+        </div>
+
+        <!-- Table Structure -->
+        <div *ngIf="!isLoading" class="custom-table-wrapper">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th class="col-expander"></th>
+                <th class="col-sortable" (click)="sortBy('title')">
+                  <div class="th-content">Course Title <i class="pi pi-sort"></i></div>
+                </th>
+                <th>
+                  <div class="th-filter-content">
+                    <span>Category</span>
+                    <select class="filter-select" (change)="onCategoryFilter($event)">
+                      <option value="">Any Category</option>
+                      <option *ngFor="let cat of categories" [value]="cat.name">{{ cat.name }}</option>
+                    </select>
+                  </div>
+                </th>
+                <th class="col-sortable" (click)="sortBy('price')">
+                  <div class="th-content">Price <i class="pi pi-sort"></i></div>
+                </th>
+                <th>
+                  <div class="th-filter-content">
+                    <span>Level</span>
+                    <select class="filter-select" (change)="onLevelFilter($event)">
+                      <option value="">Any Level</option>
+                      <option *ngFor="let lvl of levels" [value]="lvl">{{ lvl | titlecase }}</option>
+                    </select>
+                  </div>
+                </th>
+                <th>Status</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            
+            <tbody>
+              <ng-container *ngFor="let course of filteredCourses">
+                <!-- Main Row -->
+                <tr class="table-row">
+                  <td class="text-center">
+                    <button (click)="toggleRow(course)" class="btn-expander">
+                      <i class="pi" [ngClass]="course.expanded ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+                    </button>
+                  </td>
+                  <td>
+                    <div class="course-cell-info">
+                      <div class="course-thumbnail">
+                        <img 
+                          *ngIf="course.thumbnail || course.previewVideo"
+                          [src]="course.thumbnail || course.previewVideo" 
+                          [alt]="course.title" 
+                          (error)="$event.target.src='https://via.placeholder.com/150x85?text=No+Image'"
+                        />
+                        <div *ngIf="!course.thumbnail && !course.previewVideo" class="no-img">No Img</div>
+                      </div>
+                      <div class="course-meta">
+                        <span class="course-title-text">{{ course.title }}</span>
+                        <span class="course-instructor">{{ course.instructor.firstName }} {{ course.instructor.lastName }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="category-badge">
+                      {{ course.category.name || 'Uncategorized' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="price-cell">
+                      <span *ngIf="course.isFree" class="price-free">FREE</span>
+                      <span *ngIf="!course.isFree" class="price-value">{{ course.price | currency:course.currency }}</span>
+                      <span *ngIf="course.discountPrice" class="price-discount">{{ course.discountPrice | currency:course.currency }}</span>
+                    </div>
+                  </td>
+                  <td class="level-cell">
+                    {{ course.level }}
+                  </td>
+                  <td>
+                    <span class="status-badge" [ngClass]="getStatusClasses(course)">
+                      {{ getCourseStatusLabel(course) }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="action-buttons">
+                      <button [routerLink]="['/courses/instructor', course._id, 'edit']" title="Edit" class="btn-icon btn-icon-info">
+                        <i class="pi pi-pencil"></i>
+                      </button>
+                      <button *ngIf="!course.isPublished" (click)="publishCourse(course)" title="Publish" class="btn-icon btn-icon-success">
+                        <i class="pi pi-rocket"></i>
+                      </button>
+                      <button (click)="deleteCourse(course)" title="Delete" class="btn-icon btn-icon-danger">
+                        <i class="pi pi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Expanded Details Row -->
+                <tr *ngIf="course.expanded" class="expanded-row">
+                  <td colspan="7">
+                    <div class="expanded-content">
+                      <h4 class="expanded-title">
+                        <i [routerLink]="['/courses', course.slug]" class="pi pi-info-circle text-primary"></i> Course Details
+                      </h4>
+                      
+                      <div class="expanded-grid">
+                        <!-- Left Column: Description & Metrics -->
+                        <div class="expanded-col">
+                          <h5 class="section-heading">Description</h5>
+                          <p class="description-text">{{ course.description || 'No description provided.' }}</p>
+                          
+                          <h5 class="section-heading mt-lg">Metrics</h5>
+                          <div class="metrics-container">
+                            <div class="metric-badge">
+                              <i  class="pi pi-video icon-primary"></i> {{ course.totalLessons || 0 }} Lessons
+                            </div>
+                            <div class="metric-badge">
+                              <i class="pi pi-clock icon-success"></i> {{ course.totalDuration || 0 }} mins
+                            </div>
+                            <div class="metric-badge">
+                              <i class="pi pi-users icon-info"></i> {{ course.totalEnrollments || 0 }} Students
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Right Column: Learning Outcomes & Requirements -->
+                        <div class="expanded-col">
+                          <!-- What you will learn -->
+                          <div class="outcomes-box">
+                            <h5 class="section-heading">What you'll learn</h5>
+                            <ul class="outcomes-list">
+                              <li *ngFor="let item of course.whatYouWillLearn" class="outcome-item">
+                                <i class="pi pi-check-circle icon-success"></i>
+                                <span>{{ item }}</span>
+                              </li>
+                              <li *ngIf="!course.whatYouWillLearn.length" class="text-muted italic">No outcomes specified</li>
+                            </ul>
+                          </div>
+                          
+                          <!-- Requirements -->
+                          <div class="mt-lg">
+                            <h5 class="section-heading">Requirements</h5>
+                            <div class="tags-container">
+                              <span *ngFor="let req of course.requirements" class="tag-outline">
+                                {{ req }}
+                              </span>
+                              <span *ngIf="!course.requirements.length" class="text-muted italic">No requirements specified</span>
+                            </div>
+                          </div>
+
+                          <!-- Tags -->
+                          <div class="mt-lg" *ngIf="course.tags.length">
+                            <h5 class="section-heading">Tags</h5>
+                            <div class="tags-container">
+                              <span *ngFor="let tag of course.tags" class="tag-primary">
+                                #{{ tag }}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
+
+              <!-- Empty State -->
+              <tr *ngIf="filteredCourses.length === 0">
+                <td colspan="7">
+                  <div class="empty-state">
+                    <div class="empty-icon-wrapper">
+                      <i class="pi pi-inbox"></i>
+                    </div>
+                    <h3 class="empty-title">No courses found</h3>
+                    <p class="empty-subtitle">Try adjusting your search or filters to find what you're looking for.</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination Footer -->
+        <div *ngIf="!isLoading && filteredCourses.length > 0" class="table-footer">
+          <span>Showing {{ filteredCourses.length }} entries</span>
+          <div class="pagination-controls">
+            <button class="page-btn"><i class="pi pi-angle-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn"><i class="pi pi-angle-right"></i></button>
+          </div>
+        </div>
+
+      </div>
+    </div>

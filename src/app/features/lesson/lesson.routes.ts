@@ -8,12 +8,12 @@ export const LESSON_ROUTES: Routes = [
     path: 'lessons',
     children: [
       // Public routes (with access control)
-      {
-        path: ':id/access',
-        loadComponent: () => import('./components/lesson-player.component').then(m => m.LessonPlayerComponent),
-        canActivate: [AuthGuard],
-        title: 'Lesson'
-      },
+      // {
+      //   path: ':id/access',
+      //   loadComponent: () => import('./components/lesson-player.component').then(m => m.LessonPlayerComponent),
+      //   canActivate: [AuthGuard],
+      //   title: 'Lesson'
+      // },
 
       // Instructor routes
       {
@@ -35,11 +35,11 @@ export const LESSON_ROUTES: Routes = [
             loadComponent: () => import('./components/lesson-form.component').then(m => m.LessonFormComponent),
             title: 'Edit Lesson'
           },
-          {
-            path: ':id/preview',
-            loadComponent: () => import('./components/lesson-preview.component').then(m => m.LessonPreviewComponent),
-            title: 'Preview Lesson'
-          }
+          // {
+          //   path: ':id/preview',
+          //   loadComponent: () => import('./components/lesson-preview.component').then(m => m.LessonPreviewComponent),
+          //   title: 'Preview Lesson'
+          // }
         ]
       }
     ]

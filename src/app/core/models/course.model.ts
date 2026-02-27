@@ -21,13 +21,14 @@ export interface Instructor {
 }
 
 export interface Course {
+  expanded: boolean;
   _id: string;
   title: string;
   subtitle?: string;
   slug: string;
   description: string;
-  category: string | Category;
-  instructor: string | Instructor;
+  category: Category;
+  instructor: Instructor;
   level: 'beginner' | 'intermediate' | 'advanced' | 'all-levels';
   language: string;
   thumbnail?: string;

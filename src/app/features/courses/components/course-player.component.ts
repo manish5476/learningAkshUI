@@ -16,6 +16,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { CourseService } from '../../../core/services/course.service';
 import { LessonService } from '../../../core/services/lesson.service';
+import { EnrollmentService } from '../../../core/services/enrollment.service';
 import { DurationPipe } from '../../../core/pipes/duration.pipe';
 
 @Component({
@@ -34,7 +35,6 @@ import { DurationPipe } from '../../../core/pipes/duration.pipe';
     TooltipModule,
     ToastModule,
     ConfirmDialogModule,
-    // drawerModule,
     DurationPipe
   ],
   providers: [MessageService, ConfirmationService],
@@ -78,62 +78,93 @@ import { DurationPipe } from '../../../core/pipes/duration.pipe';
                 </div>
                 <p-progressBar [value]="courseProgress" [showValue]="false" styleClass="progress-bar"></p-progressBar>
               </div>
+              
+              <!-- Completion Message -->
+              @if (courseProgress === 100) {
+                <div class="completion-message">
+                  <i class="pi pi-check-circle text-success"></i>
+                  <span>Course completed!</span>
+                  <button pButton pRipple 
+                          label="Get Certificate" 
+                          icon="pi pi-download" 
+                          class="p-button-success p-button-sm"
+                          (click)="completeCourse()">
+                  </button>
+                </div>
+              }
             </div>
 
             <div class="sidebar-content">
-              <p-accordion [multiple]="true" [activeIndex]="[0]">
+              <p-accordion [multiple]="true" [value]="expandedSections">
                 @for (section of course.sections; track section._id; let i = $index) {
-                  <p-accordionTab [header]="section.title" [selected]="i === 0">
-                    <div class="section-info">
-                      <span class="section-meta">
-                        <i class="pi pi-file"></i> {{ section.totalLessons }} lessons
-                        <i class="pi pi-clock ml-3"></i> {{ section.totalDuration | duration }}
-                      </span>
-                    </div>
+                  <p-accordion-panel [value]="i.toString()">
+                    <p-accordion-header>
+                      <div class="section-header-content">
+                        <span class="section-title">{{ section.title }}</span>
+                        <span class="section-badge">
+                          {{ section.lessons?.length || 0 }} lessons
+                        </span>
+                      </div>
+                    </p-accordion-header>
 
-                    <div class="lessons-list">
-                      @for (lesson of section.lessons; track lesson._id) {
-                        <div class="lesson-item" 
-                             [class.active]="currentLesson?._id === lesson._id"
-                             [class.completed]="isLessonCompleted(lesson._id)"
-                             (click)="selectLesson(lesson)">
-                          <div class="lesson-status">
-                            @if (isLessonCompleted(lesson._id)) {
-                              <i class="pi pi-check-circle text-success"></i>
-                            } @else if (currentLesson?._id === lesson._id) {
-                              <i class="pi pi-play-circle text-primary"></i>
-                            } @else {
-                              <i class="pi pi-circle"></i>
-                            }
-                          </div>
+                    <p-accordion-content>
+                      <div class="section-info">
+                        <span class="section-meta">
+                          <i class="pi pi-file"></i> {{ section.totalLessons || section.lessons?.length || 0 }} lessons
+                          <i class="pi pi-clock ml-3"></i> {{ section.totalDuration || 0 | duration }}
+                        </span>
+                      </div>
 
-                          <div class="lesson-info">
-                            <span class="lesson-title">{{ lesson.title }}</span>
-                            <span class="lesson-meta">
-                              <i class="pi pi-clock"></i> {{ lesson.duration | duration }}
-                              @if (lesson.isFree) {
-                                <p-tag value="Free" severity="success" [rounded]="true" styleClass="ml-2"></p-tag>
+                      <div class="lessons-list">
+                        @for (lesson of section.lessons; track lesson._id) {
+                          <div class="lesson-item" 
+                               [class.active]="currentLesson?._id === lesson._id"
+                               [class.completed]="isLessonCompleted(lesson._id)"
+                               (click)="selectLesson(lesson)">
+                            <div class="lesson-status">
+                              @if (isLessonCompleted(lesson._id)) {
+                                <i class="pi pi-check-circle text-success"></i>
+                              } @else if (currentLesson?._id === lesson._id) {
+                                <i class="pi pi-play-circle text-primary"></i>
+                              } @else {
+                                <i class="pi pi-circle"></i>
                               }
-                            </span>
-                          </div>
+                            </div>
 
-                          <div class="lesson-type">
-                            @switch (lesson.type) {
-                              @case ('video') {
-                                <i class="pi pi-video" pTooltip="Video Lesson"></i>
+                            <div class="lesson-info">
+                              <span class="lesson-title">{{ lesson.title }}</span>
+                              <span class="lesson-meta">
+                                <i class="pi pi-clock"></i> {{ lesson.duration || 0 | duration }}
+                                @if (lesson.isFree) {
+                                  <p-tag value="Free" severity="success" [rounded]="true" styleClass="ml-2"></p-tag>
+                                }
+                              </span>
+                            </div>
+
+                            <div class="lesson-type">
+                              @switch (lesson.type) {
+                                @case ('video') {
+                                  <i class="pi pi-video" pTooltip="Video Lesson"></i>
+                                }
+                                @case ('article') {
+                                  <i class="pi pi-file" pTooltip="Article"></i>
+                                }
+                                @case ('quiz') {
+                                  <i class="pi pi-question-circle" pTooltip="Quiz"></i>
+                                }
+                                @case ('assignment') {
+                                  <i class="pi pi-pencil" pTooltip="Assignment"></i>
+                                }
+                                @case ('coding-exercise') {
+                                  <i class="pi pi-code" pTooltip="Coding Exercise"></i>
+                                }
                               }
-                              @case ('article') {
-                                <i class="pi pi-file" pTooltip="Article"></i>
-                              }
-                              @case ('quiz') {
-                                <i class="pi pi-question-circle" pTooltip="Quiz"></i>
-                              }
-                            }
+                            </div>
                           </div>
-                        </div>
-                      }
-                    </div>
-                  </p-accordionTab>
+                        }
+                      </div>
+                    </p-accordion-content>
+                  </p-accordion-panel>
                 }
               </p-accordion>
             </div>
@@ -153,7 +184,7 @@ import { DurationPipe } from '../../../core/pipes/duration.pipe';
                     </span>
                     <span class="meta-item">
                       <i class="pi pi-clock"></i>
-                      {{ currentLesson.duration | duration }}
+                      {{ currentLesson.duration || 0 | duration }}
                     </span>
                     @if (currentLesson.isFree) {
                       <p-tag value="Free Preview" severity="success" [rounded]="true"></p-tag>
@@ -172,32 +203,49 @@ import { DurationPipe } from '../../../core/pipes/duration.pipe';
 
               <!-- Lesson Content -->
               <div class="lesson-content">
-                @if (currentLesson.type === 'video') {
+                @if (currentLesson.type === 'video' && currentLesson.content?.video) {
                   <div class="video-container">
-                    <iframe 
-                      *ngIf="currentLesson.content?.video?.provider === 'youtube'"
-                      [src]="getYouTubeEmbedUrl(currentLesson.content.video.url)"
-                      frameborder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowfullscreen>
-                    </iframe>
+                    @if (currentLesson.content.video.provider === 'youtube') {
+                      <iframe 
+                        [src]="getYouTubeEmbedUrl(currentLesson.content.video.url)"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                      </iframe>
+                    }
                     
-                    <iframe 
-                      *ngIf="currentLesson.content?.video?.provider === 'vimeo'"
-                      [src]="getVimeoEmbedUrl(currentLesson.content.video.url)"
-                      frameborder="0"
-                      allow="autoplay; fullscreen; picture-in-picture"
-                      allowfullscreen>
-                    </iframe>
+                    @if (currentLesson.content.video.provider === 'vimeo') {
+                      <iframe 
+                        [src]="getVimeoEmbedUrl(currentLesson.content.video.url)"
+                        frameborder="0"
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        allowfullscreen>
+                      </iframe>
+                    }
 
-                    <video *ngIf="currentLesson.content?.video?.provider === 'local'" 
-                           controls [src]="currentLesson.content.video.url" #videoPlayer></video>
+                    @if (currentLesson.content.video.provider === 'local') {
+                      <video controls [src]="currentLesson.content.video.url" #videoPlayer></video>
+                    }
                   </div>
                 }
 
-                @if (currentLesson.type === 'article') {
+                @if (currentLesson.type === 'article' && currentLesson.content?.article) {
                   <div class="article-container">
-                    <div class="article-content" [innerHTML]="currentLesson.content?.article?.body"></div>
+                    <div class="article-content" [innerHTML]="currentLesson.content.article.body"></div>
+                    
+                    @if (currentLesson.content.article.attachments?.length) {
+                      <div class="article-attachments">
+                        <h4>Attachments</h4>
+                        <div class="attachments-list">
+                          @for (attachment of currentLesson.content.article.attachments; track attachment) {
+                            <a [href]="attachment" target="_blank" class="attachment-item">
+                              <i class="pi pi-file-pdf"></i>
+                              <span>Download Attachment</span>
+                            </a>
+                          }
+                        </div>
+                      </div>
+                    }
                   </div>
                 }
 
@@ -382,6 +430,20 @@ import { DurationPipe } from '../../../core/pipes/duration.pipe';
       background: var(--accent-primary);
     }
 
+    .completion-message {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-md);
+      background: var(--color-success-bg);
+      border-radius: var(--ui-border-radius);
+      margin-top: var(--spacing-md);
+    }
+
+    .completion-message i {
+      font-size: var(--font-size-lg);
+    }
+
     .sidebar-content {
       flex: 1;
       overflow-y: auto;
@@ -389,6 +451,27 @@ import { DurationPipe } from '../../../core/pipes/duration.pipe';
     }
 
     /* Section Styles */
+    .section-header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding-right: var(--spacing-md);
+    }
+
+    .section-title {
+      font-weight: var(--font-weight-medium);
+      color: var(--text-primary);
+    }
+
+    .section-badge {
+      font-size: var(--font-size-xs);
+      color: var(--text-tertiary);
+      background: var(--bg-ternary);
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
     .section-info {
       padding: var(--spacing-xs) 0 var(--spacing-md);
       color: var(--text-tertiary);
@@ -538,6 +621,8 @@ import { DurationPipe } from '../../../core/pipes/duration.pipe';
       height: 0;
       overflow: hidden;
       margin-bottom: var(--spacing-xl);
+      background: #000;
+      border-radius: var(--ui-border-radius);
     }
 
     .video-container iframe,
@@ -560,6 +645,40 @@ import { DurationPipe } from '../../../core/pipes/duration.pipe';
       color: var(--text-primary);
       line-height: 1.8;
       font-size: var(--font-size-lg);
+    }
+
+    .article-attachments {
+      margin-top: var(--spacing-xl);
+      padding-top: var(--spacing-xl);
+      border-top: 1px solid var(--border-secondary);
+    }
+
+    .article-attachments h4 {
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .attachments-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    .attachment-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-md);
+      background: var(--bg-primary);
+      border-radius: var(--ui-border-radius);
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: var(--transition-base);
+    }
+
+    .attachment-item:hover {
+      background: var(--bg-hover);
+      color: var(--accent-primary);
     }
 
     .quiz-container {
@@ -630,6 +749,7 @@ import { DurationPipe } from '../../../core/pipes/duration.pipe';
         top: 0;
         bottom: 0;
         z-index: 99;
+        box-shadow: var(--shadow-lg);
       }
 
       .course-sidebar.visible {
@@ -666,18 +786,19 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
   currentLesson: any = null;
   loading = true;
   error: string | null = null;
-  
+
   // Progress tracking
   courseProgress = 0;
   completedLessons: Set<string> = new Set();
-  
+
   // Navigation
   prevLesson: any = null;
   nextLesson: any = null;
-  
+
   // UI State
   sidebarVisible = true;
   isCurrentLessonCompleted = false;
+  expandedSections: string[] = ['0']; // Expand first section by default
 
   private courseId: string = '';
   private subscriptions: Subscription[] = [];
@@ -700,7 +821,7 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
 
   loadCourse(): void {
     this.loading = true;
-    const sub = this.courseService.getCourseWithCurriculum(this.courseId).subscribe({
+    const sub = this.courseService.getBySlug(this.courseId).subscribe({
       next: (res) => {
         this.course = res.data;
         this.loadProgress();
@@ -719,19 +840,38 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
   loadProgress(): void {
     const sub = this.enrollmentService.getEnrollmentProgress(this.courseId).subscribe({
       next: (res) => {
-        this.completedLessons = new Set(res.data?.completedLessons || []);
-        this.courseProgress = res.data?.progress || 0;
+        const progressData = res.data;
+        this.completedLessons = new Set(progressData?.completedLessons || []);
+        this.courseProgress = progressData?.progress || 0;
         this.updateCurrentLessonStatus();
+        
+        // Restore last watched lesson if available and no current lesson
+        if (progressData?.lastLessonId && !this.currentLesson) {
+          this.restoreLastLesson(progressData.lastLessonId);
+        }
       },
-      error: (error) => console.error('Failed to load progress', error)
+      error: (error) => {
+        console.error('Failed to load progress', error);
+        // Don't show error to user, just continue with default state
+      }
     });
     this.subscriptions.push(sub);
+  }
+
+  restoreLastLesson(lessonId: string): void {
+    for (const section of this.course.sections) {
+      const lesson = section.lessons?.find((l: any) => l._id === lessonId);
+      if (lesson) {
+        this.selectLesson(lesson);
+        break;
+      }
+    }
   }
 
   setFirstLesson(): void {
     if (this.course?.sections?.length > 0) {
       const firstSection = this.course.sections[0];
-      if (firstSection.lessons?.length > 0) {
+      if (firstSection.lessons?.length > 0 && !this.currentLesson) {
         this.selectLesson(firstSection.lessons[0]);
       }
     }
@@ -771,7 +911,7 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
       const section = this.course.sections[i];
       for (let j = 0; j < section.lessons.length; j++) {
         const lesson = section.lessons[j];
-        
+
         if (found) {
           this.nextLesson = lesson;
           return;
@@ -819,12 +959,17 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
   markLessonComplete(): void {
     if (!this.currentLesson) return;
 
-    const sub = this.lessonService.markAsCompleted(this.currentLesson._id).subscribe({
-      next: () => {
+    const sub = this.enrollmentService.updateLessonProgress(
+      this.courseId, 
+      this.currentLesson._id, 
+      true
+    ).subscribe({
+      next: (res) => {
         this.completedLessons.add(this.currentLesson._id);
         this.isCurrentLessonCompleted = true;
-        this.courseProgress = Math.round((this.completedLessons.size / this.getTotalLessons()) * 100);
-        
+        this.courseProgress = res.data?.progress || 
+          Math.round((this.completedLessons.size / this.getTotalLessons()) * 100);
+
         this.messageService.add({
           severity: 'success',
           summary: 'Great job!',
@@ -843,7 +988,7 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to mark lesson as complete'
+          detail: 'Failed to save your progress. Please try again.'
         });
       }
     });
@@ -853,31 +998,100 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
   markLessonIncomplete(): void {
     if (!this.currentLesson) return;
 
-    // API call to mark incomplete
-    this.completedLessons.delete(this.currentLesson._id);
-    this.isCurrentLessonCompleted = false;
-    this.courseProgress = Math.round((this.completedLessons.size / this.getTotalLessons()) * 100);
+    const sub = this.enrollmentService.updateLessonProgress(
+      this.courseId, 
+      this.currentLesson._id, 
+      false
+    ).subscribe({
+      next: (res) => {
+        this.completedLessons.delete(this.currentLesson._id);
+        this.isCurrentLessonCompleted = false;
+        this.courseProgress = res.data?.progress || 
+          Math.round((this.completedLessons.size / this.getTotalLessons()) * 100);
 
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Updated',
-      detail: 'Lesson marked as incomplete'
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Updated',
+          detail: 'Lesson marked as incomplete'
+        });
+      },
+      error: (error) => {
+        console.error('Failed to update progress', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to update progress'
+        });
+      }
     });
+    this.subscriptions.push(sub);
+  }
+
+  completeCourse(): void {
+    if (this.courseProgress === 100) {
+      this.confirmationService.confirm({
+        message: 'Congratulations! You have completed all lessons. Would you like to get your certificate?',
+        header: 'Course Completed',
+        icon: 'pi pi-check-circle',
+        accept: () => {
+          const sub = this.enrollmentService.completeCourse(this.courseId).subscribe({
+            next: (res) => {
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Certificate Issued',
+                detail: 'Your certificate is ready for download',
+                sticky: true
+              });
+              
+              // Offer certificate download
+              if (res.data?.certificateUrl) {
+                window.open(res.data.certificateUrl, '_blank');
+              }
+            },
+            error: (error) => {
+              console.error('Failed to complete course', error);
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to generate certificate'
+              });
+            }
+          });
+          this.subscriptions.push(sub);
+        }
+      });
+    }
   }
 
   getTotalLessons(): number {
-    return this.course?.sections?.reduce((total: number, section: any) => 
+    return this.course?.sections?.reduce((total: number, section: any) =>
       total + (section.lessons?.length || 0), 0) || 0;
   }
 
   navigateToLesson(lesson: any): void {
     if (lesson) {
       this.selectLesson(lesson);
-      
+
       // Scroll to top on mobile
       if (window.innerWidth <= 768) {
         document.querySelector('.main-content')?.scrollTo(0, 0);
         this.sidebarVisible = false;
+      }
+
+      // Expand the section containing this lesson
+      this.expandSectionForLesson(lesson._id);
+    }
+  }
+
+  expandSectionForLesson(lessonId: string): void {
+    for (let i = 0; i < this.course.sections.length; i++) {
+      const section = this.course.sections[i];
+      if (section.lessons?.some((l: any) => l._id === lessonId)) {
+        const sectionIndex = i.toString();
+        if (!this.expandedSections.includes(sectionIndex)) {
+          this.expandedSections = [...this.expandedSections, sectionIndex];
+        }
+        break;
       }
     }
   }

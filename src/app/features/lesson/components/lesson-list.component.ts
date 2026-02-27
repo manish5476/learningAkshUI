@@ -156,7 +156,7 @@ import { DurationPipe } from "../../../core/pipes/duration.pipe";
       }
 
       <!-- Lesson Form Dialog -->
-      <p-dialog 
+      <p-dialog appendTo="body" 
         [(visible)]="showFormDialog" 
         [style]="{width: '700px'}" 
         [header]="dialogTitle"
@@ -173,7 +173,7 @@ import { DurationPipe } from "../../../core/pipes/duration.pipe";
       </p-dialog>
 
       <!-- Lesson Detail Dialog -->
-      <p-dialog 
+      <p-dialog appendTo="body" 
         [(visible)]="showDetailDialog" 
         [style]="{width: '600px'}" 
         header="Lesson Details"

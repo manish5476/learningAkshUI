@@ -248,7 +248,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     const sub = this.userService.getUserById(this.userId).subscribe({
       next: (res) => {
-        const user = res.data.data;
+        const user = res.data ? res.data.data : []
         if (user) {
           this.userForm.patchValue({
             firstName: user.firstName,

@@ -13,7 +13,7 @@ export class CourseService {
 
   // ==================== PUBLIC ROUTES ====================
 
-  getAll(params?: CourseQueryParams): Observable<ApiResponse<Course[]>> {
+  getAll(params?: CourseQueryParams): Observable<ApiResponse<any>> {
     return this.baseApi.get<Course[]>(this.endpoint, { params });
   }
 
@@ -21,7 +21,7 @@ export class CourseService {
     return this.baseApi.get<Course[]>(`${this.endpoint}/search`, { params });
   }
 
-  getById(id: string): Observable<ApiResponse<Course>> {
+  getById(id: string): Observable<ApiResponse<any>> {
     return this.baseApi.get<Course>(`${this.endpoint}/${id}`);
   }
 
@@ -31,7 +31,7 @@ export class CourseService {
 
   // ==================== INSTRUCTOR ROUTES ====================
 
-  getMyCourses(): Observable<ApiResponse<Course[]>> {
+  getMyCourses(): Observable<ApiResponse<any>> {
     return this.baseApi.get<Course[]>(`${this.endpoint}/instructor/my-courses`);
   }
 

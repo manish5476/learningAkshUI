@@ -191,7 +191,7 @@ import { UserDetailComponent } from "./user-detail.component";
       </p-table>
 
       <!-- User Form Dialog -->
-      <p-dialog 
+      <p-dialog appendTo="body" 
         [(visible)]="showFormDialog" 
         [style]="{width: '600px'}" 
         [header]="dialogTitle"
@@ -206,7 +206,7 @@ import { UserDetailComponent } from "./user-detail.component";
       </p-dialog>
 
       <!-- User Detail Dialog -->
-      <p-dialog 
+      <p-dialog appendTo="body" 
         [(visible)]="showDetailDialog" 
         [style]="{width: '800px'}" 
         header="User Details"
@@ -456,7 +456,7 @@ export class UserListComponent implements OnInit, OnDestroy {
     const sub = this.userService.getAllUsers(params).subscribe({
       next: (res) => {
         this.users = res.data?.data || [];
-        this.totalRecords = res.pagination?.totalResults || res.data?.length || 0;
+        this.totalRecords = res.pagination?.totalResults || 0;
         this.loading = false;
       },
       error: (error) => {

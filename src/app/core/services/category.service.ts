@@ -23,21 +23,21 @@ export class CategoryService {
   /**
    * Get category tree (hierarchical structure)
    */
-  getCategoryTree(params?: any): Observable<ApiResponse<CategoryTreeResponse>> {
+  getCategoryTree(params?: any): Observable<ApiResponse<any>> {
     return this.baseApi.get<CategoryTreeResponse>(`${this.endpoint}/tree`, { params, showLoader: true });
   }
 
   /**
    * Get all categories (flat list)
    */
-  getAll(params?: any): Observable<ApiResponse<Category[]>> {
+  getAll(params?: any): Observable<ApiResponse<any>> {
     return this.baseApi.get<Category[]>(this.endpoint, { params });
   }
 
   /**
    * Get single category by ID
    */
-  getById(id: string): Observable<ApiResponse<Category>> {
+  getById(id: string): Observable<ApiResponse<any>> {
     return this.baseApi.get<Category>(`${this.endpoint}/${id}`, { showLoader: true });
   }
 

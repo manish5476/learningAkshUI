@@ -68,7 +68,7 @@ export class UserService {
     });
   }
 
-  getUserById(id: string): Observable<ApiResponse<User>> {
+  getUserById(id: string): Observable<ApiResponse<any>> {
     return this.baseApi.get<User>(`${this.endpoint}/${id}`, { showLoader: true });
   }
 

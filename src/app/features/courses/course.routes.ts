@@ -1,4 +1,3 @@
-// course.routes.ts (updated)
 import { Routes } from '@angular/router';
 import { AuthGuard } from '../../core/authentication/guards/auth.guard';
 // import { InstructorGuard } from '../../core/authentication/guards/instructor.guard';
@@ -7,18 +6,14 @@ export const COURSE_ROUTES: Routes = [
   {
     path: 'courses',
     children: [
-      // Public routes
+      // 1. Static Public Route
       {
         path: '',
-        loadComponent: () => import('./components/course-list.component').then(m => m.CourseListComponent),
+        loadComponent: () => import('./components/courselist/course-list.component').then(m => m.CourseListComponent),
         title: 'Browse Courses'
       },
-      {
-        path: ':id',
-        loadComponent: () => import('./components/course-detail.component').then(m => m.CourseDetailComponent),
-        title: 'Course Details'
-      },
 
+      // 2. PROTECTED / STATIC ROUTES MUST GO BEFORE DYNAMIC ROUTES
       // Student routes (enrolled)
       {
         path: 'learn/:id',
@@ -27,75 +22,47 @@ export const COURSE_ROUTES: Routes = [
         title: 'Course Player'
       },
 
-      // Instructor routes
+      // Instructor/Admin routes
       {
         path: 'instructor',
         canActivate: [AuthGuard],
         children: [
           {
             path: '',
-            loadComponent: () => import('./components/course-list.component').then(m => m.CourseListComponent),
+            loadComponent: () => import('./components/courselist/course-list.component').then(m => m.CourseListComponent),
             title: 'My Courses'
           },
           {
             path: 'new',
-            loadComponent: () => import('./components/course-form.component').then(m => m.CourseFormComponent),
+            loadComponent: () => import('./components/courseForm/course-form.component').then(m => m.CourseFormComponent),
             title: 'Create New Course'
           },
+          // Notice inside here, ':id' is safely at the bottom of the instructor children
           {
             path: ':id',
-            loadComponent: () => import('./components/course-detail.component').then(m => m.CourseDetailComponent),
+            loadComponent: () => import('./components/coursedetails/course-detail.component').then(m => m.CourseDetailComponent),
             title: 'Course Details'
           },
           {
             path: ':id/edit',
-            loadComponent: () => import('./components/course-form.component').then(m => m.CourseFormComponent),
+            loadComponent: () => import('./components/courseForm/course-form.component').then(m => m.CourseFormComponent),
             title: 'Edit Course'
           },
           {
             path: ':id/curriculum',
             loadComponent: () => import('./components/course-curriculum.component').then(m => m.CourseCurriculumComponent),
             title: 'Course Curriculum'
-          },
-          // {
-          //   path: ':id/lessons',
-          //   loadComponent: () => import('../lessons/components/lesson-list.component').then(m => m.LessonListComponent),
-          //   title: 'Course Lessons'
-          // }
+          }
         ]
+      },
+
+      // 3. DYNAMIC CATCH-ALL ROUTE GOES LAST
+      // Public Course Detail (by slug or ID)
+      {
+        path: ':id', // Alternatively: path: ':slug'
+        loadComponent: () => import('./components/coursedetails/course-detail.component').then(m => m.CourseDetailComponent),
+        title: 'Course Details'
       }
     ]
   }
 ];
-// import { Routes } from '@angular/router';
-// import { AuthGuard } from '../../core/authentication/guards/auth.guard';
-
-// // InstructorGuard
-// export const COURSE_ROUTES: Routes = [
-//   {
-//     path: 'instructor/courses',
-//     // canActivate: [AuthGuard],
-//     children: [
-//       {
-//         path: '',
-//         loadComponent: () => import('./components/course-list.component').then(m => m.CourseListComponent),
-//         title: 'My Courses'
-//       },
-//       {
-//         path: 'new',
-//         loadComponent: () => import('./components/course-form.component').then(m => m.CourseFormComponent),
-//         title: 'Create New Course'
-//       },
-//       {
-//         path: ':id',
-//         loadComponent: () => import('./components/course-detail.component').then(m => m.CourseDetailComponent),
-//         title: 'Course Details'
-//       },
-//       {
-//         path: ':id/edit',
-//         loadComponent: () => import('./components/course-form.component').then(m => m.CourseFormComponent),
-//         title: 'Edit Course'
-//       }
-//     ]
-//   }
-// ];
