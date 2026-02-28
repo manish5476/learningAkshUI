@@ -1,0 +1,121 @@
+<div class="detail-container">
+  
+  @if (isLoading()) {
+    <div class="overlay-state glass-panel">
+      <i class="pi pi-spin pi-spinner loading-spinner"></i>
+      <p class="text-secondary mt-md">Fetching complete details...</p>
+    </div>
+  } @else if (!fullCategory()) {
+    <div class="overlay-state glass-panel">
+      <div class="icon-circle error-bg">
+        <i class="pi pi-exclamation-circle text-error"></i>
+      </div>
+      <h3 class="mt-xl">Category not found</h3>
+      <p class="text-secondary mt-sm">The category you are looking for does not exist or has been removed.</p>
+      <button type="button" class="btn-primary mt-2xl" (click)="goBack()">Go Back</button>
+    </div>
+  } @else {
+    <div class="detail-card glass-panel">
+      
+      <div class="cover-banner" 
+           [style.backgroundImage]="'url(' + (fullCategory()?.image || 'https://via.placeholder.com/800x200?text=No+Cover+Image') + ')'">
+        <div class="cover-overlay"></div>
+        
+        @if (isRouted()) {
+          <button class="back-btn" (click)="goBack()">
+            <i class="pi pi-arrow-left"></i> Back to List
+          </button>
+        }
+      </div>
+
+      <div class="detail-content-wrapper">
+        <div class="detail-header">
+          <div class="header-icon-wrapper">
+            <i [class]="fullCategory()?.icon || 'pi pi-folder'"></i>
+          </div>
+          
+          <div class="header-main-info">
+            <div class="title-row">
+              <h2 class="category-title">{{ fullCategory()?.name }}</h2>
+              <div class="badges-wrapper">
+                <span class="status-badge" [ngClass]="fullCategory()?.isActive ? 'status-active' : 'status-inactive'">
+                  {{ fullCategory()?.isActive ? 'Active' : 'Inactive' }}
+                </span>
+                @if (fullCategory()?.isDeleted) {
+                  <span class="status-badge status-deleted">Deleted</span>
+                }
+              </div>
+            </div>
+            
+            @if (fullCategory()?.slug) {
+              <p class="category-slug">
+                <i class="pi pi-link"></i> /{{ fullCategory()?.slug }}
+              </p>
+            }
+          </div>
+        </div>
+
+        <div class="details-grid">
+          
+          @if (fullCategory()?.description) {
+            <div class="detail-block full-width">
+              <span class="detail-label">
+                <i class="pi pi-align-left"></i> Description
+              </span>
+              <div class="detail-surface">
+                <p class="detail-value description-text">{{ fullCategory()?.description }}</p>
+              </div>
+            </div>
+          }
+
+          <div class="detail-block">
+            <span class="detail-label">
+              <i class="pi pi-hashtag"></i> Category ID
+            </span>
+            <div class="detail-surface">
+              <code class="detail-value mono-text">{{ fullCategory()?._id }}</code>
+            </div>
+          </div>
+
+          <div class="detail-block">
+            <span class="detail-label">
+              <i class="pi pi-tag"></i> UI Icon Class
+            </span>
+            <div class="detail-surface flex items-center gap-md">
+              <code class="mono-text badge-surface">{{ fullCategory()?.icon || 'None' }}</code>
+            </div>
+          </div>
+
+          <div class="detail-block">
+            <span class="detail-label">
+              <i class="pi pi-calendar-plus"></i> Date Created
+            </span>
+            <div class="detail-surface">
+              <span class="detail-value">{{ fullCategory()?.createdAt | date:'medium' }}</span>
+            </div>
+          </div>
+
+          <div class="detail-block">
+            <span class="detail-label">
+              <i class="pi pi-sync"></i> Last Updated
+            </span>
+            <div class="detail-surface">
+              <span class="detail-value">{{ fullCategory()?.updatedAt | date:'medium' }}</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="detail-actions">
+        <button type="button" class="btn-secondary" (click)="onClose()" [disabled]="isLoading()">
+          <i [class]="isRouted() ? 'pi pi-arrow-left' : 'pi pi-times'"></i> 
+          {{ isRouted() ? 'Back' : 'Close' }}
+        </button>
+        <button type="button" class="btn-primary" (click)="onEdit()" [disabled]="isLoading()">
+          <i class="pi pi-pencil"></i> Edit Category
+        </button>
+      </div>
+    </div>
+  }
+</div>

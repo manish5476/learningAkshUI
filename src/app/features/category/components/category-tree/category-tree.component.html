@@ -1,0 +1,161 @@
+<div class="page-container">
+
+  <div class="page-header">
+    <div class="header-left">
+      <nav class="breadcrumb">
+        <a routerLink="/" class="bc-link"><i class="pi pi-home"></i></a>
+        <span class="bc-sep">/</span>
+        <a routerLink="/categories" class="bc-link">Categories</a>
+        <span class="bc-sep">/</span>
+        <span class="bc-current">Hierarchy Tree</span>
+      </nav>
+
+      <h1 class="page-title">
+        <div class="title-icon"><i class="pi pi-sitemap"></i></div>
+        Category Tree
+      </h1>
+    </div>
+    
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="loadCategoryTree()" [disabled]="loading()">
+        <i class="pi" [ngClass]="loading() ? 'pi-spin pi-spinner' : 'pi-refresh'"></i> Refresh
+      </button>
+      <button class="btn-secondary" (click)="expandAll()" [disabled]="loading()">
+        <i class="pi pi-expand"></i> Expand All
+      </button>
+      <button class="btn-secondary" (click)="collapseAll()" [disabled]="loading()">
+        <i class="pi pi-compress"></i> Collapse All
+      </button>
+    </div>
+  </div>
+
+  <div class="toolbar-section glass-panel">
+    <div class="search-wrapper">
+      <i class="pi pi-search search-icon"></i>
+      <input 
+        type="text" 
+        [ngModel]="searchTerm()" 
+        (ngModelChange)="onSearchChange($event)"
+        placeholder="Search categories..." 
+        class="custom-input">
+    </div>
+    
+    <div class="stats-badges">
+      <span class="stat-badge badge-primary">
+        <i class="pi pi-tags"></i> Total: {{ stats().total }}
+      </span>
+      <span class="stat-badge badge-success">
+        <i class="pi pi-check-circle"></i> Active: {{ stats().active }}
+      </span>
+      <span class="stat-badge badge-error">
+        <i class="pi pi-times-circle"></i> Inactive: {{ stats().inactive }}
+      </span>
+    </div>
+  </div>
+
+  <div class="tree-container glass-panel">
+    
+    @if (loading()) {
+      <div class="state-overlay">
+        <i class="pi pi-spin pi-spinner text-primary text-4xl mb-md"></i>
+        <p class="text-secondary text-lg">Building category hierarchy...</p>
+      </div>
+    } @else if (treeData().length > 0 && !hasVisibleNodes()) {
+      <div class="state-overlay">
+        <div class="empty-icon-wrapper">
+          <i class="pi pi-search"></i>
+        </div>
+        <h3 class="empty-title">No matches found</h3>
+        <p class="empty-subtitle">No categories matched your search for "{{ searchTerm() }}"</p>
+        <button class="btn-primary mt-lg" (click)="clearSearch()">Clear Search</button>
+      </div>
+    } @else if (treeData().length === 0) {
+      <div class="state-overlay">
+        <div class="empty-icon-wrapper">
+          <i class="pi pi-folder-open"></i>
+        </div>
+        <h3 class="empty-title">Tree is empty</h3>
+        <p class="empty-subtitle">No categories exist in the system yet.</p>
+      </div>
+    } @else {
+      <div class="custom-tree">
+        @for (node of treeData(); track node._id) {
+          <ng-container *ngTemplateOutlet="treeNodeTemplate; context: { $implicit: node, level: 0 }"></ng-container>
+        }
+      </div>
+    }
+
+  </div>
+</div>
+
+<ng-template #treeNodeTemplate let-node let-level="level">
+  @if (!node.hidden) {
+    <div class="node-wrapper">
+      
+      <div class="node-row" [style.padding-left.rem]="level * 2">
+        
+        <button 
+          class="node-toggle" 
+          [class.invisible]="!node.children || node.children.length === 0"
+          (click)="toggleNode(node)">
+          <i class="pi" [ngClass]="node.expanded ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+        </button>
+
+        <div class="node-content surface-raised">
+          
+          <div class="node-info-main">
+            @if (node.image) {
+              <div class="node-thumbnail">
+                <img [src]="node.image" [alt]="node.name">
+              </div>
+            } @else {
+              <div class="node-icon-box">
+                <i [class]="node.icon || 'pi pi-folder'"></i>
+              </div>
+            }
+
+            <div class="node-text">
+              <div class="node-header">
+                <span class="node-name">{{ node.name }}</span>
+                <span class="status-indicator" 
+                      [ngClass]="node.isActive ? 'bg-success' : 'bg-error'" 
+                      [title]="node.isActive ? 'Active' : 'Inactive'">
+                </span>
+              </div>
+              <div class="node-meta">
+                <span class="node-slug">/{{ node.slug }}</span>
+                
+                @if (node.children?.length) {
+                  <span class="meta-dot">•</span>
+                  <span class="node-children-count">
+                    {{ node.children.length }} subcategor{{ node.children.length === 1 ? 'y' : 'ies' }}
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="node-actions">
+            <span class="date-created hidden md:block" title="Created At">
+              <i class="pi pi-calendar"></i> {{ node.createdAt | date:'MMM d, y' }}
+            </span>
+            <a [routerLink]="['/categories', node._id, 'courses']" class="btn-view-courses">
+              View Courses <i class="pi pi-arrow-right"></i>
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+      @if (node.expanded && node.children && node.children.length > 0) {
+        <div class="node-children">
+          <div class="tree-line" [style.left.rem]="(level * 2) + 1.25"></div>
+          @for (child of node.children; track child._id) {
+            <ng-container *ngTemplateOutlet="treeNodeTemplate; context: { $implicit: child, level: level + 1 }"></ng-container>
+          }
+        </div>
+      }
+
+    </div>
+  }
+</ng-template>

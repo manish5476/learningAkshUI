@@ -1,0 +1,201 @@
+<div class="page-container">
+  <p-toast position="top-right"></p-toast>
+  <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+  <div class="page-header">
+    <div class="header-titles">
+      <h1 class="title">Category Management</h1>
+      <p class="subtitle">Organize and structure your educational content catalog</p>
+    </div>
+    <button (click)="openNewCategoryDialog()" class="btn-primary">
+      <i class="pi pi-plus"></i> Add Category
+    </button>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card glass-panel">
+      <div class="stat-icon icon-primary"><i class="pi pi-tags"></i></div>
+      <div class="stat-content">
+        <p class="stat-label">Total Categories</p>
+        <p class="stat-value">{{ stats().total }}</p>
+      </div>
+    </div>
+    <div class="stat-card glass-panel">
+      <div class="stat-icon icon-success"><i class="pi pi-check-circle"></i></div>
+      <div class="stat-content">
+        <p class="stat-label">Active Categories</p>
+        <p class="stat-value">{{ stats().active }}</p>
+      </div>
+    </div>
+    <div class="stat-card glass-panel">
+      <div class="stat-icon icon-warning"><i class="pi pi-pause-circle"></i></div>
+      <div class="stat-content">
+        <p class="stat-label">Inactive Categories</p>
+        <p class="stat-value">{{ stats().inactive }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container glass-panel">
+    
+    <div class="table-toolbar">
+      <span class="toolbar-title">Categories Directory</span>
+      <div class="toolbar-actions">
+        <button (click)="clearFilters()" class="btn-secondary">
+          <i class="pi pi-filter-slash"></i> Clear
+        </button>
+        <div class="search-input-wrapper">
+          <i class="pi pi-search search-icon"></i>
+          <input 
+            type="text" 
+            [ngModel]="searchQuery()" 
+            (ngModelChange)="onSearchChange($event)"
+            placeholder="Search categories..." 
+            class="search-input custom-input"
+          >
+        </div>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div class="state-overlay">
+        <i class="pi pi-spin pi-spinner loading-icon"></i>
+        <p>Loading your categories...</p>
+      </div>
+    } @else {
+      <div class="custom-table-wrapper">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th class="col-sortable w-1/3" (click)="sortBy('name')">
+                <div class="th-content">Category Info <i class="pi pi-sort"></i></div>
+              </th>
+              <th class="w-1/4">Description</th>
+              <th class="w-1/6">
+                <div class="th-filter-content">
+                  <span>Status</span>
+                  <select class="filter-select" [ngModel]="statusFilter()" (ngModelChange)="onStatusChange($event)">
+                    <option [ngValue]="null">All Statuses</option>
+                    <option [ngValue]="true">Active</option>
+                    <option [ngValue]="false">Inactive</option>
+                  </select>
+                </div>
+              </th>
+              <th class="col-sortable w-1/6" (click)="sortBy('createdAt')">
+                <div class="th-content">Created At <i class="pi pi-sort"></i></div>
+              </th>
+              <th class="text-center w-1/6">Actions</th>
+            </tr>
+          </thead>
+          
+          <tbody>
+            @for (category of paginatedCategories(); track category._id) {
+              <tr class="table-row">
+                <td>
+                  <div class="category-cell-info">
+                    <div class="category-thumbnail">
+                      @if (category.image) {
+                        <img [src]="category.image" [alt]="category.name" (error)="$event.target.src='https://via.placeholder.com/150x85?text=No+Image'"/>
+                      } @else {
+                        <div class="no-img"><i [class]="category.icon || 'pi pi-folder'"></i></div>
+                      }
+                    </div>
+                    <div class="category-meta">
+                      <span class="category-title-text">{{ category.name }}</span>
+                      <span class="category-slug">/{{ category.slug }}</span>
+                    </div>
+                  </div>
+                </td>
+
+                <td>
+                  <p class="description-text">{{ category.description || 'No description provided.' }}</p>
+                </td>
+
+                <td>
+                  <span class="status-badge" [ngClass]="category.isActive ? 'status-active' : 'status-inactive'">
+                    {{ category.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+
+                <td class="date-cell">
+                  {{ category.createdAt | date:'mediumDate' }}
+                </td>
+
+                <td>
+                  <div class="action-buttons">
+                    <button [routerLink]="['/categories/admin', category._id]" title="View" class="btn-icon btn-icon-secondary">
+                      <i class="pi pi-eye"></i>
+                    </button>
+                    <button (click)="editCategory(category)" title="Edit" class="btn-icon btn-icon-info">
+                      <i class="pi pi-pencil"></i>
+                    </button>
+                    <button (click)="addSubCategory(category)" title="Add Subcategory" class="btn-icon btn-icon-success">
+                      <i class="pi pi-sitemap"></i>
+                    </button>
+                    <button (click)="deleteCategory(category)" title="Delete" class="btn-icon btn-icon-danger">
+                      <i class="pi pi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5">
+                  <div class="state-overlay">
+                    <div class="empty-icon-wrapper">
+                      <i class="pi pi-tags"></i>
+                    </div>
+                    <h3 class="empty-title">No categories found</h3>
+                    <p class="empty-subtitle">Get started by creating your first category.</p>
+                    <button (click)="openNewCategoryDialog()" class="btn-primary mt-lg">
+                      <i class="pi pi-plus"></i> Add Category
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      
+      @if (filteredAndSortedCategories().length > 0) {
+        <div class="table-footer">
+          <span>Showing {{ paginatedCategories().length }} of {{ filteredAndSortedCategories().length }} entries</span>
+          <div class="pagination-controls">
+            <button class="page-btn" [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)">
+              <i class="pi pi-angle-left"></i>
+            </button>
+            <button class="page-btn active">{{ currentPage() }}</button>
+            <button class="page-btn" [disabled]="currentPage() === totalPages()" (click)="changePage(currentPage() + 1)">
+              <i class="pi pi-angle-right"></i>
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  <p-dialog appendTo="body" [(visible)]="showFormDialog" [style]="{width: '80%', maxWidth: '900px'}" 
+    [header]="dialogTitle()" [modal]="true" [draggable]="false" [resizable]="false" 
+    [closeOnEscape]="true" [dismissableMask]="true">
+    @if (showFormDialog()) {
+      <app-category-form 
+        [categoryId]="selectedCategoryId()"
+        [parentCategoryId]="parentCategoryId()"
+        (saved)="onCategorySaved($event)"
+        (cancelled)="closeFormDialog()">
+      </app-category-form>
+    }
+  </p-dialog>
+
+  <p-dialog appendTo="body" [(visible)]="showDetailDialog" [style]="{width: '80%', maxWidth: '1000px'}" 
+    header="Category Details" [modal]="true" [draggable]="false" [resizable]="false">
+    @if (showDetailDialog()) {
+      <app-category-detail 
+        [category]="selectedCategory()"
+        (edit)="editFromDetail()"
+        (close)="closeDetailDialog()">
+      </app-category-detail>
+    }
+  </p-dialog>
+</div>

@@ -1,0 +1,191 @@
+<div class="form-container">
+  <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" class="category-form">
+    
+    @if (parentCategory() && !categoryId()) {
+      <div class="parent-info-banner">
+        <div class="banner-icon">
+          <i class="pi pi-sitemap"></i>
+        </div>
+        <div class="banner-content">
+          <span class="banner-label">Adding subcategory under:</span>
+          <span class="banner-value">{{ parentCategory().name }}</span>
+        </div>
+      </div>
+    }
+
+    <div class="form-grid">
+      <div class="form-group col-span-2">
+        <label class="input-label" for="name">
+          Category Name <span class="required-asterisk">*</span>
+        </label>
+        <input 
+          id="name"
+          type="text" 
+          pInputText 
+          formControlName="name"
+          placeholder="e.g., Web Development"
+          class="custom-input"
+          [class.input-error]="isFieldInvalid('name')"
+        >
+        <div class="helper-text-container">
+          @if (isFieldInvalid('name')) {
+            <small class="error-message">
+              <i class="pi pi-exclamation-circle"></i> Category name is required
+            </small>
+          } @else {
+            <small class="hint-message">This will be used to automatically generate the URL slug.</small>
+          }
+        </div>
+      </div>
+
+      <div class="form-group col-span-2">
+        <label class="input-label" for="slug">URL Slug</label>
+        <div class="slug-input-group" [class.input-error]="isFieldInvalid('slug')">
+          <span class="slug-prefix">{{ baseUrl }}/categories/</span>
+          <input 
+            id="slug"
+            type="text" 
+            formControlName="slug"
+            placeholder="web-development"
+            class="slug-input"
+          >
+        </div>
+        <div class="helper-text-container flex justify-between">
+          @if (isFieldInvalid('slug')) {
+            <small class="error-message">
+              <i class="pi pi-exclamation-circle"></i> Invalid slug format (use lowercase, numbers, and hyphens)
+            </small>
+          }
+          @if (categoryForm.get('slug')?.value && !categoryForm.get('slug')?.dirty && !isFieldInvalid('slug')) {
+            <small class="success-message">
+              <i class="pi pi-check-circle"></i> Auto-generated from name
+            </small>
+          }
+        </div>
+      </div>
+
+      <div class="form-group col-span-2">
+        <label class="input-label" for="description">Description</label>
+        <textarea 
+          id="description"
+          pTextarea 
+          formControlName="description"
+          placeholder="Provide a detailed description of this category..."
+          [rows]="4"
+          class="custom-input textarea-input">
+        </textarea>
+      </div>
+
+      <div class="form-group col-span-1">
+        <label class="input-label" for="icon">Icon Class</label>
+        <div class="icon-input-wrapper">
+          <div class="icon-preview-box">
+            <i [class]="categoryForm.get('icon')?.value || 'pi pi-folder'"></i>
+          </div>
+          <input 
+            id="icon"
+            type="text" 
+            pInputText 
+            formControlName="icon"
+            placeholder="e.g., pi pi-code"
+            class="custom-input icon-text-input"
+          >
+        </div>
+        <small class="hint-message mt-xs block">PrimeIcons or FontAwesome class</small>
+      </div>
+
+      <div class="form-group col-span-1">
+        <label class="input-label" for="image">Cover Image URL</label>
+        <input 
+          id="image"
+          type="text" 
+          pInputText 
+          formControlName="image"
+          placeholder="https://example.com/image.jpg"
+          class="custom-input"
+        >
+        <small class="hint-message mt-xs block">Optional background cover image</small>
+      </div>
+
+      <div class="form-group col-span-2">
+        <label class="input-label" for="parentCategory">Parent Category</label>
+        <p-select 
+          id="parentCategory"
+          formControlName="parentCategory"
+          [options]="categories()"
+          [filter]="true"
+          filterBy="name"
+          optionLabel="name"
+          optionValue="_id"
+          placeholder="Select parent category (optional)"
+          styleClass="custom-select w-full"
+          [showClear]="true">
+          <ng-template let-category pTemplate="item">
+            <div class="category-dropdown-item">
+              <i [class]="category.icon || 'pi pi-folder'" class="mr-2 text-primary"></i>
+              <span class="font-medium">{{ category.name }}</span>
+              @if (category.slug) {
+                <span class="slug-hint">/{{ category.slug }}</span>
+              }
+            </div>
+          </ng-template>
+        </p-select>
+        <small class="hint-message mt-xs block">Leave empty to create a top-level root category.</small>
+      </div>
+
+      <div class="form-group col-span-2 status-section">
+        <div class="status-toggle-container glass-surface">
+          <div>
+            <label class="input-label mb-0">Category Status</label>
+            <p class="hint-message m-0">Determine if this category should be visible to users.</p>
+          </div>
+          <div class="flex items-center gap-md">
+            <span class="status-text" [class.text-muted]="categoryForm.get('isActive')?.value">Inactive</span>
+            <p-toggleswitch formControlName="isActive"></p-toggleswitch>
+            <span class="status-text font-medium" 
+                  [class.text-success]="categoryForm.get('isActive')?.value" 
+                  [class.text-muted]="!categoryForm.get('isActive')?.value">
+              Active
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @if (categoryForm.get('name')?.value || categoryForm.get('icon')?.value) {
+      <div class="preview-wrapper">
+        <div class="preview-header">
+          <i class="pi pi-eye"></i> Live Preview
+        </div>
+        <div class="preview-card glass-surface" [class.inactive-preview]="!categoryForm.get('isActive')?.value">
+          <div class="preview-icon-large">
+            <i [class]="categoryForm.get('icon')?.value || 'pi pi-folder'"></i>
+          </div>
+          <div class="preview-content">
+            <h4 class="preview-title">{{ categoryForm.get('name')?.value || 'Category Name' }}</h4>
+            @if (categoryForm.get('slug')?.value) {
+              <p class="preview-slug">/{{ categoryForm.get('slug')?.value }}</p>
+            }
+            @if (categoryForm.get('description')?.value) {
+              <p class="preview-desc">{{ categoryForm.get('description')?.value }}</p>
+            }
+          </div>
+          @if (!categoryForm.get('isActive')?.value) {
+            <div class="preview-badge-inactive">Hidden</div>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="form-actions">
+      <button type="button" class="btn-cancel" (click)="onCancel()" [disabled]="isLoading()">
+        <i class="pi pi-times"></i> Cancel
+      </button>
+      <button type="submit" class="btn-submit" [disabled]="categoryForm.invalid || isLoading()" [class.loading]="isLoading()">
+        <i class="pi" [ngClass]="isLoading() ? 'pi-spinner pi-spin' : 'pi-check'"></i> 
+        {{ isLoading() ? 'Saving...' : (categoryId() ? 'Update Category' : 'Create Category') }}
+      </button>
+    </div>
+
+  </form>
+</div>

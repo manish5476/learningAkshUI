@@ -9,17 +9,17 @@ export const CATEGORY_ROUTES: Routes = [
       // Public routes
       {
         path: 'list',
-        loadComponent: () => import('./components/category-list.component').then(m => m.CategoryListComponent),
+        loadComponent: () => import('./components/category-list/category-list.component').then(m => m.CategoryListComponent),
         title: 'Category Tree'
       },
       {
         path: 'tree',
-        loadComponent: () => import('./components/category-tree.component').then(m => m.CategoryTreeComponent),
+        loadComponent: () => import('./components/category-tree/category-tree.component').then(m => m.CategoryTreeComponent),
         title: 'Category Tree'
       },
       {
         path: ':id/courses',
-        loadComponent: () => import('./components/category-courses.component').then(m => m.CategoryCoursesComponent),
+        loadComponent: () => import('./components/category-course/category-courses.component').then(m => m.CategoryCoursesComponent),
         title: 'Category Courses'
       },
 
@@ -30,22 +30,22 @@ export const CATEGORY_ROUTES: Routes = [
         children: [
           {
             path: '',
-            loadComponent: () => import('./components/category-list.component').then(m => m.CategoryListComponent),
+            loadComponent: () => import('./components/category-list/category-list.component').then(m => m.CategoryListComponent),
             title: 'Category Management'
           },
           {
             path: 'new',
-            loadComponent: () => import('./components/category-form.component').then(m => m.CategoryFormComponent),
+            loadComponent: () => import('./components/category-form/category-form.component').then(m => m.CategoryFormComponent),
             title: 'Create Category'
           },
           {
             path: ':id',
-            loadComponent: () => import('./components/category-detail.component').then(m => m.CategoryDetailComponent),
+            loadComponent: () => import('./components/category-detail/category-detail.component').then(m => m.CategoryDetailComponent),
             title: 'Category Details'
           },
           {
             path: ':id/edit',
-            loadComponent: () => import('./components/category-form.component').then(m => m.CategoryFormComponent),
+            loadComponent: () => import('./components/category-form/category-form.component').then(m => m.CategoryFormComponent),
             title: 'Edit Category'
           }
         ]

@@ -1,0 +1,167 @@
+<div class="ultimate-container">
+  
+  @if (loading()) {
+    <div class="loading-section glass-panel">
+      <div class="skeleton-header animate-pulse">
+        <div class="skeleton-line skeleton-title"></div>
+        <div class="skeleton-line skeleton-subtitle"></div>
+      </div>
+      <div class="courses-grid">
+        @for (item of [1,2,3,4,5,6]; track item) {
+          <div class="uiverse-card skeleton-card animate-pulse">
+             <div class="skeleton-layer"></div>
+          </div>
+        }
+      </div>
+    </div> 
+  } @else {
+    <div class="content-wrapper">
+      
+      <div class="category-header glass-panel">
+        <div class="header-left">
+          <nav class="breadcrumb">
+            <a routerLink="/" class="bc-link"><i class="pi pi-home"></i></a>
+            <span class="bc-sep">/</span>
+            <a routerLink="/categories" class="bc-link">Categories</a>
+            <span class="bc-sep">/</span>
+            <span class="bc-current">{{ category()?.name }}</span>
+          </nav>
+
+          <h1 class="category-title">
+            <i [class]="category()?.icon || 'pi pi-folder'" class="category-icon"></i>
+            <span>{{ category()?.name }}</span>
+          </h1>
+          @if (category()?.description) {
+            <p class="category-description">{{ category()?.description }}</p>
+          }
+        </div>
+
+        <div class="header-right">
+          <div class="category-stats">
+            <div class="stat-item">
+              <span class="stat-label">Courses</span>
+              <span class="stat-value">{{ courses().length }}</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+              <span class="stat-label">Status</span>
+              <span class="status-badge" [ngClass]="category()?.isActive ? 'status-active' : 'status-inactive'">
+                {{ category()?.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filters-section glass-panel">
+        <div class="filter-group">
+          <div class="search-wrapper">
+            <i class="pi pi-search search-icon"></i>
+            <input 
+              type="text" 
+              [ngModel]="searchQuery()" 
+              (ngModelChange)="onSearchChange($event)"
+              placeholder="Discover courses..." 
+              class="custom-input search-input">
+          </div>
+
+          <select [ngModel]="selectedLevel()" (ngModelChange)="onLevelChange($event)" class="custom-input filter-select">
+            <option [ngValue]="null">All Levels</option>
+            @for (opt of levelOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+
+          <select [ngModel]="selectedSort()" (ngModelChange)="onSortChange($event)" class="custom-input filter-select">
+            @for (opt of sortOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="courses-grid">
+        @for (course of paginatedCourses(); track course._id) {
+          <div class="uiverse-card" [routerLink]="['/courses', course._id]">
+            
+            <div class="card-bg-base">
+              <div class="card-bg-cutout">
+                @if (course.thumbnail) {
+                  <img [src]="course.thumbnail" class="course-bg-img" alt="cover">
+                }
+              </div>
+            </div>
+
+            <div class="card-glass-layer"></div>
+
+            <div class="card-content-layer">
+              <div class="card-left-panel">
+                <span class="course-title">{{ course.title }}</span>
+                <span class="course-instructor">By {{ course.instructor?.firstName }} {{ course.instructor?.lastName }}</span>
+                
+                <div class="course-bottom-info">
+                  <span class="course-price">
+                    @if (course.isFree) {
+                      <span class="free-badge">Free</span>
+                    } @else {
+                      @if (course.discountPrice) {
+                        <span class="price-discount">{{ course.discountPrice | currency:course.currency:'symbol':'1.0-0' }}</span>
+                        <span class="price-original">{{ course.price | currency:course.currency:'symbol':'1.0-0' }}</span>
+                      } @else {
+                        <span>{{ course.price | currency:course.currency:'symbol':'1.0-0' }}</span>
+                      }
+                    }
+                  </span>
+                </div>
+              </div>
+
+              <div class="card-right-panel">
+                <span class="right-text level-badge">{{ course.level }}</span>
+                <span class="right-text rating-badge">
+                  <i class="pi pi-star-fill text-warning"></i> {{ course.rating | number:'1.1-1' }}
+                </span>
+                
+                <div class="arrow-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" class="arrow-icon">
+                    <path d="M4.646 2.146a.5.5 0 0 0 0 .708L7.793 6L4.646 9.146a.5.5 0 1 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z" fill="currentColor"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-state glass-panel">
+            <div class="empty-icon-wrapper">
+              <i class="pi pi-compass"></i>
+            </div>
+            <h3>No Courses Found</h3>
+            <p>{{ searchQuery() ? 'Adjust your filters or search terms.' : 'This category has no courses yet.' }}</p>
+            <button routerLink="/courses" class="btn-primary">
+              Browse All Courses
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (totalPages() > 1) {
+        <div class="pagination glass-panel">
+          <button class="page-btn" [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)">
+            <i class="pi pi-chevron-left"></i>
+          </button>
+          
+          @for (page of visiblePages(); track page) {
+            <button class="page-btn" 
+                    [class.active]="page === currentPage()" 
+                    (click)="changePage(page)">
+              {{ page }}
+            </button>
+          }
+          
+          <button class="page-btn" [disabled]="currentPage() === totalPages()" (click)="changePage(currentPage() + 1)">
+            <i class="pi pi-chevron-right"></i>
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,444 +1,370 @@
-<div class="course-form-container">
+<div class="course-form-container glass-panel">
   <form [formGroup]="courseForm" (ngSubmit)="onSubmit()" class="course-form">
-    <!-- Header with Actions -->
+    
     <div class="form-header">
       <div class="header-left">
-        <h2 class="form-title">{{ isEditMode ? 'Edit Course' : 'Create New Course' }}</h2>
-        <p class="form-subtitle">Fill in the details below to {{ isEditMode ? 'update' : 'create' }} your course</p>
+        <h2 class="form-title">{{ isEditMode() ? 'Edit Course' : 'Create New Course' }}</h2>
+        <p class="form-subtitle">Fill in the details below to {{ isEditMode() ? 'update' : 'create' }} your course</p>
       </div>
       <div class="header-actions">
         <button type="button" class="btn btn-secondary" (click)="onCancel()">
-          <i class="fas fa-times"></i> Cancel
+          <i class="pi pi-times"></i> Cancel
         </button>
-        <button type="submit" class="btn btn-primary" [disabled]="courseForm.invalid || isLoading">
-          <i class="fas" [class.fa-save]="!isLoading" [class.fa-spinner]="isLoading"></i>
-          {{ isLoading ? 'Saving...' : (isEditMode ? 'Update Course' : 'Create Course') }}
+        <button type="submit" class="btn btn-primary" [disabled]="courseForm.invalid || isLoading()">
+          <i class="pi" [ngClass]="isLoading() ? 'pi-spinner pi-spin' : 'pi-save'"></i>
+          {{ isLoading() ? 'Saving...' : (isEditMode() ? 'Update Course' : 'Create Course') }}
         </button>
       </div>
     </div>
 
-    <!-- Progress Bar -->
     <div class="form-progress">
       <div class="progress-steps">
-        <div class="step" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1">
+        <div class="step" [class.active]="currentStep() >= 1" [class.completed]="currentStep() > 1" (click)="setStep(1)">
           <span class="step-number">1</span>
           <span class="step-label">Basic Info</span>
         </div>
-        <div class="step-line"></div>
-        <div class="step" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2">
+        <div class="step-line" [class.completed]="currentStep() > 1"></div>
+        
+        <div class="step" [class.active]="currentStep() >= 2" [class.completed]="currentStep() > 2" (click)="setStep(2)">
           <span class="step-number">2</span>
           <span class="step-label">Content</span>
         </div>
-        <div class="step-line"></div>
-        <div class="step" [class.active]="currentStep >= 3" [class.completed]="currentStep > 3">
+        <div class="step-line" [class.completed]="currentStep() > 2"></div>
+        
+        <div class="step" [class.active]="currentStep() >= 3" [class.completed]="currentStep() > 3" (click)="setStep(3)">
           <span class="step-number">3</span>
           <span class="step-label">Pricing</span>
         </div>
-        <div class="step-line"></div>
-        <div class="step" [class.active]="currentStep >= 4">
+        <div class="step-line" [class.completed]="currentStep() > 3"></div>
+        
+        <div class="step" [class.active]="currentStep() >= 4" (click)="setStep(4)">
           <span class="step-number">4</span>
           <span class="step-label">Requirements</span>
         </div>
       </div>
     </div>
 
-    <!-- Navigation Buttons -->
-    <div class="step-navigation">
-      @if (currentStep > 1) {
-      <button type="button" class="btn btn-text" (click)="prevStep()">
-        <i class="fas fa-chevron-left"></i> Previous
-      </button>
-      }
-      @if (currentStep < 4) { <button type="button" class="btn btn-text" (click)="nextStep()">
-        Next <i class="fas fa-chevron-right"></i>
-        </button>
-        }
-    </div>
-
-    <!-- Step 1: Basic Information -->
-    @if (currentStep === 1) {
-    <div class="form-step">
-      <div class="step-header">
-        <h3>Basic Information</h3>
-        <p>Tell us about your course</p>
-      </div>
-
-      <div class="form-grid">
-        <!-- Title -->
-        <div class="form-group full-width">
-          <label class="input-label">
-            Course Title <span class="required">*</span>
-            <span class="hint">(50-100 characters recommended for SEO)</span>
-          </label>
-          <div class="input-wrapper">
-            <i class="field-icon fas fa-heading"></i>
-            <input type="text" pInputText formControlName="title"
-              placeholder="e.g., Complete Web Development Bootcamp 2024" class="form-control"
-              [class.error]="isFieldInvalid('title')">
-          </div>
-          <div class="character-count" [class.error]="titleLength > 100">
-            {{ titleLength }}/100 characters
-          </div>
-          @if (isFieldInvalid('title')) {
-          <div class="error-message">
-            Title is required
-          </div>
-          }
+    @if (currentStep() === 1) {
+      <div class="form-step">
+        <div class="step-header">
+          <h3>Basic Information</h3>
+          <p>Tell us about your course</p>
         </div>
 
-        <!-- Subtitle -->
-        <div class="form-group full-width">
-          <label class="input-label">
-            Subtitle
-            <span class="hint">(Brief description that appears under the title)</span>
-          </label>
-          <div class="input-wrapper">
-            <i class="field-icon fas fa-quote-right"></i>
-            <input type="text" pInputText formControlName="subtitle"
-              placeholder="e.g., Learn HTML, CSS, JavaScript, React, Node.js and more" class="form-control">
-          </div>
-        </div>
-
-        <!-- Category -->
-        <div class="form-group">
-          <label class="input-label">Category <span class="required">*</span></label>
-          <div class="select-wrapper">
-            <i class="field-icon fas fa-folder"></i>
-            <p-select appendTo="body" filter="true" filterBy="name" formControlName="category" [options]="categories"
-              [invalid]="isFieldInvalid('category')" optionLabel="name" optionValue="_id"
-              placeholder="Select a catefory" class="w-full md:w-56" />
-            <!-- <select formControlName="category" class="form-control" [class.error]="isFieldInvalid('category')">
-                    <option value="">Select a category</option>
-                    @for (cat of categories; track cat._id) {
-                      <option [value]="cat._id">
-                        {{ cat.name }}
-                      </option>
-                    }
-                  </select> -->
-            <i class="select-arrow fas fa-chevron-down"></i>
-          </div>
-          @if (isFieldInvalid('category')) {
-          <div class="error-message">
-            Category is required
-          </div>
-          }
-        </div>
-
-        <!-- Difficulty Level -->
-        <div class="form-group">
-          <label class="input-label">
-            Difficulty Level <span class="required">*</span>
-          </label>
-
-          <p-select appendTo="body" filter="true" filterBy="name" formControlName="level" [options]="difficultyLevels"
-            optionLabel="name" optionValue="value" placeholder="Select Difficulty Level"
-            [invalid]="isFieldInvalid('level')" class="w-full">
-          </p-select>
-        </div>
-
-        <!-- Language -->
-        <div class="form-group">
-          <label class="input-label">
-            Language <span class="required">*</span>
-          </label>
-
-          <p-select appendTo="body" filter="true" filterBy="name" formControlName="language" [options]="languages"
-            optionLabel="name" optionValue="value" placeholder="Select Language" [invalid]="isFieldInvalid('language')"
-            class="w-full">
-          </p-select>
-        </div>
-
-        <!-- Description -->
-        <div class="form-group full-width">
-          <label class="input-label">
-            Course Description <span class="required">*</span>
-            <span class="hint">(Minimum 100 words recommended)</span>
-          </label>
-          <div class="textarea-wrapper">
-            <i class="field-icon fas fa-align-left"></i>
-            <textarea formControlName="description" rows="8"
-              placeholder="Describe what students will learn, prerequisites, and what makes your course unique..."
-              class="form-control" [class.error]="isFieldInvalid('description')"></textarea>
-          </div>
-          <div class="word-count" [class.error]="wordCount < 50">
-            {{ wordCount }} words (minimum 50)
-          </div>
-        </div>
-      </div>
-    </div>
-    }
-
-    <!-- Step 2: Course Content -->
-    @if (currentStep === 2) {
-    <div class="form-step">
-      <div class="step-header">
-        <h3>Course Content</h3>
-        <p>Upload your course media and organize sections</p>
-      </div>
-
-      <div class="form-grid">
-        <!-- Thumbnail Upload -->
-        <div class="form-group full-width">
-          <label class="input-label">Course Thumbnail</label>
-          <div class="upload-area" (click)="fileInput.click()" (dragover)="onDragOver($event)"
-            (drop)="onDrop($event, 'thumbnail')">
-            <input #fileInput type="file" accept="image/*" style="display: none"
-              (change)="onFileSelected($event, 'thumbnail')">
-
-            @if (!thumbnailPreview) {
-            <div class="upload-placeholder">
-              <i class="fas fa-cloud-upload-alt"></i>
-              <p>Drag & drop or click to upload</p>
-              <span class="upload-hint">Recommended: 1280x720px (16:9 ratio)</span>
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label class="input-label">
+              Course Title <span class="required">*</span>
+              <span class="hint">(50-100 characters recommended for SEO)</span>
+            </label>
+            <div class="input-wrapper">
+              <i class="field-icon pi pi-language"></i>
+              <input type="text" pInputText formControlName="title" placeholder="e.g., Complete Web Development Bootcamp 2024" class="form-control custom-input" [class.error]="isFieldInvalid('title')">
             </div>
-            } @else {
-            <div class="upload-preview">
-              <img [src]="thumbnailPreview" alt="Thumbnail preview">
-              <button type="button" class="remove-btn" (click)="removeThumbnail($event)">
-                <i class="fas fa-times"></i>
-              </button>
+            <div class="character-count" [class.error]="titleLength > 100">
+              {{ titleLength }}/100 characters
             </div>
+            @if (isFieldInvalid('title')) {
+              <div class="error-message">Title is required</div>
             }
           </div>
-        </div>
 
-        <!-- Preview Video -->
-        <div class="form-group full-width">
-          <label class="input-label">Preview Video URL</label>
-          <div class="input-wrapper">
-            <i class="field-icon fas fa-video"></i>
-            <input type="url" formControlName="previewVideo" placeholder="https://www.youtube.com/watch?v=..."
-              class="form-control">
+          <div class="form-group full-width">
+            <label class="input-label">
+              Subtitle
+              <span class="hint">(Brief description that appears under the title)</span>
+            </label>
+            <div class="input-wrapper">
+              <i class="field-icon pi pi-comment"></i>
+              <input type="text" pInputText formControlName="subtitle" placeholder="e.g., Learn HTML, CSS, JavaScript, React, Node.js and more" class="form-control custom-input">
+            </div>
           </div>
-          <span class="hint">Supported: YouTube, Vimeo, or direct video URL</span>
+
+          <div class="form-group">
+            <label class="input-label">Category <span class="required">*</span></label>
+            <div class="select-wrapper">
+              <i class="field-icon pi pi-folder"></i>
+              <p-select appendTo="body" filter="true" filterBy="name" formControlName="category" [options]="categories()" [invalid]="isFieldInvalid('category')" optionLabel="name" optionValue="_id" placeholder="Select a category" styleClass="w-full custom-select"></p-select>
+            </div>
+            @if (isFieldInvalid('category')) {
+              <div class="error-message">Category is required</div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="input-label">Difficulty Level <span class="required">*</span></label>
+            <div class="select-wrapper">
+              <i class="field-icon pi pi-chart-bar"></i>
+              <p-select appendTo="body" filter="true" filterBy="name" formControlName="level" [options]="difficultyLevels" optionLabel="name" optionValue="value" placeholder="Select Difficulty Level" [invalid]="isFieldInvalid('level')" styleClass="w-full custom-select"></p-select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="input-label">Language <span class="required">*</span></label>
+            <div class="select-wrapper">
+              <i class="field-icon pi pi-globe"></i>
+              <p-select appendTo="body" filter="true" filterBy="name" formControlName="language" [options]="languages" optionLabel="name" optionValue="value" placeholder="Select Language" [invalid]="isFieldInvalid('language')" styleClass="w-full custom-select"></p-select>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="input-label">
+              Course Description <span class="required">*</span>
+              <span class="hint">(Minimum 50 words recommended)</span>
+            </label>
+            <div class="textarea-wrapper">
+              <i class="field-icon pi pi-align-left"></i>
+              <textarea formControlName="description" rows="8" placeholder="Describe what students will learn, prerequisites, and what makes your course unique..." class="form-control custom-input textarea" [class.error]="isFieldInvalid('description')"></textarea>
+            </div>
+            <div class="character-count" [class.error]="wordCount < 50 && courseForm.get('description')?.touched">
+              {{ wordCount }} words (minimum 50)
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (currentStep() === 2) {
+      <div class="form-step">
+        <div class="step-header">
+          <h3>Course Content</h3>
+          <p>Upload your course media and organize sections</p>
         </div>
 
-        <!-- Sections (Dynamic) -->
-        <div class="form-group full-width">
-          <label class="input-label">Course Sections</label>
-          <div class="sections-container">
-            @for (section of sections.controls; track i; let i = $index) {
-            <div class="section-item">
-              <div class="section-header">
-                <i class="fas fa-grip-vertical drag-handle"></i>
-                <input type="text" pInputText [formControl]="getSectionControl(i, 'title')" placeholder="Section title"
-                  class="section-input">
-                <button type="button" class="btn-icon" (click)="removeSection(i)">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-              <div class="section-lessons">
-                @for (lesson of getLessons(i).controls; track j; let j = $index) {
-                <div class="lesson-item">
-                  <i class="fas fa-grip-vertical drag-handle"></i>
-                  <i class="fas" [class.fa-video]="getLessonControl(i, j, 'type').value === 'video'"
-                    [class.fa-file-alt]="getLessonControl(i, j, 'type').value === 'article'"
-                    [class.fa-question-circle]="getLessonControl(i, j, 'type').value === 'quiz'"></i>
-                  <input type="text" pInputText [formControl]="getLessonControl(i, j, 'title')"
-                    placeholder="Lesson title" class="lesson-input">
-                  <p-select appendTo="body" [formControl]="getLessonControl(i, j, 'type')" [options]="lessonTypes"
-                    optionLabel="name" optionValue="value" placeholder="Select Lesson Type" class="w-full lesson-type">
-                  </p-select>
-                  <!-- <select [formControl]="getLessonControl(i, j, 'type')" class="lesson-type">
-                              <option value="video">Video</option>
-                              <option value="article">Article</option>
-                              <option value="quiz">Quiz</option>
-                            </select> -->
-                  <button type="button" class="btn-icon" (click)="removeLesson(i, j)">
-                    <i class="fas fa-times"></i>
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label class="input-label">Course Thumbnail</label>
+            <div class="upload-area" (click)="fileInput.click()" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'thumbnail')">
+              <input #fileInput type="file" accept="image/*" style="display: none" (change)="onFileSelected($event, 'thumbnail')">
+
+              @if (!thumbnailPreview()) {
+                <div class="upload-placeholder">
+                  <i class="pi pi-cloud-upload"></i>
+                  <p>Drag & drop or click to upload</p>
+                  <span class="upload-hint">Recommended: 1280x720px (16:9 ratio)</span>
+                </div>
+              } @else {
+                <div class="upload-preview">
+                  <img [src]="thumbnailPreview()" alt="Thumbnail preview">
+                  <button type="button" class="remove-btn" (click)="removeThumbnail($event)">
+                    <i class="pi pi-times"></i>
                   </button>
                 </div>
-                }
-                <button type="button" class="btn-add-lesson" (click)="addLesson(i)">
-                  <i class="fas fa-plus"></i> Add Lesson
-                </button>
-              </div>
-            </div>
-            }
-            <button type="button" class="btn-add-section" (click)="addSection()">
-              <i class="fas fa-plus-circle"></i> Add New Section
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    }
-
-    <!-- Step 3: Pricing -->
-    @if (currentStep === 3) {
-    <div class="form-step">
-      <div class="step-header">
-        <h3>Pricing</h3>
-        <p>Set your course price and discounts</p>
-      </div>
-
-      <div class="form-grid">
-        <!-- Free Course Toggle -->
-        <div class="form-group full-width">
-          <label class="toggle-label">
-            <input type="checkbox" formControlName="isFree" (change)="onFreeToggle()">
-            <span class="toggle-text">Make this course free</span>
-          </label>
-        </div>
-
-        <!-- Price -->
-        @if (!courseForm.get('isFree')?.value) {
-        <div class="form-group">
-          <label class="input-label">Price <span class="required">*</span></label>
-          <div class="input-wrapper">
-            <i class="field-icon fas fa-dollar-sign"></i>
-            <input type="number" formControlName="price" min="0" step="0.01" class="form-control"
-              [class.error]="isFieldInvalid('price')">
-          </div>
-        </div>
-
-        <!-- Currency -->
-        <div class="form-group">
-          <label class="input-label">Currency</label>
-          <div class="select-wrapper">
-            <i class="field-icon fas fa-money-bill"></i>
-            <p-select appendTo="body" formControlName="currency" [options]="currencies" optionLabel="name"
-              optionValue="value" placeholder="Select Currency" class="w-full">
-            </p-select>
-            <i class="select-arrow fas fa-chevron-down"></i>
-          </div>
-        </div>
-
-        <!-- Discount Section -->
-        <div class="form-group full-width">
-          <label class="toggle-label">
-            <input type="checkbox" [checked]="hasDiscount" (change)="toggleDiscount()">
-            <span class="toggle-text">Add discount</span>
-          </label>
-        </div>
-
-        @if (hasDiscount) {
-        <!-- Discount Price -->
-        <div class="form-group">
-          <label class="input-label">Discounted Price</label>
-          <div class="input-wrapper">
-            <i class="field-icon fas fa-tag"></i>
-            <input type="number" formControlName="discountPrice" min="0" step="0.01" class="form-control">
-          </div>
-        </div>
-
-        <!-- Discount Dates -->
-        <div class="form-group">
-          <label class="input-label">Discount Start Date</label>
-          <div class="input-wrapper">
-            <i class="field-icon fas fa-calendar"></i>
-            <input type="date" formControlName="discountStartDate" class="form-control">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="input-label">Discount End Date</label>
-          <div class="input-wrapper">
-            <i class="field-icon fas fa-calendar-check"></i>
-            <input type="date" formControlName="discountEndDate" class="form-control">
-          </div>
-        </div>
-        }
-        }
-      </div>
-    </div>
-    }
-
-    <!-- Step 4: Requirements & Outcomes -->
-    @if (currentStep === 4) {
-    <div class="form-step">
-      <div class="step-header">
-        <h3>Requirements & Outcomes</h3>
-        <p>Define what students need and what they'll learn</p>
-      </div>
-
-      <div class="form-grid">
-        <!-- Requirements -->
-        <div class="form-group full-width">
-          <label class="input-label">Requirements</label>
-          <p class="field-hint">What students need to know before taking this course</p>
-
-          <div class="array-container">
-            @for (req of requirements.controls; track i; let i = $index) {
-            <div class="array-item">
-              <input type="text" pInputText [formControl]="getAsFormControl(req)"
-                placeholder="e.g., Basic programming knowledge" class="array-input">
-              <button type="button" class="btn-icon" (click)="removeRequirement(i)">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-            }
-            <button type="button" class="btn-add-item" (click)="addRequirement()">
-              <i class="fas fa-plus"></i> Add Requirement
-            </button>
-          </div>
-        </div>
-
-        <!-- What You'll Learn -->
-        <div class="form-group full-width">
-          <label class="input-label">What You'll Learn <span class="required">*</span></label>
-          <p class="field-hint">Key takeaways students will get from this course</p>
-
-          <div class="array-container">
-            @for (item of whatYouWillLearn.controls; track i; let i = $index) {
-            <div class="array-item">
-              <input type="text" pInputText [formControl]="getAsFormControl(item)"
-                placeholder="e.g., Build full-stack web applications" class="array-input"
-                [class.error]="item.invalid && item.touched">
-              <button type="button" class="btn-icon" (click)="removeLearningItem(i)">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-            }
-            <button type="button" class="btn-add-item" (click)="addLearningItem()">
-              <i class="fas fa-plus"></i> Add Learning Outcome
-            </button>
-          </div>
-        </div>
-
-        <!-- Target Audience -->
-        <div class="form-group full-width">
-          <label class="input-label">Target Audience</label>
-          <p class="field-hint">Who is this course for?</p>
-
-          <div class="array-container">
-            @for (audience of targetAudience.controls; track i; let i = $index) {
-            <div class="array-item">
-              <input type="text" pInputText [formControl]="getAsFormControl(audience)"
-                placeholder="e.g., Beginner developers" class="array-input">
-              <button type="button" class="btn-icon" (click)="removeAudience(i)">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-            }
-            <button type="button" class="btn-add-item" (click)="addAudience()">
-              <i class="fas fa-plus"></i> Add Target Audience
-            </button>
-          </div>
-        </div>
-
-        <!-- Tags -->
-        <div class="form-group full-width">
-          <label class="input-label">Tags</label>
-          <p class="field-hint">Help students find your course (press Enter to add)</p>
-
-          <div class="tags-container">
-            <div class="tags-list">
-              @for (tag of tags.controls; track i; let i = $index) {
-              <span class="tag-item">
-                {{ tag.value }}
-                <button type="button" class="tag-remove" (click)="removeTag(i)">
-                  <i class="fas fa-times"></i>
-                </button>
-              </span>
               }
             </div>
-            <input type="text" pInputText #tagInput placeholder="Add a tag" class="tag-input"
-              (keydown.enter)="addTag($event)">
+          </div>
+
+          <div class="form-group full-width">
+            <label class="input-label">Preview Video URL</label>
+            <div class="input-wrapper">
+              <i class="field-icon pi pi-video"></i>
+              <input type="url" formControlName="previewVideo" placeholder="https://www.youtube.com/watch?v=..." class="form-control custom-input">
+            </div>
+            <span class="hint">Supported: YouTube, Vimeo, or direct video URL</span>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="input-label">Course Sections</label>
+            <div class="sections-container">
+              @for (section of sections.controls; track i; let i = $index) {
+                <div class="section-item surface-raised">
+                  <div class="section-header">
+                    <i class="pi pi-bars drag-handle"></i>
+                    <input type="text" pInputText [formControl]="getSectionControl(i, 'title')" placeholder="Section title" class="section-input custom-input">
+                    <button type="button" class="btn-icon btn-danger" (click)="removeSection(i)">
+                      <i class="pi pi-trash"></i>
+                    </button>
+                  </div>
+                  
+                  <div class="section-lessons">
+                    @for (lesson of getLessons(i).controls; track j; let j = $index) {
+                      <div class="lesson-item surface-subtle">
+                        <i class="pi pi-bars drag-handle"></i>
+                        <i class="pi type-icon" 
+                           [class.pi-video]="getLessonControl(i, j, 'type').value === 'video'"
+                           [class.pi-file]="getLessonControl(i, j, 'type').value === 'article'"
+                           [class.pi-question-circle]="getLessonControl(i, j, 'type').value === 'quiz'">
+                        </i>
+                        <input type="text" pInputText [formControl]="getLessonControl(i, j, 'title')" placeholder="Lesson title" class="lesson-input custom-input">
+                        <p-select appendTo="body" [formControl]="getLessonControl(i, j, 'type')" [options]="lessonTypes" optionLabel="name" optionValue="value" styleClass="lesson-type-select"></p-select>
+                        <button type="button" class="btn-icon" (click)="removeLesson(i, j)">
+                          <i class="pi pi-times"></i>
+                        </button>
+                      </div>
+                    }
+                    <button type="button" class="btn-add-lesson" (click)="addLesson(i)">
+                      <i class="pi pi-plus"></i> Add Lesson
+                    </button>
+                  </div>
+                </div>
+              }
+              <button type="button" class="btn-add-section" (click)="addSection()">
+                <i class="pi pi-plus-circle"></i> Add New Section
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     }
+
+    @if (currentStep() === 3) {
+      <div class="form-step">
+        <div class="step-header">
+          <h3>Pricing</h3>
+          <p>Set your course price and discounts</p>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label class="toggle-label surface-raised">
+              <input type="checkbox" formControlName="isFree" (change)="onFreeToggle()">
+              <span class="toggle-text">Make this course completely free</span>
+            </label>
+          </div>
+
+          @if (!courseForm.get('isFree')?.value) {
+            <div class="form-group">
+              <label class="input-label">Price <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <i class="field-icon pi pi-dollar"></i>
+                <input type="number" formControlName="price" min="0" step="0.01" class="form-control custom-input" [class.error]="isFieldInvalid('price')">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="input-label">Currency</label>
+              <div class="select-wrapper">
+                <i class="field-icon pi pi-money-bill"></i>
+                <p-select appendTo="body" formControlName="currency" [options]="currencies" optionLabel="name" optionValue="value" styleClass="w-full custom-select"></p-select>
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <label class="toggle-label surface-raised">
+                <input type="checkbox" [checked]="hasDiscount()" (change)="toggleDiscount()">
+                <span class="toggle-text">Offer a promotional discount</span>
+              </label>
+            </div>
+
+            @if (hasDiscount()) {
+              <div class="form-group">
+                <label class="input-label">Discounted Price</label>
+                <div class="input-wrapper">
+                  <i class="field-icon pi pi-tag"></i>
+                  <input type="number" formControlName="discountPrice" min="0" step="0.01" class="form-control custom-input">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="input-label">Discount Start Date</label>
+                <div class="input-wrapper">
+                  <i class="field-icon pi pi-calendar"></i>
+                  <input type="date" formControlName="discountStartDate" class="form-control custom-input">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="input-label">Discount End Date</label>
+                <div class="input-wrapper">
+                  <i class="field-icon pi pi-calendar-plus"></i>
+                  <input type="date" formControlName="discountEndDate" class="form-control custom-input">
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    }
+
+    @if (currentStep() === 4) {
+      <div class="form-step">
+        <div class="step-header">
+          <h3>Requirements & Outcomes</h3>
+          <p>Define what students need and what they'll achieve</p>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label class="input-label">Requirements</label>
+            <p class="field-hint">What students need to know before taking this course</p>
+            <div class="array-container surface-raised">
+              @for (req of requirements.controls; track i; let i = $index) {
+                <div class="array-item">
+                  <input type="text" pInputText [formControl]="getAsFormControl(req)" placeholder="e.g., Basic programming knowledge" class="array-input custom-input">
+                  <button type="button" class="btn-icon btn-danger" (click)="removeRequirement(i)"><i class="pi pi-times"></i></button>
+                </div>
+              }
+              <button type="button" class="btn-add-item" (click)="addRequirement()">
+                <i class="pi pi-plus"></i> Add Requirement
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="input-label">What You'll Learn <span class="required">*</span></label>
+            <p class="field-hint">Key takeaways students will get from this course</p>
+            <div class="array-container surface-raised">
+              @for (item of whatYouWillLearn.controls; track i; let i = $index) {
+                <div class="array-item">
+                  <input type="text" pInputText [formControl]="getAsFormControl(item)" placeholder="e.g., Build full-stack web applications" class="array-input custom-input" [class.error]="item.invalid && item.touched">
+                  <button type="button" class="btn-icon btn-danger" (click)="removeLearningItem(i)"><i class="pi pi-times"></i></button>
+                </div>
+              }
+              <button type="button" class="btn-add-item" (click)="addLearningItem()">
+                <i class="pi pi-plus"></i> Add Learning Outcome
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="input-label">Target Audience</label>
+            <p class="field-hint">Who is this course for?</p>
+            <div class="array-container surface-raised">
+              @for (audience of targetAudience.controls; track i; let i = $index) {
+                <div class="array-item">
+                  <input type="text" pInputText [formControl]="getAsFormControl(audience)" placeholder="e.g., Beginner developers" class="array-input custom-input">
+                  <button type="button" class="btn-icon btn-danger" (click)="removeAudience(i)"><i class="pi pi-times"></i></button>
+                </div>
+              }
+              <button type="button" class="btn-add-item" (click)="addAudience()">
+                <i class="pi pi-plus"></i> Add Target Audience
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="input-label">Tags</label>
+            <p class="field-hint">Help students find your course (press Enter to add)</p>
+            <div class="tags-container surface-raised">
+              <div class="tags-list">
+                @for (tag of tags.controls; track i; let i = $index) {
+                  <span class="tag-item">
+                    #{{ tag.value }}
+                    <button type="button" class="tag-remove" (click)="removeTag(i)"><i class="pi pi-times"></i></button>
+                  </span>
+                }
+              </div>
+              <input type="text" pInputText placeholder="Type and press enter to add a tag" class="tag-input custom-input" (keydown.enter)="addTag($event)">
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="step-navigation">
+      @if (currentStep() > 1) {
+        <button type="button" class="btn btn-secondary btn-nav" (click)="prevStep()">
+          <i class="pi pi-arrow-left"></i> Previous
+        </button>
+      } @else {
+        <div></div> }
+      
+      @if (currentStep() < 4) {
+        <button type="button" class="btn btn-primary btn-nav" (click)="nextStep()">
+          Next <i class="pi pi-arrow-right"></i>
+        </button>
+      }
+    </div>
+
   </form>
 </div>
