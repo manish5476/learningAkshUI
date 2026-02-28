@@ -31,7 +31,7 @@ import { CourseService } from '../../../../core/services/course.service';
         <div class="hero-background" [style.backgroundImage]="'url(' + (course.thumbnail || 'https://via.placeholder.com/1200x500') + ')'">
           <div class="hero-overlay"></div>
         </div>
-        
+
         <div class="hero-content">
           <div class="breadcrumb">
             <a [routerLink]="isInstructorMode ? '/courses/instructor' : '/courses'">
@@ -80,14 +80,14 @@ import { CourseService } from '../../../../core/services/course.service';
             <button class="btn btn-primary" (click)="editCourse()">
               <i class="pi pi-pencil"></i> Edit Course
             </button>
-            
+
             <button class="btn btn-success"  (click)="approve()">
               <i class="pi pi-rocket"></i> approve
             </button>
             <button class="btn btn-success" *ngIf="!course.isPublished" (click)="publishCourse()">
               <i class="pi pi-rocket"></i> Publish
             </button>
-            
+
             <button class="btn btn-warning" *ngIf="course.isPublished" (click)="unpublishCourse()">
               <i class="pi pi-eye-slash"></i> Unpublish
             </button>
@@ -114,7 +114,7 @@ import { CourseService } from '../../../../core/services/course.service';
       <!-- Main Content -->
       <div class="course-main">
         <div class="content-grid">
-          
+
           <!-- Left Column -->
           <div class="left-column">
             <!-- Overview -->
@@ -159,7 +159,7 @@ import { CourseService } from '../../../../core/services/course.service';
 
           <!-- Right Column (Sidebar) -->
           <div class="right-column">
-            
+
             <!-- Pricing Card -->
             <div class="pricing-card">
               <div class="price-section">
@@ -167,7 +167,7 @@ import { CourseService } from '../../../../core/services/course.service';
                   {{ course.discountPrice ? (course.discountPrice | currency:course.currency) : (course.price | currency:course.currency) }}
                 </span>
                 <span class="free-badge-large" *ngIf="course.isFree">FREE</span>
-                
+
                 <div class="discount-info" *ngIf="course.discountPrice && !course.isFree">
                   <span class="original-price">{{ course.price | currency:course.currency }}</span>
                   <span class="discount-badge-large">
@@ -195,7 +195,7 @@ import { CourseService } from '../../../../core/services/course.service';
             <!-- Course Info Card -->
             <div class="info-card">
               <h3 class="info-title">Course Information</h3>
-              
+
               <div class="info-grid">
                 <div class="info-row">
                   <span class="info-label">Category</span>
@@ -203,7 +203,7 @@ import { CourseService } from '../../../../core/services/course.service';
                 </div>
                 <div class="info-row" *ngIf="!isInstructorMode">
                   <span class="info-label">Instructor</span>
-                  <span class="info-value">{{ course.instructor?.firstName }} {{ course.instructor?.lastName }}</span>
+                  <span class="info-value">{{ course.instructor.firstName }} {{ course.instructor.lastName }}</span>
                 </div>
                 <div class="info-row">
                   <span class="info-label">Language</span>
@@ -252,7 +252,7 @@ import { CourseService } from '../../../../core/services/course.service';
 
           <div class="curriculum-list">
             <div *ngFor="let section of sections; let i = index" class="curriculum-section-box">
-              
+
               <div class="section-header">
                 <div class="section-title-wrapper">
                   <i class="pi pi-angle-down"></i>
@@ -267,7 +267,7 @@ import { CourseService } from '../../../../core/services/course.service';
               <div class="lessons-list">
                 <div *ngFor="let lesson of section.lessons" class="lesson-item">
                   <div class="lesson-info">
-                    <i class="pi" 
+                    <i class="pi"
                        [class.pi-video]="lesson.type === 'video'"
                        [class.pi-file]="lesson.type === 'article'"
                        [class.pi-question-circle]="lesson.type === 'quiz'"></i>
@@ -390,7 +390,7 @@ import { CourseService } from '../../../../core/services/course.service';
       // --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
       // --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.08);
       // --transition-base: all 0.22s cubic-bezier(0.2, 0.9, 0.2, 1);
-      
+
       // --theme-bg-primary: #ffffff;
       // --theme-bg-secondary: #f8fafc;
       // --theme-text-primary: #0f172a;
@@ -398,7 +398,7 @@ import { CourseService } from '../../../../core/services/course.service';
       // --theme-text-tertiary: #94a3b8;
       // --theme-border-primary: #e2e8f0;
       // --theme-border-secondary: #f1f5f9;
-      
+
       // --theme-accent-primary: #3b82f6;
       // --theme-accent-hover: #2563eb;
       // --theme-success: #10b981;
@@ -420,7 +420,7 @@ import { CourseService } from '../../../../core/services/course.service';
       // --color-warning: var(--theme-warning);
       // --color-error: var(--theme-error);
       // --color-info: var(--theme-info);
-      
+
       // --color-success-bg: color-mix(in srgb, var(--theme-success) 15%, transparent);
       // --color-warning-bg: color-mix(in srgb, var(--theme-warning) 15%, transparent);
       // --color-error-bg: color-mix(in srgb, var(--theme-error) 15%, transparent);
@@ -525,7 +525,7 @@ import { CourseService } from '../../../../core/services/course.service';
     .btn-success:hover { background: color-mix(in srgb, var(--color-success) 80%, black); transform: translateY(-2px); }
     .btn-warning { background: var(--color-warning); color: white; }
     .btn-warning:hover { background: color-mix(in srgb, var(--color-warning) 80%, black); transform: translateY(-2px); }
-    
+
     .btn-secondary { background: rgba(255,255,255,0.15); color: white; backdrop-filter: blur(4px); }
     .btn-secondary:hover:not(:disabled) { background: rgba(255,255,255,0.25); }
     .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.4); color: white; }
@@ -536,7 +536,7 @@ import { CourseService } from '../../../../core/services/course.service';
     /* Main Layout */
     .course-main { max-width: 1280px; margin: 0 auto; padding: var(--spacing-4xl) var(--spacing-3xl); }
     .content-grid { display: grid; grid-template-columns: 1fr 380px; gap: var(--spacing-4xl); margin-bottom: var(--spacing-4xl); align-items: start; }
-    
+
     /* Content Sections */
     .content-section { margin-bottom: var(--spacing-4xl); }
     .section-title { font-family: var(--font-heading); font-size: var(--font-size-2xl); font-weight: 700; color: var(--text-primary); margin: 0 0 var(--spacing-xl); }
@@ -591,7 +591,7 @@ import { CourseService } from '../../../../core/services/course.service';
     /* Curriculum Section */
     .curriculum-section { margin-bottom: var(--spacing-4xl); max-width: 850px; }
     .curriculum-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-xl); flex-wrap: wrap; gap: var(--spacing-md); }
-    
+
     .curriculum-stats {
       display: flex; gap: var(--spacing-3xl); margin-bottom: var(--spacing-2xl); padding: var(--spacing-xl) var(--spacing-2xl);
       background: var(--bg-secondary); border-radius: var(--ui-border-radius-xl); border: 1px solid var(--border-secondary);
@@ -621,7 +621,7 @@ import { CourseService } from '../../../../core/services/course.service';
     }
     .lesson-item:hover { background: var(--bg-secondary); }
     .lesson-item:last-child { border-bottom: none; }
-    
+
     .lesson-info { display: flex; align-items: center; gap: var(--spacing-md); }
     .lesson-info i { color: var(--text-tertiary); font-size: 1.1rem; }
     .lesson-title { color: var(--text-primary); font-size: var(--font-size-sm); font-weight: 500; }
@@ -659,7 +659,7 @@ import { CourseService } from '../../../../core/services/course.service';
       box-shadow: var(--shadow-sm); transition: var(--transition-base);
     }
     .analytics-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
-    
+
     .analytics-icon {
       width: 48px; height: 48px; border-radius: 50%; background: var(--bg-secondary); border: 1px solid var(--border-primary);
       color: var(--text-secondary); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;
@@ -719,7 +719,7 @@ export class CourseDetailComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.error = null;
     let sub: Subscription;
-    
+
     // 3. Fetch data securely based on the mode
     if (this.isInstructorMode) {
        // Instructors fetch by MongoDB _id (can see drafts)
