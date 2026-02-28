@@ -1,9 +1,9 @@
-import { Injectable, inject } from '@angular/core';
+import {Injectable, inject, PLATFORM_ID} from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { BaseApiService, ApiResponse } from '../http/base-api.service';
-
+import { isPlatformBrowser } from '@angular/common';
 export interface User {
   _id: string;
   email: string;
@@ -62,17 +62,41 @@ export interface PasswordUpdateRequest {
 export class AuthService {
   private router = inject(Router);
   private api = inject(BaseApiService);
-  
+
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
-  
+
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
   constructor() {
     this.loadStoredUser();
   }
+  private platformId = inject(PLATFORM_ID);
+  // ... other properties
 
+  /**
+   * Public initializer to be called by provideAppInitializer
+   */
+  public initializeAuth(): void {
+    // Only run this in the browser to avoid SSR errors
+    if (isPlatformBrowser(this.platformId)) {
+      const storedUser = localStorage.getItem('currentUser');
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser);
+          this.currentUserSubject.next(user);
+          this.isAuthenticatedSubject.next(true);
+
+          // Also restore the token in your BaseApiService if needed
+          // const token = localStorage.getItem('authToken');
+          // if (token) this.api.setAuthToken(token);
+        } catch (error) {
+          this.clearAuthData();
+        }
+      }
+    }
+  }
   /**
    * Load stored user from localStorage
    */
@@ -199,7 +223,7 @@ export class AuthService {
   hasRole(roles: string | string[]): boolean {
     const user = this.getCurrentUser();
     if (!user) return false;
-    
+
     if (Array.isArray(roles)) {
       return roles.includes(user.role);
     }

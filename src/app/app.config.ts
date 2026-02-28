@@ -50,11 +50,10 @@ export const appConfig: ApplicationConfig = {
     DialogService,
     DatePipe,
 
-    // 6. Modern Initializer (Angular 19 style)
     provideAppInitializer(() => {
-      const auth = inject(AuthService);
-      // return auth.initializeFromStorage(); // Ensure this returns a Promise/Observable if async
-    })
+      const authService = inject(AuthService);
+      return authService.initializeAuth();
+    }),
   ]
 };
 //
