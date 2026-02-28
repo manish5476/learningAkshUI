@@ -1,0 +1,173 @@
+<form [formGroup]="lessonForm" (ngSubmit)="onSubmit()" class="lesson-form">
+  
+  <p-tabs value="0" styleClass="custom-tabs">
+    <p-tablist>
+      <p-tab value="0"><i class="pi pi-info-circle mr-sm"></i> Basic Info</p-tab>
+      <p-tab value="1" [disabled]="!lessonForm.get('type')?.value"><i class="pi pi-file-edit mr-sm"></i> Content</p-tab>
+      <p-tab value="2"><i class="pi pi-paperclip mr-sm"></i> Resources</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+      <p-tabpanel value="0">
+        <div class="form-grid">
+          
+          <div class="form-group full-width">
+            <label class="input-label">Lesson Title <span class="required">*</span></label>
+            <input type="text" pInputText formControlName="title" placeholder="e.g., Introduction to the Framework" class="custom-input w-full" [class.error]="isFieldInvalid('title')">
+            @if (isFieldInvalid('title')) { <small class="error-message">Title is required</small> }
+          </div>
+
+          <div class="form-group full-width">
+            <label class="input-label">Description <span class="text-tertiary font-normal text-xs ml-sm">(Optional)</span></label>
+            <textarea pTextarea formControlName="description" placeholder="Briefly describe what this lesson covers..." [rows]="3" class="custom-input textarea-input w-full"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="input-label">Lesson Type <span class="required">*</span></label>
+            <p-select formControlName="type" [options]="lessonTypes" optionLabel="label" optionValue="value" placeholder="Select type" styleClass="w-full custom-select" (onChange)="onTypeChange($event)">
+              <ng-template let-type pTemplate="item">
+                <div class="flex align-items-center gap-sm">
+                  <i [class]="type.icon" class="text-primary"></i>
+                  <span>{{ type.label }}</span>
+                </div>
+              </ng-template>
+            </p-select>
+          </div>
+
+          <div class="form-group">
+            <label class="input-label">Duration <span class="text-tertiary font-normal text-xs ml-sm">(Minutes)</span></label>
+            <p-inputNumber formControlName="duration" [min]="0" [max]="500" [showButtons]="true" styleClass="w-full custom-number"></p-inputNumber>
+          </div>
+
+          <div class="form-group full-width settings-panel surface-subtle">
+            <h4 class="settings-title">Visibility Settings</h4>
+            <div class="settings-grid">
+              <div class="toggle-label">
+                <p-checkbox formControlName="isPublished" [binary]="true" inputId="isPub"></p-checkbox>
+                <div class="toggle-text">
+                  <label for="isPub" class="font-medium">Published</label>
+                  <span class="text-xs text-tertiary block">Visible to enrolled students</span>
+                </div>
+              </div>
+              <div class="toggle-label">
+                <p-checkbox formControlName="isFree" [binary]="true" inputId="isFree"></p-checkbox>
+                <div class="toggle-text">
+                  <label for="isFree" class="font-medium text-success">Free Preview</label>
+                  <span class="text-xs text-tertiary block">Visible to everyone before purchase</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </p-tabpanel>
+
+      <p-tabpanel value="1">
+        
+        @if (lessonForm.get('type')?.value === 'video') {
+          <div class="content-form">
+            <div class="form-group full-width">
+              <label class="input-label">Video URL <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <i class="pi pi-link field-icon"></i>
+                <input pInputText formControlName="videoUrl" placeholder="https://www.youtube.com/watch?v=..." class="custom-input w-full pl-xl">
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="input-label">Video Provider</label>
+                <p-select formControlName="videoProvider" [options]="videoProviders" optionLabel="label" optionValue="value" styleClass="w-full custom-select"></p-select>
+              </div>
+
+              <div class="form-group">
+                <label class="input-label">Exact Duration <span class="text-tertiary font-normal text-xs ml-sm">(Seconds)</span></label>
+                <p-inputNumber formControlName="videoDuration" [min]="0" [showButtons]="true" suffix=" sec" styleClass="w-full custom-number"></p-inputNumber>
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <label class="input-label">Video Thumbnail URL <span class="text-tertiary font-normal text-xs ml-sm">(Optional)</span></label>
+              <div class="input-wrapper">
+                <i class="pi pi-image field-icon"></i>
+                <input pInputText formControlName="videoThumbnail" placeholder="https://example.com/thumbnail.jpg" class="custom-input w-full pl-xl">
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (lessonForm.get('type')?.value === 'article') {
+          <div class="content-form">
+            <div class="form-group full-width">
+              <label class="input-label">Article Content</label>
+              <textarea pTextarea formControlName="articleBody" placeholder="Write your rich text article here (HTML supported)..." [rows]="12" class="custom-input textarea-input w-full custom-scrollbar"></textarea>
+            </div>
+          </div>
+        }
+
+        @if (lessonForm.get('type')?.value === 'quiz') {
+          <div class="content-form">
+            <div class="info-message surface-subtle">
+              <div class="icon-circle"><i class="pi pi-info-circle text-info"></i></div>
+              <div>
+                <h4 class="m-0 text-primary">Quiz Configuration</h4>
+                <p class="m-0 text-xs text-secondary mt-xs">Link an existing quiz by ID. Quiz builder is managed in a separate module.</p>
+              </div>
+            </div>
+            <div class="form-group mt-lg">
+              <label class="input-label">Target Quiz ID</label>
+              <div class="input-wrapper">
+                <i class="pi pi-hashtag field-icon"></i>
+                <input pInputText formControlName="quizId" placeholder="Paste MongoDB Object ID here" class="custom-input w-full pl-xl font-mono">
+              </div>
+            </div>
+          </div>
+        }
+      </p-tabpanel>
+
+      <p-tabpanel value="2">
+        <div class="resources-form" formArrayName="resources">
+          
+          @for (resource of resources.controls; track i; let i = $index) {
+            <div class="resource-item surface-raised" [formGroupName]="i">
+              <div class="resource-drag"><i class="pi pi-bars"></i></div>
+              
+              <div class="resource-fields">
+                <div class="r-col-2">
+                  <input pInputText formControlName="title" placeholder="Resource Title" class="custom-input w-full" [class.error]="isResourceInvalid(i, 'title')">
+                </div>
+                
+                <div class="r-col-1">
+                  <p-select formControlName="type" [options]="resourceTypes" optionLabel="label" optionValue="value" styleClass="w-full custom-select" appendTo="body"></p-select>
+                </div>
+
+                <div class="r-col-3">
+                  <input pInputText formControlName="url" placeholder="Resource URL (https://...)" class="custom-input w-full" [class.error]="isResourceInvalid(i, 'url')">
+                </div>
+              </div>
+
+              <button type="button" class="btn-icon btn-danger" (click)="removeResource(i)" pTooltip="Remove Resource">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          }
+
+          <button type="button" class="add-resource-btn mt-md" (click)="addResource()">
+            <i class="pi pi-plus"></i> Add Downloadable Resource
+          </button>
+
+        </div>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+
+  <div class="form-actions">
+    <button type="button" class="btn-secondary" (click)="onCancel()">
+      <i class="pi pi-times"></i> Cancel
+    </button>
+    <button type="submit" class="btn-primary" [disabled]="lessonForm.invalid || isLoading()">
+      <i class="pi" [ngClass]="isLoading() ? 'pi-spinner pi-spin' : 'pi-check'"></i> 
+      {{ isLoading() ? 'Saving...' : (lessonId() ? 'Update Lesson' : 'Create Lesson') }}
+    </button>
+  </div>
+</form>

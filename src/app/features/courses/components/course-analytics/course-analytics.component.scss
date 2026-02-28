@@ -1,0 +1,148 @@
+/* ==========================================================================
+   HOST & GLOBALS
+   ========================================================================== */
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: var(--bg-primary, #030712);
+  font-family: var(--font-body, 'Inter', sans-serif);
+  color: var(--text-primary, #f8fafc);
+}
+
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.text-success { color: var(--color-success); }
+.text-warning { color: var(--color-warning); }
+.text-info { color: var(--color-info); }
+.text-error { color: var(--color-error); }
+
+.mt-xs { margin-top: var(--spacing-xs, 0.25rem); }
+.m-0 { margin: 0; }
+.mb-0 { margin-bottom: 0; }
+.text-sm { font-size: 0.875rem; }
+.text-xs { font-size: 0.75rem; }
+.font-medium { font-weight: 500; }
+.font-bold { font-weight: 700; }
+.font-mono { font-family: var(--font-mono); }
+
+/* Color Mixes for Backgrounds */
+.bg-primary-light { background: color-mix(in srgb, var(--color-primary) 15%, transparent); }
+.bg-success-light { background: color-mix(in srgb, var(--color-success) 15%, transparent); }
+.bg-warning-light { background: color-mix(in srgb, var(--color-warning) 15%, transparent); }
+.bg-info-light { background: color-mix(in srgb, var(--color-info) 15%, transparent); }
+
+/* ==========================================================================
+   STATE OVERLAYS & LOADERS
+   ========================================================================== */
+.state-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; text-align: center; }
+.cinematic-bg { background: radial-gradient(circle at center, color-mix(in srgb, var(--bg-secondary) 80%, transparent) 0%, var(--bg-primary) 100%); }
+
+.loader-ring { width: 60px; height: 60px; border: 4px solid color-mix(in srgb, var(--color-primary) 20%, transparent); border-top-color: var(--color-primary); border-radius: 50%; animation: spin 1s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.85rem; font-weight: 600; animation: pulseOpacity 2s infinite; }
+@keyframes pulseOpacity { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+/* ==========================================================================
+   LAYOUT & SURFACES
+   ========================================================================== */
+.analytics-container { max-width: 1400px; margin: 0 auto; padding: var(--spacing-3xl) var(--spacing-4xl); }
+
+.glass-panel {
+  background: var(--glass-bg-c, rgba(15, 23, 42, 0.6));
+  backdrop-filter: blur(var(--glass-blur-c, 24px));
+  -webkit-backdrop-filter: blur(var(--glass-blur-c, 24px));
+  border: 1px solid var(--glass-border-c, rgba(255,255,255,0.08));
+  border-radius: var(--ui-border-radius-xl, 1.5rem);
+  padding: var(--spacing-3xl, 2.5rem);
+}
+
+.surface-raised {
+  background: color-mix(in srgb, var(--bg-secondary) 60%, transparent);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: var(--ui-border-radius-xl, 1.5rem);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.hover-lift { transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
+.hover-lift:hover { transform: translateY(-4px); box-shadow: 0 15px 30px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.15); }
+
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
+.dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-4xl); padding: var(--spacing-2xl); flex-wrap: wrap; gap: var(--spacing-lg); }
+.header-left { display: flex; align-items: center; gap: var(--spacing-xl); }
+
+.btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid rgba(255,255,255,0.1); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; font-size: 1.2rem; }
+.btn-ghost:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.2); }
+
+.page-title { font-family: var(--font-heading); font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; }
+.gradient-text { background: linear-gradient(135deg, #fff 0%, var(--text-secondary) 100%); -webkit-background-clip: text; color: transparent; }
+
+.btn-glow {
+  padding: 0.85rem 1.5rem; border-radius: 0.75rem; font-size: 0.95rem; font-weight: 700; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-body);
+}
+.btn-glow.outline { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; }
+.btn-glow.outline:hover { background: rgba(255,255,255,0.05); border-color: #fff; }
+
+/* ==========================================================================
+   BENTO GRID LAYOUT
+   ========================================================================== */
+.dashboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--spacing-2xl); }
+.col-span-2 { grid-column: span 2 / span 2; }
+
+.bento-box { padding: var(--spacing-3xl); display: flex; flex-direction: column; }
+.card-header { margin-bottom: var(--spacing-2xl); }
+.card-title { font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: #fff; margin: 0 0 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+
+/* Top Stats Cards */
+.stat-card { flex-direction: row; align-items: center; gap: var(--spacing-xl); padding: var(--spacing-2xl); }
+.stat-icon-wrapper { width: 56px; height: 56px; border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+.stat-info { display: flex; flex-direction: column; gap: 4px; }
+.stat-label { font-size: 0.8rem; text-transform: uppercase; font-weight: 700; color: var(--text-tertiary); letter-spacing: 0.05em; }
+.stat-value { font-family: var(--font-heading); font-size: 2rem; font-weight: 800; color: #fff; line-height: 1; }
+
+/* Engagement Breakdown */
+.engagement-list { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.engagement-row { display: flex; flex-direction: column; gap: 8px; }
+.e-label-group { display: flex; justify-content: space-between; align-items: flex-end; }
+.e-bar-container { display: flex; align-items: center; gap: 1rem; }
+
+:host ::ng-deep .custom-progress.p-progressbar { flex: 1; height: 8px; background: rgba(255,255,255,0.05); border-radius: 999px; }
+:host ::ng-deep .custom-progress.p-progressbar .p-progressbar-value { background: linear-gradient(90deg, var(--color-info), var(--color-primary)); border-radius: 999px; }
+
+/* Recent Students Table */
+.custom-table-wrapper { width: 100%; overflow-x: auto; }
+
+/* PrimeNG Table Glassmorphism Overrides */
+:host ::ng-deep .p-datatable-glass {
+  .p-datatable-header { background: transparent; border: none; padding: 0; }
+  .p-datatable-thead > tr > th {
+    background: color-mix(in srgb, var(--bg-secondary) 50%, transparent); color: var(--text-tertiary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 1rem;
+  }
+  .p-datatable-tbody > tr > td { background: transparent; border-bottom: 1px solid rgba(255,255,255,0.02); padding: 1rem; color: var(--text-primary); }
+  .p-datatable-tbody > tr { transition: background 0.2s; }
+  .p-datatable-tbody > tr:hover { background: rgba(255,255,255,0.02); }
+}
+
+.student-cell { display: flex; align-items: center; gap: 1rem; }
+.s-info { display: flex; flex-direction: column; gap: 2px; }
+.progress-cell { display: flex; align-items: center; gap: 1rem; }
+:host ::ng-deep .table-progress.p-progressbar { width: 100px; height: 6px; background: rgba(255,255,255,0.05); border-radius: 999px; }
+:host ::ng-deep .table-progress.p-progressbar .p-progressbar-value { background: var(--color-info); border-radius: 999px; }
+
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+@media (max-width: 1200px) {
+  .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+  .col-span-2 { grid-column: span 2 / span 2; }
+}
+
+@media (max-width: 768px) {
+  .analytics-container { padding: var(--spacing-xl); }
+  .dashboard-header { flex-direction: column; align-items: flex-start; }
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .col-span-2 { grid-column: span 1 / span 1; }
+  .stat-card { padding: var(--spacing-xl); }
+}

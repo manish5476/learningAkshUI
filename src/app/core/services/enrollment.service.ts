@@ -2,39 +2,9 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BaseApiService, ApiResponse } from '../http/base-api.service';
+import { Enrollment, EnrollmentProgress } from '../models/enrollment.model';
 
-export interface Enrollment {
-  _id: string;
-  student: string | any;
-  course: string | any;
-  enrolledAt: string;
-  completedAt?: string;
-  isActive: boolean;
-  progress: number;
-  completedLessons: string[];
-  lastAccessedAt: string;
-  certificateIssued?: boolean;
-  certificateUrl?: string;
-  paymentDetails?: {
-    amount: number;
-    currency: string;
-    transactionId: string;
-    paymentMethod: string;
-  };
-  createdAt: string;
-  updatedAt: string;
-}
 
-export interface EnrollmentProgress {
-  enrollmentId: string;
-  courseId: string;
-  studentId: string;
-  progress: number;
-  completedLessons: string[];
-  lastLessonId?: string;
-  lastLessonAt?: string;
-  estimatedCompletionDate?: string;
-}
 
 @Injectable({
   providedIn: 'root'

@@ -21,7 +21,7 @@ export class LessonService {
   /**
    * Get all lessons (with filters)
    */
-  getAll(params?: any): Observable<ApiResponse<Lesson[]>> {
+  getAll(params?: any): Observable<ApiResponse<any>> {
     return this.baseApi.get<Lesson[]>(this.endpoint, { params });
   }
 

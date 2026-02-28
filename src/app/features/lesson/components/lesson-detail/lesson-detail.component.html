@@ -1,0 +1,144 @@
+<div class="lesson-detail">
+  <div class="detail-header">
+    <div class="header-icon" [ngClass]="lesson().type + '-icon'">
+      @switch (lesson().type) {
+        @case ('video') { <i class="pi pi-video"></i> }
+        @case ('article') { <i class="pi pi-file"></i> }
+        @case ('quiz') { <i class="pi pi-question-circle"></i> }
+        @case ('assignment') { <i class="pi pi-pencil"></i> }
+        @case ('coding-exercise') { <i class="pi pi-code"></i> }
+      }
+    </div>
+    
+    <div class="header-info">
+      <h2>{{ lesson().title }}</h2>
+      <div class="header-meta">
+        <p-tag [value]="lesson().type | titlecase" [severity]="getTypeSeverity(lesson().type)" [rounded]="true"></p-tag>
+        
+        @if (lesson().duration) {
+          <span class="meta-pill">
+            <i class="pi pi-clock"></i>
+            {{ lesson().duration | duration }}
+          </span>
+        }
+        
+        @if (lesson().isFree) {
+          <span class="meta-pill badge-free">
+            <i class="pi pi-lock-open"></i>
+            Free Preview
+          </span>
+        }
+      </div>
+    </div>
+    
+    <div class="status-indicator">
+      <p-tag 
+        [value]="lesson().isPublished ? 'Published' : 'Draft'" 
+        [severity]="lesson().isPublished ? 'success' : 'warn'"
+        [rounded]="true">
+      </p-tag>
+    </div>
+  </div>
+
+  @if (lesson().description) {
+    <div class="content-section">
+      <h3 class="section-title">
+        <i class="pi pi-align-left text-primary"></i> Description
+      </h3>
+      <div class="surface-subtle description-box">
+        <p class="description">{{ lesson().description }}</p>
+      </div>
+    </div>
+  }
+
+  <div class="content-section">
+    <h3 class="section-title">
+      <i class="pi pi-eye text-info"></i> Content Preview
+    </h3>
+
+    <div class="surface-raised preview-box">
+      @if (lesson().type === 'video' && lesson().content?.video) {
+        <div class="video-preview">
+          <div class="video-thumbnail-wrapper">
+            @if (lesson().content.video.thumbnail) {
+              <img [src]="lesson().content.video.thumbnail" [alt]="lesson().title" class="video-thumbnail">
+              <div class="play-overlay"><i class="pi pi-play"></i></div>
+            } @else {
+              <div class="no-thumbnail">
+                <i class="pi pi-video"></i>
+                <span>No Thumbnail</span>
+              </div>
+            }
+          </div>
+          <div class="video-info">
+            <div class="info-row">
+              <span class="info-label">Provider</span>
+              <span class="info-value">
+                <i class="pi" [ngClass]="lesson().content.video.provider === 'youtube' ? 'pi-youtube text-error' : (lesson().content.video.provider === 'vimeo' ? 'pi-vimeo text-info' : 'pi-video')"></i>
+                {{ lesson().content.video.provider | titlecase }}
+              </span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Source URL</span>
+              <a [href]="lesson().content.video.url" target="_blank" class="info-value link-text">
+                {{ lesson().content.video.url }} <i class="pi pi-external-link text-xs"></i>
+              </a>
+            </div>
+            <div class="info-row border-none">
+              <span class="info-label">Duration</span>
+              <span class="info-value font-mono">{{ lesson().content.video.duration }} seconds</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (lesson().type === 'article' && lesson().content?.article) {
+        <div class="article-preview">
+          <div class="article-content custom-scrollbar" [innerHTML]="lesson().content.article.body"></div>
+        </div>
+      }
+
+      @if (lesson().type === 'quiz') {
+        <div class="quiz-preview">
+          <div class="icon-circle"><i class="pi pi-question-circle text-warning"></i></div>
+          <p><strong>Quiz ID linked:</strong> <span class="font-mono text-secondary">{{ lesson().content?.quiz }}</span></p>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (lesson().resources?.length) {
+    <div class="content-section">
+      <h3 class="section-title">
+        <i class="pi pi-paperclip text-success"></i> Resources ({{ lesson().resources.length }})
+      </h3>
+      <div class="resources-grid">
+        @for (resource of lesson().resources; track resource.url) {
+          <a [href]="resource.url" target="_blank" class="resource-card hover-lift">
+            <div class="r-icon">
+              <i class="pi" 
+                 [class.pi-file-pdf]="resource.type === 'pdf'"
+                 [class.pi-code]="resource.type === 'code'"
+                 [class.pi-link]="resource.type === 'link'"
+                 [class.pi-image]="resource.type === 'image'"></i>
+            </div>
+            <div class="r-info">
+              <span class="r-title">{{ resource.title }}</span>
+              <span class="r-type">{{ resource.type | titlecase }}</span>
+            </div>
+            <i class="pi pi-download r-action"></i>
+          </a>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="detail-actions">
+    <button class="btn-secondary" (click)="onClose()">
+      <i class="pi pi-times"></i> Close
+    </button>
+    <button class="btn-primary" (click)="onEdit()">
+      <i class="pi pi-pencil"></i> Edit Lesson
+    </button>
+  </div>
+</div>

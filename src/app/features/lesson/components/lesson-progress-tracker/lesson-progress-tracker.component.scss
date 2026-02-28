@@ -1,0 +1,90 @@
+  /* ==========================================================================
+   HOST & GLOBALS
+   ========================================================================== */
+:host {
+  display: block;
+  width: 100%;
+  font-family: var(--font-body);
+}
+
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.text-success { color: var(--color-success); }
+.text-info { color: var(--color-info); }
+.text-sm { font-size: var(--font-size-sm, 0.875rem); }
+.cursor-default { cursor: default !important; }
+
+@media (min-width: 768px) { .md\:block { display: block !important; } }
+.hidden { display: none; }
+
+/* ==========================================================================
+   CONTAINERS & SURFACES
+   ========================================================================== */
+.glass-panel {
+  background: var(--glass-bg-c, rgba(30, 41, 59, 0.5));
+  backdrop-filter: blur(var(--glass-blur-c, 24px));
+  -webkit-backdrop-filter: blur(var(--glass-blur-c, 24px));
+  border: 1px solid var(--glass-border-c, rgba(255,255,255,0.05));
+  border-radius: var(--ui-border-radius-lg, 1rem);
+  padding: var(--spacing-xl, 1.5rem);
+}
+
+.surface-raised {
+  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+}
+
+.loading-bar {
+  display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm); width: 100%; padding: var(--spacing-md) 0;
+}
+
+/* ==========================================================================
+   LAYOUT
+   ========================================================================== */
+.tracker-layout {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-2xl); flex-wrap: wrap;
+}
+
+/* Left: Status Info */
+.status-info { display: flex; align-items: center; gap: var(--spacing-lg); }
+
+.status-icon {
+  width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+  transition: all 0.3s ease;
+}
+.status-icon.pending { background: rgba(255,255,255,0.05); color: var(--text-tertiary); border: 1px dashed rgba(255,255,255,0.2); }
+.status-icon.completed { background: color-mix(in srgb, var(--color-success) 15%, transparent); color: var(--color-success); border: 1px solid color-mix(in srgb, var(--color-success) 30%, transparent); box-shadow: 0 0 20px color-mix(in srgb, var(--color-success) 20%, transparent); }
+
+.status-details { display: flex; flex-direction: column; gap: 4px; }
+.status-title { margin: 0; font-family: var(--font-heading); font-size: 1.1rem; font-weight: var(--font-weight-bold, 700); color: var(--text-primary); }
+.status-meta { font-family: var(--font-mono); font-size: 0.75rem; font-weight: var(--font-weight-medium, 500); display: flex; align-items: center; gap: 4px;}
+
+/* Middle: Progress Bar */
+.progress-bar-wrapper { flex: 1; max-width: 300px; display: flex; flex-direction: column; gap: 8px; }
+.bar-labels { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+:host ::ng-deep .custom-progress.p-progressbar { height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; border: 1px solid rgba(255,255,255,0.05); }
+:host ::ng-deep .custom-progress.p-progressbar .p-progressbar-value { background: linear-gradient(90deg, var(--color-info), var(--color-primary)); border-radius: 4px; }
+
+/* Right: Actions */
+.action-area { flex-shrink: 0; }
+
+.btn-glow {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 24px; border-radius: var(--ui-border-radius-lg, 0.75rem);
+  font-size: 0.95rem; font-weight: var(--font-weight-bold, 700); border: none; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-glow.primary { background: var(--color-primary); color: #fff; box-shadow: 0 8px 20px -5px color-mix(in srgb, var(--color-primary) 50%, transparent); }
+.btn-glow.primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 25px -5px color-mix(in srgb, var(--color-primary) 70%, transparent); filter: brightness(1.1); }
+.btn-glow.primary:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.btn-glow.success-outline { background: color-mix(in srgb, var(--color-success) 10%, transparent); border: 1px solid var(--color-success); color: var(--color-success); pointer-events: none; }
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 640px) {
+  .tracker-layout { flex-direction: column; align-items: stretch; text-align: center; gap: var(--spacing-xl); }
+  .status-info { flex-direction: column; justify-content: center; }
+  .btn-glow { width: 100%; }
+}

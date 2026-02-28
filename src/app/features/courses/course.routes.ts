@@ -17,7 +17,7 @@ export const COURSE_ROUTES: Routes = [
       // Student routes (enrolled)
       {
         path: 'learn/:id',
-        loadComponent: () => import('./components/course-player.component').then(m => m.CoursePlayerComponent),
+        loadComponent: () => import('./components/course-player/course-player.component').then(m => m.CoursePlayerComponent),
         canActivate: [AuthGuard],
         title: 'Course Player'
       },
@@ -27,6 +27,11 @@ export const COURSE_ROUTES: Routes = [
         path: 'instructor',
         canActivate: [AuthGuard],
         children: [
+          {
+            path: '', // This acts as the home page for /instructor
+            loadComponent: () => import('../instructor/instructor-dashboard/instructor-dashboard.component').then(m => m.InstructorDashboardComponent),
+            title: 'Instructor Command Center'
+          },
           {
             path: '',
             loadComponent: () => import('./components/courselist/course-list.component').then(m => m.CourseListComponent),
@@ -49,8 +54,13 @@ export const COURSE_ROUTES: Routes = [
             title: 'Edit Course'
           },
           {
+            path: ':id/analytics',
+            loadComponent: () => import('./components/course-analytics/course-analytics.component').then(m => m.CourseAnalyticsComponent),
+            title: 'Course Analytics'
+          },
+          {
             path: ':id/curriculum',
-            loadComponent: () => import('./components/course-curriculum.component').then(m => m.CourseCurriculumComponent),
+            loadComponent: () => import('./course-curriculum/course-curriculum.component').then(m => m.CourseCurriculumComponent),
             title: 'Course Curriculum'
           }
         ]

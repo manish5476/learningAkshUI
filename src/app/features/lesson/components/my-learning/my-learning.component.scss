@@ -1,0 +1,282 @@
+/* ==========================================================================
+   HOST & UTILITIES 
+   ========================================================================== */
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: var(--bg-primary, #030712);
+  font-family: var(--font-body, 'Inter', sans-serif);
+  color: var(--text-primary, #f8fafc);
+}
+
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.text-success { color: var(--color-success); }
+.text-xs { font-size: 0.75rem; }
+.font-medium { font-weight: 500; }
+.font-bold { font-weight: 700; }
+.w-full { width: 100%; }
+.mt-sm { margin-top: var(--spacing-sm, 0.5rem); }
+.mt-md { margin-top: var(--spacing-md, 1rem); }
+.mt-lg { margin-top: var(--spacing-lg, 1.5rem); }
+.ml-xs { margin-left: var(--spacing-xs, 0.25rem); }
+.col-span-full { grid-column: 1 / -1; }
+
+/* ==========================================================================
+   SURFACES
+   ========================================================================== */
+.my-learning-container { padding: var(--spacing-3xl) var(--spacing-4xl); max-width: 1600px; margin: 0 auto; }
+
+.glass-panel {
+  background: var(--glass-bg-c, rgba(15, 23, 42, 0.6));
+  backdrop-filter: blur(var(--glass-blur-c, 24px));
+  -webkit-backdrop-filter: blur(var(--glass-blur-c, 24px));
+  border: 1px solid var(--glass-border-c, rgba(255,255,255,0.08));
+  border-radius: var(--ui-border-radius-xl, 1.5rem);
+  box-shadow: var(--shadow-lg);
+}
+
+.surface-raised {
+  background: color-mix(in srgb, var(--bg-secondary) 60%, transparent);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: var(--ui-border-radius-lg, 1rem);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.surface-subtle {
+  background: color-mix(in srgb, var(--bg-ternary, #111) 40%, transparent);
+  border-radius: var(--ui-border-radius-lg, 1rem);
+  border: 1px dashed rgba(255,255,255,0.1);
+}
+
+.hover-lift { transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
+.hover-lift:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.15); }
+
+/* ==========================================================================
+   HERO & TABS
+   ========================================================================== */
+.learning-hero { padding: 3rem; margin-bottom: 3rem; display: flex; flex-direction: column; gap: 2rem; position: relative; overflow: hidden; }
+/* Subtle glow inside the hero */
+.learning-hero::before { content: ''; position: absolute; top: -50%; left: -10%; width: 50%; height: 200%; background: radial-gradient(circle, color-mix(in srgb, var(--color-primary) 15%, transparent), transparent 70%); z-index: 0; pointer-events: none; }
+
+.hero-content { position: relative; z-index: 1; }
+.gradient-text { background: linear-gradient(135deg, #fff 0%, var(--text-secondary) 100%); -webkit-background-clip: text; color: transparent; font-family: var(--font-heading); font-size: 3rem; font-weight: 800; margin: 0 0 0.5rem; letter-spacing: -0.02em; }
+.hero-subtitle { font-size: 1.1rem; color: var(--text-tertiary); margin: 0; }
+
+.custom-tabs { display: flex; gap: 1rem; position: relative; z-index: 1; flex-wrap: wrap; }
+.tab-btn {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);
+  padding: 0.75rem 1.5rem; border-radius: 999px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.3s;
+  display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-body);
+}
+.tab-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.tab-btn.active { background: color-mix(in srgb, var(--color-primary) 15%, transparent); color: var(--color-primary); border-color: color-mix(in srgb, var(--color-primary) 30%, transparent); box-shadow: 0 0 20px color-mix(in srgb, var(--color-primary) 20%, transparent); }
+
+/* ==========================================================================
+   COURSE GRID & CARDS
+   ========================================================================== */
+.learning-content { min-height: 400px; }
+.course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2.5rem; }
+
+.course-card { display: flex; flex-direction: column; overflow: hidden; background: var(--bg-secondary); }
+.card-img { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden; }
+.card-img img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: opacity 0.3s, transform 0.5s; }
+.course-card:hover .card-img img { opacity: 0.4; transform: scale(1.05); }
+
+.play-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: #fff; opacity: 0; cursor: pointer; transition: all 0.3s; transform: scale(0.8); }
+.course-card:hover .play-overlay { opacity: 1; transform: scale(1); }
+
+.success-badge { position: absolute; top: 1rem; right: 1rem; background: var(--color-success); color: #000; padding: 4px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 800; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+
+.card-body { padding: 1.5rem; display: flex; flex-direction: column; flex: 1; }
+.course-title { font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: #fff; margin: 0 0 0.25rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.instructor-name { font-size: 0.85rem; color: var(--text-tertiary); margin: 0; }
+
+/* Progress Bar Overrides */
+.progress-section { margin-top: auto; }
+.progress-labels { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+:host ::ng-deep .custom-progress.p-progressbar { height: 6px; background: rgba(255,255,255,0.05); border-radius: 999px; }
+:host ::ng-deep .custom-progress.p-progressbar .p-progressbar-value { background: linear-gradient(90deg, var(--color-info), var(--color-primary)); border-radius: 999px; }
+
+.completed-card .card-img img { filter: grayscale(50%); }
+.completed-card:hover .card-img img { filter: grayscale(0%); opacity: 0.6; }
+
+/* Buttons */
+.btn-glow {
+  padding: 0.85rem 1.5rem; border-radius: 0.75rem; font-size: 0.95rem; font-weight: 700; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-body);
+}
+.btn-glow.primary { background: var(--color-primary); color: #fff; }
+.btn-glow.primary:hover { box-shadow: 0 8px 20px color-mix(in srgb, var(--color-primary) 40%, transparent); filter: brightness(1.1); }
+.btn-glow.outline { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; }
+.btn-glow.outline:hover { background: rgba(255,255,255,0.05); border-color: #fff; }
+.btn-glow.success { background: color-mix(in srgb, var(--color-success) 15%, transparent); color: var(--color-success); border: 1px solid color-mix(in srgb, var(--color-success) 30%, transparent); }
+.btn-glow.success:hover { background: var(--color-success); color: #000; }
+
+/* ==========================================================================
+   CERTIFICATES GRID
+   ========================================================================== */
+.cert-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 1.5rem; }
+.cert-card { display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem; background: rgba(30,41,59,0.4); }
+.cert-icon { width: 50px; height: 50px; border-radius: 50%; background: color-mix(in srgb, var(--color-success) 10%, transparent); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+.cert-info { flex: 1; display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
+.cert-info h4 { margin: 0; font-size: 1.1rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cert-info p { margin: 0; font-size: 0.8rem; color: var(--text-tertiary); }
+
+.btn-icon { width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+.btn-icon.btn-primary { background: color-mix(in srgb, var(--color-primary) 20%, transparent); color: var(--color-primary); }
+.btn-icon.btn-primary:hover { background: var(--color-primary); color: #fff; transform: translateY(-2px); }
+
+/* ==========================================================================
+   STATES
+   ========================================================================== */
+.state-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5rem 0; }
+.loader-ring { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--color-primary); border-radius: 50%; animation: spin 1s infinite linear; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5rem 2rem; text-align: center; }
+.empty-state .icon-circle { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 1.5rem; }
+.empty-state h3 { font-family: var(--font-heading); font-size: 1.5rem; color: #fff; margin: 0 0 0.5rem; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .my-learning-container { padding: 1rem; }
+  .learning-hero { padding: 2rem 1.5rem; }
+  .gradient-text { font-size: 2.2rem; }
+  .cert-grid { grid-template-columns: 1fr; }
+}
+
+// /* ==========================================================================
+//    HOST & GLOBALS (Tokens Only)
+//    ========================================================================== */
+// :host {
+//   display: block;
+//   min-height: 100vh;
+//   background-color: var(--bg-primary, #030712);
+//   font-family: var(--font-body, 'Inter', sans-serif);
+//   color: var(--text-primary, #f8fafc);
+//   padding: var(--spacing-4xl) var(--spacing-xl);
+// }
+
+// .text-primary { color: var(--color-primary); }
+// .text-secondary { color: var(--text-secondary); }
+// .text-tertiary { color: var(--text-tertiary); }
+// .text-success { color: var(--color-success); }
+// .mt-sm { margin-top: var(--spacing-sm); }
+// .mt-md { margin-top: var(--spacing-md); }
+// .mt-lg { margin-top: var(--spacing-lg); }
+// .mt-xl { margin-top: var(--spacing-xl); }
+// .mb-xl { margin-bottom: var(--spacing-xl); }
+// .w-full { width: 100%; }
+
+// /* ==========================================================================
+//    CONTAINERS & SURFACES
+//    ========================================================================== */
+// .my-learning-container {
+//   max-width: 1400px;
+//   margin: 0 auto;
+// }
+
+// .glass-panel {
+//   background: var(--glass-bg-c, rgba(15, 23, 42, 0.6));
+//   backdrop-filter: blur(var(--glass-blur-c, 24px));
+//   -webkit-backdrop-filter: blur(var(--glass-blur-c, 24px));
+//   border: 1px solid var(--glass-border-c, rgba(255,255,255,0.08));
+//   border-radius: var(--ui-border-radius-xl, 1.5rem);
+// }
+
+// .surface-subtle {
+//   background: color-mix(in srgb, var(--bg-secondary) 50%, transparent);
+//   border: 1px solid rgba(255,255,255,0.05);
+//   border-radius: var(--ui-border-radius-lg, 1rem);
+// }
+
+// /* ==========================================================================
+//    HEADER & TABS
+//    ========================================================================== */
+// .learning-header {
+//   margin-bottom: var(--spacing-4xl);
+// }
+
+// .gradient-text {
+//   background: linear-gradient(135deg, #fff 0%, var(--text-tertiary) 100%);
+//   -webkit-background-clip: text; color: transparent;
+// }
+
+// .page-title { font-family: var(--font-heading); font-size: clamp(2.5rem, 4vw, 3.5rem); font-weight: 800; margin: 0 0 0.5rem; letter-spacing: -0.02em; }
+// .page-subtitle { font-size: 1.15rem; color: var(--text-secondary); margin: 0; }
+
+// .custom-tabs {
+//   display: inline-flex; padding: 6px; gap: 6px;
+// }
+// .tab-btn {
+//   background: transparent; border: none; color: var(--text-secondary); font-family: var(--font-body);
+//   font-size: 0.95rem; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 0.75rem; cursor: pointer; transition: all 0.3s;
+// }
+// .tab-btn:hover { color: #fff; }
+// .tab-btn.active { background: rgba(255,255,255,0.1); color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+
+// /* ==========================================================================
+//    COURSE GRID & CARDS
+//    ========================================================================== */
+// .learning-grid {
+//   display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2.5rem;
+// }
+
+// .course-card {
+//   display: flex; flex-direction: column; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+//   padding: 0; /* Override glass panel padding for edge-to-edge image */
+// }
+// .hover-lift:hover { transform: translateY(-8px); border-color: rgba(255,255,255,0.15); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5), 0 0 20px color-mix(in srgb, var(--color-primary) 10%, transparent); }
+
+// .card-thumbnail { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-bottom: 1px solid rgba(255,255,255,0.05); }
+// .card-thumbnail img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; opacity: 0.85; }
+// .course-card:hover .card-thumbnail img { opacity: 1; }
+
+// .completed-overlay {
+//   position: absolute; inset: 0; background: color-mix(in srgb, var(--color-success) 30%, rgba(0,0,0,0.7));
+//   display: flex; align-items: center; justify-content: center; font-size: 4rem; color: #fff; text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+// }
+
+// .card-content { padding: 1.5rem; display: flex; flex-direction: column; flex: 1; }
+// .content-top { flex: 1; }
+
+// .category-tag { font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; display: block; margin-bottom: 0.5rem; }
+// .course-title { font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: #fff; margin: 0 0 0.5rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+// .instructor-name { font-size: 0.85rem; color: var(--text-secondary); margin: 0; }
+
+// /* Progress Bar */
+// .progress-labels { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 6px; }
+// .p-label { font-size: 0.75rem; color: var(--text-tertiary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+// .p-percent { font-family: var(--font-mono); font-size: 1rem; font-weight: 800; color: var(--color-primary); }
+
+// :host ::ng-deep .learning-progress.p-progressbar { height: 6px; background: rgba(255,255,255,0.05); border-radius: 4px; }
+// :host ::ng-deep .learning-progress.p-progressbar .p-progressbar-value { background: linear-gradient(90deg, var(--color-info), var(--color-primary)); border-radius: 4px; }
+
+// /* Actions */
+// .btn-glow {
+//   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+//   padding: 1rem 1.5rem; border-radius: 0.75rem; font-size: 0.95rem; font-weight: 700; border: none; cursor: pointer; transition: 0.3s; text-decoration: none; font-family: var(--font-body);
+// }
+// .btn-glow.primary { background: var(--color-primary); color: #fff; box-shadow: 0 4px 15px -5px var(--color-primary); }
+// .btn-glow.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px -5px var(--color-primary); filter: brightness(1.1); }
+// .btn-glow.outline { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; }
+// .btn-glow.outline:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
+
+// /* ==========================================================================
+//    STATE OVERLAYS
+//    ========================================================================== */
+// .state-overlay, .empty-state {
+//   display: flex; flex-direction: column; align-items: center; justify-content: center;
+//   min-height: 400px; text-align: center;
+// }
+// .loader-ring { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--color-primary); border-radius: 50%; animation: spin 1s infinite linear; }
+// @keyframes spin { to { transform: rotate(360deg); } }
+// .loading-text { letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.8rem; font-weight: 600; animation: pulseOpacity 2s infinite; }
+// @keyframes pulseOpacity { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+// .empty-state { grid-column: 1 / -1; padding: 4rem 2rem; }
+// .icon-circle { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+
+// /* Responsive */
+// // @media (max-width: 640

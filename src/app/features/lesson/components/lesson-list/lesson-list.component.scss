@@ -1,0 +1,134 @@
+/* ==========================================================================
+   HOST & UTILITIES
+   ========================================================================== */
+:host {
+  display: block;
+  width: 100%;
+  font-family: var(--font-body);
+}
+
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.mt-md { margin-top: var(--spacing-md, 1rem); }
+
+/* ==========================================================================
+   CONTAINERS & SURFACES
+   ========================================================================== */
+.lesson-list-container { width: 100%; }
+
+.surface-raised {
+  background: color-mix(in srgb, var(--bg-secondary) 80%, transparent);
+  border: var(--ui-border-width) solid rgba(255,255,255,0.05);
+  border-radius: var(--ui-border-radius-lg, 1rem);
+  box-shadow: var(--shadow-sm);
+}
+
+.surface-subtle {
+  background: color-mix(in srgb, var(--bg-ternary) 40%, transparent);
+  border: var(--ui-border-width) solid rgba(255,255,255,0.03);
+  border-radius: var(--ui-border-radius-lg, 1rem);
+}
+
+.processing-state { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 2rem; color: var(--text-secondary); font-size: 0.9rem; }
+
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
+.list-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-xl); flex-wrap: wrap; gap: var(--spacing-md);
+}
+
+.header-left { display: flex; align-items: center; gap: var(--spacing-md); flex-wrap: wrap;}
+.section-title { margin: 0; font-size: 1.1rem; font-weight: var(--font-weight-bold, 700); color: var(--text-primary); display: flex; align-items: center; gap: 8px;}
+.section-title i { color: var(--color-primary); }
+
+.lesson-count, .total-duration {
+  color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; padding: 4px 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 999px; font-family: var(--font-mono);
+}
+
+/* Micro Buttons */
+.btn-primary-sm, .btn-outline-sm {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 14px;
+  font-size: 0.85rem; font-weight: var(--font-weight-bold); border-radius: 8px; cursor: pointer; transition: 0.2s; border: none;
+}
+.btn-primary-sm { background: var(--color-primary); color: #fff; box-shadow: 0 4px 10px color-mix(in srgb, var(--color-primary) 30%, transparent); }
+.btn-primary-sm:hover { transform: translateY(-2px); box-shadow: 0 6px 15px color-mix(in srgb, var(--color-primary) 50%, transparent); }
+.btn-outline-sm { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: var(--text-primary); }
+.btn-outline-sm:hover { background: rgba(255,255,255,0.05); }
+
+/* ==========================================================================
+   LESSON ITEM & DRAG/DROP
+   ========================================================================== */
+.lessons-list { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+
+.lesson-item {
+  display: flex; align-items: center; gap: var(--spacing-lg); padding: var(--spacing-md) var(--spacing-xl);
+  transition: all 0.2s ease; cursor: default; border-left: 3px solid transparent;
+}
+.lesson-item:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1); border-left-color: var(--color-primary); transform: translateX(2px); }
+
+/* Drag States */
+.lesson-item.dragging { opacity: 0.5; background: color-mix(in srgb, var(--color-primary) 10%, transparent); border: 1px dashed var(--color-primary); transform: scale(1.02); z-index: 10; }
+.lesson-drag-handle { color: var(--text-tertiary); cursor: grab; padding: var(--spacing-xs); font-size: 1.1rem; }
+.lesson-drag-handle:active { cursor: grabbing; color: var(--color-primary); }
+
+/* Custom Decorators */
+.free-lesson { border-left-color: var(--color-success) !important; }
+.video-lesson .lesson-icon { background: color-mix(in srgb, var(--color-info) 15%, transparent); color: var(--color-info); border-color: color-mix(in srgb, var(--color-info) 30%, transparent); }
+.article-lesson .lesson-icon { background: color-mix(in srgb, var(--color-warning) 15%, transparent); color: var(--color-warning); border-color: color-mix(in srgb, var(--color-warning) 30%, transparent); }
+.quiz-lesson .lesson-icon { background: color-mix(in srgb, var(--color-error) 15%, transparent); color: var(--color-error); border-color: color-mix(in srgb, var(--color-error) 30%, transparent); }
+
+.lesson-icon {
+  width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+  background: var(--bg-ternary); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; font-size: 1.1rem; color: var(--text-secondary); flex-shrink: 0;
+}
+
+/* Content Layout */
+.lesson-content { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.lesson-title-row { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; }
+.order { color: var(--text-tertiary); font-family: var(--font-mono); font-size: 0.85rem; }
+.title { color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.badge { padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid transparent; }
+.badge-warning { background: color-mix(in srgb, var(--color-warning) 20%, transparent); color: var(--color-warning); border-color: color-mix(in srgb, var(--color-warning) 50%, transparent); }
+
+.lesson-meta { display: flex; align-items: center; gap: var(--spacing-lg); }
+.meta-item { display: flex; align-items: center; gap: 6px; color: var(--text-tertiary); font-size: 0.75rem; font-family: var(--font-mono); font-weight: 500; }
+.badge-free { color: var(--color-success); background: color-mix(in srgb, var(--color-success) 15%, transparent); padding: 2px 8px; border-radius: 999px; }
+
+/* Actions */
+.lesson-actions { display: flex; gap: var(--spacing-xs); opacity: 0.4; transition: opacity 0.2s; }
+.lesson-item:hover .lesson-actions { opacity: 1; }
+
+.btn-icon {
+  width: 32px; height: 32px; border-radius: 8px; border: 1px solid transparent; background: transparent; color: var(--text-secondary);
+  display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; font-size: 0.9rem;
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); border-color: rgba(255,255,255,0.2); }
+.btn-info:hover { background: color-mix(in srgb, var(--color-info) 15%, transparent); color: var(--color-info); border-color: color-mix(in srgb, var(--color-info) 30%, transparent); }
+.btn-danger:hover { background: color-mix(in srgb, var(--color-error) 15%, transparent); color: var(--color-error); border-color: color-mix(in srgb, var(--color-error) 30%, transparent); }
+
+/* ==========================================================================
+   EMPTY STATE
+   ========================================================================== */
+.empty-lessons {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 2rem; text-align: center;
+}
+.icon-wrapper { width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 1rem; }
+.empty-lessons h4 { margin: 0 0 4px 0; font-family: var(--font-heading); font-size: 1.2rem; color: var(--text-primary); }
+.empty-lessons p { margin: 0; font-size: 0.9rem; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .lesson-item { flex-wrap: wrap; padding: 1rem; }
+  .lesson-content { width: 100%; order: 3; margin-top: 8px; margin-left: 28px; }
+  .lesson-actions { opacity: 1; margin-left: auto; }
+}
+
+/* Custom PrimeNG Dialog Glass Effect (Applied globally via styleClass) */
+:host ::ng-deep .glass-dialog .p-dialog-content,
+:host ::ng-deep .glass-dialog .p-dialog-header {
+  background: var(--bg-primary); border: none;
+}

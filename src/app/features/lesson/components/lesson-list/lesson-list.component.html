@@ -1,0 +1,139 @@
+<div class="lesson-list-container">
+  
+  <div class="list-header">
+    <div class="header-left">
+      <h3 class="section-title">
+        <i class="pi pi-list"></i>
+        Lesson Modules
+      </h3>
+      <span class="lesson-count">{{ lessons().length }} lessons</span>
+      <span class="total-duration">{{ totalDuration() | duration }}</span>
+    </div>
+    <div class="header-right">
+      <button class="btn-primary-sm" (click)="openNewLessonDialog()">
+        <i class="pi pi-plus"></i> Add Lesson
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="processing-state">
+      <i class="pi pi-spin pi-spinner text-primary"></i> Fetching lessons...
+    </div>
+  } @else if (lessons().length > 0) {
+    <div class="lessons-list" pDroppable="lessons" (onDrop)="onLessonDrop($event)">
+      
+      @for (lesson of lessons(); track lesson._id; let i = $index) {
+        <div class="lesson-item surface-raised" 
+             [attr.data-index]="i"
+             pDraggable="lessons"
+             (onDragStart)="onDragStart(i)"
+             (onDragEnd)="onDragEnd()"
+             [ngClass]="{
+               'dragging': draggingIndex() === i,
+               'free-lesson': lesson.isFree,
+               'video-lesson': lesson.type === 'video',
+               'article-lesson': lesson.type === 'article',
+               'quiz-lesson': lesson.type === 'quiz'
+             }">
+          
+          <div class="lesson-drag-handle" pTooltip="Drag to reorder" tooltipPosition="left">
+            <i class="pi pi-bars"></i>
+          </div>
+
+          <div class="lesson-icon">
+            @switch (lesson.type) {
+              @case ('video') { <i class="pi pi-video"></i> }
+              @case ('article') { <i class="pi pi-file"></i> }
+              @case ('quiz') { <i class="pi pi-question-circle"></i> }
+              @case ('assignment') { <i class="pi pi-pencil"></i> }
+              @case ('coding-exercise') { <i class="pi pi-code"></i> }
+            }
+          </div>
+
+          <div class="lesson-content">
+            <div class="lesson-title-row">
+              <span class="order">{{ i + 1 }}.</span>
+              <span class="title">{{ lesson.title }}</span>
+              @if (!lesson.isPublished) {
+                <span class="badge badge-warning">Draft</span>
+              }
+            </div>
+            
+            <div class="lesson-meta">
+              @if (lesson.duration) {
+                <span class="meta-item">
+                  <i class="pi pi-clock"></i>
+                  {{ lesson.duration | duration }}
+                </span>
+              }
+              @if (lesson.isFree) {
+                <span class="meta-item badge-free">
+                  <i class="pi pi-unlock"></i> Free Preview
+                </span>
+              }
+            </div>
+          </div>
+
+          <div class="lesson-actions">
+            <button class="btn-icon btn-secondary" (click)="viewLesson(lesson)" pTooltip="View Details" tooltipPosition="top">
+              <i class="pi pi-eye"></i>
+            </button>
+            <button class="btn-icon btn-info" (click)="editLesson(lesson)" pTooltip="Edit Content" tooltipPosition="top">
+              <i class="pi pi-pencil"></i>
+            </button>
+            <button class="btn-icon btn-danger" (click)="deleteLesson(lesson)" pTooltip="Delete" tooltipPosition="top">
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="empty-lessons surface-subtle">
+      <div class="icon-wrapper"><i class="pi pi-folder-open text-tertiary"></i></div>
+      <h4>This section is empty</h4>
+      <p class="text-secondary">Start building your curriculum by adding your first lesson.</p>
+      <button class="btn-outline-sm mt-md" (click)="openNewLessonDialog()">
+        <i class="pi pi-plus"></i> Add First Lesson
+      </button>
+    </div>
+  }
+
+  <p-dialog appendTo="body" 
+    [(visible)]="showFormDialog" 
+    [style]="{width: '750px', maxWidth: '95vw'}" 
+    [header]="dialogTitle()"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    styleClass="glass-dialog">
+    @if (showFormDialog()) {
+      <app-lesson-form 
+        [sectionId]="sectionId()"
+        [lessonId]="selectedLessonId()"
+        [courseId]="courseId()"
+        (saved)="onLessonSaved($event)"
+        (cancelled)="closeDialog()">
+      </app-lesson-form>
+    }
+  </p-dialog>
+
+  <p-dialog appendTo="body" 
+    [(visible)]="showDetailDialog" 
+    [style]="{width: '600px', maxWidth: '95vw'}" 
+    header="Lesson Preview"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    styleClass="glass-dialog">
+    @if (selectedLesson()) {
+      <app-lesson-detail 
+        [lesson]="selectedLesson()"
+        (edit)="editFromDetail()"
+        (close)="closeDetailDialog()">
+      </app-lesson-detail>
+    }
+  </p-dialog>
+
+</div>

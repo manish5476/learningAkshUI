@@ -1,0 +1,169 @@
+/* ==========================================================================
+   HOST & UTILITIES
+   ========================================================================== */
+:host {
+  display: block;
+  font-family: var(--font-body);
+  color: var(--text-primary);
+}
+
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.text-error { color: var(--color-error); }
+.text-success { color: var(--color-success); }
+.text-info { color: var(--color-info); }
+
+.w-full { width: 100%; }
+.m-0 { margin: 0; }
+.mt-xs { margin-top: var(--spacing-xs); }
+.mt-sm { margin-top: var(--spacing-sm); }
+.mt-md { margin-top: var(--spacing-md); }
+.mt-lg { margin-top: var(--spacing-lg); }
+.mr-sm { margin-right: var(--spacing-sm); }
+.ml-sm { margin-left: var(--spacing-sm); }
+.pl-xl { padding-left: 2.5rem !important; }
+.block { display: block; }
+.font-normal { font-weight: 400; }
+.font-medium { font-weight: 600; }
+.font-mono { font-family: var(--font-mono); }
+.text-xs { font-size: 0.75rem; }
+.required { color: var(--color-error); margin-left: 2px; }
+
+/* Scrollbar */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+/* ==========================================================================
+   SURFACES
+   ========================================================================== */
+.surface-raised {
+  background: color-mix(in srgb, var(--bg-secondary) 60%, transparent);
+  border: var(--ui-border-width) solid rgba(255,255,255,0.05);
+  border-radius: var(--ui-border-radius-lg, 1rem);
+  box-shadow: var(--shadow-sm);
+}
+
+.surface-subtle {
+  background: color-mix(in srgb, var(--bg-ternary) 40%, transparent);
+  border: var(--ui-border-width) solid rgba(255,255,255,0.03);
+  border-radius: var(--ui-border-radius-lg, 1rem);
+  padding: var(--spacing-lg);
+}
+
+/* ==========================================================================
+   PRIME NG TABS OVERRIDES
+   ========================================================================== */
+:host ::ng-deep .custom-tabs .p-tablist {
+  background: transparent; border-bottom: 1px solid var(--border-primary);
+}
+:host ::ng-deep .custom-tabs .p-tab {
+  background: transparent; border: none; color: var(--text-secondary);
+  font-family: var(--font-body); font-weight: 600; padding: 1rem 1.5rem; transition: var(--transition-base);
+}
+:host ::ng-deep .custom-tabs .p-tab.p-tab-active {
+  color: var(--color-primary); border-bottom: 2px solid var(--color-primary); background: color-mix(in srgb, var(--color-primary) 5%, transparent);
+}
+:host ::ng-deep .custom-tabs .p-tabpanels {
+  background: transparent; padding: var(--spacing-xl) 0 0 0;
+}
+
+/* ==========================================================================
+   FORM GRID & INPUTS
+   ========================================================================== */
+.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-xl); }
+.full-width { grid-column: 1 / -1; }
+.form-group { display: flex; flex-direction: column; }
+.input-label { font-size: var(--font-size-sm); font-weight: 700; margin-bottom: var(--spacing-xs); display: flex; align-items: center; }
+
+/* Input Wrappers */
+.input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+.field-icon { position: absolute; left: var(--spacing-lg); color: var(--text-tertiary); z-index: 1; }
+
+.custom-input {
+  width: 100%; padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--bg-ternary); border: var(--ui-border-width-lg) solid var(--border-primary);
+  border-radius: var(--ui-border-radius-lg); color: var(--text-primary); font-family: var(--font-body);
+  font-size: var(--font-size-md); outline: none; transition: var(--transition-base);
+}
+.custom-input:focus { background: var(--bg-primary); border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-bg); }
+.custom-input.error { border-color: var(--color-error); background: var(--color-error-bg); }
+.textarea-input { resize: vertical; min-height: 120px; line-height: 1.6; }
+
+/* PrimeNG Overrides */
+:host ::ng-deep .custom-select.p-select {
+  width: 100%; background: var(--bg-ternary); border: var(--ui-border-width-lg) solid var(--border-primary);
+  border-radius: var(--ui-border-radius-lg); box-shadow: none;
+}
+:host ::ng-deep .custom-select.p-select:not(.p-disabled).p-focus { background: var(--bg-primary); border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-bg); }
+
+:host ::ng-deep .custom-number.p-inputnumber { width: 100%; }
+:host ::ng-deep .custom-number .p-inputnumber-input { 
+  background: var(--bg-ternary); border: var(--ui-border-width-lg) solid var(--border-primary); 
+  border-radius: var(--ui-border-radius-lg); color: var(--text-primary); padding: var(--spacing-md) var(--spacing-lg); transition: 0.2s;
+}
+:host ::ng-deep .custom-number .p-inputnumber-input:focus { background: var(--bg-primary); border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-bg); }
+
+.error-message { font-size: var(--font-size-xs); color: var(--color-error); margin-top: 4px; font-weight: 600; }
+
+/* Settings Toggles */
+.settings-panel { border: 1px solid var(--border-primary); }
+.settings-title { font-family: var(--font-heading); font-size: 1rem; margin: 0 0 var(--spacing-md); color: var(--text-primary); }
+.settings-grid { display: flex; gap: var(--spacing-2xl); }
+.toggle-label { display: flex; align-items: flex-start; gap: var(--spacing-md); cursor: pointer; }
+.toggle-text { display: flex; flex-direction: column; gap: 2px; }
+
+/* ==========================================================================
+   CONTENT FORMS
+   ========================================================================== */
+.content-form { display: flex; flex-direction: column; gap: var(--spacing-xl); animation: fadeIn 0.3s; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+.info-message { display: flex; align-items: flex-start; gap: var(--spacing-lg); border: 1px solid var(--color-info-border); background: var(--color-info-bg); }
+.info-message .icon-circle { width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+
+/* ==========================================================================
+   RESOURCES ARRAY
+   ========================================================================== */
+.resource-item { display: flex; align-items: center; gap: var(--spacing-lg); padding: var(--spacing-lg); margin-bottom: var(--spacing-md); border-left: 3px solid var(--color-primary); }
+.resource-drag { color: var(--text-tertiary); cursor: grab; padding: var(--spacing-xs); }
+.resource-drag:active { cursor: grabbing; color: var(--color-primary); }
+
+.resource-fields { flex: 1; display: flex; gap: var(--spacing-md); align-items: flex-start; }
+.r-col-1 { flex: 1; }
+.r-col-2 { flex: 2; }
+.r-col-3 { flex: 3; }
+
+.add-resource-btn {
+  width: 100%; padding: var(--spacing-md); background: transparent; border: 2px dashed var(--border-secondary);
+  border-radius: var(--ui-border-radius-lg); color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm); font-weight: 600; transition: var(--transition-base);
+}
+.add-resource-btn:hover { border-color: var(--color-primary); color: var(--color-primary); background: var(--color-primary-bg); }
+
+/* ==========================================================================
+   ACTIONS
+   ========================================================================== */
+.form-actions { display: flex; justify-content: flex-end; gap: var(--spacing-md); padding-top: var(--spacing-xl); margin-top: var(--spacing-xl); border-top: 1px solid var(--border-primary); }
+
+.btn-primary, .btn-secondary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; font-size: 0.95rem; font-weight: 700; border-radius: var(--ui-border-radius-lg); cursor: pointer; transition: 0.2s; border: none;
+}
+.btn-primary { background: var(--color-primary); color: #fff; box-shadow: var(--shadow-sm); }
+.btn-primary:hover:not(:disabled) { background: var(--color-primary-dark); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-secondary { background: var(--bg-ternary); color: var(--text-primary); border: 1px solid var(--border-primary); }
+.btn-secondary:hover:not(:disabled) { background: var(--bg-hover); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-icon { width: 36px; height: 36px; border-radius: 8px; border: none; background: var(--bg-ternary); color: var(--text-secondary); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; font-size: 1rem; }
+.btn-danger:hover { background: var(--color-error-bg); color: var(--color-error); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .resource-item { flex-direction: column; align-items: stretch; padding: var(--spacing-md); }
+  .resource-drag { display: none; }
+  .resource-fields { flex-direction: column; }
+  .btn-danger { align-self: flex-end; }
+  .form-actions { flex-direction: column-reverse; }
+}

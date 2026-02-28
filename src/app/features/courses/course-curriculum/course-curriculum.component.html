@@ -1,0 +1,161 @@
+<div class="course-curriculum-container">
+  <p-toast position="top-right"></p-toast>
+  <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+  <div class="curriculum-header">
+    <div class="header-left">
+      <button class="btn-icon btn-secondary" [routerLink]="['/courses/instructor', courseId()]" pTooltip="Back to Course">
+        <i class="pi pi-arrow-left"></i>
+      </button>
+      <div>
+        <h1 class="page-title">Course Curriculum Builder</h1>
+        <p class="course-title">{{ course()?.title }}</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" [routerLink]="['/courses', course()?.slug || courseId()]" pTooltip="Preview exactly what students will see">
+        <i class="pi pi-eye"></i> Preview
+      </button>
+      <button class="btn-primary" (click)="openAddSectionDialog()">
+        <i class="pi pi-plus"></i> Add Section
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="state-overlay glass-panel">
+      <div class="spinner"></div>
+      <p class="text-secondary mt-md">Loading curriculum data...</p>
+    </div>
+  } @else {
+    <div class="curriculum-stats">
+      <div class="stat-card glass-panel">
+        <div class="stat-icon icon-primary"><i class="pi pi-sitemap"></i></div>
+        <div class="stat-content">
+          <span class="stat-value">{{ totalSections() }}</span>
+          <span class="stat-label">Total Sections</span>
+        </div>
+      </div>
+      <div class="stat-card glass-panel">
+        <div class="stat-icon icon-success"><i class="pi pi-file-video"></i></div>
+        <div class="stat-content">
+          <span class="stat-value">{{ totalLessons() }}</span>
+          <span class="stat-label">Total Lessons</span>
+        </div>
+      </div>
+      <div class="stat-card glass-panel">
+        <div class="stat-icon icon-warning"><i class="pi pi-clock"></i></div>
+        <div class="stat-content">
+          <span class="stat-value">{{ totalDuration() | duration }}</span>
+          <span class="stat-label">Total Duration</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sections-container" pDroppable="sections" (onDrop)="onSectionDrop($event)">
+      
+      @for (section of sections(); track section._id; let i = $index) {
+        <div class="section-card surface-raised" 
+             [attr.data-index]="i"
+             pDraggable="sections"
+             (onDragStart)="onSectionDragStart(i)"
+             (onDragEnd)="onSectionDragEnd()">
+          
+          <div class="section-header" (dblclick)="toggleSection(section._id)">
+            <div class="section-drag-handle" pTooltip="Drag to reorder">
+              <i class="pi pi-bars"></i>
+            </div>
+            
+            <div class="section-info">
+              <div class="section-title-wrapper">
+                <h3 class="section-title">Section {{ i + 1 }}: {{ section.title }}</h3>
+                <div class="section-meta">
+                  <span class="meta-item"><i class="pi pi-file"></i> {{ section.totalLessons || 0 }} lessons</span>
+                  <span class="meta-item"><i class="pi pi-clock"></i> {{ (section.totalDuration || 0) | duration }}</span>
+                  @if (!section.isPublished) {
+                    <span class="badge badge-warning">Draft</span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div class="section-actions">
+              <button class="btn-icon btn-info" (click)="editSection(section)" pTooltip="Edit Section Title">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button class="btn-icon btn-danger" (click)="deleteSection(section)" pTooltip="Delete Section">
+                <i class="pi pi-trash"></i>
+              </button>
+              <button class="btn-icon btn-secondary" (click)="toggleSection(section._id)" pTooltip="Toggle Visibility">
+                <i class="pi" [ngClass]="section.expanded ? 'pi-chevron-down' : 'pi-chevron-left'"></i>
+              </button>
+            </div>
+          </div>
+
+          @if (section.expanded) {
+            <div class="section-content">
+              <app-lesson-list 
+                [sectionId]="section._id"
+                [courseId]="courseId()"
+                (lessonCountChange)="onLessonCountChange($event, section._id)"
+                (durationChange)="onDurationChange($event, section._id)">
+              </app-lesson-list>
+            </div>
+          }
+        </div>
+      } @empty {
+        <div class="state-overlay glass-panel">
+          <div class="empty-icon-wrapper">
+            <i class="pi pi-sitemap"></i>
+          </div>
+          <h3 class="empty-title">No Sections Yet</h3>
+          <p class="empty-subtitle">Start building your course structure by adding your first section.</p>
+          <button class="btn-primary mt-lg" (click)="openAddSectionDialog()">
+            <i class="pi pi-plus"></i> Add First Section
+          </button>
+        </div>
+      }
+    </div>
+
+    <p-dialog appendTo="body" 
+      [(visible)]="showSectionDialog" 
+      [style]="{width: '500px'}" 
+      [header]="sectionDialogTitle()"
+      [modal]="true"
+      [draggable]="false"
+      [resizable]="false"
+      styleClass="custom-dialog">
+      
+      <form [formGroup]="sectionForm" (ngSubmit)="saveSection()" class="section-form">
+        <div class="form-group">
+          <label class="input-label">Section Title <span class="required">*</span></label>
+          <input type="text" pInputText formControlName="title" placeholder="e.g., Introduction to the Course" class="custom-input w-full" [class.error]="sectionForm.get('title')?.invalid && sectionForm.get('title')?.touched">
+          @if (sectionForm.get('title')?.invalid && sectionForm.get('title')?.touched) {
+            <small class="error-message">Title is required.</small>
+          }
+        </div>
+
+        <div class="form-group mt-md">
+          <label class="input-label">Description (Optional)</label>
+          <textarea pTextarea formControlName="description" placeholder="Briefly describe what students will learn in this section..." [rows]="4" class="custom-input textarea-input w-full"></textarea>
+        </div>
+
+        <div class="form-group mt-lg pb-md">
+          <div class="toggle-label surface-subtle">
+            <p-checkbox formControlName="isPublished" [binary]="true" inputId="isPublished"></p-checkbox>
+            <label for="isPublished" class="ml-sm font-medium cursor-pointer">Publish section immediately</label>
+          </div>
+        </div>
+
+        <div class="dialog-actions">
+          <button type="button" class="btn-secondary" (click)="closeSectionDialog()">
+            <i class="pi pi-times"></i> Cancel
+          </button>
+          <button type="submit" class="btn-primary">
+            <i class="pi pi-check"></i> {{ editingSectionId() ? 'Update' : 'Create' }}
+          </button>
+        </div>
+      </form>
+    </p-dialog>
+  }
+</div>

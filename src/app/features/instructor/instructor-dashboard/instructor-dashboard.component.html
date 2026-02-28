@@ -1,0 +1,129 @@
+<div class="dashboard-container">
+  
+  @if (isLoading()) {
+    <div class="state-overlay cinematic-bg">
+      <div class="loader-ring"></div>
+      <p class="text-secondary mt-xl loading-text">Loading your command center...</p>
+    </div>
+  } @else {
+    
+    <div class="welcome-banner glass-panel">
+      <div class="banner-content">
+        <h1 class="gradient-text m-0">Welcome back, Instructor</h1>
+        <p class="text-secondary mt-sm mb-0">Here's what's happening with your courses today.</p>
+      </div>
+      <div class="banner-actions">
+        <button class="btn-glow outline" routerLink="/instructor/courses">
+          <i class="pi pi-list"></i> View All Courses
+        </button>
+        <button class="btn-glow primary" routerLink="/instructor/courses/new">
+          <i class="pi pi-plus"></i> Create Course
+        </button>
+      </div>
+    </div>
+
+    <div class="stats-grid mt-3xl">
+      <div class="bento-box surface-raised hover-lift">
+        <div class="stat-icon-wrapper bg-success-light"><i class="pi pi-wallet text-success"></i></div>
+        <div class="stat-info">
+          <span class="stat-label">Lifetime Revenue</span>
+          <span class="stat-value">{{ macroStats().lifetimeRevenue | currency:'USD':'symbol':'1.0-0' }}</span>
+        </div>
+      </div>
+      
+      <div class="bento-box surface-raised hover-lift">
+        <div class="stat-icon-wrapper bg-info-light"><i class="pi pi-users text-info"></i></div>
+        <div class="stat-info">
+          <span class="stat-label">Total Students</span>
+          <span class="stat-value">{{ macroStats().totalStudents | number }}</span>
+        </div>
+      </div>
+
+      <div class="bento-box surface-raised hover-lift">
+        <div class="stat-icon-wrapper bg-primary-light"><i class="pi pi-book text-primary"></i></div>
+        <div class="stat-info">
+          <span class="stat-label">Active Courses</span>
+          <span class="stat-value">{{ macroStats().activeCourses }}</span>
+        </div>
+      </div>
+
+      <div class="bento-box surface-raised hover-lift">
+        <div class="stat-icon-wrapper bg-warning-light"><i class="pi pi-star-fill text-warning"></i></div>
+        <div class="stat-info">
+          <span class="stat-label">Average Rating</span>
+          <span class="stat-value">{{ macroStats().averageRating | number:'1.1-1' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-grid mt-3xl">
+      
+      <div class="left-col">
+        <div class="glass-panel h-full">
+          <div class="section-header">
+            <h2 class="section-title"><i class="pi pi-chart-line text-primary"></i> Top Performing Courses</h2>
+            <button class="btn-ghost" routerLink="/instructor/courses" title="View All"><i class="pi pi-arrow-right"></i></button>
+          </div>
+
+          <div class="top-courses-list">
+            @for (course of topCourses(); track course._id; let i = $index) {
+              <div class="top-course-item surface-subtle">
+                <div class="rank-badge">{{ i + 1 }}</div>
+                
+                <div class="course-thumbnail">
+                  @if (course.thumbnail) {
+                    <img [src]="course.thumbnail" [alt]="course.title">
+                  } @else {
+                    <div class="no-img"><i class="pi pi-image"></i></div>
+                  }
+                </div>
+
+                <div class="course-details">
+                  <h4 class="c-title">{{ course.title }}</h4>
+                  <div class="c-meta">
+                    <span class="meta-pill"><i class="pi pi-users"></i> {{ course.totalEnrollments || 0 }}</span>
+                    <span class="meta-pill text-success"><i class="pi pi-dollar"></i> {{ (course.totalEnrollments || 0) * (course.discountPrice || course.price || 0) | number:'1.0-0' }}</span>
+                  </div>
+                </div>
+
+                <button class="btn-icon btn-secondary ml-auto" [routerLink]="['/instructor/courses', course._id, 'analytics']" title="Analytics">
+                  <i class="pi pi-chart-bar"></i>
+                </button>
+              </div>
+            } @empty {
+              <div class="empty-state">
+                <i class="pi pi-box text-tertiary"></i>
+                <p>No published courses yet.</p>
+                <button class="btn-glow primary mt-md" routerLink="/instructor/courses/new">Create One Now</button>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="right-col">
+        <div class="glass-panel h-full">
+          <h2 class="section-title mb-xl"><i class="pi pi-bell text-info"></i> Recent Activity</h2>
+          
+          <div class="timeline-container">
+            @for (activity of recentActivity(); track activity.id) {
+              <div class="timeline-item">
+                <div class="t-connector"></div>
+                <div class="t-icon-wrapper" [ngClass]="activity.bg">
+                  <i class="pi" [ngClass]="[activity.icon, activity.color]"></i>
+                </div>
+                <div class="t-content surface-subtle">
+                  <p class="t-text">{{ activity.text }}</p>
+                  <span class="t-time">{{ activity.time | date:'MMM d, h:mm a' }}</span>
+                </div>
+              </div>
+            } @empty {
+              <p class="text-tertiary italic text-center">It's quiet... too quiet. Activity will appear here soon.</p>
+            }
+          </div>
+        </div>
+      </div>
+
+    </div>
+  }
+</div>

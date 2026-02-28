@@ -1,0 +1,64 @@
+<div class="progress-tracker-container glass-panel surface-raised">
+  
+  @if (isLoading()) {
+    <div class="loading-bar">
+      <i class="pi pi-spin pi-spinner text-primary"></i>
+      <span class="text-secondary text-sm">Syncing your progress...</span>
+    </div>
+  } @else {
+    <div class="tracker-layout">
+      
+      <div class="status-info">
+        <div class="status-icon" [ngClass]="progress()?.completed ? 'completed' : 'pending'">
+          <i class="pi" [ngClass]="progress()?.completed ? 'pi-check-circle' : 'pi-circle'"></i>
+        </div>
+        
+        <div class="status-details">
+          <h4 class="status-title">
+            {{ progress()?.completed ? 'Lesson Completed' : 'In Progress' }}
+          </h4>
+          
+          @if (progress()?.completedAt) {
+            <span class="status-meta text-success">
+              Completed on {{ progress()?.completedAt | date:'mediumDate' }}
+            </span>
+          } @else if (progress()?.watchTime) {
+            <span class="status-meta text-info">
+              <i class="pi pi-clock"></i> Watched: {{ Math.floor((progress()?.watchTime || 0) / 60) }} mins
+            </span>
+          } @else {
+            <span class="status-meta text-tertiary">
+              Not started yet
+            </span>
+          }
+        </div>
+      </div>
+
+      @if (!progress()?.completed && lessonDuration() > 0) {
+        <div class="progress-bar-wrapper hidden md:block">
+          <div class="bar-labels">
+            <span>Watch Progress</span>
+            <span>{{ getWatchPercentage() }}%</span>
+          </div>
+          <p-progressBar [value]="getWatchPercentage()" [showValue]="false" styleClass="custom-progress"></p-progressBar>
+        </div>
+      }
+
+      <div class="action-area">
+        @if (progress()?.completed) {
+          <button class="btn-glow success-outline cursor-default">
+            <i class="pi pi-check"></i> Mastered
+          </button>
+        } @else {
+          <button class="btn-glow primary" 
+                  [disabled]="isSubmitting()" 
+                  (click)="markComplete()">
+            <i class="pi" [ngClass]="isSubmitting() ? 'pi-spinner pi-spin' : 'pi-check-circle'"></i>
+            {{ isSubmitting() ? 'Saving...' : 'Mark as Complete' }}
+          </button>
+        }
+      </div>
+
+    </div>
+  }
+</div>

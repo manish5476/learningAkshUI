@@ -14,7 +14,7 @@ export class SectionService {
   /**
    * Get sections by course
    */
-  getSectionsByCourse(courseId: string): Observable<ApiResponse<Section[]>> {
+  getSectionsByCourse(courseId: string): Observable<ApiResponse<any>> {
     return this.baseApi.get<Section[]>(`courses/${courseId}/sections`, { showLoader: true });
   }
 

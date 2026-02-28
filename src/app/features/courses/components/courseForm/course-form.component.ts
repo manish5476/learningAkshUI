@@ -2,7 +2,7 @@ import { Component, OnInit, inject, DestroyRef, signal, effect, input, output } 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router'; // <-- Added ActivatedRoute
 
 // PrimeNG
 import { SelectModule } from 'primeng/select';
@@ -36,6 +36,7 @@ export class CourseFormComponent implements OnInit {
   private courseService = inject(CourseService);
   private categoryService = inject(CategoryService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute); // <-- Injected ActivatedRoute
   private destroyRef = inject(DestroyRef);
 
   // Reactive State Signals
@@ -97,8 +98,10 @@ export class CourseFormComponent implements OnInit {
     sections: this.fb.array([])
   });
 
+  private slugTimeout: any;
+
   constructor() {
-    // Automatically load course details if ID is provided
+    // 1. Check if courseId was passed directly as an input (e.g., via a Modal)
     effect(() => {
       const id = this.courseId();
       if (id) {
@@ -106,11 +109,39 @@ export class CourseFormComponent implements OnInit {
         this.loadCourse(id);
       }
     }, { allowSignalWrites: true });
+
+    // 2. Auto-Slug Feature
+    this.courseForm.get('title')?.valueChanges
+      .pipe(takeUntilDestroyed()) 
+      .subscribe(title => {
+        if (title && !this.courseForm.get('slug')?.dirty) {
+          if (this.slugTimeout) clearTimeout(this.slugTimeout);
+          this.slugTimeout = setTimeout(() => {
+            const slug = title
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/^-|-$/g, '');
+            this.courseForm.get('slug')?.setValue(slug, { emitEvent: false });
+          }, 500);
+        }
+      });
   }
 
   ngOnInit(): void {
-    this.addLearningItem(); // Initialize with at least one outcome
     this.loadCategories();
+
+    // 3. Check if courseId is in the URL Route (e.g., /instructor/courses/:id/edit)
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+      const routeId = params['id'];
+      // If we found an ID in the URL, and it wasn't already loaded by the signal input
+      if (routeId && !this.courseId()) {
+        this.isEditMode.set(true);
+        this.loadCourse(routeId);
+      } else if (!routeId && !this.courseId()) {
+        // If it's a completely new course, initialize at least one empty learning item
+        this.addLearningItem();
+      }
+    });
   }
 
   // --- API Calls ---
@@ -119,7 +150,7 @@ export class CourseFormComponent implements OnInit {
     this.categoryService.getAll({ isActive: true })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res: any) => this.categories.set(res.data?.data || []),
+        next: (res: any) => this.categories.set(res.data?.data || res.data || []),
         error: (error: any) => console.error('Failed to load categories', error)
       });
   }
@@ -130,7 +161,9 @@ export class CourseFormComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
-          const course = res.data?.data || res.data;
+          // Bulletproof extraction: checks multiple common backend wrapper formats
+          const course = res.data?.course || res.data?.data || res.data;
+          
           if (course) {
             this.patchForm(course);
             if (course.thumbnail) this.thumbnailPreview.set(course.thumbnail);
@@ -146,17 +179,18 @@ export class CourseFormComponent implements OnInit {
   }
 
   private patchForm(course: any): void {
-    // Clear Form Arrays completely before patching
+    // 1. Clear Form Arrays completely before patching to avoid duplicates
     ['requirements', 'whatYouWillLearn', 'targetAudience', 'tags', 'sections'].forEach(name => {
       const arr = this.courseForm.get(name) as FormArray;
       while (arr.length) arr.removeAt(0);
     });
 
+    // 2. Patch flat values
     this.courseForm.patchValue({
       title: course.title,
       subtitle: course.subtitle,
       description: course.description,
-      category: course.category?._id || course.category,
+      category: course.category?._id || course.category, // Handle populated category object
       level: course.level,
       language: course.language,
       thumbnail: course.thumbnail,
@@ -169,13 +203,24 @@ export class CourseFormComponent implements OnInit {
       currency: course.currency
     });
 
-    // Repopulate Arrays
-    course.requirements?.forEach((req: string) => this.requirements.push(this.fb.control(req)));
-    course.whatYouWillLearn?.forEach((item: string) => this.whatYouWillLearn.push(this.fb.control(item, Validators.required)));
-    course.targetAudience?.forEach((audience: string) => this.targetAudience.push(this.fb.control(audience)));
-    course.tags?.forEach((tag: string) => this.tags.push(this.fb.control(tag)));
+    // 3. Repopulate Arrays
+    if (course.requirements?.length) {
+      course.requirements.forEach((req: string) => this.requirements.push(this.fb.control(req)));
+    }
     
-    // (Optional: handle sections repopulation if the backend provides it natively here)
+    if (course.whatYouWillLearn?.length) {
+      course.whatYouWillLearn.forEach((item: string) => this.whatYouWillLearn.push(this.fb.control(item, Validators.required)));
+    } else {
+      this.addLearningItem(); // Ensure at least one field exists if array is empty
+    }
+
+    if (course.targetAudience?.length) {
+      course.targetAudience.forEach((aud: string) => this.targetAudience.push(this.fb.control(aud)));
+    }
+
+    if (course.tags?.length) {
+      course.tags.forEach((tag: string) => this.tags.push(this.fb.control(tag)));
+    }
   }
 
   private formatDate(date: string): string {
@@ -299,7 +344,6 @@ export class CourseFormComponent implements OnInit {
       const reader = new FileReader();
       reader.onload = (e) => this.thumbnailPreview.set(e.target?.result as string);
       reader.readAsDataURL(file);
-      // TODO: Replace with actual upload logic: this.courseForm.patchValue({ thumbnail: uploadedUrl })
     }
   }
 
@@ -330,7 +374,8 @@ export class CourseFormComponent implements OnInit {
   }
 
   // --- Submission ---
-onSubmit(): void {
+
+  onSubmit(): void {
     if (this.courseForm.invalid) {
       this.courseForm.markAllAsTouched();
       // Auto-navigate to first invalid step
@@ -344,18 +389,18 @@ onSubmit(): void {
 
     this.isLoading.set(true);
     const formData = this.courseForm.getRawValue();
+    
+    // We get the active ID either from the route or the signal input
+    const activeId = this.route.snapshot.paramMap.get('id') || this.courseId();
 
-    // 1. Explicitly cast the request as an Observable<any> to satisfy TypeScript's strict union matching
-    const request$ = (this.isEditMode() && this.courseId()
-      ? this.courseService.update(this.courseId()!, formData)
+    const request$ = (this.isEditMode() && activeId
+      ? this.courseService.update(activeId, formData)
       : this.courseService.create(formData)) as import('rxjs').Observable<any>;
 
-    // 2. Subscribe securely
     request$.subscribe({
       next: (res: any) => {
         this.isLoading.set(false);
-        // Navigate or emit based on your routing logic
-        this.router.navigate(['/courses']);
+        this.router.navigate(['/courses/instructor']);
         this.saved.emit(res?.data?.course || res?.data);
       },
       error: (error: any) => {
@@ -364,38 +409,9 @@ onSubmit(): void {
       }
     });
   }
-  // onSubmit(): void {
-  //   if (this.courseForm.invalid) {
-  //     this.courseForm.markAllAsTouched();
-  //     // Auto-navigate to first invalid step
-  //     if (this.courseForm.get('title')?.invalid || this.courseForm.get('description')?.invalid || this.courseForm.get('category')?.invalid) {
-  //       this.currentStep.set(1);
-  //     } else if (this.whatYouWillLearn.length === 0 || this.whatYouWillLearn.invalid) {
-  //       this.currentStep.set(4);
-  //     }
-  //     return;
-  //   }
-
-  //   this.isLoading.set(true);
-  //   const formData = this.courseForm.getRawValue(); // gets values including disabled fields like price
-
-  //   const request$ = this.isEditMode() && this.courseId()
-  //     ? this.courseService.update(this.courseId()!, formData)
-  //     : this.courseService.create(formData);
-
-  //   request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-  //     next: (res: any) => {
-  //       this.isLoading.set(false);
-  //       this.saved.emit(res.data?.course || res.data);
-  //     },
-  //     error: (error: any) => {
-  //       console.error('Failed to save course', error);
-  //       this.isLoading.set(false);
-  //     }
-  //   });
-  // }
 
   onCancel(): void {
     this.cancelled.emit();
+    this.router.navigate(['/courses/instructor']);
   }
 }

@@ -1,0 +1,218 @@
+<div class="my-learning-container">
+  
+  <div class="learning-hero glass-panel">
+    <div class="hero-content">
+      <h1 class="gradient-text">My Learning Journey</h1>
+      <p class="hero-subtitle">Pick up right where you left off and achieve your goals.</p>
+    </div>
+    
+    <div class="custom-tabs">
+      <button class="tab-btn" [class.active]="activeTab() === 'active'" (click)="setTab('active')">
+        <i class="pi pi-play"></i> In Progress ({{ activeCourses().length }})
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'completed'" (click)="setTab('completed')">
+        <i class="pi pi-check-circle"></i> Completed ({{ completedCourses().length }})
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'certificates'" (click)="setTab('certificates')">
+        <i class="pi pi-verified"></i> Certificates ({{ certificates().length }})
+      </button>
+    </div>
+  </div>
+
+  <div class="learning-content">
+    @if (loading()) {
+      <div class="state-overlay">
+        <div class="loader-ring"></div>
+        <p class="text-secondary mt-md">Fetching your courses...</p>
+      </div>
+    } @else {
+      
+      @if (activeTab() === 'active') {
+        <div class="course-grid">
+          @for (enrollment of activeCourses(); track enrollment._id) {
+            <div class="course-card surface-raised hover-lift">
+              <div class="card-img">
+                <img [src]="enrollment.course?.thumbnail || 'https://via.placeholder.com/600x350?text=Course'" alt="Cover">
+                <div class="play-overlay" (click)="resumeCourse(enrollment)"><i class="pi pi-play-circle"></i></div>
+              </div>
+              <div class="card-body">
+                <h3 class="course-title">{{ enrollment.course?.title || 'Untitled Course' }}</h3>
+                <p class="instructor-name">By {{ enrollment.course?.instructor?.firstName }} {{ enrollment.course?.instructor?.lastName }}</p>
+                
+                <div class="progress-section mt-lg">
+                  <div class="progress-labels">
+                    <span class="text-xs text-secondary font-medium">{{ enrollment.progress || 0 }}% Complete</span>
+                    @if (enrollment.progress > 0) {
+                      <span class="text-xs text-primary font-bold">Keep going!</span>
+                    } @else {
+                      <span class="text-xs text-tertiary font-bold">Start course</span>
+                    }
+                  </div>
+                  <p-progressBar [value]="enrollment.progress || 0" [showValue]="false" styleClass="custom-progress"></p-progressBar>
+                </div>
+
+                <button class="btn-glow primary w-full mt-lg" (click)="resumeCourse(enrollment)">
+                  {{ enrollment.progress > 0 ? 'Resume Course' : 'Start Learning' }} <i class="pi pi-arrow-right ml-xs"></i>
+                </button>
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-state surface-subtle col-span-full">
+              <div class="icon-circle"><i class="pi pi-compass text-tertiary"></i></div>
+              <h3>No active courses</h3>
+              <p class="text-secondary">You aren't enrolled in any courses yet. Time to discover something new!</p>
+              <button class="btn-glow outline mt-md" routerLink="/courses">Browse Catalog</button>
+            </div>
+          }
+        </div>
+      }
+
+      @if (activeTab() === 'completed') {
+        <div class="course-grid">
+          @for (enrollment of completedCourses(); track enrollment._id) {
+            <div class="course-card surface-raised hover-lift completed-card">
+              <div class="card-img">
+                <img [src]="enrollment.course?.thumbnail || 'https://via.placeholder.com/600x350?text=Course'" alt="Cover">
+                <div class="success-badge"><i class="pi pi-check-circle"></i> 100%</div>
+              </div>
+              <div class="card-body">
+                <h3 class="course-title">{{ enrollment.course?.title }}</h3>
+                <p class="instructor-name">By {{ enrollment.course?.instructor?.firstName }}</p>
+                
+                <div class="action-stack mt-lg">
+                  <button class="btn-glow outline w-full" (click)="resumeCourse(enrollment)">
+                    <i class="pi pi-refresh"></i> Review Course
+                  </button>
+                  @if (enrollment.certificateUrl) {
+                    <button class="btn-glow success w-full mt-sm" (click)="downloadCertificate(enrollment.certificateUrl)">
+                      <i class="pi pi-download"></i> Certificate
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-state surface-subtle col-span-full">
+              <div class="icon-circle"><i class="pi pi-trophy text-tertiary"></i></div>
+              <h3>No completed courses yet</h3>
+              <p class="text-secondary">Keep pushing forward! Your completed courses will appear here.</p>
+            </div>
+          }
+        </div>
+      }
+
+      @if (activeTab() === 'certificates') {
+        <div class="cert-grid">
+          @for (enrollment of certificates(); track enrollment._id) {
+            <div class="cert-card surface-raised hover-lift">
+              <div class="cert-icon"><i class="pi pi-verified text-success"></i></div>
+              <div class="cert-info">
+                <h4>{{ enrollment.course?.title }}</h4>
+                <p>Issued on {{ enrollment.completedAt | date:'longDate' }}</p>
+              </div>
+              <button class="btn-icon btn-primary" (click)="downloadCertificate(enrollment.certificateUrl)" title="Download">
+                <i class="pi pi-download"></i>
+              </button>
+            </div>
+          } @empty {
+            <div class="empty-state surface-subtle col-span-full">
+              <div class="icon-circle"><i class="pi pi-id-card text-tertiary"></i></div>
+              <h3>No certificates earned</h3>
+              <p class="text-secondary">Complete a course 100% to earn your first certificate.</p>
+            </div>
+          }
+        </div>
+      }
+
+    }
+  </div>
+</div>
+
+<!-- <div class="my-learning-container">
+  
+  <div class="learning-header">
+    <h1 class="page-title gradient-text">My Learning</h1>
+    <p class="page-subtitle">Pick up right where you left off and achieve your goals.</p>
+
+    <div class="custom-tabs surface-subtle mt-xl">
+      <button class="tab-btn" [class.active]="activeTab() === 'all'" (click)="setTab('all')">
+        All Courses
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'in-progress'" (click)="setTab('in-progress')">
+        In Progress
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'completed'" (click)="setTab('completed')">
+        Completed
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="state-overlay">
+      <div class="loader-ring"></div>
+      <p class="text-secondary mt-md loading-text">Fetching your courses...</p>
+    </div>
+  } @else {
+    
+    <div class="learning-grid">
+      @for (enrollment of filteredEnrollments(); track enrollment._id) {
+        <div class="course-card glass-panel hover-lift">
+          
+          <div class="card-thumbnail">
+            <img [src]="enrollment.course?.thumbnail || 'https://via.placeholder.com/600x350?text=Course'" [alt]="enrollment.course?.title">
+            @if (enrollment.progress === 100) {
+              <div class="completed-overlay">
+                <i class="pi pi-check-circle"></i>
+              </div>
+            }
+          </div>
+
+          <div class="card-content">
+            <div class="content-top">
+              <span class="category-tag">{{ enrollment.course?.category?.name || 'Course' }}</span>
+              <h3 class="course-title">{{ enrollment.course?.title }}</h3>
+              <p class="instructor-name">By {{ enrollment.course?.instructor?.firstName }} {{ enrollment.course?.instructor?.lastName }}</p>
+            </div>
+
+            <div class="progress-section mt-lg">
+              <div class="progress-labels">
+                <span class="p-label">{{ enrollment.progress === 100 ? 'Completed' : 'Overall Progress' }}</span>
+                <span class="p-percent" [class.text-success]="enrollment.progress === 100">{{ enrollment.progress || 0 }}%</span>
+              </div>
+              <p-progressBar [value]="enrollment.progress || 0" [showValue]="false" styleClass="learning-progress"></p-progressBar>
+            </div>
+
+            <div class="card-actions mt-lg">
+              <a [routerLink]="['/learn', enrollment.course?.slug || enrollment.course?._id]" class="btn-glow primary w-full">
+                <i class="pi" [ngClass]="enrollment.progress === 0 ? 'pi-play' : (enrollment.progress === 100 ? 'pi-replay' : 'pi-step-forward')"></i>
+                {{ getButtonLabel(enrollment.progress || 0) }}
+              </a>
+              
+              @if (enrollment.progress === 100 && enrollment.certificateUrl) {
+                <a [href]="enrollment.certificateUrl" target="_blank" class="btn-glow outline w-full mt-sm">
+                  <i class="pi pi-verified text-success"></i> View Certificate
+                </a>
+              }
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state glass-panel">
+          <div class="icon-circle"><i class="pi pi-compass text-tertiary"></i></div>
+          <h3 class="mt-md text-primary font-heading text-2xl">Nothing here yet</h3>
+          <p class="text-secondary mb-xl">
+            {{ activeTab() === 'all' ? 'You haven\'t enrolled in any courses yet.' : 'No courses match this filter.' }}
+          </p>
+          @if (activeTab() === 'all') {
+            <a routerLink="/courses" class="btn-glow primary">
+              <i class="pi pi-search"></i> Browse Courses
+            </a>
+          } @else {
+            <button class="btn-glow outline" (click)="setTab('all')">View All Courses</button>
+          }
+        </div>
+      }
+    </div>
+
+  }
+</div> -->

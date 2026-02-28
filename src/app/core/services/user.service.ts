@@ -61,8 +61,8 @@ export class UserService {
   }
 
   // --- Admin Only Methods ---
-  getAllUsers(params?: any): Observable<ApiResponse<UsersListResponse>> {
-    return this.baseApi.get<UsersListResponse>(this.endpoint, { 
+  getAllUsers(params?: any): Observable<ApiResponse<any>> {
+    return this.baseApi.get<any>(this.endpoint, { 
       params, 
       showLoader: true 
     });

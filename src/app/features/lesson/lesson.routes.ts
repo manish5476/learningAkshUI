@@ -22,17 +22,17 @@ export const LESSON_ROUTES: Routes = [
         children: [
           {
             path: 'section/:sectionId',
-            loadComponent: () => import('./components/lesson-list.component').then(m => m.LessonListComponent),
+            loadComponent: () => import('./components/lesson-list/lesson-list.component').then(m => m.LessonListComponent),
             title: 'Section Lessons'
           },
           {
             path: 'new/:sectionId',
-            loadComponent: () => import('./components/lesson-form.component').then(m => m.LessonFormComponent),
+            loadComponent: () => import('./components/lesson-form/lesson-form.component').then(m => m.LessonFormComponent),
             title: 'Create Lesson'
           },
           {
             path: ':id/edit',
-            loadComponent: () => import('./components/lesson-form.component').then(m => m.LessonFormComponent),
+            loadComponent: () => import('./components/lesson-form/lesson-form.component').then(m => m.LessonFormComponent),
             title: 'Edit Lesson'
           },
           // {

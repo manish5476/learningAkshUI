@@ -82,7 +82,7 @@
 
       <div class="courses-grid">
         @for (course of paginatedCourses(); track course._id) {
-          <div class="uiverse-card" [routerLink]="['/courses', course._id]">
+          <div class="uiverse-card" [routerLink]="['/courses/', course.slug]">
             
             <div class="card-bg-base">
               <div class="card-bg-cutout">

@@ -1,0 +1,99 @@
+<div class="dashboard-container fade-in">
+  <p-toast position="top-right"></p-toast>
+
+  <div class="glass-panel header-panel">
+    <div class="header-content">
+      <div>
+        <h1 class="page-title">My Learning Dashboard</h1>
+        <p class="text-muted mt-1">Track your progress and pick up right where you left off.</p>
+      </div>
+      <div class="stats-badges">
+        <span class="stat-badge glass-badge">
+          <i class="pi pi-book text-primary"></i>
+          <strong>{{ activeCoursesCount() }}</strong> Active
+        </span>
+        <span class="stat-badge glass-badge">
+          <i class="pi pi-check-circle text-success"></i>
+          <strong>{{ completedCoursesCount() }}</strong> Completed
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="course-grid">
+    @if (isLoading()) {
+    @for (i of [1, 2, 3, 4]; track i) {
+    <div class="glass-panel course-card skeleton-card">
+      <p-skeleton width="100%" height="160px" borderRadius="12px 12px 0 0"></p-skeleton>
+      <div class="p-4">
+        <p-skeleton width="80%" height="1.5rem" styleClass="mb-2"></p-skeleton>
+        <p-skeleton width="60%" height="1rem" styleClass="mb-4"></p-skeleton>
+        <p-skeleton width="100%" height="8px" styleClass="mb-4"></p-skeleton>
+        <div class="flex justify-between mt-4">
+          <p-skeleton width="100px" height="2rem"></p-skeleton>
+        </div>
+      </div>
+    </div>
+    }
+    } @else if (enrollments().length === 0) {
+    <div class="glass-panel empty-state full-width">
+      <div class="empty-icon-wrapper">
+        <i class="pi pi-compass"></i>
+      </div>
+      <h3>No Active Enrollments</h3>
+      <p class="text-muted">You haven't enrolled in any courses yet. Start exploring our catalog!</p>
+      <button pButton pRipple label="Browse Courses" icon="pi pi-search" class="p-button-primary mt-4"
+        routerLink="/courses"></button>
+    </div>
+    } @else {
+    @for (enrollment of enrollments(); track enrollment._id) {
+    <div class="glass-panel course-card">
+      <div class="course-image-wrapper">
+        <img [src]="getCourseThumbnail(enrollment)" [alt]="getCourseTitle(enrollment)" class="course-image"
+          loading="lazy">
+        <div class="course-status-overlay">
+          @if ((enrollment.progress?.courseProgressPercentage || 0) === 100) {
+          <p-tag severity="success" value="Completed" icon="pi pi-check"></p-tag>
+          } @else {
+          <p-tag severity="info" value="In Progress" icon="pi pi-sync"></p-tag>
+          }
+        </div>
+      </div>
+
+      <div class="course-content">
+        <h3 class="course-title line-clamp-2" [title]="getCourseTitle(enrollment)">
+          {{ getCourseTitle(enrollment) }}
+        </h3>
+
+        <p class="instructor-name text-muted">
+          <i class="pi pi-user mr-1 text-xs"></i>
+          {{ getInstructorName(enrollment) }}
+        </p>
+
+        <div class="progress-section mt-4">
+          <div class="flex justify-between align-center mb-2">
+            <span class="progress-text text-sm font-medium">Progress</span>
+            <span class="progress-percentage text-sm font-bold text-primary">{{
+              enrollment.progress?.courseProgressPercentage || 0 }}%</span>
+          </div>
+          <p-progressBar [value]="enrollment.progress?.courseProgressPercentage || 0" [showValue]="false"
+            styleClass="custom-progress"></p-progressBar>
+        </div>
+
+        <div class="course-actions mt-4">
+          @if ((enrollment.progress?.courseProgressPercentage || 0) === 100) {
+          <button pButton pRipple label="Review Course" icon="pi pi-star"
+            class="p-button-outlined p-button-secondary flex-1" (click)="goToCourse(enrollment)"></button>
+          <button pButton pRipple icon="pi pi-file-pdf" class="p-button-success p-button-outlined"
+            pTooltip="Download Certificate" (click)="downloadCertificate(enrollment._id)"></button>
+          } @else {
+          <button pButton pRipple label="Continue Learning" icon="pi pi-play" class="p-button-primary shadow-btn w-full"
+            (click)="goToCourse(enrollment)"></button>
+          }
+        </div>
+      </div>
+    </div>
+    }
+    }
+  </div>
+</div>
