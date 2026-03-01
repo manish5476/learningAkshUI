@@ -166,7 +166,7 @@ export class CoursePlayerComponent implements OnInit {
   private loadCourseData(): void {
     this.loading.set(true);
     
-    this.courseService.getBySlug(this.courseId())
+    this.courseService.getCoursesBySlug(this.courseId())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {

@@ -30,14 +30,14 @@ export class CategoryService {
   /**
    * Get all categories (flat list)
    */
-  getAll(params?: any): Observable<ApiResponse<any>> {
+  getAllCategory(params?: any): Observable<ApiResponse<any>> {
     return this.baseApi.get<Category[]>(this.endpoint, { params });
   }
 
   /**
    * Get single category by ID
    */
-  getById(id: string): Observable<ApiResponse<any>> {
+  getcategoryById(id: string): Observable<ApiResponse<any>> {
     return this.baseApi.get<Category>(`${this.endpoint}/${id}`, { showLoader: true });
   }
 
@@ -51,35 +51,35 @@ export class CategoryService {
   /**
    * Create new category
    */
-  create(data: Partial<Category>): Observable<ApiResponse<Category>> {
+  createCategory(data: Partial<Category>): Observable<ApiResponse<Category>> {
     return this.baseApi.post<Category>(this.endpoint, data, { showLoader: true });
   }
 
   /**
    * Update category
    */
-  update(id: string, data: Partial<Category>): Observable<ApiResponse<Category>> {
+  updateCategory(id: string, data: Partial<Category>): Observable<ApiResponse<Category>> {
     return this.baseApi.patch<Category>(`${this.endpoint}/${id}`, data, { showLoader: true });
   }
 
   /**
    * Delete category
    */
-  delete(id: string): Observable<ApiResponse<null>> {
+  deleteCategory(id: string): Observable<ApiResponse<null>> {
     return this.baseApi.delete<null>(`${this.endpoint}/${id}`, { showLoader: true });
   }
 
   /**
    * Bulk update categories (for reordering)
    */
-  bulkUpdate(updates: Array<{ id: string; order?: number; parentCategory?: string | null }>): Observable<ApiResponse<any>> {
+  bulkUpdateCategory(updates: Array<{ id: string; order?: number; parentCategory?: string | null }>): Observable<ApiResponse<any>> {
     return this.baseApi.post(`${this.endpoint}/bulk-update`, { updates }, { showLoader: true });
   }
 
   /**
    * Check if slug is available
    */
-  checkSlug(slug: string): Observable<ApiResponse<{ available: boolean }>> {
+  checkcategorySlug(slug: string): Observable<ApiResponse<{ available: boolean }>> {
     return this.baseApi.get<{ available: boolean }>(`${this.endpoint}/check-slug/${slug}`);
   }
 }

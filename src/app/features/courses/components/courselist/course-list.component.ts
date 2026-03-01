@@ -105,7 +105,7 @@ export class CourseListComponent implements OnInit {
   }
 
   private loadCategories(): void {
-    this.categoryService.getAll({ isActive: true })
+    this.categoryService.getAllCategory({ isActive: true })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
@@ -118,7 +118,7 @@ export class CourseListComponent implements OnInit {
     this.isLoading.set(true);
     const queryParams = this.isInstructorMode() ? {} : { isPublished: true };
     
-    this.courseService.getAll(queryParams)
+    this.courseService.getAllCourses(queryParams)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
@@ -190,7 +190,7 @@ export class CourseListComponent implements OnInit {
   publishCourse(course: Course): void {
     if (!confirm(`Are you sure you want to publish "${course.title}"?`)) return;
 
-    this.courseService.publish(course._id)
+    this.courseService.publishCourses(course._id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -206,7 +206,7 @@ export class CourseListComponent implements OnInit {
   deleteCourse(course: Course): void {
     if (!confirm(`Are you sure you want to delete "${course.title}"? This action cannot be undone.`)) return;
 
-    this.courseService.delete(course._id)
+    this.courseService.deleteCourses(course._id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

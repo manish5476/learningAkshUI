@@ -48,7 +48,7 @@ export class CategoryDetailComponent implements OnInit {
 
   loadFullDetails(id: string): void {
     this.isLoading.set(true);
-    this.categoryService.getById(id)
+    this.categoryService.getcategoryById(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {

@@ -147,7 +147,7 @@ export class CourseFormComponent implements OnInit {
   // --- API Calls ---
 
   private loadCategories(): void {
-    this.categoryService.getAll({ isActive: true })
+    this.categoryService.getAllCategory({ isActive: true })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => this.categories.set(res.data?.data || res.data || []),
@@ -157,7 +157,7 @@ export class CourseFormComponent implements OnInit {
 
   private loadCourse(id: string): void {
     this.isLoading.set(true);
-    this.courseService.getById(id)
+    this.courseService.getCoursesById(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
@@ -394,8 +394,8 @@ export class CourseFormComponent implements OnInit {
     const activeId = this.route.snapshot.paramMap.get('id') || this.courseId();
 
     const request$ = (this.isEditMode() && activeId
-      ? this.courseService.update(activeId, formData)
-      : this.courseService.create(formData)) as import('rxjs').Observable<any>;
+      ? this.courseService.updateCourses(activeId, formData)
+      : this.courseService.createCourses(formData)) as import('rxjs').Observable<any>;
 
     request$.subscribe({
       next: (res: any) => {

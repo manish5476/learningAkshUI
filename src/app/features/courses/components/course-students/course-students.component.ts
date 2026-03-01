@@ -67,7 +67,7 @@ export class CourseStudentsComponent implements OnInit {
   }
 
   private fetchCourseDetails(id: string): void {
-    this.courseService.getById(id)
+    this.courseService.getCoursesById(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {

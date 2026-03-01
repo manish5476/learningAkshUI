@@ -180,7 +180,7 @@
     [closeOnEscape]="true" [dismissableMask]="true">
     @if (showFormDialog()) {
       <app-category-form 
-        [categoryId]="selectedCategoryId()"
+       [categoryId]="selectedCategoryId() ?? undefined"
         [parentCategoryId]="parentCategoryId()"
         (saved)="onCategorySaved($event)"
         (cancelled)="closeFormDialog()">

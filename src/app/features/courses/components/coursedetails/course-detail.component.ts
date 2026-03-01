@@ -88,7 +88,7 @@ export class CourseDetailComponent implements OnInit {
     const c = this.course();
     if (!c || !confirm(`Are you sure you want to publish "${c.title}"?`)) return;
 
-    this.courseService.publish(c._id)
+    this.courseService.publishCourses(c._id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.course.update(course => course ? { ...course, isPublished: true } : course),
@@ -106,8 +106,8 @@ export class CourseDetailComponent implements OnInit {
     this.error.set(null);
 
     const request$ = this.isInstructorMode() 
-      ? this.courseService.getById(identifier) 
-      : this.courseService.getBySlug(identifier);
+      ? this.courseService.getCoursesById(identifier) 
+      : this.courseService.getCoursesBySlug(identifier);
 
     request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: any) => {

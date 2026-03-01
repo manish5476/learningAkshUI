@@ -94,7 +94,7 @@ export class CourseCurriculumComponent implements OnInit {
     this.loading.set(true);
     
     // Fetch Course Details
-    this.courseService.getById(this.courseId()).subscribe({
+    this.courseService.getCoursesById(this.courseId()).subscribe({
       next: (res: any) => {
         // Unwrapping the double data structure based on your JSON snippet
         // { "status": "success", "data": { "data": { ... } } }

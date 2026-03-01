@@ -68,7 +68,7 @@ export class CourseAnalyticsComponent implements OnInit {
     this.isLoading.set(true);
 
     // Fetch the course details to get the title and basic stats
-    this.courseService.getById(id)
+    this.courseService.getCoursesById(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {

@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, DestroyRef, signal, effect, input, output } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal, input, output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router'; // <-- ADDED for routing support
 import { Observable, of } from 'rxjs';
 
 // PrimeNG Imports
@@ -13,7 +14,6 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { DividerModule } from 'primeng/divider';
 import { CategoryService } from '../../../../core/services/category.service';
 
-// Services
 @Component({
   selector: 'app-category-form',
   standalone: true,
@@ -31,19 +31,23 @@ import { CategoryService } from '../../../../core/services/category.service';
   styleUrls: ['./category-form.component.scss']
 })
 export class CategoryFormComponent implements OnInit {
-  // Modern Signal Inputs & Outputs
-  categoryId = input<any>();
+  // Inputs for modal/child component usage
+  categoryId = input<string | undefined>();
   parentCategoryId = input<string | null>(null);
   
+  // Outputs
   saved = output<any>();
   cancelled = output<void>();
 
   // Injectors
   private fb = inject(FormBuilder);
   private categoryService = inject(CategoryService);
+  private route = inject(ActivatedRoute); //
+  private router = inject(Router);        
   private destroyRef = inject(DestroyRef);
 
-  // Reactive State Signals
+  // State Signals
+  resolvedCategoryId = signal<string | null>(null); // Stores the final ID (from route or input)
   categories = signal<any[]>([]);
   parentCategory = signal<any>(null);
   isLoading = signal<boolean>(false);
@@ -51,7 +55,6 @@ export class CategoryFormComponent implements OnInit {
   baseUrl = window.location.origin;
   private slugTimeout: any;
 
-  // Initialize form immediately so effects can safely patch it
   categoryForm: FormGroup = this.fb.group({
     name: ['', Validators.required],
     slug: ['', Validators.pattern(/^[a-z0-9-]+$/)],
@@ -62,36 +65,37 @@ export class CategoryFormComponent implements OnInit {
     isActive: [true]
   });
 
-  constructor() {
-    // Effect: React to input changes (replaces ngOnChanges)
-    effect(() => {
-      const cId = this.categoryId();
-      const pId = this.parentCategoryId();
-
-      if (cId) {
-        this.loadCategory(cId);
-      } else {
-        // Reset form for new category, applying parent ID if provided
-        this.categoryForm.reset({ 
-          icon: 'pi pi-folder', 
-          isActive: true, 
-          parentCategory: pId 
-        });
-        if (pId) this.loadParentCategory(pId);
-      }
-    }, { allowSignalWrites: true });
-  }
-
   ngOnInit(): void {
     this.loadCategories();
     this.setupAutoSlug();
+
+    // 1. Determine ID from Router (priority) OR Component Input
+    const routeId = this.route.snapshot.params['id'];
+    const inputId = this.categoryId();
+    const activeId = routeId || inputId;
+
+    if (activeId) {
+      // EDIT MODE
+      this.resolvedCategoryId.set(activeId);
+      this.loadCategory(activeId);
+    } else {
+      // CREATE MODE
+      const pId = this.parentCategoryId();
+      this.categoryForm.patchValue({ 
+        icon: 'pi pi-folder', 
+        isActive: true, 
+        parentCategory: pId 
+      });
+      if (pId) this.loadParentCategory(pId);
+    }
   }
 
   private setupAutoSlug(): void {
     this.categoryForm.get('name')?.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(name => {
-        if (name && !this.categoryForm.get('slug')?.dirty) {
+        // Only auto-generate if the user hasn't manually touched the slug field
+        if (name && !this.categoryForm.get('slug')?.dirty && !this.resolvedCategoryId()) {
           if (this.slugTimeout) clearTimeout(this.slugTimeout);
           this.slugTimeout = setTimeout(() => {
             const slug = name
@@ -105,13 +109,14 @@ export class CategoryFormComponent implements OnInit {
   }
 
   private loadCategories(): void {
-    this.categoryService.getCategoryTree({ isActive: true })
+    this.categoryService.getAllCategory({ isActive: true }) // Using getAll from your service
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
-          const payload = res?.data?.data || res?.data || [];
-          const currentId = this.categoryId();
+          const payload = res?.data?.data || res?.data || res; // Robust payload checking
+          const currentId = this.resolvedCategoryId();
           
+          // Filter out the current category so it cannot be its own parent
           const filtered = (Array.isArray(payload) ? payload : []).filter((cat: any) =>
             !currentId || (cat._id !== currentId)
           );
@@ -123,21 +128,22 @@ export class CategoryFormComponent implements OnInit {
 
   private loadCategory(id: string): void {
     this.isLoading.set(true);
-    this.categoryService.getById(id)
+    this.categoryService.getcategoryById(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
-          const payload = res?.data?.data || res?.data;
-          const category = Array.isArray(payload) ? payload.find((c: any) => c._id === id) : payload;
+          // Robust payload extraction. Backend usually sends res.data as the actual object.
+          const category = res?.data?.category || res?.data || res;
 
-          if (category) {
+          if (category && category.name) {
             this.categoryForm.patchValue({
               name: category.name,
               slug: category.slug,
               description: category.description,
               icon: category.icon || 'pi pi-folder',
               image: category.image,
-              parentCategory: category.parentCategory,
+              // IMPORTANT: If backend populated parentCategory, extract the _id, otherwise use as string
+              parentCategory: category.parentCategory?._id || category.parentCategory || null,
               isActive: category.isActive !== false
             });
           }
@@ -151,15 +157,13 @@ export class CategoryFormComponent implements OnInit {
   }
 
   private loadParentCategory(id: string): void {
-    this.categoryService.getById(id)
+    this.categoryService.getcategoryById(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
-          const payload = res?.data?.data || res?.data;
-          const parent = Array.isArray(payload) ? payload.find((c: any) => c._id === id) : payload;
+          const parent = res?.data?.category || res?.data || res;
           this.parentCategory.set(parent);
-        },
-        error: (error) => console.error('Failed to load parent category', error)
+        }
       });
   }
 
@@ -178,25 +182,27 @@ export class CategoryFormComponent implements OnInit {
     const formData = { ...this.categoryForm.value };
 
     if (!formData.parentCategory) {
-      delete formData.parentCategory;
+      formData.parentCategory = null; // Ensure null is sent to detach parent if cleared
     }
 
-    const cId = this.categoryId();
+    const cId = this.resolvedCategoryId();
     let request$: Observable<any>;
 
-    // Type casting logic to match your service's typical architecture
-    if (cId && (this.categoryService as any).update) {
-      request$ = (this.categoryService as any).update(cId, formData);
-    } else if ((this.categoryService as any).create) {
-      request$ = (this.categoryService as any).create(formData);
+    if (cId) {
+      request$ = this.categoryService.updateCategory(cId, formData);
     } else {
-      request$ = of({ data: formData });
+      request$ = this.categoryService.createCategory(formData);
     }
 
     request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: any) => {
         this.isLoading.set(false);
         this.saved.emit(res?.data || formData);
+        
+        // If used as a standalone page (routed), automatically navigate back
+        if (this.route.snapshot.params['id'] || this.route.snapshot.url.length > 0) {
+          this.router.navigate(['/categories/admin']);
+        }
       },
       error: (error: any) => {
         console.error('Failed to save category', error);
@@ -207,5 +213,9 @@ export class CategoryFormComponent implements OnInit {
 
   onCancel(): void {
     this.cancelled.emit();
+    // If used as a standalone page (routed), automatically navigate back
+    if (this.route.snapshot.params['id'] || this.route.snapshot.url.length > 0) {
+      this.router.navigate(['/categories/admin']);
+    }
   }
 }

@@ -115,7 +115,7 @@ export class CategoryListComponent implements OnInit {
     this.loading.set(true);
     
     // API Call
-    this.categoryService.getAll({}).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.categoryService.getAllCategory({}).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: any) => {
         const payload = res?.data?.data || res?.data || [];
         this.categories.set(Array.isArray(payload) ? payload : []);
@@ -193,7 +193,7 @@ export class CategoryListComponent implements OnInit {
       header: 'Confirm Delete',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.categoryService.delete(category._id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        this.categoryService.deleteCategory(category._id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
           next: () => {
             this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Category deleted successfully' });
             this.loadCategories();
