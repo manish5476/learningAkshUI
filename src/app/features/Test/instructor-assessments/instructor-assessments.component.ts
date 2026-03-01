@@ -21,7 +21,6 @@ import { QuizService } from '../../../core/services/quiz.service';
   imports: [
     CommonModule,
     RouterModule,
-    DatePipe,
     TableModule,
     ButtonModule,
     TagModule,

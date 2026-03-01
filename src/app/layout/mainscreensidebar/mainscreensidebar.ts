@@ -1,10 +1,11 @@
-import { Component, inject, HostBinding, OnInit, HostListener, ViewChild, ElementRef, signal } from '@angular/core';
+import { Component, inject, HostBinding, OnInit, HostListener, ViewChild, ElementRef, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { LayoutService } from '../layout.service';
 import { SIDEBAR_MENU, MenuItem } from './menu-items.constants';
-import { filter } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
+import { Subject } from 'rxjs';
 
 interface FlatMenuItem {
   label: string;
@@ -20,13 +21,15 @@ interface FlatMenuItem {
   templateUrl: './mainscreensidebar.html',
   styleUrl: './mainscreensidebar.scss'
 })
-export class Mainscreensidebar implements OnInit {
+export class Mainscreensidebar implements OnInit, OnDestroy {
   layout = inject(LayoutService);
   authService = inject(AuthService);
   router = inject(Router);
 
-  menuItems = SIDEBAR_MENU;
+  // ✅ Use a signal or property to hold the filtered items
+  menuItems: MenuItem[] = []; 
   expandedState: Record<string, boolean> = {};
+  private destroy$ = new Subject<void>();
 
   // --- SEARCH STATE ---
   isSearchVisible = false;
@@ -47,7 +50,6 @@ export class Mainscreensidebar implements OnInit {
   @HostBinding('class.pinned') 
   get isPinned() { return this.layout.isPinned(); }
 
-  // ✅ NEW: Allows the host to expand fully when search is open so the modal isn't clipped
   @HostBinding('class.search-mode')
   get isSearchActive() { return this.isSearchVisible; }
 
@@ -80,16 +82,51 @@ export class Mainscreensidebar implements OnInit {
   }
 
   ngOnInit() {
-    this.buildSearchIndex();
-    this.checkActiveRoutes();
-    this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(() => {
+    // ✅ 1. Listen to user changes to filter menu by Role
+    this.authService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(user => {
+        const userRole = user?.role || 'student';
+        this.filterMenuByRole(userRole);
+        this.buildSearchIndex(); // Rebuild search index so users can't find unauthorized pages
+        this.checkActiveRoutes();
+      });
+
+    // ✅ 2. Monitor Route changes
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
       this.checkActiveRoutes();
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /**
+   * ✅ Logic to filter the SIDEBAR_MENU constant based on current user role
+   */
+  private filterMenuByRole(role: string) {
+    const filterRecursive = (items: MenuItem[]): MenuItem[] => {
+      return items
+        .filter(item => !item.roles || item.roles.includes(role)) // Filter parent
+        .map(item => ({
+          ...item,
+          items: item.items ? filterRecursive(item.items) : undefined // Filter children
+        }))
+        .filter(item => !item.items || item.items.length > 0 || item.routerLink); // Cleanup empty folders
+    };
+
+    this.menuItems = filterRecursive(SIDEBAR_MENU);
   }
 
   // --- SEARCH LOGIC ---
 
   buildSearchIndex() {
+    this.searchIndex = []; // Clear existing
     const flatten = (items: MenuItem[], parentLabel = ''): void => {
       for (const item of items) {
         const currentBreadcrumb = parentLabel ? `${parentLabel} > ${item.label}` : item.label;
@@ -108,6 +145,8 @@ export class Mainscreensidebar implements OnInit {
     };
     flatten(this.menuItems);
   }
+
+  // ... (Rest of your methods: openSearch, closeSearch, onSearchInput, navigateToResult remain exactly the same)
 
   openSearch() {
     this.isSearchVisible = true;
@@ -149,11 +188,7 @@ export class Mainscreensidebar implements OnInit {
     element?.scrollIntoView({ block: 'nearest' });
   }
 
-  // --- MENU ACTIONS ---
-
-  togglePin() {
-    this.layout.togglePin();
-  }
+  togglePin() { this.layout.togglePin(); }
 
   handleItemClick(item: MenuItem) {
     if (item.items) {
@@ -163,8 +198,6 @@ export class Mainscreensidebar implements OnInit {
       if (this.layout.isMobile()) this.layout.closeMobile();
     }
   }
-
-  // --- HELPERS ---
 
   hasActiveChild(item: MenuItem): boolean {
     if (item.routerLink && this.router.isActive(this.router.createUrlTree(item.routerLink), { 
@@ -196,20 +229,19 @@ export class Mainscreensidebar implements OnInit {
   }
 }
 
-// import { Component, inject, HostBinding, OnInit, HostListener, ViewChild, ElementRef } from '@angular/core';
+// import { Component, inject, HostBinding, OnInit, HostListener, ViewChild, ElementRef, signal } from '@angular/core';
 // import { CommonModule } from '@angular/common';
 // import { RouterModule, Router, NavigationEnd } from '@angular/router';
 // import { LayoutService } from '../layout.service';
-// import { AuthService } from './../../modules/auth/services/auth-service';
 // import { SIDEBAR_MENU, MenuItem } from './menu-items.constants';
 // import { filter } from 'rxjs/operators';
+// import { AuthService } from '../../core/services/auth.service';
 
-// // Interface for the search results
 // interface FlatMenuItem {
 //   label: string;
 //   routerLink: string[];
 //   icon: string;
-//   breadcrumb: string; // e.g. "Sales > Invoices > Create"
+//   breadcrumb: string;
 // }
 
 // @Component({
@@ -232,7 +264,7 @@ export class Mainscreensidebar implements OnInit {
 //   searchQuery = '';
 //   searchIndex: FlatMenuItem[] = [];
 //   filteredResults: FlatMenuItem[] = [];
-//   focusedIndex = 0; // For arrow key navigation
+//   focusedIndex = 0;
 
 //   @ViewChild('searchInput') searchInput!: ElementRef;
 
@@ -246,26 +278,28 @@ export class Mainscreensidebar implements OnInit {
 //   @HostBinding('class.pinned') 
 //   get isPinned() { return this.layout.isPinned(); }
 
-//   // --- KEYBOARD LISTENERS (Ctrl+K, Esc, Arrows) ---
+//   // ✅ NEW: Allows the host to expand fully when search is open so the modal isn't clipped
+//   @HostBinding('class.search-mode')
+//   get isSearchActive() { return this.isSearchVisible; }
+
+//   // --- KEYBOARD LISTENERS ---
 //   @HostListener('window:keydown', ['$event'])
 //   handleKeyboardEvent(event: KeyboardEvent) {
-//     // Open: Ctrl+K or Cmd+K
 //     if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
 //       event.preventDefault();
 //       this.openSearch();
 //     }
 
-//     // Only handle these if search is open
 //     if (this.isSearchVisible) {
 //       if (event.key === 'Escape') {
 //         this.closeSearch();
 //       } else if (event.key === 'ArrowDown') {
 //         event.preventDefault();
-//         this.focusedIndex = (this.focusedIndex + 1) % this.filteredResults.length;
+//         this.focusedIndex = (this.focusedIndex + 1) % (this.filteredResults.length || 1);
 //         this.scrollToFocused();
 //       } else if (event.key === 'ArrowUp') {
 //         event.preventDefault();
-//         this.focusedIndex = (this.focusedIndex - 1 + this.filteredResults.length) % this.filteredResults.length;
+//         this.focusedIndex = (this.focusedIndex - 1 + this.filteredResults.length) % (this.filteredResults.length || 1);
 //         this.scrollToFocused();
 //       } else if (event.key === 'Enter') {
 //         event.preventDefault();
@@ -277,7 +311,7 @@ export class Mainscreensidebar implements OnInit {
 //   }
 
 //   ngOnInit() {
-//     this.buildSearchIndex(); // Build the flat list on init
+//     this.buildSearchIndex();
 //     this.checkActiveRoutes();
 //     this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(() => {
 //       this.checkActiveRoutes();
@@ -290,18 +324,14 @@ export class Mainscreensidebar implements OnInit {
 //     const flatten = (items: MenuItem[], parentLabel = ''): void => {
 //       for (const item of items) {
 //         const currentBreadcrumb = parentLabel ? `${parentLabel} > ${item.label}` : item.label;
-        
-//         // If it's a leaf node (has a link), add to index
 //         if (item.routerLink) {
 //           this.searchIndex.push({
 //             label: item.label,
 //             routerLink: item.routerLink,
 //             icon: item.icon,
-//             breadcrumb: parentLabel // We store the parent path separately for display
+//             breadcrumb: parentLabel
 //           });
 //         }
-
-//         // Recurse if it has children
 //         if (item.items) {
 //           flatten(item.items, currentBreadcrumb);
 //         }
@@ -313,9 +343,9 @@ export class Mainscreensidebar implements OnInit {
 //   openSearch() {
 //     this.isSearchVisible = true;
 //     this.searchQuery = '';
-//     this.filteredResults = this.searchIndex; // Show all initially, or empty if you prefer
+//     this.filteredResults = this.searchIndex;
 //     this.focusedIndex = 0;
-//     setTimeout(() => this.searchInput.nativeElement.focus(), 50); // Focus input
+//     setTimeout(() => this.searchInput?.nativeElement?.focus(), 50);
 //   }
 
 //   closeSearch() {
@@ -334,26 +364,23 @@ export class Mainscreensidebar implements OnInit {
 
 //     this.filteredResults = this.searchIndex.filter(item => 
 //       item.label.toLowerCase().includes(query) || 
-//       item.breadcrumb.toLowerCase().includes(query)
+//       (item.breadcrumb && item.breadcrumb.toLowerCase().includes(query))
 //     );
 //   }
 
 //   navigateToResult(item: FlatMenuItem) {
+//     if(!item) return;
 //     this.router.navigate(item.routerLink);
 //     this.closeSearch();
 //     if (this.layout.isMobile()) this.layout.closeMobile();
 //   }
 
-//   // Helper to keep selected item in view
 //   scrollToFocused() {
-//     const list = document.querySelector('.search-results-list');
 //     const element = document.getElementById(`result-${this.focusedIndex}`);
-//     if (list && element) {
-//       element.scrollIntoView({ block: 'nearest' });
-//     }
+//     element?.scrollIntoView({ block: 'nearest' });
 //   }
 
-//   // --- EXISTING ACTIONS ---
+//   // --- MENU ACTIONS ---
 
 //   togglePin() {
 //     this.layout.togglePin();
@@ -368,7 +395,7 @@ export class Mainscreensidebar implements OnInit {
 //     }
 //   }
 
-//   // --- EXISTING HELPERS ---
+//   // --- HELPERS ---
 
 //   hasActiveChild(item: MenuItem): boolean {
 //     if (item.routerLink && this.router.isActive(this.router.createUrlTree(item.routerLink), { 

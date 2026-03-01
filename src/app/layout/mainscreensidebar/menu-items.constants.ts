@@ -5,19 +5,20 @@ export interface MenuItem {
   items?: MenuItem[];
   badge?: string;
   expanded?: boolean;
+  roles?: string[]; // <-- Added this! ['admin', 'instructor', 'student']
 }
 
 export const SIDEBAR_MENU: MenuItem[] = [
   // ==========================
-  // 1. DASHBOARD / PUBLIC
+  // 1. LEARNING / PUBLIC (Visible to everyone)
   // ==========================
   {
-    label: 'Overview',
+    label: 'Learning',
     icon: 'pi pi-home',
     expanded: true,
     items: [
       { 
-        label: 'Home', 
+        label: 'Dashboard', 
         icon: 'pi pi-th-large', 
         routerLink: ['/home'] 
       },
@@ -27,43 +28,57 @@ export const SIDEBAR_MENU: MenuItem[] = [
         routerLink: ['/courses']
       },
       {
-        label: 'Categories (List)',
-        icon: 'pi pi-tags',
-        routerLink: ['/categories/list']
+        label: 'Mock Tests',
+        icon: 'pi pi-clipboard',
+        routerLink: ['/mock-tests'] // The student mock test hub
       },
       {
-        label: 'Category Tree',
+        label: 'Categories',
         icon: 'pi pi-sitemap',
-        routerLink: ['/categories/tree'] // Newly added route mapped to the Canvas component
+        routerLink: ['/categories/tree'] 
       }
     ]
   },
+
   // ==========================
   // 2. INSTRUCTOR AREA
   // ==========================
   {
-    label: 'Teaching',
+    label: 'Teaching Hub',
     icon: 'pi pi-graduation-cap',
     expanded: true,
+    roles: ['instructor', 'admin'], // <-- Only Instructors and Admins see this block
     items: [
+      { 
+        label: 'Command Center', 
+        icon: 'pi pi-chart-line', 
+        routerLink: ['/instructor/dashboard']
+      },
       { 
         label: 'My Courses', 
         icon: 'pi pi-book', 
-        routerLink: ['/courses/instructor']
+        routerLink: ['/instructor/courses']
+      },
+      {
+        label: 'Quiz Manager',
+        icon: 'pi pi-list',
+        routerLink: ['/instructor/quizzes']
       },
       { 
-        label: 'Create Course', 
-        icon: 'pi pi-plus-circle', 
-        routerLink: ['/courses/instructor/new']
+        label: 'Create Mock Test', 
+        icon: 'pi pi-file-edit', 
+        routerLink: ['/instructor/mock-tests/new']
       }
     ]
   },
+
   // ==========================
   // 3. ADMIN AREA
   // ==========================
   {
     label: 'Administration',
     icon: 'pi pi-briefcase',
+    roles: ['admin'], // <-- ONLY Admins see this block
     items: [
       { 
         label: 'User Management', 
@@ -74,14 +89,10 @@ export const SIDEBAR_MENU: MenuItem[] = [
         label: 'Manage Categories',
         icon: 'pi pi-sliders-h',
         routerLink: ['/categories/admin']
-      },
-      {
-        label: 'Create Category',
-        icon: 'pi pi-folder-plus',
-        routerLink: ['/categories/admin/new']
       }
     ]
   },
+
   // ==========================
   // 4. USER ACCOUNT
   // ==========================
@@ -92,7 +103,7 @@ export const SIDEBAR_MENU: MenuItem[] = [
       { 
         label: 'Profile Settings', 
         icon: 'pi pi-cog', 
-        routerLink: ['/settings/profile']
+        routerLink: ['/my-profile']
       },
       { 
         label: 'Logout', 
