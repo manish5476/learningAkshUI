@@ -1,0 +1,12 @@
+/* Builder SCSS */
+.max-w-1400 { max-width: 1400px; } .builder-grid { display: grid; grid-template-columns: 350px 1fr; gap: 2rem; align-items: start; }
+.settings-col { position: sticky; top: 2rem; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; } .w-32 { width: 8rem; } .pr-xl { padding-right: 2rem; } .py-sm { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.border-dashed { border: 2px dashed rgba(255,255,255,0.2); } .border-dashed:hover { border-color: var(--color-primary); }
+
+label { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; display: block; color: var(--text-primary); }
+.custom-input { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 0.75rem 1rem; transition: 0.2s; }
+.custom-input:focus { border-color: var(--color-primary); }
+
+:host ::ng-deep .custom-number .p-inputnumber-input, :host ::ng-deep .custom-select { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; }
+/* Re-use .glass-panel, .btn-glow, flex utilities from the quiz taker SCSS */

@@ -70,11 +70,9 @@
               [innerHTML]="currentLesson().content?.article?.body || 'No content provided.'"></div>
           </div>
           } @else if (currentLesson().type === 'quiz') {
-          <div class="quiz-wrapper">
-            <i class="pi pi-question-circle text-info quiz-icon"></i>
-            <h2>Quiz Time!</h2>
-            <p class="text-secondary">Quiz integration goes here.</p>
-          </div>
+          <app-lesson-quiz-taker [quizId]="currentLesson().content.quiz"
+            (quizCompleted)="onProgressUpdatedFromTracker($event)">
+          </app-lesson-quiz-taker>
           } @else {
           <div class="processing-wrapper">
             <i class="pi pi-spin pi-spinner text-primary"></i>

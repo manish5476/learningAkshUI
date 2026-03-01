@@ -1,3 +1,5 @@
+<p-toast position="top-right"></p-toast>
+
 @if (isLoading()) {
 <div class="state-overlay cinematic-bg">
   <div class="loader-ring"></div>
@@ -27,7 +29,7 @@
 
     <div class="hero-content">
       <div class="breadcrumb">
-        <a [routerLink]="isInstructorMode() ? '/courses/instructor' : '/courses'" class="bc-link">
+        <a [routerLink]="isInstructorMode() ? '/instructor/courses' : '/courses'" class="bc-link">
           <i class="pi pi-compass"></i> {{ isInstructorMode() ? 'My Courses' : 'Browse Courses' }}
         </a>
         <span class="bc-sep">/</span>
@@ -55,16 +57,12 @@
       <p class="course-subtitle">{{ course()?.subtitle || course()?.description?.slice(0, 150) + '...' }}</p>
 
       <div class="course-meta-large">
-        <div class="meta-item"><i class="pi pi-users text-primary"></i> <span>{{ course()?.totalEnrollments || 0 }}
-            Enrolled</span></div>
-        <div class="meta-item"><i class="pi pi-video text-info"></i> <span>{{ actualTotalLessons() ||
-            course()?.totalLessons || 0 }} Lessons</span></div>
-        <div class="meta-item"><i class="pi pi-clock text-success"></i> <span>{{ formatDuration(actualTotalDuration() ||
-            course()?.totalDuration || 0) }}</span></div>
+        <div class="meta-item"><i class="pi pi-users text-primary"></i> <span>{{ course()?.totalEnrollments || 0 }} Enrolled</span></div>
+        <div class="meta-item"><i class="pi pi-video text-info"></i> <span>{{ actualTotalLessons() || course()?.totalLessons || 0 }} Lessons</span></div>
+        <div class="meta-item"><i class="pi pi-clock text-success"></i> <span>{{ formatDuration(actualTotalDuration() || course()?.totalDuration || 0) }}</span></div>
         <div class="meta-item">
           <i class="pi pi-star-fill text-warning"></i>
-          <span>{{ course()?.rating | number:'1.1-1' }} <span class="text-tertiary">({{ course()?.totalReviews || 0 }}
-              reviews)</span></span>
+          <span>{{ course()?.rating | number:'1.1-1' }} <span class="text-tertiary">({{ course()?.totalReviews || 0 }} reviews)</span></span>
         </div>
       </div>
 
@@ -79,7 +77,7 @@
           <i class="pi pi-rocket"></i> Publish Course
         </button>
         } @else {
-        <button class="btn-premium warning" (click)="unpublishCourse()">
+        <button class="btn-premium warning" (click)="publishCourse()">
           <i class="pi pi-eye-slash"></i> Unpublish
         </button>
         }
@@ -135,14 +133,11 @@
           </div>
 
           <div class="curriculum-stats surface-subtle">
-            <div class="stat"><span class="val text-primary">{{ sections().length || 0 }}</span><span
-                class="lbl">Sections</span></div>
+            <div class="stat"><span class="val text-primary">{{ sections().length || 0 }}</span><span class="lbl">Sections</span></div>
             <div class="stat-divider"></div>
-            <div class="stat"><span class="val text-info">{{ actualTotalLessons() || 0 }}</span><span
-                class="lbl">Lessons</span></div>
+            <div class="stat"><span class="val text-info">{{ actualTotalLessons() || 0 }}</span><span class="lbl">Lessons</span></div>
             <div class="stat-divider"></div>
-            <div class="stat"><span class="val text-success">{{ formatDuration(actualTotalDuration() || 0)
-                }}</span><span class="lbl">Total Time</span></div>
+            <div class="stat"><span class="val text-success">{{ formatDuration(actualTotalDuration() || 0) }}</span><span class="lbl">Total Time</span></div>
           </div>
 
           <div class="curriculum-accordion">
@@ -150,19 +145,16 @@
             <div class="accordion-item surface-raised" [class.expanded]="section.expanded">
               <div class="accordion-header" (click)="toggleSection(i)">
                 <div class="acc-title-wrapper">
-                  <i class="pi transition-transform text-primary"
-                    [ngClass]="section.expanded ? 'pi-angle-down' : 'pi-angle-right'"></i>
+                  <i class="pi transition-transform text-primary" [ngClass]="section.expanded ? 'pi-angle-down' : 'pi-angle-right'"></i>
                   <h3 class="acc-title">{{ section.title }}</h3>
                 </div>
                 <div class="acc-meta">
                   <span class="meta-pill">{{ section.lessons?.length || 0 }} lessons</span>
-                  <span class="meta-pill"><i class="pi pi-clock"></i> {{ formatDuration(section.totalDuration || 0)
-                    }}</span>
+                  <span class="meta-pill"><i class="pi pi-clock"></i> {{ formatDuration(section.totalDuration || 0) }}</span>
                 </div>
               </div>
 
-              <div class="accordion-body" [style.height]="section.expanded ? 'auto' : '0px'"
-                [style.opacity]="section.expanded ? '1' : '0'">
+              <div class="accordion-body" [style.height]="section.expanded ? 'auto' : '0px'" [style.opacity]="section.expanded ? '1' : '0'">
                 <div class="lessons-list">
                   @for (lesson of section.lessons; track lesson._id; let isLast = $last) {
                   <div class="lesson-item" [class.border-none]="isLast">
@@ -199,8 +191,7 @@
               <h3>Curriculum is currently empty</h3>
               <p class="text-secondary">Check back later or start building if you are the instructor.</p>
               @if (isInstructorMode()) {
-              <button class="btn-micro glow mt-lg" (click)="editCurriculum()"><i class="pi pi-plus"></i> Add First
-                Section</button>
+              <button class="btn-micro glow mt-lg" (click)="editCurriculum()"><i class="pi pi-plus"></i> Add First Section</button>
               }
             </div>
             }
@@ -234,8 +225,7 @@
         <section class="content-section premium-glass mt-4xl">
           <div class="section-header-split mb-2xl">
             <div>
-              <h2 class="section-title m-0 text-white"><i class="pi pi-chart-line text-info"></i> Performance Analytics
-              </h2>
+              <h2 class="section-title m-0 text-white"><i class="pi pi-chart-line text-info"></i> Performance Analytics</h2>
               <p class="text-tertiary text-sm mt-xs">Real-time metrics for your course.</p>
             </div>
             <a [routerLink]="['/instructor/courses', course()?._id, 'analytics']" class="btn-micro outline">
@@ -293,8 +283,7 @@
               @if (!course()?.isFree) {
               <div class="price-main">
                 <span class="current-price gradient-text">
-                  {{ course()?.discountPrice ? (course()?.discountPrice | currency:course()?.currency) :
-                  (course()?.price | currency:course()?.currency) }}
+                  {{ course()?.discountPrice ? (course()?.discountPrice | currency:course()?.currency) : (course()?.price | currency:course()?.currency) }}
                 </span>
                 @if (course()?.discountPrice) {
                 <div class="discount-stack">
@@ -320,26 +309,18 @@
               </button>
               <p class="guarantee-text"><i class="pi pi-lock"></i> Pricing is only visible to you here.</p>
               } @else {
-              <button class="btn-glow primary w-full">
-                {{ course()?.isFree ? 'Enroll for Free' : 'Add to Cart' }}
+              <button class="btn-glow primary w-full" (click)="openCheckout()">
+                {{ course()?.isFree ? 'Enroll for Free' : 'Purchase Course' }}
               </button>
-              @if(!course()?.isFree){
-
-              <button class="btn-glow outline w-full mt-md">
-                Buy Now
-              </button>
-              }
-              <p class="guarantee-text"><i class="pi pi-shield"></i> 30-Day Money-Back Guarantee</p>
+              <p class="guarantee-text mt-md"><i class="pi pi-shield"></i> 30-Day Money-Back Guarantee</p>
               }
             </div>
 
             <div class="course-includes">
               <h4>This course includes:</h4>
               <ul>
-                <li><i class="pi pi-video"></i> {{ formatDuration(actualTotalDuration() || course()?.totalDuration || 0)
-                  }} on-demand video</li>
-                <li><i class="pi pi-file"></i> {{ actualTotalLessons() || course()?.totalLessons || 0 }} rich learning
-                  lessons</li>
+                <li><i class="pi pi-video"></i> {{ formatDuration(actualTotalDuration() || course()?.totalDuration || 0) }} on-demand video</li>
+                <li><i class="pi pi-file"></i> {{ actualTotalLessons() || course()?.totalLessons || 0 }} rich learning lessons</li>
                 <li><i class="pi pi-mobile"></i> Access on mobile and web</li>
                 <li><i class="pi pi-trophy"></i> Certificate of completion</li>
               </ul>
@@ -356,8 +337,7 @@
               @if (!isInstructorMode()) {
               <div class="m-row">
                 <span class="m-lbl"><i class="pi pi-user"></i> Instructor</span>
-                <span class="m-val highlight">{{ course()?.instructor?.firstName }} {{ course()?.instructor?.lastName
-                  }}</span>
+                <span class="m-val highlight">{{ course()?.instructor?.firstName }} {{ course()?.instructor?.lastName }}</span>
               </div>
               }
               <div class="m-row">
@@ -387,5 +367,88 @@
 
     </div>
   </div>
+
+  <p-dialog appendTo="body" 
+            [(visible)]="showCheckoutModal" 
+            [modal]="true" 
+            [draggable]="false" 
+            [resizable]="false"
+            styleClass="glass-dialog checkout-dialog"
+            [style]="{width: '500px', maxWidth: '95vw'}">
+    
+    <ng-template pTemplate="header">
+      <div class="checkout-header">
+        <h2 class="m-0 text-primary">Secure Checkout</h2>
+      </div>
+    </ng-template>
+
+    <div class="checkout-body">
+      <div class="order-summary surface-subtle mb-xl">
+        <div class="summary-img">
+          <img [src]="course()?.thumbnail || 'https://via.placeholder.com/150x100?text=Course'" alt="Course">
+        </div>
+        <div class="summary-details">
+          <h4 class="m-0 text-primary line-clamp-2">{{ course()?.title }}</h4>
+          <p class="text-xs text-tertiary mt-xs m-0">By {{ course()?.instructor?.firstName }} {{ course()?.instructor?.lastName }}</p>
+          <div class="summary-price mt-sm font-bold text-lg">
+            @if (course()?.isFree) {
+              <span class="text-success">FREE</span>
+            } @else {
+              {{ course()?.discountPrice ? (course()?.discountPrice | currency:course()?.currency) : (course()?.price | currency:course()?.currency) }}
+            }
+          </div>
+        </div>
+      </div>
+
+      @if (!course()?.isFree) {
+        <form [formGroup]="checkoutForm" class="payment-form">
+          <h4 class="mb-md mt-0 text-secondary"><i class="pi pi-credit-card mr-xs"></i> Payment Details</h4>
+          
+          <div class="form-group mb-md">
+            <label class="text-xs text-tertiary mb-xs block">Name on Card</label>
+            <input pInputText formControlName="cardName" placeholder="John Doe" class="custom-input w-full" [class.error]="checkoutForm.get('cardName')?.invalid && checkoutForm.get('cardName')?.touched">
+          </div>
+
+          <div class="form-group mb-md">
+            <label class="text-xs text-tertiary mb-xs block">Card Number</label>
+            <div class="p-input-icon-right w-full custom-input-wrapper">
+              <input pInputText formControlName="cardNumber" placeholder="0000 0000 0000 0000" class="custom-input w-full" [class.error]="checkoutForm.get('cardNumber')?.invalid && checkoutForm.get('cardNumber')?.touched" maxlength="16">
+              <i class="pi pi-credit-card right-icon text-tertiary"></i>
+            </div>
+          </div>
+
+          <div class="grid-2-col gap-md">
+            <div class="form-group">
+              <label class="text-xs text-tertiary mb-xs block">Expiry Date</label>
+              <input pInputText formControlName="expiry" placeholder="MM/YY" class="custom-input w-full" [class.error]="checkoutForm.get('expiry')?.invalid && checkoutForm.get('expiry')?.touched" maxlength="5">
+            </div>
+            <div class="form-group">
+              <label class="text-xs text-tertiary mb-xs block">CVV</label>
+              <input pInputText type="password" formControlName="cvv" placeholder="123" class="custom-input w-full" [class.error]="checkoutForm.get('cvv')?.invalid && checkoutForm.get('cvv')?.touched" maxlength="4">
+            </div>
+          </div>
+          
+          <p class="text-xs text-tertiary mt-md text-center"><i class="pi pi-lock text-success"></i> Payments are mock encrypted and secure.</p>
+        </form>
+      } @else {
+        <div class="free-confirmation text-center py-xl">
+          <div class="icon-circle mb-md mx-auto" style="width: 60px; height: 60px; font-size: 2rem;"><i class="pi pi-gift text-success"></i></div>
+          <h3 class="m-0">Ready to learn?</h3>
+          <p class="text-secondary mt-sm">This course is 100% free. Click below to instantly access the curriculum.</p>
+        </div>
+      }
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="checkout-footer w-full flex gap-md justify-end">
+        <button class="btn-secondary" (click)="closeCheckout()" [disabled]="isProcessingPayment()">Cancel</button>
+        <button class="btn-primary" (click)="processEnrollment()" [disabled]="isProcessingPayment()">
+          <i class="pi" [ngClass]="isProcessingPayment() ? 'pi-spinner pi-spin' : (course()?.isFree ? 'pi-bolt' : 'pi-lock')"></i>
+          {{ isProcessingPayment() ? 'Processing...' : (course()?.isFree ? 'Start Learning Now' : 'Pay & Enroll') }}
+        </button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
 </div>
 }

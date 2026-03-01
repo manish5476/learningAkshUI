@@ -12,10 +12,10 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { DragDropModule } from 'primeng/dragdrop';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { CourseService } from '../../../core/services/course.service';
-import { SectionService } from '../../../core/services/section.service';
-import { LessonListComponent } from "../../lesson/components/lesson-list/lesson-list.component";
-import { DurationPipe } from "../../../core/pipes/duration.pipe";
+import { CourseService } from '../../../../core/services/course.service';
+import { SectionService } from '../../../../core/services/section.service';
+import { LessonListComponent } from "../../../lesson/components/lesson-list/lesson-list.component";
+import { DurationPipe } from "../../../../core/pipes/duration.pipe";
 
 // Services
 

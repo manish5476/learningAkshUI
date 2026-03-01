@@ -1,0 +1,108 @@
+<div class="assessment-dashboard">
+  <p-toast position="top-right"></p-toast>
+  <p-confirmDialog styleClass="glass-dialog" [style]="{width: '450px'}"></p-confirmDialog>
+
+  <div class="dashboard-header glass-panel mb-2xl">
+    <div class="header-content">
+      <h1 class="page-title gradient-text m-0">Assessment Manager</h1>
+      <p class="text-secondary mt-xs mb-0">Create, edit, and manage your lesson quizzes.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-glow primary" routerLink="/instructor/quiz/new">
+        <i class="pi pi-plus"></i> Create New Quiz
+      </button>
+    </div>
+  </div>
+
+  <div class="glass-panel table-container">
+    <div class="table-header-row mb-lg">
+      <h3 class="m-0 text-primary"><i class="pi pi-list"></i> My Quizzes ({{ quizzes().length }})</h3>
+      
+      <div class="search-bar p-input-icon-left">
+        <i class="pi pi-search text-tertiary"></i>
+        <input type="text" pInputText placeholder="Search quizzes..." class="custom-input" (input)="onSearch($event, 'dt')">
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="loader-ring"></div>
+        <p class="text-secondary mt-md">Loading assessments...</p>
+      </div>
+    } @else {
+      
+      <div class="custom-table-wrapper">
+        <p-table #dt [value]="quizzes()" [paginator]="true" [rows]="10" 
+                 [globalFilterFields]="['title', 'course.title']" styleClass="p-datatable-glass">
+          
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="title">Quiz Title <p-sortIcon field="title"></p-sortIcon></th>
+              <th>Attached Course</th>
+              <th pSortableColumn="totalQuestions" class="text-center">Questions <p-sortIcon field="totalQuestions"></p-sortIcon></th>
+              <th pSortableColumn="totalPoints" class="text-center">Total Points <p-sortIcon field="totalPoints"></p-sortIcon></th>
+              <th>Status</th>
+              <th style="text-align: right">Actions</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-quiz>
+            <tr>
+              
+              <td>
+                <div class="flex-col gap-xs">
+                  <span class="font-bold text-lg text-primary">{{ quiz.title }}</span>
+                  <div class="id-badge" (click)="copyQuizId(quiz._id)" pTooltip="Click to copy ID">
+                    <i class="pi pi-copy"></i> ID: {{ quiz._id | slice:0:8 }}...
+                  </div>
+                </div>
+              </td>
+
+              <td>
+                <span class="text-secondary font-medium">
+                  {{ quiz.course?.title || 'Unassigned' }}
+                </span>
+              </td>
+
+              <td class="text-center font-mono font-bold">{{ quiz.totalQuestions || 0 }}</td>
+              <td class="text-center font-mono font-bold text-success">{{ quiz.totalPoints || 0 }}</td>
+
+              <td>
+                @if (quiz.isPublished) {
+                  <p-tag value="Published" severity="success" [rounded]="true"></p-tag>
+                } @else {
+                  <p-tag value="Draft" severity="warn" [rounded]="true"></p-tag>
+                }
+              </td>
+
+              <td style="text-align: right">
+                <div class="flex justify-end gap-sm">
+                  <button class="btn-icon btn-ghost" pTooltip="Edit Quiz" tooltipPosition="left" (click)="editQuiz(quiz._id)">
+                    <i class="pi pi-pencil text-info"></i>
+                  </button>
+                  <button class="btn-icon btn-ghost" pTooltip="Delete Quiz" tooltipPosition="left" (click)="deleteQuiz(quiz._id, quiz.title)">
+                    <i class="pi pi-trash text-error"></i>
+                  </button>
+                </div>
+              </td>
+
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6" class="empty-state">
+                <div class="icon-circle mx-auto"><i class="pi pi-file-edit text-tertiary"></i></div>
+                <h3 class="mt-md">No quizzes found</h3>
+                <p class="text-secondary">You haven't created any quizzes yet, or none match your search.</p>
+                <button class="btn-glow outline mt-md" routerLink="/instructor/quiz/new">Create Your First Quiz</button>
+              </td>
+            </tr>
+          </ng-template>
+          
+        </p-table>
+      </div>
+
+    }
+  </div>
+</div>

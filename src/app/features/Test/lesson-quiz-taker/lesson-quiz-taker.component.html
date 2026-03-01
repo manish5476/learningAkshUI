@@ -1,0 +1,127 @@
+<div class="embedded-quiz-container glass-panel surface-raised">
+  
+  @if (isLoading()) {
+    <div class="flex-center p-xl">
+      <div class="loader-ring"></div>
+    </div>
+  } 
+
+  @else if (quizState() === 'intro' && quizData()) {
+    <div class="intro-view text-center p-xl fade-in">
+      <div class="icon-circle mx-auto mb-lg"><i class="pi pi-question-circle text-primary text-3xl"></i></div>
+      <h2 class="text-primary m-0 mb-sm">{{ quizData().title }}</h2>
+      @if (quizData().description) {
+        <p class="text-secondary mb-md">{{ quizData().description }}</p>
+      }
+      
+      <div class="quiz-specs flex justify-center gap-xl mb-xl">
+        <div class="spec"><i class="pi pi-check-square text-success"></i> {{ quizData().passingScore }}% to pass</div>
+        <div class="spec"><i class="pi pi-list text-info"></i> {{ questions().length }} Questions</div>
+      </div>
+
+      <button class="btn-glow primary" (click)="startQuiz()">Start Quiz Now</button>
+    </div>
+  }
+
+  @else if (quizState() === 'taking') {
+    <div class="taking-view fade-in">
+      <div class="quiz-header border-bottom-subtle pb-md mb-xl flex justify-between align-center">
+        <h3 class="m-0 text-primary">{{ quizData().title }}</h3>
+        <span class="text-secondary font-mono">{{ questions().length }} Questions</span>
+      </div>
+
+      <div class="questions-list flex-col gap-2xl">
+        @for (q of questions(); track q._id; let i = $index) {
+          <div class="q-card">
+            
+            <div class="q-meta flex justify-between mb-md">
+              <h4 class="text-lg m-0"><span class="text-primary">Q{{ i + 1 }}.</span> {{ q.question }}</h4>
+              <span class="points-badge">{{ q.points }} pts</span>
+            </div>
+
+            <div class="answer-area pl-lg">
+              @switch (q.type) {
+                
+                @case ('multiple-choice') {
+                  <div class="options-group flex-col gap-sm">
+                    @for (opt of q.options; track $index; let optIdx = $index) {
+                      <div class="option-row surface-subtle" [class.selected]="studentAnswers[q._id] === optIdx" (click)="studentAnswers[q._id] = optIdx">
+                        <p-radioButton [value]="optIdx" [(ngModel)]="studentAnswers[q._id]" [inputId]="q._id + '-' + optIdx"></p-radioButton>
+                        <label [for]="q._id + '-' + optIdx" class="ml-sm flex-1 cursor-pointer">{{ opt.text }}</label>
+                      </div>
+                    }
+                  </div>
+                }
+
+                @case ('true-false') {
+                  <div class="options-group flex gap-md">
+                    <div class="option-row surface-subtle flex-1 text-center justify-center" [class.selected]="studentAnswers[q._id] === true" (click)="studentAnswers[q._id] = true">
+                      <p-radioButton [value]="true" [(ngModel)]="studentAnswers[q._id]" [inputId]="q._id + '-t'"></p-radioButton>
+                      <label [for]="q._id + '-t'" class="ml-sm cursor-pointer font-bold text-lg">True</label>
+                    </div>
+                    <div class="option-row surface-subtle flex-1 text-center justify-center" [class.selected]="studentAnswers[q._id] === false" (click)="studentAnswers[q._id] = false">
+                      <p-radioButton [value]="false" [(ngModel)]="studentAnswers[q._id]" [inputId]="q._id + '-f'"></p-radioButton>
+                      <label [for]="q._id + '-f'" class="ml-sm cursor-pointer font-bold text-lg">False</label>
+                    </div>
+                  </div>
+                }
+
+                @case ('short-answer') {
+                  <input pInputText type="text" [(ngModel)]="studentAnswers[q._id]" placeholder="Type your exact answer here..." class="custom-input w-full">
+                }
+
+                @case ('essay') {
+                  <textarea pTextarea [(ngModel)]="studentAnswers[q._id]" [rows]="4" placeholder="Write your detailed answer here..." class="custom-input textarea-input w-full custom-scrollbar"></textarea>
+                  <small class="text-tertiary block mt-xs">Note: Essays require manual grading and will not be scored automatically.</small>
+                }
+
+              }
+            </div>
+
+          </div>
+        }
+      </div>
+
+      <div class="quiz-footer mt-2xl pt-lg border-top-subtle flex justify-end">
+        <button class="btn-glow success" (click)="submitQuiz()" [disabled]="isSubmitting()">
+          <i class="pi" [ngClass]="isSubmitting() ? 'pi-spinner pi-spin' : 'pi-check-circle'"></i> 
+          {{ isSubmitting() ? 'Grading...' : 'Submit Answers' }}
+        </button>
+      </div>
+    </div>
+  }
+
+  @else if (quizState() === 'results') {
+    <div class="results-view text-center p-xl fade-in">
+      <div class="icon-circle mx-auto mb-lg" [ngClass]="resultsData().passed ? 'bg-success-light' : 'bg-error-light'">
+        <i class="pi" [ngClass]="resultsData().passed ? 'pi-check text-success' : 'pi-times text-error'" style="font-size: 3.5rem;"></i>
+      </div>
+      
+      <h2 class="m-0 mb-sm text-3xl" [ngClass]="resultsData().passed ? 'text-success' : 'text-error'">
+        {{ resultsData().passed ? 'Quiz Passed!' : 'Quiz Failed' }}
+      </h2>
+      
+      <p class="text-secondary text-xl mb-md">
+        You scored <strong class="text-primary">{{ resultsData().score }}</strong> out of {{ resultsData().totalPoints }} points.
+      </p>
+      
+      <div class="score-bar-wrapper mb-2xl mx-auto" style="max-width: 300px;">
+        <div class="flex justify-between mb-xs">
+          <span class="text-xs text-tertiary font-bold uppercase tracking-widest">Score</span>
+          <span class="text-xs text-primary font-bold">{{ resultsData().percentage | number:'1.0-1' }}%</span>
+        </div>
+        <div class="score-track">
+          <div class="score-fill" [style.width]="resultsData().percentage + '%'" [ngClass]="resultsData().passed ? 'bg-success' : 'bg-error'"></div>
+        </div>
+      </div>
+
+      @if (!resultsData().passed) {
+        <button class="btn-glow outline" (click)="retryQuiz()"><i class="pi pi-refresh"></i> Try Again</button>
+      } @else {
+        <div class="success-box surface-subtle p-md border-round inline-block">
+          <p class="text-primary m-0"><i class="pi pi-check-circle text-success mr-sm"></i> Your progress has been saved. You may proceed to the next lesson!</p>
+        </div>
+      }
+    </div>
+  }
+</div>

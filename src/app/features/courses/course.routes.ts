@@ -26,16 +26,19 @@ export const COURSE_ROUTES: Routes = [
       {
         path: 'instructor',
         canActivate: [AuthGuard],
+        // redirectTo: '/dashboard',
+        // pathMatch: 'full',
         children: [
-          {
-            path: '', // This acts as the home page for /instructor
-            loadComponent: () => import('../instructor/instructor-dashboard/instructor-dashboard.component').then(m => m.InstructorDashboardComponent),
-            title: 'Instructor Command Center'
-          },
+
           {
             path: '',
             loadComponent: () => import('./components/courselist/course-list.component').then(m => m.CourseListComponent),
             title: 'My Courses'
+          },
+          {
+            path: 'dashboard', // This acts as the home page for /instructor
+            loadComponent: () => import('../instructor/instructor-dashboard/instructor-dashboard.component').then(m => m.InstructorDashboardComponent),
+            title: 'Instructor Command Center'
           },
           {
             path: 'new',
@@ -54,15 +57,31 @@ export const COURSE_ROUTES: Routes = [
             title: 'Edit Course'
           },
           {
+            path: 'quiz/:id', // Use 'new' for creation, or an actual ID for editing
+            loadComponent: () => import('./components/quiz-builder/quiz-builder.component').then(m => m.QuizBuilderComponent),
+            title: 'Quiz Builder'
+          },
+          {
             path: ':id/analytics',
             loadComponent: () => import('./components/course-analytics/course-analytics.component').then(m => m.CourseAnalyticsComponent),
             title: 'Course Analytics'
           },
           {
+            path: ':id/students',
+            loadComponent: () => import('./components/course-students/course-students.component').then(m => m.CourseStudentsComponent),
+            title: 'Course Roster'
+          },
+          {
             path: ':id/curriculum',
-            loadComponent: () => import('./course-curriculum/course-curriculum.component').then(m => m.CourseCurriculumComponent),
+            loadComponent: () => import('./components/course-curriculum/course-curriculum.component').then(m => m.CourseCurriculumComponent),
             title: 'Course Curriculum'
-          }
+          },
+//           {
+//   path: 'mock-tests/results/:id',
+//   canActivate: [AuthGuard], // Protected student route
+//   loadComponent: () => import('./components/mock-test-results/mock-test-results.component').then(m => m.MockTestResultsComponent),
+//   title: 'Mock Test Results'
+// }
         ]
       },
 

@@ -1,0 +1,164 @@
+<div class="test-taker-wrapper">
+  <p-toast position="top-right"></p-toast>
+  <p-confirmDialog styleClass="glass-dialog" [style]="{width: '400px'}"></p-confirmDialog>
+
+  @if (isLoading()) {
+    <div class="state-overlay cinematic-bg">
+      <div class="loader-ring"></div>
+      <p class="text-secondary mt-xl font-bold uppercase tracking-widest text-sm">Preparing Exam Environment...</p>
+    </div>
+  } 
+
+  @else if (testState() === 'intro' && mockTest()) {
+    <div class="intro-screen cinematic-bg">
+      <div class="intro-card glass-panel text-center">
+        <div class="icon-circle mb-lg mx-auto"><i class="pi pi-shield text-primary"></i></div>
+        <h1 class="gradient-text mb-xs">{{ mockTest().title }}</h1>
+        <p class="text-secondary mb-xl">{{ mockTest().description }}</p>
+        
+        <div class="test-specs mb-2xl">
+          <div class="spec-item surface-subtle">
+            <i class="pi pi-clock text-info"></i>
+            <div class="spec-data">
+              <span class="spec-val">{{ mockTest().duration }} Mins</span>
+              <span class="spec-lbl">Duration</span>
+            </div>
+          </div>
+          <div class="spec-item surface-subtle">
+            <i class="pi pi-question-circle text-warning"></i>
+            <div class="spec-data">
+              <span class="spec-val">{{ mockTest().totalQuestions }}</span>
+              <span class="spec-lbl">Questions</span>
+            </div>
+          </div>
+          <div class="spec-item surface-subtle">
+            <i class="pi pi-star text-success"></i>
+            <div class="spec-data">
+              <span class="spec-val">{{ mockTest().totalMarks }}</span>
+              <span class="spec-lbl">Total Marks</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="instructions text-left surface-raised p-xl border-round-xl mb-2xl">
+          <h4 class="text-primary mt-0 mb-md"><i class="pi pi-info-circle"></i> Instructions</h4>
+          <ul class="instruction-list m-0 pl-3">
+            <li>Once started, the timer cannot be paused.</li>
+            <li>Ensure you have a stable internet connection.</li>
+            <li>Do not refresh or close the browser tab during the test.</li>
+            <li>The test will auto-submit when the timer reaches zero.</li>
+          </ul>
+        </div>
+
+        <div class="flex gap-md justify-center">
+          <button class="btn-glow outline" (click)="exitTest()">Cancel</button>
+          <button class="btn-glow primary" (click)="startTest()">
+            <i class="pi pi-play"></i> Start Exam Now
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @else if (testState() === 'in-progress' || testState() === 'submitting') {
+    <div class="exam-interface">
+      
+      <header class="exam-header glass-panel-flat">
+        <div class="header-left">
+          <h2 class="exam-title m-0">{{ mockTest()?.title }}</h2>
+        </div>
+        
+        <div class="header-center">
+          <div class="timer-box surface-subtle" [class.danger]="isTimerDanger()">
+            <i class="pi pi-clock" [class.pi-spin]="isTimerDanger()"></i>
+            <span class="timer-text font-mono font-bold">{{ formattedTimer() }}</span>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <button class="btn-glow success outline-success" (click)="confirmSubmit()" [disabled]="testState() === 'submitting'">
+            <i class="pi" [ngClass]="testState() === 'submitting' ? 'pi-spinner pi-spin' : 'pi-check'"></i>
+            {{ testState() === 'submitting' ? 'Submitting...' : 'Finish & Submit' }}
+          </button>
+        </div>
+      </header>
+
+      <div class="exam-body">
+        
+        <aside class="question-palette glass-panel-flat custom-scrollbar">
+          <div class="palette-header">
+            <h4 class="m-0 text-primary">Question Palette</h4>
+            <span class="text-xs text-secondary mt-xs block">{{ answeredCount() }} / {{ totalQuestions() }} Answered</span>
+          </div>
+          
+          <div class="palette-grid mt-lg">
+            @for (q of questions(); track q._id; let i = $index) {
+              <button class="q-btn font-mono" 
+                      [class.active]="currentIndex() === i"
+                      [class.answered]="isAnswered(q._id)"
+                      (click)="goToQuestion(i)">
+                {{ i + 1 }}
+              </button>
+            }
+          </div>
+
+          <div class="palette-legend mt-2xl">
+            <div class="legend-item"><span class="q-btn-mock answered"></span> Answered</div>
+            <div class="legend-item"><span class="q-btn-mock"></span> Not Answered</div>
+            <div class="legend-item"><span class="q-btn-mock active"></span> Current</div>
+          </div>
+        </aside>
+
+        <main class="question-area">
+          <div class="question-card glass-panel relative">
+            
+            @if (testState() === 'submitting') {
+              <div class="submitting-overlay rounded-xl">
+                <div class="loader-ring"></div>
+                <h3 class="mt-md text-primary">Processing your results...</h3>
+              </div>
+            }
+
+            <div class="q-meta flex justify-between align-center mb-xl border-bottom-subtle pb-md">
+              <span class="q-number text-primary font-bold text-xl">Question {{ currentIndex() + 1 }} of {{ totalQuestions() }}</span>
+              <div class="q-marks flex gap-sm">
+                <span class="badge badge-success">+{{ currentQuestion()?.marks }} Marks</span>
+                @if (currentQuestion()?.negativeMarks > 0) {
+                  <span class="badge badge-danger">-{{ currentQuestion()?.negativeMarks }} Penalty</span>
+                }
+              </div>
+            </div>
+
+            <div class="q-text text-xl font-medium line-height-3 mb-2xl">
+              {{ currentQuestion()?.question }}
+            </div>
+
+            <div class="options-list flex-col gap-md">
+              @for (option of currentQuestion()?.options; track $index; let optIdx = $index) {
+                <div class="option-item surface-subtle hover-lift" 
+                     [class.selected]="answers()[currentQuestion()._id] === optIdx"
+                     (click)="selectOption(optIdx)">
+                  <div class="radio-circle">
+                    <div class="inner-dot"></div>
+                  </div>
+                  <span class="option-text">{{ option.text }}</span>
+                </div>
+              }
+            </div>
+
+          </div>
+
+          <div class="q-nav-footer mt-xl flex justify-between">
+            <button class="btn-glow secondary" (click)="prevQuestion()" [disabled]="currentIndex() === 0">
+              <i class="pi pi-arrow-left"></i> Previous
+            </button>
+            <button class="btn-glow primary" (click)="nextQuestion()" [disabled]="currentIndex() === totalQuestions() - 1">
+              Next <i class="pi pi-arrow-right"></i>
+            </button>
+          </div>
+        </main>
+
+      </div>
+    </div>
+  }
+</div>

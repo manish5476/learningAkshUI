@@ -1,0 +1,125 @@
+<div class="assessment-container">
+  
+  <div class="assessment-hero glass-panel">
+    <div class="hero-content">
+      <h1 class="gradient-text m-0">Mock Tests & Assessments</h1>
+      <p class="text-secondary mt-sm">Test your knowledge, compete on the leaderboard, and track your improvement.</p>
+    </div>
+
+    <div class="custom-tabs mt-xl">
+      <button class="tab-btn" [class.active]="activeTab() === 'available'" (click)="setTab('available')">
+        <i class="pi pi-list"></i> Available Tests
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'attempts'" (click)="setTab('attempts')">
+        <i class="pi pi-history"></i> My Past Attempts
+      </button>
+    </div>
+  </div>
+
+  <div class="assessment-content mt-2xl">
+    @if (isLoading()) {
+      <div class="state-overlay">
+        <div class="loader-ring"></div>
+        <p class="text-secondary mt-md">Loading assessments...</p>
+      </div>
+    } @else {
+
+      @if (activeTab() === 'available') {
+        <div class="test-grid">
+          @for (test of availableTests(); track test._id) {
+            <div class="test-card surface-raised hover-lift">
+              <div class="card-header">
+                <p-tag [value]="test.level | titlecase" [severity]="getLevelSeverity(test.level)"></p-tag>
+                <span class="category-badge"><i class="pi pi-folder"></i> {{ test.category?.name || 'General' }}</span>
+              </div>
+              
+              <div class="card-body">
+                <h3 class="test-title">{{ test.title }}</h3>
+                <p class="test-desc">{{ test.description | slice:0:100 }}{{ test.description?.length > 100 ? '...' : '' }}</p>
+                
+                <div class="test-meta">
+                  <div class="meta-item"><i class="pi pi-clock text-info"></i> {{ test.duration }} mins</div>
+                  <div class="meta-item"><i class="pi pi-question-circle text-warning"></i> {{ test.totalQuestions }} Qs</div>
+                  <div class="meta-item"><i class="pi pi-star text-success"></i> {{ test.totalMarks }} Marks</div>
+                </div>
+              </div>
+
+              <div class="card-footer">
+                <button class="btn-glow primary w-full" (click)="startTest(test._id)">
+                  Start Test <i class="pi pi-arrow-right ml-xs"></i>
+                </button>
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-state surface-subtle col-span-full">
+              <div class="icon-circle"><i class="pi pi-file-excel text-tertiary"></i></div>
+              <h3>No tests available</h3>
+              <p class="text-secondary">Check back later for new mock tests and assessments.</p>
+            </div>
+          }
+        </div>
+      }
+
+      @if (activeTab() === 'attempts') {
+        <div class="glass-panel table-container">
+          @if (myAttempts().length > 0) {
+            <p-table [value]="myAttempts()" [paginator]="true" [rows]="10" styleClass="p-datatable-glass custom-table">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Test Name</th>
+                  <th>Date Taken</th>
+                  <th>Score</th>
+                  <th>Status</th>
+                  <th>Rank</th>
+                  <th style="text-align: right">Action</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-attempt>
+                <tr>
+                  <td class="font-medium text-primary">{{ attempt.mockTest?.title || 'Unknown Test' }}</td>
+                  <td class="font-mono text-sm text-secondary">{{ (attempt.completedAt | date:'mediumDate') || 'In Progress' }}</td>
+                  <td>
+                    @if (attempt.status === 'completed') {
+                      <span class="font-bold">{{ attempt.score }} / {{ attempt.mockTest?.totalMarks }}</span>
+                      <span class="text-xs text-tertiary ml-xs font-mono">({{ attempt.percentage | number:'1.0-1' }}%)</span>
+                    } @else {
+                      <span class="text-warning italic">Pending</span>
+                    }
+                  </td>
+                  <td>
+                    @if (attempt.status === 'completed') {
+                      <p-tag [value]="attempt.isPassed ? 'Passed' : 'Failed'" [severity]="attempt.isPassed ? 'success' : 'danger'"></p-tag>
+                    } @else {
+                      <p-tag value="In Progress" severity="warn"></p-tag>
+                    }
+                  </td>
+                  <td>
+                    @if (attempt.rank) {
+                      <span class="rank-badge"><i class="pi pi-trophy text-warning"></i> #{{ attempt.rank }}</span>
+                    } @else {
+                      <span class="text-tertiary">-</span>
+                    }
+                  </td>
+                  <td style="text-align: right">
+                    @if (attempt.status === 'completed') {
+                      <button class="btn-micro outline" (click)="viewAttemptResult(attempt._id)">View Report</button>
+                    } @else {
+                      <button class="btn-micro primary" (click)="startTest(attempt.mockTest?._id)">Resume</button>
+                    }
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          } @else {
+            <div class="empty-state surface-subtle">
+              <div class="icon-circle"><i class="pi pi-history text-tertiary"></i></div>
+              <h3>No past attempts</h3>
+              <p class="text-secondary">Take your first mock test to see your performance history here.</p>
+            </div>
+          }
+        </div>
+      }
+
+    }
+  </div>
+</div>

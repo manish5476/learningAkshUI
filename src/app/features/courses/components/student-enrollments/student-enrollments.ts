@@ -20,8 +20,8 @@ import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { Enrollment } from '../../../core/models/enrollment.model';
-import { EnrollmentService } from '../../../core/services/enrollment.service';
+import { Enrollment } from '../../../../core/models/enrollment.model';
+import { EnrollmentService } from '../../../../core/services/enrollment.service';
 
 
 @Component({

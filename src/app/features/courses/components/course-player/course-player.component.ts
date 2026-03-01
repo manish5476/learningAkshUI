@@ -18,6 +18,7 @@ import { CourseService } from '../../../../core/services/course.service';
 import { EnrollmentService } from '../../../../core/services/enrollment.service';
 import { LessonProgress, LessonService } from '../../../../core/services/lesson.service';
 import { LessonProgressTrackerComponent } from "../../../lesson/components/lesson-progress-tracker/lesson-progress-tracker.component";
+import { LessonQuizTakerComponent } from "../../../Test/lesson-quiz-taker/lesson-quiz-taker.component";
 
 // Services & Pipes
 @Component({
@@ -35,7 +36,8 @@ import { LessonProgressTrackerComponent } from "../../../lesson/components/lesso
     ConfirmDialogModule,
     DurationPipe,
     TitleCasePipe,
-    LessonProgressTrackerComponent
+    LessonProgressTrackerComponent,
+    LessonQuizTakerComponent
 ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './course-player.component.html',
@@ -133,7 +135,7 @@ export class CoursePlayerComponent implements OnInit {
   }
 
   // --- Progress Tracker Event Handler ---
-  onProgressUpdatedFromTracker(progress: LessonProgress): void {
+  onProgressUpdatedFromTracker(progress: any): void {
     // 1. Update the sidebar checkmarks immutably using Signals
     this.completedLessons.update(set => {
       const newSet = new Set(set);

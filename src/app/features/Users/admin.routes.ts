@@ -11,7 +11,7 @@ import { AuthService } from '../../core/services/auth.service';
 const adminOnlyGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  
+
   // Return the observable directly; Angular Router will subscribe to it automatically
   return authService.currentUser$.pipe(
     take(1), // Ensure the observable completes so the route can resolve
@@ -54,6 +54,18 @@ export const ADMIN_ROUTES: Routes = [
     pathMatch: 'full',
     redirectTo: 'users'
   },
+  //   {
+  //   path: 'instructor/quizzes', // This acts as the hub
+  //   canActivate: [AuthGuard],
+  //   loadComponent: () => import('./components/instructor-assessments/instructor-assessments.component').then(m => m.InstructorAssessmentsComponent),
+  //   title: 'Quiz Manager'
+  // }
+  //   {
+  //   path: 'mock-tests/take/:id',
+  //   // canActivate: [AuthGuard], // Essential to protect the attempt API
+  //   loadComponent: () => import('./components/mock-test-taker/mock-test-taker.component').then(m => m.MockTestTakerComponent),
+  //   title: 'Taking Mock Test'
+  // }
   {
     path: 'users',
     loadComponent: () => import('./user-list.component').then(m => m.UserListComponent),

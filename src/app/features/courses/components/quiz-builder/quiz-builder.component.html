@@ -1,0 +1,307 @@
+<div class="quiz-builder-container">
+  <p-toast position="top-right"></p-toast>
+
+  @if (isLoading()) {
+    <div class="state-overlay cinematic-bg">
+      <div class="loader-ring"></div>
+      <p class="text-secondary mt-xl font-bold tracking-widest uppercase text-sm">Loading Quiz Data...</p>
+    </div>
+  } @else {
+    
+    <form [formGroup]="quizForm" (ngSubmit)="saveQuiz()">
+      
+      <div class="builder-header glass-panel mb-2xl">
+        <div class="header-left">
+          <button type="button" class="btn-icon btn-ghost" routerLink="/instructor/courses">
+            <i class="pi pi-arrow-left"></i>
+          </button>
+          <div>
+            <h1 class="page-title gradient-text m-0">{{ quizId() ? 'Edit Quiz' : 'Create New Quiz' }}</h1>
+            @if (quizId()) {
+              <div class="id-badge mt-xs" (click)="copyQuizId()" pTooltip="Copy ID for Lesson Form">
+                <i class="pi pi-copy"></i> Copy Quiz ID: {{ quizId() }}
+              </div>
+            }
+          </div>
+        </div>
+        <div class="header-right flex gap-md">
+          <button type="button" class="btn-glow outline" routerLink="/instructor/courses">Cancel</button>
+          <button type="submit" class="btn-glow primary" [disabled]="isSaving()">
+            <i class="pi" [ngClass]="isSaving() ? 'pi-spinner pi-spin' : 'pi-save'"></i>
+            {{ isSaving() ? 'Saving...' : 'Save & Publish Quiz' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="builder-grid">
+        
+        <div class="settings-col">
+          <div class="glass-panel surface-raised sticky-settings">
+            <h3 class="m-0 mb-xl text-primary flex align-items-center gap-sm">
+              <i class="pi pi-cog"></i> Quiz Settings
+            </h3>
+            
+            <div class="form-group mb-lg">
+              <label class="input-label">Quiz Title <span class="required">*</span></label>
+              <input type="text" pInputText formControlName="title" placeholder="e.g., Module 1 Check" class="custom-input w-full">
+            </div>
+
+            <div class="form-group mb-lg">
+              <label class="input-label">Description</label>
+              <textarea pTextarea formControlName="description" placeholder="Instructions..." [rows]="3" class="custom-input textarea-input w-full custom-scrollbar"></textarea>
+            </div>
+
+            <div class="grid-2-col gap-md mb-lg">
+              <div class="form-group">
+                <label class="input-label">Pass Score <span class="required">*</span></label>
+                <p-inputNumber formControlName="passingScore" [min]="1" [max]="100" suffix="%" styleClass="w-full custom-number"></p-inputNumber>
+              </div>
+              <div class="form-group">
+                <label class="input-label">Time Limit</label>
+                <p-inputNumber formControlName="timeLimit" [min]="0" suffix=" min" styleClass="w-full custom-number" pTooltip="0 = unlimited"></p-inputNumber>
+              </div>
+            </div>
+
+            <div class="form-group mb-0">
+              <label class="input-label">Max Attempts</label>
+              <p-inputNumber formControlName="maxAttempts" [min]="1" styleClass="w-full custom-number"></p-inputNumber>
+            </div>
+          </div>
+        </div>
+
+        <div class="questions-col" formArrayName="questions">
+          
+          @for (question of questions.controls; track i; let i = $index) {
+            <div class="question-card glass-panel surface-subtle mb-xl" [formGroupName]="i">
+              
+              <div class="question-header">
+                <h4 class="q-number">Question {{ i + 1 }}</h4>
+                <button type="button" class="btn-icon btn-danger-ghost" (click)="removeQuestion(i)" pTooltip="Delete Question" [disabled]="questions.length === 1">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </div>
+
+              <div class="grid-2-col gap-xl mb-lg">
+                <div class="form-group">
+                  <label class="input-label text-info">Question Type <span class="required">*</span></label>
+                  <p-select formControlName="type" [options]="questionTypes" optionLabel="label" optionValue="value" styleClass="w-full custom-select" (onChange)="onQuestionTypeChange(i, $event.value)">
+                    <ng-template let-item pTemplate="item">
+                      <div class="flex align-items-center gap-sm">
+                        <i [class]="item.icon" class="text-primary"></i> <span>{{ item.label }}</span>
+                      </div>
+                    </ng-template>
+                  </p-select>
+                </div>
+                <div class="form-group">
+                  <label class="input-label">Points Value</label>
+                  <p-inputNumber formControlName="points" [min]="1" styleClass="w-full custom-number"></p-inputNumber>
+                </div>
+              </div>
+
+              <div class="form-group mb-xl border-bottom-subtle pb-lg">
+                <label class="input-label">Question Prompt <span class="required">*</span></label>
+                <textarea pTextarea formControlName="question" placeholder="Enter your question here..." [rows]="2" class="custom-input textarea-input w-full font-bold text-lg"></textarea>
+              </div>
+
+              @if (question.get('type')?.value === 'multiple-choice') {
+                <div class="options-container" formArrayName="options">
+                  <label class="input-label mb-md text-primary">Options (Select the correct one)</label>
+                  
+                  @for (option of getOptions(i).controls; track j; let j = $index) {
+                    <div class="option-row" [formGroupName]="j" [class.is-correct-row]="option.get('isCorrect')?.value">
+                      <div class="correct-checkbox">
+                        <p-checkbox formControlName="isCorrect" [binary]="true" (onChange)="onCorrectAnswerChange(i, j, $event.checked)"></p-checkbox>
+                      </div>
+                      <div class="option-input-wrapper flex-1">
+                        <input pInputText formControlName="text" placeholder="Option text..." class="custom-input w-full">
+                      </div>
+                      <button type="button" class="btn-icon btn-ghost-subtle" (click)="removeOption(i, j)" [disabled]="getOptions(i).length <= 2">
+                        <i class="pi pi-times"></i>
+                      </button>
+                    </div>
+                  }
+                  <button type="button" class="add-option-btn mt-md" (click)="addOption(i)">
+                    <i class="pi pi-plus text-xs"></i> Add Option
+                  </button>
+                </div>
+              }
+
+              @else if (question.get('type')?.value === 'true-false') {
+                <div class="options-container bg-info-subtle">
+                  <label class="input-label mb-md text-info">Correct Answer</label>
+                  <div class="flex gap-xl align-items-center">
+                    <div class="flex gap-sm align-items-center">
+                      <p-radioButton formControlName="correctAnswer" value="true" inputId="tf-t-{{i}}"></p-radioButton>
+                      <label [for]="'tf-t-'+i" class="cursor-pointer font-bold">True</label>
+                    </div>
+                    <div class="flex gap-sm align-items-center">
+                      <p-radioButton formControlName="correctAnswer" value="false" inputId="tf-f-{{i}}"></p-radioButton>
+                      <label [for]="'tf-f-'+i" class="cursor-pointer font-bold">False</label>
+                    </div>
+                  </div>
+                </div>
+              }
+
+              @else if (question.get('type')?.value === 'short-answer') {
+                <div class="options-container bg-success-subtle">
+                  <label class="input-label mb-xs text-success">Exact Correct Answer</label>
+                  <small class="text-tertiary block mb-md">Students must type this exactly (case-insensitive) to receive points.</small>
+                  <input pInputText formControlName="correctAnswer" placeholder="e.g., Paris" class="custom-input w-full border-success">
+                </div>
+              }
+
+              @else if (question.get('type')?.value === 'essay') {
+                <div class="options-container bg-warning-subtle">
+                  <label class="input-label mb-xs text-warning">Grading Rubric / Answer Key</label>
+                  <small class="text-tertiary block mb-md">Essays require manual grading. Place notes for the grader here.</small>
+                  <textarea pTextarea formControlName="correctAnswer" placeholder="e.g., Must mention the French Revolution and include 3 examples..." [rows]="3" class="custom-input textarea-input w-full border-warning"></textarea>
+                </div>
+              }
+
+              <div class="form-group mt-xl pt-md border-top-subtle">
+                <label class="input-label"><i class="pi pi-info-circle text-info"></i> Explanation <span class="text-tertiary font-normal text-xs ml-xs">(Shown to student after quiz)</span></label>
+                <input pInputText formControlName="explanation" placeholder="Provide context on why this is the correct answer..." class="custom-input w-full">
+              </div>
+
+            </div>
+          }
+
+          <div class="add-question-wrapper">
+            <button type="button" class="btn-glow outline w-full py-lg border-dashed" (click)="addQuestion()">
+              <i class="pi pi-plus-circle text-xl mr-sm text-primary"></i> Add Another Question
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </form>
+  }
+</div>
+<!-- <div class="quiz-builder-container">
+  <p-toast position="top-right"></p-toast>
+
+  @if (isLoading()) {
+    <div class="state-overlay cinematic-bg">
+      <div class="loader-ring"></div>
+      <p class="text-secondary mt-xl font-bold tracking-widest uppercase text-sm">Loading Quiz Data...</p>
+    </div>
+  } @else {
+    
+    <form [formGroup]="quizForm" (ngSubmit)="saveQuiz()">
+      
+      <div class="builder-header glass-panel mb-2xl">
+        <div class="header-left">
+          <button type="button" class="btn-icon btn-ghost" routerLink="/instructor/courses">
+            <i class="pi pi-arrow-left"></i>
+          </button>
+          <div>
+            <h1 class="page-title gradient-text m-0">{{ quizId() ? 'Edit Quiz' : 'Create New Quiz' }}</h1>
+            @if (quizId()) {
+              <div class="id-badge mt-xs" (click)="copyQuizId()" pTooltip="Click to copy ID">
+                <i class="pi pi-copy"></i> ID: {{ quizId() }}
+              </div>
+            }
+          </div>
+        </div>
+        <div class="header-right flex gap-md">
+          <button type="button" class="btn-glow outline" routerLink="/instructor/courses">Cancel</button>
+          <button type="submit" class="btn-glow primary" [disabled]="isSaving()">
+            <i class="pi" [ngClass]="isSaving() ? 'pi-spinner pi-spin' : 'pi-save'"></i>
+            {{ isSaving() ? 'Saving...' : 'Save Quiz' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="builder-grid">
+        
+        <div class="settings-col">
+          <div class="glass-panel surface-raised sticky-settings">
+            <h3 class="m-0 mb-xl text-primary flex align-items-center gap-sm">
+              <i class="pi pi-cog"></i> Quiz Settings
+            </h3>
+            
+            <div class="form-group mb-lg">
+              <label class="input-label">Quiz Title <span class="required">*</span></label>
+              <input type="text" pInputText formControlName="title" placeholder="e.g., Module 1 Knowledge Check" class="custom-input w-full">
+            </div>
+
+            <div class="form-group mb-lg">
+              <label class="input-label">Description</label>
+              <textarea pTextarea formControlName="description" placeholder="Instructions for the students..." [rows]="4" class="custom-input textarea-input w-full custom-scrollbar"></textarea>
+            </div>
+
+            <div class="form-group mb-0">
+              <label class="input-label">Passing Score (%) <span class="required">*</span></label>
+              <p-inputNumber formControlName="passingScore" [min]="1" [max]="100" suffix="%" styleClass="w-full custom-number"></p-inputNumber>
+              <small class="text-tertiary block mt-xs">Minimum percentage required to pass.</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="questions-col" formArrayName="questions">
+          
+          @for (question of questions.controls; track i; let i = $index) {
+            <div class="question-card glass-panel surface-subtle mb-xl" [formGroupName]="i">
+              
+              <div class="question-header">
+                <h4 class="q-number">Question {{ i + 1 }}</h4>
+                <button type="button" class="btn-icon btn-danger-ghost" (click)="removeQuestion(i)" pTooltip="Delete Question" tooltipPosition="left" [disabled]="questions.length === 1">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </div>
+
+              <div class="form-group mb-lg">
+                <label class="input-label">Question Text <span class="required">*</span></label>
+                <textarea pTextarea formControlName="questionText" placeholder="What is the main purpose of..." [rows]="2" class="custom-input textarea-input w-full"></textarea>
+              </div>
+
+              <div class="options-container" formArrayName="options">
+                <label class="input-label mb-md text-info">Answers (Check the correct one)</label>
+                
+                @for (option of getOptions(i).controls; track j; let j = $index) {
+                  <div class="option-row" [formGroupName]="j" [class.is-correct-row]="option.get('isCorrect')?.value">
+                    
+                    <div class="correct-checkbox">
+                      <p-checkbox formControlName="isCorrect" [binary]="true" (onChange)="onCorrectAnswerChange(i, j, $event.checked)"></p-checkbox>
+                    </div>
+                    
+                    <div class="option-input-wrapper flex-1">
+                      <input pInputText formControlName="optionText" placeholder="Option text..." class="custom-input w-full">
+                    </div>
+                    
+                    <button type="button" class="btn-icon btn-ghost-subtle" (click)="removeOption(i, j)" [disabled]="getOptions(i).length <= 2" pTooltip="Remove Option">
+                      <i class="pi pi-times"></i>
+                    </button>
+                  </div>
+                }
+
+                <button type="button" class="add-option-btn mt-md" (click)="addOption(i)">
+                  <i class="pi pi-plus text-xs"></i> Add Option
+                </button>
+              </div>
+
+              <div class="grid-2-col mt-xl gap-xl pt-lg border-top-subtle">
+                <div class="form-group mb-0">
+                  <label class="input-label">Points</label>
+                  <p-inputNumber formControlName="points" [min]="1" [max]="100" styleClass="w-full custom-number"></p-inputNumber>
+                </div>
+                <div class="form-group mb-0">
+                  <label class="input-label">Explanation <span class="text-tertiary font-normal text-xs">(Optional)</span></label>
+                  <input pInputText formControlName="explanation" placeholder="Shown after answering..." class="custom-input w-full">
+                </div>
+              </div>
+
+            </div>
+          }
+
+          <div class="add-question-wrapper">
+            <button type="button" class="btn-glow outline w-full py-lg border-dashed" (click)="addQuestion()">
+              <i class="pi pi-plus-circle text-xl mr-sm text-primary"></i> Add Another Question
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </form>
+  }
+</div> -->
