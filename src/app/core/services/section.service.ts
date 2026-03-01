@@ -21,28 +21,28 @@ export class SectionService {
   /**
    * Get single section by ID
    */
-  getById(id: string): Observable<ApiResponse<Section>> {
+  getSectionById(id: string): Observable<ApiResponse<Section>> {
     return this.baseApi.get<Section>(`${this.endpoint}/${id}`, { showLoader: true });
   }
 
   /**
    * Create new section
    */
-  create(data: Partial<Section>): Observable<ApiResponse<Section>> {
+  createSection(data: Partial<Section>): Observable<ApiResponse<Section>> {
     return this.baseApi.post<Section>(this.endpoint, data, { showLoader: true });
   }
 
   /**
    * Update section
    */
-  update(id: string, data: Partial<Section>): Observable<ApiResponse<Section>> {
+  updateSection(id: string, data: Partial<Section>): Observable<ApiResponse<Section>> {
     return this.baseApi.patch<Section>(`${this.endpoint}/${id}`, data, { showLoader: true });
   }
 
   /**
    * Delete section
    */
-  delete(id: string): Observable<ApiResponse<null>> {
+  deleteSection(id: string): Observable<ApiResponse<null>> {
     return this.baseApi.delete<null>(`${this.endpoint}/${id}`, { showLoader: true });
   }
 

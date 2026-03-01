@@ -1,181 +1,371 @@
-<div class="mock-builder p-xl max-w-1400 mx-auto">
-  <div class="header flex justify-between align-center mb-2xl glass-panel p-lg">
-    <h1 class="m-0 text-primary gradient-text">Mock Test Builder</h1>
-    <button class="btn-glow primary" (click)="saveMockTest()">Save Mock Test</button>
-  </div>
+<p-toast position="top-right"></p-toast>
 
-  <form [formGroup]="testForm" class="builder-grid">
+<div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-8 px-4 sm:px-6 lg:px-8 font-sans">
+  <div class="max-w-7xl mx-auto">
     
-    <div class="settings-col glass-panel p-lg">
-      <h3 class="text-primary mt-0"><i class="pi pi-cog"></i> Exam Settings</h3>
-      
-      <div class="form-group mb-md">
-        <label>Exam Title</label>
-        <input pInputText formControlName="title" class="w-full custom-input">
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-6 border-b border-slate-200 dark:border-slate-700">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight m-0">Mock Test Builder</h1>
+        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Design highly accurate, timed assessments</p>
       </div>
-      
-      <div class="grid-2 gap-md mb-md">
-        <div class="form-group">
-          <label>Duration (Mins)</label>
-          <p-inputNumber formControlName="duration" class="w-full" styleClass="w-full custom-number"></p-inputNumber>
-        </div>
-        <div class="form-group">
-          <label>Passing Marks</label>
-          <p-inputNumber formControlName="passingMarks" class="w-full" styleClass="w-full custom-number"></p-inputNumber>
-        </div>
-      </div>
-
-      <div class="form-group mb-md">
-        <label>Difficulty Level</label>
-        <p-select formControlName="level" [options]="levels" optionLabel="label" optionValue="value" styleClass="w-full custom-select"></p-select>
-      </div>
-
-      <div class="pricing-box surface-subtle p-md mt-lg">
-        <p-checkbox formControlName="isFree" label="Make this test Free" [binary]="true"></p-checkbox>
-        @if (!testForm.get('isFree')?.value) {
-          <div class="form-group mt-md">
-            <label>Price ($)</label>
-            <p-inputNumber formControlName="price" mode="currency" currency="USD" styleClass="w-full custom-number"></p-inputNumber>
-          </div>
-        }
+      <div class="mt-4 md:mt-0 flex items-center gap-3">
+        <button class="px-5 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors" routerLink="/instructor/mock-tests">
+          Cancel
+        </button>
+        <button 
+          class="px-6 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm hover:shadow transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          (click)="saveMockTest()" 
+          [disabled]="isSaving()">
+          <i class="pi" [ngClass]="isSaving() ? 'pi-spinner pi-spin' : 'pi-check-circle'"></i>
+          {{ isSaving() ? 'Publishing...' : 'Save & Publish' }}
+        </button>
       </div>
     </div>
 
-    <div class="questions-col" formArrayName="questions">
-      @for (q of questions.controls; track i; let i = $index) {
-        <div class="q-card glass-panel p-lg mb-lg" [formGroupName]="i">
+    <form [formGroup]="testForm" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <div class="lg:col-span-4 sticky top-8 space-y-6">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2 mb-6">
+            <i class="pi pi-sliders-h text-blue-500"></i> Exam Settings
+          </h3>
           
-          <div class="q-head flex justify-between mb-md">
-            <div class="flex gap-md w-full pr-xl">
-              <div class="form-group flex-1">
-                <label class="text-xs text-info">Section Name</label>
-                <input pInputText formControlName="sectionName" placeholder="e.g. Logical Reasoning" class="custom-input w-full">
+          <div class="space-y-5">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Exam Title</label>
+              <input pInputText formControlName="title" placeholder="e.g. SSC CGL Tier 1 Full Mock" 
+                     class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow" 
+                     [class.border-red-500]="testForm.get('title')?.invalid && testForm.get('title')?.touched">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Duration (Mins)</label>
+                <p-inputNumber formControlName="duration" styleClass="w-full tw-input-number"></p-inputNumber>
               </div>
-              <div class="form-group w-32">
-                <label class="text-xs text-success">+ Marks</label>
-                <p-inputNumber formControlName="marks" styleClass="w-full custom-number"></p-inputNumber>
-              </div>
-              <div class="form-group w-32">
-                <label class="text-xs text-error">- Penalty</label>
-                <p-inputNumber formControlName="negativeMarks" styleClass="w-full custom-number"></p-inputNumber>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Passing Marks</label>
+                <p-inputNumber formControlName="passingMarks" styleClass="w-full tw-input-number"></p-inputNumber>
               </div>
             </div>
-            <button class="btn-icon text-error" (click)="removeQuestion(i)"><i class="pi pi-trash"></i></button>
-          </div>
 
-          <div class="form-group mb-lg">
-            <label>Question Text</label>
-            <textarea pTextarea formControlName="question" rows="2" class="custom-input w-full"></textarea>
-          </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Difficulty Level</label>
+              <p-select formControlName="level" [options]="levels" optionLabel="label" optionValue="value" styleClass="w-full tw-dropdown" appendTo="body"></p-select>
+            </div>
 
-          <div class="options-area surface-subtle p-md" formArrayName="options">
-            <label class="text-sm text-secondary block mb-sm">Answers (Select the correct one)</label>
-            @for (opt of getOptions(i).controls; track j; let j = $index) {
-              <div class="opt-row flex gap-md mb-sm align-center" [formGroupName]="j">
-                <p-checkbox formControlName="isCorrect" [binary]="true" (onChange)="onCorrectChange(i, j, $event.checked)"></p-checkbox>
-                <input pInputText formControlName="text" class="custom-input flex-1">
-                <button class="btn-icon text-tertiary" (click)="removeOption(i, j)"><i class="pi pi-times"></i></button>
+            <div class="mt-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
+              <div class="flex items-center gap-3">
+                <p-checkbox formControlName="isFree" [binary]="true" inputId="freeCheck"></p-checkbox>
+                <label for="freeCheck" class="text-sm font-medium text-slate-900 dark:text-white cursor-pointer select-none">Make this test Free</label>
               </div>
-            }
-            <button class="btn-glow outline mt-sm text-xs py-sm" (click)="addOption(i)">+ Add Option</button>
+              
+              @if (!testForm.get('isFree')?.value) {
+                <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                  <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Price ($)</label>
+                  <p-inputNumber formControlName="price" mode="currency" currency="USD" styleClass="w-full tw-input-number"></p-inputNumber>
+                </div>
+              }
+            </div>
           </div>
-        </div>
-      }
-
-      <button class="btn-glow outline w-full border-dashed p-lg" (click)="addQuestion()">
-        <i class="pi pi-plus-circle text-primary mr-sm"></i> Add New Question
-      </button>
-    </div>
-
-  </form>
-</div><div class="mock-builder p-xl max-w-1400 mx-auto">
-  <div class="header flex justify-between align-center mb-2xl glass-panel p-lg">
-    <h1 class="m-0 text-primary gradient-text">Mock Test Builder</h1>
-    <button class="btn-glow primary" (click)="saveMockTest()">Save Mock Test</button>
-  </div>
-
-  <form [formGroup]="testForm" class="builder-grid">
-    
-    <div class="settings-col glass-panel p-lg">
-      <h3 class="text-primary mt-0"><i class="pi pi-cog"></i> Exam Settings</h3>
-      
-      <div class="form-group mb-md">
-        <label>Exam Title</label>
-        <input pInputText formControlName="title" class="w-full custom-input">
-      </div>
-      
-      <div class="grid-2 gap-md mb-md">
-        <div class="form-group">
-          <label>Duration (Mins)</label>
-          <p-inputNumber formControlName="duration" class="w-full" styleClass="w-full custom-number"></p-inputNumber>
-        </div>
-        <div class="form-group">
-          <label>Passing Marks</label>
-          <p-inputNumber formControlName="passingMarks" class="w-full" styleClass="w-full custom-number"></p-inputNumber>
         </div>
       </div>
 
-      <div class="form-group mb-md">
-        <label>Difficulty Level</label>
-        <p-select formControlName="level" [options]="levels" optionLabel="label" optionValue="value" styleClass="w-full custom-select"></p-select>
-      </div>
+      <div class="lg:col-span-8 space-y-6" formArrayName="questions">
+        
+        @for (q of questions.controls; track $index; let i = $index) {
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 relative group transition-all hover:shadow-md" [formGroupName]="i">
+            
+            <div class="absolute -left-3 top-6 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs font-bold px-3 py-1 rounded-full shadow-sm border border-blue-200 dark:border-blue-800">
+              Q{{ i + 1 }}
+            </div>
 
-      <div class="pricing-box surface-subtle p-md mt-lg">
-        <p-checkbox formControlName="isFree" label="Make this test Free" [binary]="true"></p-checkbox>
-        @if (!testForm.get('isFree')?.value) {
-          <div class="form-group mt-md">
-            <label>Price ($)</label>
-            <p-inputNumber formControlName="price" mode="currency" currency="USD" styleClass="w-full custom-number"></p-inputNumber>
-          </div>
-        }
-      </div>
-    </div>
+            <div class="flex justify-between items-start mb-6 ml-6 border-b border-slate-100 dark:border-slate-700/50 pb-5">
+              <div class="flex flex-wrap gap-4 w-full pr-12">
+                <div class="flex-1 min-w-[200px]">
+                  <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Section Name</label>
+                  <input pInputText formControlName="sectionName" placeholder="e.g. Quantitative Aptitude" class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="w-28">
+                  <label class="block text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1.5">+ Correct</label>
+                  <p-inputNumber formControlName="marks" styleClass="w-full tw-input-number"></p-inputNumber>
+                </div>
+                <div class="w-28">
+                  <label class="block text-xs font-semibold text-red-600 dark:text-red-400 uppercase tracking-wider mb-1.5">- Penalty</label>
+                  <p-inputNumber formControlName="negativeMarks" [minFractionDigits]="2" styleClass="w-full tw-input-number"></p-inputNumber>
+                </div>
+              </div>
+              
+              <button class="w-9 h-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors absolute right-6 top-6" (click)="removeQuestion(i)" pTooltip="Delete Question">
+                <i class="pi pi-trash text-lg"></i>
+              </button>
+            </div>
 
-    <div class="questions-col" formArrayName="questions">
-      @for (q of questions.controls; track i; let i = $index) {
-        <div class="q-card glass-panel p-lg mb-lg" [formGroupName]="i">
-          
-          <div class="q-head flex justify-between mb-md">
-            <div class="flex gap-md w-full pr-xl">
-              <div class="form-group flex-1">
-                <label class="text-xs text-info">Section Name</label>
-                <input pInputText formControlName="sectionName" placeholder="e.g. Logical Reasoning" class="custom-input w-full">
+            <div class="ml-6 space-y-6">
+              <div>
+                <label class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Question Text</label>
+                <textarea pTextarea formControlName="question" rows="3" placeholder="Write your question here..." class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white p-4 focus:ring-2 focus:ring-blue-500 resize-y transition-shadow"></textarea>
               </div>
-              <div class="form-group w-32">
-                <label class="text-xs text-success">+ Marks</label>
-                <p-inputNumber formControlName="marks" styleClass="w-full custom-number"></p-inputNumber>
-              </div>
-              <div class="form-group w-32">
-                <label class="text-xs text-error">- Penalty</label>
-                <p-inputNumber formControlName="negativeMarks" styleClass="w-full custom-number"></p-inputNumber>
+
+              <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700 p-5" formArrayName="options">
+                <div class="flex items-center justify-between mb-4">
+                  <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Answer Options</label>
+                  <span class="text-xs text-slate-500">Check the circle for the correct answer</span>
+                </div>
+                
+                <div class="space-y-3">
+                  @for (opt of getOptions(i).controls; track $index; let j = $index) {
+                    <div class="flex items-center gap-3 group/opt" [formGroupName]="j">
+                      
+                      <div class="flex items-center justify-center w-10 h-10 rounded-lg border transition-colors"
+                           [ngClass]="opt.get('isCorrect')?.value ? 'bg-emerald-100 border-emerald-500 dark:bg-emerald-900/30' : 'bg-white border-slate-300 dark:bg-slate-800 dark:border-slate-600'">
+                        <p-checkbox formControlName="isCorrect" [binary]="true" (onChange)="onCorrectChange(i, j, $event.checked)"></p-checkbox>
+                      </div>
+                      
+                      <input pInputText formControlName="text" placeholder="Option {{ j + 1 }}" 
+                             class="flex-1 rounded-lg border transition-colors text-sm"
+                             [ngClass]="opt.get('isCorrect')?.value ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/10 dark:text-emerald-400' : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white'">
+                      
+                      <button class="w-8 h-8 flex items-center justify-center rounded text-slate-400 hover:text-red-500 opacity-0 group-hover/opt:opacity-100 transition-opacity disabled:opacity-0" 
+                              (click)="removeOption(i, j)" 
+                              [disabled]="getOptions(i).length <= 2">
+                        <i class="pi pi-times"></i>
+                      </button>
+                    </div>
+                  }
+                </div>
+                
+                <button class="mt-4 px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors flex items-center gap-1.5" (click)="addOption(i)">
+                  <i class="pi pi-plus"></i> Add Another Option
+                </button>
               </div>
             </div>
-            <button class="btn-icon text-error" (click)="removeQuestion(i)"><i class="pi pi-trash"></i></button>
           </div>
+        }
 
-          <div class="form-group mb-lg">
-            <label>Question Text</label>
-            <textarea pTextarea formControlName="question" rows="2" class="custom-input w-full"></textarea>
+        <button class="w-full py-8 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/5 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-all group flex flex-col items-center justify-center gap-3" (click)="addQuestion()">
+          <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 flex items-center justify-center transition-colors">
+            <i class="pi pi-plus text-xl"></i>
           </div>
+          <span class="font-semibold text-lg">Add New Question</span>
+        </button>
 
-          <div class="options-area surface-subtle p-md" formArrayName="options">
-            <label class="text-sm text-secondary block mb-sm">Answers (Select the correct one)</label>
-            @for (opt of getOptions(i).controls; track j; let j = $index) {
-              <div class="opt-row flex gap-md mb-sm align-center" [formGroupName]="j">
-                <p-checkbox formControlName="isCorrect" [binary]="true" (onChange)="onCorrectChange(i, j, $event.checked)"></p-checkbox>
-                <input pInputText formControlName="text" class="custom-input flex-1">
-                <button class="btn-icon text-tertiary" (click)="removeOption(i, j)"><i class="pi pi-times"></i></button>
-              </div>
-            }
-            <button class="btn-glow outline mt-sm text-xs py-sm" (click)="addOption(i)">+ Add Option</button>
-          </div>
-        </div>
-      }
-
-      <button class="btn-glow outline w-full border-dashed p-lg" (click)="addQuestion()">
-        <i class="pi pi-plus-circle text-primary mr-sm"></i> Add New Question
-      </button>
-    </div>
-
-  </form>
+      </div>
+    </form>
+  </div>
 </div>
+
+<!-- <p-toast position="top-right"></p-toast>
+
+<div class="builder-layout">
+  <div class="builder-header flex justify-between items-center mb-2xl">
+    <div>
+      <h1 class="m-0 text-primary font-heading text-3xl">Mock Test Builder</h1>
+      <p class="text-tertiary text-sm mt-xs m-0">Create highly accurate mock assessments</p>
+    </div>
+    <div class="flex gap-md">
+      <button class="btn-cancel text-secondary" routerLink="/instructor/mock-tests">Cancel</button>
+      <button class="btn-primary flex items-center gap-sm" (click)="saveMockTest()" [disabled]="isSaving()">
+        <i class="pi" [ngClass]="isSaving() ? 'pi-spinner pi-spin' : 'pi-save'"></i> 
+        {{ isSaving() ? 'Saving...' : 'Save & Publish' }}
+      </button>
+    </div>
+  </div>
+
+  <form [formGroup]="testForm" class="builder-grid">
+    
+    <div class="settings-sidebar">
+      <div class="solid-panel sticky-panel">
+        <h3 class="text-primary mt-0 mb-xl font-heading text-xl flex items-center gap-sm">
+          <i class="pi pi-cog text-info"></i> Exam Settings
+        </h3>
+        
+        <div class="form-group mb-lg">
+          <label class="block text-sm text-secondary font-medium mb-xs">Exam Title</label>
+          <input pInputText formControlName="title" placeholder="e.g. SSC CGL Tier 1 Mock" class="w-full premium-input" [class.p-invalid]="testForm.get('title')?.invalid && testForm.get('title')?.touched">
+        </div>
+        
+        <div class="grid-2 gap-md mb-lg">
+          <div class="form-group">
+            <label class="block text-sm text-secondary font-medium mb-xs">Duration (Mins)</label>
+            <p-inputNumber formControlName="duration" styleClass="w-full premium-number"></p-inputNumber>
+          </div>
+          <div class="form-group">
+            <label class="block text-sm text-secondary font-medium mb-xs">Passing Marks</label>
+            <p-inputNumber formControlName="passingMarks" styleClass="w-full premium-number"></p-inputNumber>
+          </div>
+        </div>
+
+        <div class="form-group mb-xl">
+          <label class="block text-sm text-secondary font-medium mb-xs">Difficulty Level</label>
+          <p-select formControlName="level" [options]="levels" optionLabel="label" optionValue="value" styleClass="w-full premium-dropdown" appendTo="body"></p-select>
+        </div>
+
+        <div class="pricing-box surface-subtle p-lg border-radius-md border border-secondary">
+          <div class="flex items-center gap-sm mb-md">
+            <p-checkbox formControlName="isFree" [binary]="true" inputId="freeCheck"></p-checkbox>
+            <label for="freeCheck" class="text-primary font-medium cursor-pointer">Make this test Free</label>
+          </div>
+          
+          @if (!testForm.get('isFree')?.value) {
+            <div class="form-group">
+              <label class="block text-xs text-secondary mb-xs">Price ($)</label>
+              <p-inputNumber formControlName="price" mode="currency" currency="USD" styleClass="w-full premium-number"></p-inputNumber>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="questions-main" formArrayName="questions">
+      
+      @for (q of questions.controls; track $index; let i = $index) {
+        <div class="q-card solid-panel mb-2xl relative" [formGroupName]="i">
+          
+          <div class="q-head flex justify-between items-start mb-xl pb-md border-bottom">
+            <div class="flex flex-wrap gap-lg w-full pr-3xl">
+              <div class="form-group flex-1 min-w-200">
+                <label class="block text-xs text-secondary text-uppercase tracking-wide mb-xs">Section Name</label>
+                <input pInputText formControlName="sectionName" placeholder="e.g. General Intelligence" class="premium-input w-full">
+              </div>
+              <div class="form-group w-32">
+                <label class="block text-xs text-success text-uppercase tracking-wide mb-xs">+ Correct Marks</label>
+                <p-inputNumber formControlName="marks" styleClass="w-full premium-number"></p-inputNumber>
+              </div>
+              <div class="form-group w-32">
+                <label class="block text-xs text-error text-uppercase tracking-wide mb-xs">- Penalty</label>
+                <p-inputNumber formControlName="negativeMarks" [minFractionDigits]="2" styleClass="w-full premium-number"></p-inputNumber>
+              </div>
+            </div>
+            <button class="btn-icon-danger absolute top-lg right-lg" (click)="removeQuestion(i)" title="Delete Question">
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+
+          <div class="form-group mb-xl">
+            <label class="block text-sm text-primary font-bold mb-sm">Question {{ i + 1 }}</label>
+            <textarea pTextarea formControlName="question" rows="3" placeholder="Enter the question here..." class="premium-input w-full resize-y"></textarea>
+          </div>
+
+          <div class="options-area bg-primary p-xl border-radius-md border border-secondary" formArrayName="options">
+            <label class="block text-sm text-secondary font-medium mb-md">Answer Options (Check the correct one)</label>
+            
+            @for (opt of getOptions(i).controls; track $index; let j = $index) {
+              <div class="opt-row flex items-center gap-md mb-md" [formGroupName]="j">
+                <div class="check-wrapper flex items-center justify-center">
+                  <p-checkbox formControlName="isCorrect" [binary]="true" (onChange)="onCorrectChange(i, j, $event.checked)"></p-checkbox>
+                </div>
+                <input pInputText formControlName="text" placeholder="Option {{ j + 1 }}" class="premium-input flex-1" [class.correct-input]="opt.get('isCorrect')?.value">
+                <button class="btn-icon-subtle" (click)="removeOption(i, j)" [disabled]="getOptions(i).length <= 2">
+                  <i class="pi pi-times"></i>
+                </button>
+              </div>
+            }
+            
+            <button class="btn-add-option mt-md text-sm font-medium flex items-center gap-xs" (click)="addOption(i)">
+              <i class="pi pi-plus"></i> Add Another Option
+            </button>
+          </div>
+        </div>
+      }
+
+      <button class="btn-dashed-massive w-full" (click)="addQuestion()">
+        <i class="pi pi-plus-circle text-primary text-2xl mb-sm block mx-auto"></i>
+        <span class="font-heading font-bold text-primary text-lg">Add New Question</span>
+      </button>
+
+    </div>
+  </form>
+</div> -->
+
+<!-- <div class="mock-builder p-xl max-w-1400 mx-auto">
+  <div class="header flex justify-between align-center mb-2xl glass-panel p-lg">
+    <h1 class="m-0 text-primary gradient-text">Mock Test Builder</h1>
+    <button class="btn-glow primary" (click)="saveMockTest()">Save Mock Test</button>
+  </div>
+
+  <form [formGroup]="testForm" class="builder-grid">
+    
+    <div class="settings-col glass-panel p-lg">
+      <h3 class="text-primary mt-0"><i class="pi pi-cog"></i> Exam Settings</h3>
+      
+      <div class="form-group mb-md">
+        <label>Exam Title</label>
+        <input pInputText formControlName="title" class="w-full custom-input">
+      </div>
+      
+      <div class="grid-2 gap-md mb-md">
+        <div class="form-group">
+          <label>Duration (Mins)</label>
+          <p-inputNumber formControlName="duration" class="w-full" styleClass="w-full custom-number"></p-inputNumber>
+        </div>
+        <div class="form-group">
+          <label>Passing Marks</label>
+          <p-inputNumber formControlName="passingMarks" class="w-full" styleClass="w-full custom-number"></p-inputNumber>
+        </div>
+      </div>
+
+      <div class="form-group mb-md">
+        <label>Difficulty Level</label>
+        <p-select formControlName="level" [options]="levels" optionLabel="label" optionValue="value" styleClass="w-full custom-select"></p-select>
+      </div>
+
+      <div class="pricing-box surface-subtle p-md mt-lg">
+        <p-checkbox formControlName="isFree" label="Make this test Free" [binary]="true"></p-checkbox>
+        @if (!testForm.get('isFree')?.value) {
+          <div class="form-group mt-md">
+            <label>Price ($)</label>
+            <p-inputNumber formControlName="price" mode="currency" currency="USD" styleClass="w-full custom-number"></p-inputNumber>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="questions-col" formArrayName="questions">
+      @for (q of questions.controls; track i; let i = $index) {
+        <div class="q-card glass-panel p-lg mb-lg" [formGroupName]="i">
+          
+          <div class="q-head flex justify-between mb-md">
+            <div class="flex gap-md w-full pr-xl">
+              <div class="form-group flex-1">
+                <label class="text-xs text-info">Section Name</label>
+                <input pInputText formControlName="sectionName" placeholder="e.g. Logical Reasoning" class="custom-input w-full">
+              </div>
+              <div class="form-group w-32">
+                <label class="text-xs text-success">+ Marks</label>
+                <p-inputNumber formControlName="marks" styleClass="w-full custom-number"></p-inputNumber>
+              </div>
+              <div class="form-group w-32">
+                <label class="text-xs text-error">- Penalty</label>
+                <p-inputNumber formControlName="negativeMarks" styleClass="w-full custom-number"></p-inputNumber>
+              </div>
+            </div>
+            <button class="btn-icon text-error" (click)="removeQuestion(i)"><i class="pi pi-trash"></i></button>
+          </div>
+
+          <div class="form-group mb-lg">
+            <label>Question Text</label>
+            <textarea pTextarea formControlName="question" rows="2" class="custom-input w-full"></textarea>
+          </div>
+
+          <div class="options-area surface-subtle p-md" formArrayName="options">
+            <label class="text-sm text-secondary block mb-sm">Answers (Select the correct one)</label>
+            @for (opt of getOptions(i).controls; track j; let j = $index) {
+              <div class="opt-row flex gap-md mb-sm align-center" [formGroupName]="j">
+                <p-checkbox formControlName="isCorrect" [binary]="true" (onChange)="onCorrectChange(i, j, $event.checked)"></p-checkbox>
+                <input pInputText formControlName="text" class="custom-input flex-1">
+                <button class="btn-icon text-tertiary" (click)="removeOption(i, j)"><i class="pi pi-times"></i></button>
+              </div>
+            }
+            <button class="btn-glow outline mt-sm text-xs py-sm" (click)="addOption(i)">+ Add Option</button>
+          </div>
+        </div>
+      }
+
+      <button class="btn-glow outline w-full border-dashed p-lg" (click)="addQuestion()">
+        <i class="pi pi-plus-circle text-primary mr-sm"></i> Add New Question
+      </button>
+    </div>
+
+  </form>
+</div> -->

@@ -1,12 +1,228 @@
-/* Builder SCSS */
-.max-w-1400 { max-width: 1400px; } .builder-grid { display: grid; grid-template-columns: 350px 1fr; gap: 2rem; align-items: start; }
-.settings-col { position: sticky; top: 2rem; }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; } .w-32 { width: 8rem; } .pr-xl { padding-right: 2rem; } .py-sm { padding-top: 0.5rem; padding-bottom: 0.5rem; }
-.border-dashed { border: 2px dashed rgba(255,255,255,0.2); } .border-dashed:hover { border-color: var(--color-primary); }
+@use '../../../../styles/themes.scss'; 
+// @include apply-canonical-mapping;
 
-label { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; display: block; color: var(--text-primary); }
-.custom-input { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 0.75rem 1rem; transition: 0.2s; }
-.custom-input:focus { border-color: var(--color-primary); }
+.builder-layout {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-2xl) var(--spacing-xl) var(--spacing-5xl);
+  font-family: var(--font-body);
+}
 
-:host ::ng-deep .custom-number .p-inputnumber-input, :host ::ng-deep .custom-select { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; }
-/* Re-use .glass-panel, .btn-glow, flex utilities from the quiz taker SCSS */
+/* Base Utilities */
+.flex { display: flex; }
+.flex-col { display: flex; flex-direction: column; }
+.flex-1 { flex: 1; }
+.flex-wrap { flex-wrap: wrap; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.relative { position: relative; }
+.absolute { position: absolute; }
+.block { display: block; }
+.w-full { width: 100%; }
+.w-32 { width: 8rem; }
+.min-w-200 { min-width: 200px; }
+.border-bottom { border-bottom: var(--ui-border-width) solid var(--border-secondary); }
+.border { border: var(--ui-border-width) solid var(--border-secondary); }
+.border-radius-md { border-radius: var(--ui-border-radius-lg); }
+.text-uppercase { text-transform: uppercase; }
+.tracking-wide { letter-spacing: 0.05em; }
+.cursor-pointer { cursor: pointer; }
+.resize-y { resize: vertical; }
+
+/* Grid Layout */
+.builder-grid {
+  display: grid;
+  grid-template-columns: 350px minmax(0, 1fr);
+  gap: var(--spacing-4xl);
+  align-items: start;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    
+    .settings-sidebar { order: -1; margin-bottom: var(--spacing-xl); }
+  }
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* Sidebar & Sticky */
+.settings-sidebar {
+  .sticky-panel {
+    position: sticky;
+    top: var(--spacing-4xl);
+    z-index: 10;
+  }
+}
+
+/* Panels */
+.solid-panel {
+  background: var(--component-surface-raised);
+  border: var(--ui-border-width) solid var(--border-primary);
+  border-radius: var(--ui-border-radius-xl);
+  padding: var(--spacing-3xl);
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-base);
+
+  &:hover { box-shadow: var(--shadow-lg); }
+}
+
+.surface-subtle {
+  background: var(--bg-primary);
+}
+
+/* Premium Inputs (Overrides for PrimeNG) */
+::ng-deep {
+  .premium-input, 
+  .premium-number .p-inputtext,
+  .premium-dropdown .p-dropdown {
+    background: var(--bg-primary);
+    border: var(--ui-border-width) solid var(--border-secondary);
+    border-radius: var(--ui-border-radius-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    color: var(--text-primary);
+    font-size: var(--font-size-md);
+    transition: var(--transition-colors);
+    box-shadow: var(--shadow-xs);
+
+    &:enabled:focus, &.p-dropdown-open {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color), var(--shadow-sm);
+      outline: none;
+    }
+
+    &.p-invalid { border-color: var(--color-error); }
+  }
+
+  /* Make sure Dropdown and InputNumber span 100% */
+  .premium-number { width: 100%; display: block; }
+  .p-dropdown { width: 100%; display: flex; align-items: center; }
+}
+
+/* Question Options Styling */
+.options-area {
+  .opt-row {
+    .check-wrapper {
+      width: 40px;
+      height: 40px;
+      background: var(--component-surface-raised);
+      border: var(--ui-border-width) solid var(--border-secondary);
+      border-radius: var(--ui-border-radius);
+      flex-shrink: 0;
+    }
+
+    /* Highlight input if correct */
+    .correct-input {
+      border-color: var(--color-success) !important;
+      background: var(--color-success-bg) !important;
+      box-shadow: 0 0 0 1px var(--color-success);
+    }
+  }
+}
+
+/* Buttons */
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--ui-border-radius);
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-md);
+  cursor: pointer;
+  transition: var(--transition-transform), var(--transition-colors);
+
+  &:hover:not(:disabled) {
+    background: var(--color-primary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  &:disabled { opacity: var(--state-disabled-opacity); cursor: not-allowed; }
+}
+
+.btn-cancel {
+  background: transparent;
+  border: none;
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  padding: var(--spacing-md) var(--spacing-lg);
+  transition: var(--transition-colors);
+  
+  &:hover { color: var(--text-primary); }
+}
+
+.btn-icon-danger {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-error-bg);
+  color: var(--color-error);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-transform), var(--transition-colors);
+
+  &:hover { background: var(--color-error); color: white; transform: scale(1.1); }
+}
+
+.btn-icon-subtle {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--ui-border-radius);
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: var(--transition-colors);
+
+  &:hover:not(:disabled) { background: var(--bg-hover); color: var(--text-primary); }
+  &:disabled { opacity: 0.3; cursor: not-allowed; }
+}
+
+.btn-add-option {
+  background: transparent;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  padding: var(--spacing-sm) 0;
+  transition: var(--transition-colors);
+  
+  &:hover { color: var(--color-primary-dark); }
+}
+
+.btn-dashed-massive {
+  background: var(--bg-secondary);
+  border: 2px dashed var(--border-secondary);
+  border-radius: var(--ui-border-radius-xl);
+  padding: var(--spacing-4xl);
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition-colors), var(--transition-transform);
+
+  &:hover {
+    background: var(--bg-hover);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+  }
+}
+
+// /* Builder SCSS */
+// .max-w-1400 { max-width: 1400px; } .builder-grid { display: grid; grid-template-columns: 350px 1fr; gap: 2rem; align-items: start; }
+// .settings-col { position: sticky; top: 2rem; }
+// .grid-2 { display: grid; grid-template-columns: 1fr 1fr; } .w-32 { width: 8rem; } .pr-xl { padding-right: 2rem; } .py-sm { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+// .border-dashed { border: 2px dashed rgba(255,255,255,0.2); } .border-dashed:hover { border-color: var(--color-primary); }
+
+// label { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; display: block; color: var(--text-primary); }
+// .custom-input { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 0.75rem 1rem; transition: 0.2s; }
+// .custom-input:focus { border-color: var(--color-primary); }
+
+// :host ::ng-deep .custom-number .p-inputnumber-input, :host ::ng-deep .custom-select { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; }
+// /* Re-use .glass-panel, .btn-glow, flex utilities from the quiz taker SCSS */

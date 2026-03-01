@@ -29,7 +29,7 @@ type SectionWithUI = Section & { expanded?: boolean; lessons?: any[] };
     RouterModule,
     ReactiveFormsModule, // <-- ADDED
     CurrencyPipe,
-    DatePipe,
+    // DatePipe,
     DecimalPipe,
     TitleCasePipe,
     NgClass,

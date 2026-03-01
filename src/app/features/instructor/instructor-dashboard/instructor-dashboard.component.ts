@@ -50,8 +50,6 @@ export class InstructorDashboardComponent implements OnInit {
 
   private fetchDashboardData(): void {
     this.isLoading.set(true);
-
-    // Fetch all courses for this instructor
     this.courseService.getMyCourses()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

@@ -12,11 +12,11 @@ export class CourseService {
   constructor(private baseApi: BaseApiService) {}
 
   // ==================== PUBLIC ROUTES ====================
-
   getAllCourses(params?: CourseQueryParams): Observable<ApiResponse<any>> {
     return this.baseApi.get<Course[]>(this.endpoint, { params });
   }
 
+  // -------- remaing
   searchCourses(params?: CourseQueryParams): Observable<ApiResponse<Course[]>> {
     return this.baseApi.get<Course[]>(`${this.endpoint}/search`, { params });
   }
@@ -51,52 +51,51 @@ export class CourseService {
   }
 
   // ==================== ADMIN ROUTES ====================
-
   approveCourses(id: string): Observable<ApiResponse<Course>> {
     return this.baseApi.patch<Course>(`${this.endpoint}/${id}/approve`, {}, { showLoader: true });
   }
 
   // ==================== SECTION ROUTES ====================
 
-  getCoursesSections(courseId: string): Observable<ApiResponse<Section[]>> {
-    return this.baseApi.get<Section[]>(`${this.endpoint}/${courseId}/sections`);
-  }
+  // getCoursesSections(courseId: string): Observable<ApiResponse<Section[]>> {
+  //   return this.baseApi.get<Section[]>(`${this.endpoint}/${courseId}/sections`);
+  // }
 
-  createCoursesSection(courseId: string, data: any): Observable<ApiResponse<Section>> {
-    return this.baseApi.post<Section>(`${this.endpoint}/${courseId}/sections`, data, { showLoader: true });
-  }
+  // createCoursesSection(courseId: string, data: any): Observable<ApiResponse<Section>> {
+  //   return this.baseApi.post<Section>(`${this.endpoint}/${courseId}/sections`, data, { showLoader: true });
+  // }
 
-  updateCoursesSection(courseId: string, sectionId: string, data: any): Observable<ApiResponse<Section>> {
-    return this.baseApi.patch<Section>(`${this.endpoint}/${courseId}/sections/${sectionId}`, data);
-  }
+  // updateCoursesSection(courseId: string, sectionId: string, data: any): Observable<ApiResponse<Section>> {
+  //   return this.baseApi.patch<Section>(`${this.endpoint}/${courseId}/sections/${sectionId}`, data);
+  // }
 
-  deleteCoursesSection(courseId: string, sectionId: string): Observable<ApiResponse<null>> {
-    return this.baseApi.delete(`${this.endpoint}/${courseId}/sections/${sectionId}`);
-  }
+  // deleteCoursesSection(courseId: string, sectionId: string): Observable<ApiResponse<null>> {
+  //   return this.baseApi.delete(`${this.endpoint}/${courseId}/sections/${sectionId}`);
+  // }
 
-  reorderCoursesSections(courseId: string, data: any): Observable<ApiResponse<null>> {
-    return this.baseApi.post(`sections/reorder/${courseId}`, data);
-  }
+  // reorderCoursesSections(courseId: string, data: any): Observable<ApiResponse<null>> {
+  //   return this.baseApi.post(`sections/reorder/${courseId}`, data);
+  // }
 
   // ==================== LESSON ROUTES ====================
 
-  getCoursesLessons(courseId: string, sectionId: string): Observable<ApiResponse<Lesson[]>> {
-    return this.baseApi.get<Lesson[]>(`${this.endpoint}/${courseId}/sections/${sectionId}/lessons`);
-  }
+  // getCoursesLessons(courseId: string, sectionId: string): Observable<ApiResponse<Lesson[]>> {
+  //   return this.baseApi.get<Lesson[]>(`${this.endpoint}/${courseId}/sections/${sectionId}/lessons`);
+  // }
 
-  createCoursesLesson(courseId: string, sectionId: string, data: any): Observable<ApiResponse<Lesson>> {
-    return this.baseApi.post<Lesson>(`${this.endpoint}/${courseId}/sections/${sectionId}/lessons`, data, { showLoader: true });
-  }
+  // createCoursesLesson(courseId: string, sectionId: string, data: any): Observable<ApiResponse<Lesson>> {
+  //   return this.baseApi.post<Lesson>(`${this.endpoint}/${courseId}/sections/${sectionId}/lessons`, data, { showLoader: true });
+  // }
 
-  updateCoursesLesson(courseId: string, sectionId: string, lessonId: string, data: any): Observable<ApiResponse<Lesson>> {
-    return this.baseApi.patch<Lesson>(`${this.endpoint}/${courseId}/sections/${sectionId}/lessons/${lessonId}`, data);
-  }
+  // updateCoursesLesson(courseId: string, sectionId: string, lessonId: string, data: any): Observable<ApiResponse<Lesson>> {
+  //   return this.baseApi.patch<Lesson>(`${this.endpoint}/${courseId}/sections/${sectionId}/lessons/${lessonId}`, data);
+  // }
 
-  deleteCoursesLesson(courseId: string, sectionId: string, lessonId: string): Observable<ApiResponse<null>> {
-    return this.baseApi.delete(`${this.endpoint}/${courseId}/sections/${sectionId}/lessons/${lessonId}`);
-  }
+  // deleteCoursesLesson(courseId: string, sectionId: string, lessonId: string): Observable<ApiResponse<null>> {
+  //   return this.baseApi.delete(`${this.endpoint}/${courseId}/sections/${sectionId}/lessons/${lessonId}`);
+  // }
 
-  reorderCoursesLessons(sectionId: string, data: any): Observable<ApiResponse<null>> {
-    return this.baseApi.post(`lessons/reorder/${sectionId}`, data);
-  }
+  // reorderCoursesLessons(sectionId: string, data: any): Observable<ApiResponse<null>> {
+  //   return this.baseApi.post(`lessons/reorder/${sectionId}`, data);
+  // }
 }
