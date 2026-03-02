@@ -1,3 +1,58 @@
+
+@media (max-width: 768px) {
+  .test-taker-wrapper {
+    padding: var(--spacing-md) var(--spacing-sm); // Minimal outer padding
+  }
+
+  // 1. Fix the Topbar (Shrink buttons, hide title)
+  .exam-topbar {
+    .topbar-content {
+      grid-template-columns: auto 1fr auto;
+      gap: var(--spacing-sm);
+    }
+    .brand h2 {
+      display: none; // Hide title to make room for timer
+    }
+    .timer-pill {
+      padding: var(--spacing-xs) var(--spacing-md);
+      span { font-size: var(--font-size-md); }
+    }
+    ::ng-deep .p-button {
+      padding: 0.5rem 1rem !important; // Shrink the Finish button
+      .p-button-label { font-size: var(--font-size-sm); }
+    }
+  }
+
+  // 2. Reduce the massive padding on the glass panels
+  .glass-panel {
+    padding: var(--spacing-2xl); 
+  }
+
+  .option-row {
+    padding: var(--spacing-xl) var(--spacing-lg); // Tighter options
+  }
+
+  // 3. Fix the Layout (Stack Question on top of Palette)
+  .exam-body {
+    grid-template-columns: 1fr; // Single column
+  }
+
+  // 4. Adjust the Palette so it fits on mobile
+  .control-panel {
+    position: static; // Stop it from being sticky so it scrolls normally
+    margin-top: var(--spacing-xl);
+  }
+
+  .palette-grid {
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); // Dynamic wrapping grid
+  }
+
+  // 5. Fix Intro Screen Specs
+  .specs-bento-grid {
+    grid-template-columns: 1fr; // Stack the time/questions/marks vertically
+  }
+}
+
 /* ==========================================================================
    HOST & UTILITIES
    ========================================================================== */
