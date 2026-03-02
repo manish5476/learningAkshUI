@@ -202,6 +202,24 @@
   --scroll-track: var(--scroll-track-c);
 }
 
+/* Add this to your global styles.scss */
+
+@media (max-width: 768px) {
+  :root {
+    /* 1. Scale down the massive desktop spacings */
+    --spacing-3xl: 1.5rem;  /* Was 2rem */
+    --spacing-4xl: 2rem;    /* Was 2.75rem */
+    --spacing-5xl: 2.5rem;  /* Was 3.5rem */
+
+    /* 2. Scale down the giant desktop fonts */
+    --font-size-3xl: 1.125rem; /* Was 1.375rem */
+    --font-size-4xl: 1.375rem; /* Was 1.75rem */
+    --font-size-5xl: 1.75rem;  /* Was 2.25rem */
+
+    /* 3. Tighten the rounded corners slightly so they don't look bulky */
+    --ui-border-radius-xl: 12px; /* Was 16px */
+  }
+}
 
 
 
