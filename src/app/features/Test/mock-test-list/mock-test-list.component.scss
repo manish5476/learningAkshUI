@@ -1,3 +1,36 @@
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: var(--spacing-xl) var(--spacing-md); // Less edge padding
+  }
+
+  .assessment-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    gap: var(--spacing-xl);
+  }
+
+  .custom-tabs {
+    width: 100%;
+    .tab-btn {
+      flex: 1; // Make tabs stretch to fill the screen
+      justify-content: center;
+      padding: var(--spacing-md) var(--spacing-sm);
+      font-size: var(--font-size-sm);
+    }
+  }
+
+  .test-card {
+    .card-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+    }
+  }
+}
+
+
 // ==========================================================================
 // LAYOUT & HEADER
 // ==========================================================================
