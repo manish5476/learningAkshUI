@@ -1,10 +1,13 @@
 import { Component, OnInit, OnDestroy, inject, DestroyRef, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 // PrimeNG
 import { ButtonModule } from 'primeng/button';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { TagModule } from 'primeng/tag';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -21,7 +24,10 @@ interface AnswerMap {
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     ButtonModule,
+    RadioButtonModule,
+    TagModule,
     ConfirmDialogModule,
     ToastModule
   ],
@@ -77,7 +83,7 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   });
 
-  isTimerDanger = computed(() => this.timeRemaining() < 300); // Red when < 5 mins left
+  isTimerDanger = computed(() => this.timeRemaining() < 300 && this.timeRemaining() > 0); // Red when < 5 mins left
 
   ngOnInit(): void {
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
@@ -163,6 +169,7 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
   selectOption(optionIndex: number): void {
     const qId = this.currentQuestion()?._id;
     if (qId) {
+      // Create a new reference of the object to ensure Angular/Signals detect the change
       this.answers.update(current => ({ ...current, [qId]: optionIndex }));
     }
   }
@@ -197,7 +204,7 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
     this.confirmationService.confirm({
       message: msg,
       header: 'Confirm Submission',
-      icon: 'pi pi-exclamation-circle',
+      icon: 'pi pi-exclamation-triangle',
       accept: () => this.submitTest()
     });
   }
@@ -206,7 +213,7 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
     this.clearTimer();
     this.testState.set('submitting');
     
-    // Format answers for backend array structure
+    // Format answers exactly as your JSON requires: { questionId, selectedOptionIndex }
     const answerPayload = Object.keys(this.answers()).map(qId => ({
       questionId: qId,
       selectedOptionIndex: this.answers()[qId]
@@ -219,12 +226,13 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
           this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Test submitted successfully!' });
           setTimeout(() => {
             this.router.navigate(['/mock-tests/results', this.attemptId()]);
+            // this.router.navigate(['/instructor/mock-tests/results', this.attemptId()]);
           }, 1500);
         },
         error: () => {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to submit test.' });
           this.testState.set('in-progress'); // Revert state so they can try again
-          this.startTimer(); // Restart timer where it left off
+          this.startTimer(); // Restart timer
         }
       });
   }

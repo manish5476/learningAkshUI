@@ -1,137 +1,192 @@
-<p-toast position="top-right"></p-toast>
+<div class="page-container">
+  <p-toast position="top-right"></p-toast>
 
-<div class="mock-test-container">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-    
-    <div class="header-section">
-      <div class="header-content">
-        <h1 class="page-title">Mock Test Builder</h1>
-        <p class="page-subtitle">Design highly accurate, timed assessments</p>
-      </div>
-      <div class="header-actions">
-        <button class="btn-ghost" routerLink="/instructor/mock-tests">Cancel</button>
-        <button 
-          class="btn-primary"
-          (click)="saveMockTest()" 
-          [disabled]="isSaving()">
-          <i [ngClass]="isSaving() ? 'pi pi-spinner pi-spin' : 'pi pi-check-circle'"></i>
-          {{ isSaving() ? 'Publishing...' : 'Save & Publish' }}
-        </button>
-      </div>
+  @if (isLoading()) {
+    <div class="state-panel glass-panel">
+      <i class="pi pi-spin pi-spinner text-primary loading-icon"></i>
+      <h3 class="mt-xl">Loading Mock Test...</h3>
+      <p class="text-secondary">Preparing the builder environment.</p>
     </div>
-
-    <form [formGroup]="testForm" class="builder-grid">
+  } @else {
+    <form [formGroup]="testForm" (ngSubmit)="saveMockTest()" class="builder-layout">
       
-      <aside class="settings-sidebar">
-        <div class="card card-sticky">
-          <h3 class="section-header">
-            <i class="pi pi-sliders-h"></i> Exam Settings
-          </h3>
+      <div class="page-header flex-between mb-3xl">
+        <div class="header-left">
+          <p-button icon="pi pi-arrow-left" label="Back to Assessments" styleClass="p-button-text p-button-plain p-0 mb-2" routerLink="/instructor/mock-tests"></p-button>
           
-          <div class="form-stack">
-            <div class="form-group">
-              <label class="input-label">Exam Title</label>
-              <input pInputText formControlName="title" placeholder="e.g. SSC CGL Tier 1" 
-                     class="w-full" [class.p-invalid]="testForm.get('title')?.invalid && testForm.get('title')?.touched">
-            </div>
-            
-            <div class="grid grid-cols-2 gap-3">
-              <div class="form-group">
-                <label class="input-label">Duration (Min)</label>
-                <p-inputNumber formControlName="duration" styleClass="w-full"></p-inputNumber>
-              </div>
-              <div class="form-group">
-                <label class="input-label">Pass Marks</label>
-                <p-inputNumber formControlName="passingMarks" styleClass="w-full"></p-inputNumber>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="input-label">Difficulty Level</label>
-              <p-select formControlName="level" [options]="levels" optionLabel="label" optionValue="value" styleClass="w-full" appendTo="body"></p-select>
-            </div>
-
-            <div class="free-toggle-box">
-              <div class="flex items-center gap-2">
-                <p-checkbox formControlName="isFree" [binary]="true" inputId="freeCheck"></p-checkbox>
-                <label for="freeCheck" class="toggle-label">Make this test Free</label>
-              </div>
-              
-              @if (!testForm.get('isFree')?.value) {
-                <div class="price-input-container">
-                  <label class="input-label-xs">Price ($)</label>
-                  <p-inputNumber formControlName="price" mode="currency" currency="USD" styleClass="w-full"></p-inputNumber>
-                </div>
-              }
-            </div>
+          <div class="title-wrapper mt-2">
+            <h1 class="title">{{ mockTestId() ? 'Edit Mock Test' : 'Design Mock Test' }}</h1>
+            <p class="subtitle m-0">Create highly accurate, timed simulation exams.</p>
           </div>
         </div>
-      </aside>
+        
+        <div class="header-right flex gap-md align-items-center">
+          <p-button label="Cancel" severity="secondary" [outlined]="true" routerLink="/instructor/mock-tests"></p-button>
+          <p-button [label]="isSaving() ? 'Publishing...' : 'Save & Publish Test'" 
+                    [icon]="isSaving() ? 'pi pi-spinner pi-spin' : 'pi pi-check-circle'" 
+                    (onClick)="saveMockTest()" 
+                    [disabled]="isSaving()">
+          </p-button>
+        </div>
+      </div>
 
-      <main class="questions-main" formArrayName="questions">
-        @for (q of questions.controls; track $index; let i = $index) {
-          <div class="question-card" [formGroupName]="i">
+      <div class="builder-grid">
+        
+        <aside class="settings-col">
+          <div class="glass-panel sticky-settings flex flex-col gap-2xl">
             
-            <div class="question-badge">Q{{ i + 1 }}</div>
-
-            <div class="question-header">
-              <div class="flex-1 min-w-[180px]">
-                <label class="input-label-xs">Section Name</label>
-                <input pInputText formControlName="sectionName" class="w-full p-inputtext-sm">
+            <div class="stats-widget glass-inset">
+              <h4 class="widget-title mb-md"><i class="pi pi-chart-bar text-primary"></i> Live Test Stats</h4>
+              <div class="stats-grid">
+                <div class="stat-box">
+                  <span class="stat-value text-primary">{{ questions.length }}</span>
+                  <span class="stat-label">Questions</span>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-value text-success">{{ calculateTotalMarks() }}</span>
+                  <span class="stat-label">Total Marks</span>
+                </div>
               </div>
-              <div class="w-24">
-                <label class="input-label-xs text-success">+ Correct</label>
-                <p-inputNumber formControlName="marks" styleClass="w-full"></p-inputNumber>
-              </div>
-              <div class="w-24">
-                <label class="input-label-xs text-error">- Penalty</label>
-                <p-inputNumber formControlName="negativeMarks" [minFractionDigits]="2" styleClass="w-full"></p-inputNumber>
-              </div>
-              <button class="btn-delete" (click)="removeQuestion(i)">
-                <i class="pi pi-trash"></i>
-              </button>
             </div>
 
-            <div class="question-body">
-              <div class="form-group">
-                <label class="input-label">Question Text</label>
-                <textarea pTextarea formControlName="question" rows="2" class="w-full question-textarea"></textarea>
+            <div class="settings-form">
+              <div class="panel-header mb-xl pb-md border-bottom-subtle">
+                <div class="icon-circle"><i class="pi pi-sliders-h"></i></div>
+                <h3 class="m-0 text-primary">Exam Settings</h3>
+              </div>
+              
+              <div class="form-group mb-xl">
+                <label class="input-label">Exam Title <span class="required-asterisk">*</span></label>
+                <input pInputText formControlName="title" placeholder="e.g., SSC CGL Tier 1 Mock" 
+                       class="custom-input w-full" [class.input-error]="isFieldInvalid('title')">
+              </div>
+              
+              <div class="grid-2-col gap-lg mb-xl">
+                <div class="form-group">
+                  <label class="input-label">Duration</label>
+                  <p-inputNumber formControlName="duration" suffix=" mins" styleClass="w-full"></p-inputNumber>
+                </div>
+                <div class="form-group">
+                  <label class="input-label">Pass Marks</label>
+                  <p-inputNumber formControlName="passingMarks" styleClass="w-full"></p-inputNumber>
+                </div>
               </div>
 
-              <div class="options-container" formArrayName="options">
-                <div class="options-header">
-                  <label class="input-label">Answer Options</label>
-                  <span class="helper-text">Select the correct answer</span>
+              <div class="form-group mb-xl">
+                <label class="input-label">Difficulty Level</label>
+                <p-select formControlName="level" [options]="levels" optionLabel="label" optionValue="value" styleClass="w-full custom-select" appendTo="body"></p-select>
+              </div>
+
+              <div class="form-group mb-2xl">
+                <label class="input-label">Assigned Category <span class="required-asterisk">*</span></label>
+                <p-select appendTo="body" [filter]="true" filterBy="name" formControlName="category"
+                  [options]="categories()" optionLabel="name" optionValue="_id"
+                  placeholder="Select a parent category" styleClass="w-full custom-select"
+                  [class.input-error]="isFieldInvalid('category')">
+                  <ng-template let-cat pTemplate="item">
+                    <div class="flex align-items-center gap-sm">
+                      <i [class]="cat.icon || 'pi pi-folder'" class="text-primary"></i>
+                      <span class="font-medium">{{ cat.name }}</span>
+                    </div>
+                  </ng-template>
+                </p-select>
+                @if (isFieldInvalid('category')) {
+                  <div class="helper-text-container mt-xs">
+                    <small class="error-message"><i class="pi pi-exclamation-circle"></i> Category is required</small>
+                  </div>
+                }
+              </div>
+
+              <div class="monetization-box glass-inset">
+                <div class="flex-between">
+                  <label for="freeCheck" class="input-label mb-0 cursor-pointer">Make this test Free</label>
+                  <p-checkbox formControlName="isFree" [binary]="true" inputId="freeCheck"></p-checkbox>
                 </div>
                 
-                <div class="options-stack">
+                @if (!testForm.get('isFree')?.value) {
+                  <div class="form-group mt-lg pt-lg border-top-subtle">
+                    <label class="input-label text-success">Price ($)</label>
+                    <p-inputNumber formControlName="price" mode="currency" currency="USD" styleClass="w-full success-border"></p-inputNumber>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <main class="questions-col" formArrayName="questions">
+          
+          @for (q of questions.controls; track $index; let i = $index) {
+            <div class="question-card glass-panel mb-3xl" [formGroupName]="i">
+              
+              <div class="question-header flex-between mb-2xl pb-lg border-bottom-subtle gap-xl">
+                <div class="q-number-badge shrink-0">
+                  <span class="num">{{ i + 1 }}</span>
+                  <span class="label">Question</span>
+                </div>
+
+                <div class="flex-grow-1 grid-3-col gap-lg align-items-end">
+                  <div class="form-group mb-0">
+                    <label class="input-label-xs text-secondary">Section Name</label>
+                    <input pInputText formControlName="sectionName" placeholder="e.g., Quant" class="custom-input w-full p-inputtext-sm">
+                  </div>
+                  <div class="form-group mb-0">
+                    <label class="input-label-xs text-success">+ Marks</label>
+                    <p-inputNumber formControlName="marks" styleClass="w-full p-inputtext-sm success-border"></p-inputNumber>
+                  </div>
+                  <div class="form-group mb-0">
+                    <label class="input-label-xs text-error">- Penalty</label>
+                    <p-inputNumber formControlName="negativeMarks" [minFractionDigits]="2" styleClass="w-full p-inputtext-sm error-border"></p-inputNumber>
+                  </div>
+                </div>
+
+                <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true" 
+                          (onClick)="removeQuestion(i)" pTooltip="Delete Question" 
+                          [disabled]="questions.length === 1" styleClass="shrink-0"></p-button>
+              </div>
+
+              <div class="form-group mb-2xl">
+                <label class="input-label">Question Text <span class="required-asterisk">*</span></label>
+                <textarea pTextarea formControlName="question" placeholder="Enter the exam question here..." [rows]="2" class="custom-input textarea-input w-full font-bold text-lg prompt-textarea"></textarea>
+              </div>
+
+              <div class="options-container glass-inset type-multiple-choice" formArrayName="options">
+                <div class="options-header mb-xl">
+                  <label class="input-label text-primary m-0"><i class="pi pi-list mr-sm"></i> Answer Options</label>
+                  <p class="hint-message mt-xs m-0">Check the box next to the strictly correct answer.</p>
+                </div>
+                
+                <div class="options-stack flex flex-col gap-md">
                   @for (opt of getOptions(i).controls; track $index; let j = $index) {
-                    <div class="option-row" [formGroupName]="j" [class.is-correct]="opt.get('isCorrect')?.value">
-                      <div class="option-check">
+                    <div class="option-row" [formGroupName]="j" [class.is-correct-row]="opt.get('isCorrect')?.value">
+                      <div class="correct-checkbox">
                         <p-checkbox formControlName="isCorrect" [binary]="true" (onChange)="onCorrectChange(i, j, $event.checked)"></p-checkbox>
                       </div>
-                      <input pInputText formControlName="text" [placeholder]="'Option ' + (j + 1)" class="flex-1 p-inputtext-sm">
-                      <button class="btn-option-remove" (click)="removeOption(i, j)" [disabled]="getOptions(i).length <= 2">
-                        <i class="pi pi-times text-xs"></i>
-                      </button>
+                      <div class="option-input-wrapper flex-grow-1">
+                        <input pInputText formControlName="text" [placeholder]="'Option ' + (j + 1) + ' text...'" class="custom-input w-full">
+                      </div>
+                      <p-button icon="pi pi-times" severity="secondary" [text]="true" [rounded]="true" 
+                                (onClick)="removeOption(i, j)" [disabled]="getOptions(i).length <= 2"></p-button>
                     </div>
                   }
                 </div>
                 
-                <button class="btn-add-option" (click)="addOption(i)">
-                  <i class="pi pi-plus"></i> Add Option
-                </button>
+                <div class="mt-lg">
+                  <p-button icon="pi pi-plus" label="Add Option" severity="secondary" [text]="true" size="small" (onClick)="addOption(i)"></p-button>
+                </div>
               </div>
+              
             </div>
+          }
+
+          <div class="add-question-wrapper mt-3xl">
+            <p-button label="Add New Exam Question" icon="pi pi-plus-circle" 
+                      styleClass="w-full p-button-outlined p-button-secondary custom-dashed-btn" 
+                      (onClick)="addQuestion()"></p-button>
           </div>
-        }
 
-        <button class="add-question-placeholder" (click)="addQuestion()">
-          <div class="plus-icon"><i class="pi pi-plus"></i></div>
-          <span>Add New Question</span>
-        </button>
-      </main>
-
+        </main>
+      </div>
     </form>
-  </div>
+  }
 </div>

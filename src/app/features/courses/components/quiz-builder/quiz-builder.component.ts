@@ -13,12 +13,11 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { TextareaModule } from 'primeng/textarea';
 import { CheckboxModule } from 'primeng/checkbox';
 import { SelectModule } from 'primeng/select';
-import { RadioButtonModule } from 'primeng/radiobutton'; // <-- ADDED
+import { RadioButtonModule } from 'primeng/radiobutton';
 import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip'; // Added for the copy ID tooltip
 import { MessageService } from 'primeng/api';
 import { QuizService } from '../../../../core/services/quiz.service';
-
-// Services
 
 @Component({
   selector: 'app-quiz-builder',
@@ -32,9 +31,10 @@ import { QuizService } from '../../../../core/services/quiz.service';
     InputNumberModule,
     TextareaModule,
     CheckboxModule,
-    SelectModule,      // <-- ADDED
-    RadioButtonModule, // <-- ADDED
-    ToastModule
+    SelectModule,
+    RadioButtonModule,
+    ToastModule,
+    TooltipModule
   ],
   providers: [MessageService],
   templateUrl: './quiz-builder.component.html',
@@ -54,7 +54,7 @@ export class QuizBuilderComponent implements OnInit {
   isLoading = signal<boolean>(false);
   isSaving = signal<boolean>(false);
 
-  // Available Question Types mapping to backend enum
+  // Question Types Definition
   questionTypes = [
     { label: 'Multiple Choice', value: 'multiple-choice', icon: 'pi pi-list' },
     { label: 'True / False', value: 'true-false', icon: 'pi pi-check-circle' },
@@ -72,16 +72,18 @@ export class QuizBuilderComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    // 1. Check for course connection
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       if (params['courseId']) this.courseId.set(params['courseId']);
     });
 
+    // 2. Check for edit vs create mode
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       if (params['id'] && params['id'] !== 'new') {
         this.quizId.set(params['id']);
         this.loadQuiz(params['id']);
       } else {
-        this.addQuestion();
+        this.addQuestion(); // Start with one empty question
       }
     });
   }
@@ -94,10 +96,10 @@ export class QuizBuilderComponent implements OnInit {
   private createQuestionGroup(): FormGroup {
     return this.fb.group({
       question: ['', Validators.required],
-      type: ['multiple-choice', Validators.required], // Added Type
+      type: ['multiple-choice', Validators.required],
       points: [10, Validators.required],
       explanation: [''],
-      correctAnswer: [''], // Used for True/False, Short Answer, and Essay
+      correctAnswer: [''], // Holds data for True/False, Short Answer, and Essay
       options: this.fb.array([
         this.createOptionGroup(),
         this.createOptionGroup()
@@ -117,15 +119,18 @@ export class QuizBuilderComponent implements OnInit {
 
   onQuestionTypeChange(index: number, newType: string): void {
     const qGroup = this.questions.at(index) as FormGroup;
-    // Set default values when switching types to avoid bugs
+    
+    // Clear the specific answer field to prevent hidden validation errors when switching types
     if (newType === 'true-false') {
       qGroup.get('correctAnswer')?.setValue('true');
-    } else if (newType === 'short-answer' || newType === 'essay') {
+    } else {
       qGroup.get('correctAnswer')?.setValue('');
     }
   }
 
   onCorrectAnswerChange(questionIndex: number, optionIndex: number, isChecked: boolean): void {
+    // If a box is checked, uncheck the others (Enforcing single-choice behavior inside multiple-choice UI)
+    // If you want actual multi-select, you can remove this block.
     if (isChecked) {
       const optionsArray = this.getOptions(questionIndex);
       optionsArray.controls.forEach((control, idx) => {
@@ -142,20 +147,30 @@ export class QuizBuilderComponent implements OnInit {
         const { quiz, questions } = res.data;
         this.courseId.set(quiz.course?._id || quiz.course);
 
+        // Patch Root Settings
         this.quizForm.patchValue({
-          title: quiz.title, description: quiz.description, timeLimit: quiz.timeLimit,
-          passingScore: quiz.passingScore, maxAttempts: quiz.maxAttempts
+          title: quiz.title, 
+          description: quiz.description, 
+          timeLimit: quiz.timeLimit,
+          passingScore: quiz.passingScore, 
+          maxAttempts: quiz.maxAttempts
         });
 
+        // Patch Questions
         this.questions.clear();
         questions.forEach((q: any) => {
           const qGroup = this.createQuestionGroup();
+          
           qGroup.patchValue({
-            question: q.question, type: q.type, points: q.points,
-            explanation: q.explanation, correctAnswer: q.correctAnswer
+            question: q.question, 
+            type: q.type, 
+            points: q.points,
+            explanation: q.explanation, 
+            correctAnswer: q.correctAnswer
           });
 
-          if (q.type === 'multiple-choice' && q.options) {
+          // Only patch options if it is a multiple-choice question
+          if (q.type === 'multiple-choice' && q.options && q.options.length > 0) {
             const optArray = qGroup.get('options') as FormArray;
             optArray.clear();
             q.options.forEach((opt: any) => {
@@ -166,6 +181,7 @@ export class QuizBuilderComponent implements OnInit {
           }
           this.questions.push(qGroup);
         });
+        
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false)
@@ -177,6 +193,7 @@ export class QuizBuilderComponent implements OnInit {
       this.messageService.add({ severity: 'error', summary: 'Missing Course', detail: 'This quiz is not attached to a course.' });
       return;
     }
+    
     if (this.quizForm.invalid) {
       this.quizForm.markAllAsTouched();
       this.messageService.add({ severity: 'warn', summary: 'Incomplete', detail: 'Please fill out all required fields.' });
@@ -185,7 +202,7 @@ export class QuizBuilderComponent implements OnInit {
 
     const rawData = this.quizForm.getRawValue();
 
-    // DYNAMIC VALIDATION based on Question Type
+    // Custom Validation: Ensure every question has a valid answer defined
     for (let i = 0; i < rawData.questions.length; i++) {
       const q = rawData.questions[i];
       if (q.type === 'multiple-choice') {
@@ -205,10 +222,15 @@ export class QuizBuilderComponent implements OnInit {
     this.isSaving.set(true);
 
     const baseQuizPayload = {
-      title: rawData.title, description: rawData.description, timeLimit: rawData.timeLimit,
-      passingScore: rawData.passingScore, maxAttempts: rawData.maxAttempts, course: this.courseId()
+      title: rawData.title, 
+      description: rawData.description, 
+      timeLimit: rawData.timeLimit,
+      passingScore: rawData.passingScore, 
+      maxAttempts: rawData.maxAttempts, 
+      course: this.courseId()
     };
 
+    // Chain the requests: Save Quiz -> Then Save Questions
     const request$: Observable<any> = this.quizId()
       ? this.quizService.updateQuiz(this.quizId()!, baseQuizPayload).pipe(
         switchMap(() => of({ data: { message: 'Updated' } }))
@@ -221,18 +243,10 @@ export class QuizBuilderComponent implements OnInit {
         })
       );
 
-    // const request$ = this.quizId() 
-    //   ? this.quizService.updateQuiz(this.quizId()!, baseQuizPayload).pipe(switchMap(() => of({ data: { message: 'Updated' } })))
-    //   : this.quizService.createQuiz(baseQuizPayload).pipe(switchMap((res: any) => {
-    //       const newQuizId = res.data.quiz._id;
-    //       this.quizId.set(newQuizId);
-    //       return this.quizService.addQuestions(newQuizId, rawData.questions);
-    //     }));
-
-    request$.pipe(takeUntilDestroyed()).subscribe({
+    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.isSaving.set(false);
-        this.messageService.add({ severity: 'success', summary: 'Saved!', detail: 'Quiz has been successfully saved.' });
+        this.messageService.add({ severity: 'success', summary: 'Saved!', detail: 'Quiz has been successfully published.' });
       },
       error: (err: any) => {
         this.isSaving.set(false);
@@ -244,7 +258,7 @@ export class QuizBuilderComponent implements OnInit {
   copyQuizId(): void {
     if (this.quizId()) {
       navigator.clipboard.writeText(this.quizId()!);
-      this.messageService.add({ severity: 'info', summary: 'Copied', detail: 'Quiz ID copied!' });
+      this.messageService.add({ severity: 'info', summary: 'Copied', detail: 'Quiz ID copied to clipboard!' });
     }
   }
 }

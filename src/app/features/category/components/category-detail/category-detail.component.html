@@ -1,4 +1,133 @@
-<div class="detail-container">
+<div class="page-container">
+  
+  @if (isRouted()) {
+    <div class="page-header">
+      <button type="button" class="btn-back" (click)="goBack()">
+        <i class="pi pi-arrow-left"></i> <span>Back to Categories</span>
+      </button>
+      <div class="header-titles">
+        <h1 class="title">Category Details</h1>
+        <p class="subtitle">Comprehensive overview and metadata for this educational catalog segment.</p>
+      </div>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="state-panel glass-panel">
+      <i class="pi pi-spin pi-spinner text-primary loading-icon"></i>
+      <h3 class="mt-md">Fetching details...</h3>
+      <p class="text-secondary">Please wait while we load the category data.</p>
+    </div>
+  } @else if (!fullCategory()) {
+    <div class="state-panel glass-panel">
+      <div class="icon-circle error-bg">
+        <i class="pi pi-exclamation-circle"></i>
+      </div>
+      <h3 class="mt-xl">Category not found</h3>
+      <p class="text-secondary mt-sm">The category you are looking for does not exist or has been removed.</p>
+      <button type="button" class="btn-primary mt-2xl" (click)="goBack()">Go Back</button>
+    </div>
+  } @else {
+    <div class="detail-card glass-panel">
+      
+      <div class="cover-banner" [class.has-image]="!!fullCategory()?.image">
+        @if (fullCategory()?.image) {
+          <img [src]="fullCategory()?.image" (error)="$event.target.style.display='none'" class="cover-image"/>
+        } @else {
+          <div class="cover-pattern"></div>
+        }
+        
+        <div class="status-badges-container">
+          <span class="status-badge" [ngClass]="fullCategory()?.isActive ? 'success-badge' : 'warning-badge'">
+            {{ fullCategory()?.isActive ? 'Published' : 'Hidden Draft' }}
+          </span>
+          @if (fullCategory()?.isDeleted) {
+            <span class="status-badge error-badge">Deleted</span>
+          }
+        </div>
+      </div>
+
+      <div class="detail-body">
+        
+        <div class="profile-header">
+          <div class="floating-icon">
+            <i [class]="fullCategory()?.icon || 'pi pi-folder'"></i>
+          </div>
+          
+          <div class="profile-titles">
+            <h2 class="category-title">{{ fullCategory()?.name }}</h2>
+            @if (fullCategory()?.slug) {
+              <div class="slug-pill">
+                <i class="pi pi-link"></i>
+                <span>/categories/{{ fullCategory()?.slug }}</span>
+              </div>
+            }
+          </div>
+          
+          <div class="header-actions">
+            <button type="button" class="btn-primary" (click)="onEdit()">
+              <i class="pi pi-pencil"></i> <span>Edit Category</span>
+            </button>
+          </div>
+        </div>
+
+        @if (fullCategory()?.description) {
+          <div class="detail-block full-width">
+            <div class="block-label"><i class="pi pi-align-left text-primary"></i> Description</div>
+            <div class="glass-inset description-surface">
+              <p>{{ fullCategory()?.description }}</p>
+            </div>
+          </div>
+        }
+
+        <div class="details-grid">
+          
+          <div class="detail-block">
+            <div class="block-label"><i class="pi pi-hashtag text-primary"></i> Category ID</div>
+            <div class="glass-inset mono-text text-muted">
+              {{ fullCategory()?._id }}
+            </div>
+          </div>
+
+          <div class="detail-block">
+            <div class="block-label"><i class="pi pi-tag text-primary"></i> UI Icon Class</div>
+            <div class="glass-inset flex-center-left">
+              <i [class]="fullCategory()?.icon || 'pi pi-folder'" class="mr-sm text-primary"></i>
+              <code class="mono-text">{{ fullCategory()?.icon || 'None' }}</code>
+            </div>
+          </div>
+
+          <div class="detail-block">
+            <div class="block-label"><i class="pi pi-calendar-plus text-primary"></i> Date Created</div>
+            <div class="glass-inset font-medium">
+              {{ fullCategory()?.createdAt | date:'medium' }}
+            </div>
+          </div>
+
+          <div class="detail-block">
+            <div class="block-label"><i class="pi pi-sync text-primary"></i> Last Updated</div>
+            <div class="glass-inset font-medium">
+              {{ fullCategory()?.updatedAt | date:'medium' }}
+            </div>
+          </div>
+
+          @if (fullCategory()?.parentCategory) {
+            <div class="detail-block col-span-2">
+              <div class="block-label"><i class="pi pi-sitemap text-primary"></i> Parent Category ID</div>
+              <div class="glass-inset mono-text text-muted">
+                {{ fullCategory()?.parentCategory?._id || fullCategory()?.parentCategory }}
+              </div>
+            </div>
+          }
+        </div>
+        
+      </div>
+    </div>
+  }
+</div>
+
+
+<!-- <div class="detail-container">
   
   @if (isLoading()) {
     <div class="overlay-state glass-panel">
@@ -118,4 +247,4 @@
       </div>
     </div>
   }
-</div>
+</div> -->

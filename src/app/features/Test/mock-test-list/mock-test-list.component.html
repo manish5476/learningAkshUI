@@ -1,12 +1,12 @@
-<div class="assessment-container">
+<div class="page-container">
   
-  <div class="assessment-hero glass-panel">
+  <div class="assessment-hero glass-panel mb-4xl">
     <div class="hero-content">
-      <h1 class="gradient-text m-0">Mock Tests & Assessments</h1>
-      <p class="text-secondary mt-sm">Test your knowledge, compete on the leaderboard, and track your improvement.</p>
+      <h1 class="title">Mock Tests & Assessments</h1>
+      <p class="subtitle m-0">Test your knowledge, track your improvement, and prepare for success.</p>
     </div>
 
-    <div class="custom-tabs mt-xl">
+    <div class="custom-tabs glass-inset">
       <button class="tab-btn" [class.active]="activeTab() === 'available'" (click)="setTab('available')">
         <i class="pi pi-list"></i> Available Tests
       </button>
@@ -16,44 +16,74 @@
     </div>
   </div>
 
-  <div class="assessment-content mt-2xl">
+  <div class="assessment-content">
+    
     @if (isLoading()) {
-      <div class="state-overlay">
-        <div class="loader-ring"></div>
-        <p class="text-secondary mt-md">Loading assessments...</p>
+      <div class="state-panel glass-panel">
+        <i class="pi pi-spin pi-spinner text-primary loading-icon"></i>
+        <h3 class="mt-xl">Loading assessments...</h3>
+        <p class="text-secondary">Fetching your test directory.</p>
       </div>
     } @else {
 
       @if (activeTab() === 'available') {
         <div class="test-grid">
           @for (test of availableTests(); track test._id) {
-            <div class="test-card surface-raised hover-lift">
-              <div class="card-header">
+            
+            <div class="test-card glass-panel flex flex-col h-full">
+              <div class="card-header flex-between mb-xl">
                 <p-tag [value]="test.level | titlecase" [severity]="getLevelSeverity(test.level)"></p-tag>
-                <span class="category-badge"><i class="pi pi-folder"></i> {{ test.category?.name || 'General' }}</span>
+                <div class="category-badge">
+                  <i class="pi pi-folder text-primary"></i> <span>{{ test.category?.name || 'General' }}</span>
+                </div>
               </div>
               
-              <div class="card-body">
+              <div class="card-body flex-grow-1">
                 <h3 class="test-title">{{ test.title }}</h3>
-                <p class="test-desc">{{ test.description | slice:0:100 }}{{ test.description?.length > 100 ? '...' : '' }}</p>
                 
-                <div class="test-meta">
-                  <div class="meta-item"><i class="pi pi-clock text-info"></i> {{ test.duration }} mins</div>
-                  <div class="meta-item"><i class="pi pi-question-circle text-warning"></i> {{ test.totalQuestions }} Qs</div>
-                  <div class="meta-item"><i class="pi pi-star text-success"></i> {{ test.totalMarks }} Marks</div>
+                @if (test.instructor) {
+                  <p class="instructor-tag text-xs text-secondary mb-md font-medium">
+                    <i class="pi pi-user mr-xs"></i> By {{ test.instructor.firstName | titlecase }} {{ test.instructor.lastName | titlecase }}
+                  </p>
+                }
+
+                <p class="test-desc text-secondary mb-2xl">
+                  {{ test.description ? (test.description | slice:0:80) + (test.description.length > 80 ? '...' : '') : 'A timed assessment to evaluate your proficiency in this subject area.' }}
+                </p>
+                
+                <div class="test-meta-grid mb-3xl">
+                  <div class="meta-box glass-inset">
+                    <i class="pi pi-clock text-info mb-xs"></i>
+                    <span class="meta-value">{{ test.duration }}m</span>
+                  </div>
+                  <div class="meta-box glass-inset">
+                    <i class="pi pi-question-circle text-warning mb-xs"></i>
+                    <span class="meta-value">{{ test.totalQuestions }} Qs</span>
+                  </div>
+                  <div class="meta-box glass-inset">
+                    <i class="pi pi-star text-success mb-xs"></i>
+                    <span class="meta-value">{{ test.totalMarks || (test.totalQuestions * 1) }} Pts</span>
+                  </div>
                 </div>
               </div>
 
-              <div class="card-footer">
-                <button class="btn-glow primary w-full" (click)="startTest(test._id)">
-                  Start Test <i class="pi pi-arrow-right ml-xs"></i>
-                </button>
+              <div class="card-footer mt-auto pt-lg border-top-subtle">
+                <div class="flex-between w-full align-items-center">
+                  <span class="price-tag font-bold text-lg" [class.text-success]="test.isFree" [class.text-primary]="!test.isFree">
+                    {{ test.isFree ? 'Free' : (test.price | currency:'USD') }}
+                  </span>
+                  
+                  <p-button label="Start Exam" icon="pi pi-arrow-right" iconPos="right" 
+                            styleClass="p-button-rounded" 
+                            (onClick)="startTest(test._id)"></p-button>
+                </div>
               </div>
             </div>
+
           } @empty {
-            <div class="empty-state surface-subtle col-span-full">
+            <div class="state-panel glass-panel col-span-full">
               <div class="icon-circle"><i class="pi pi-file-excel text-tertiary"></i></div>
-              <h3>No tests available</h3>
+              <h3 class="mt-xl">No tests available</h3>
               <p class="text-secondary">Check back later for new mock tests and assessments.</p>
             </div>
           }
@@ -61,9 +91,9 @@
       }
 
       @if (activeTab() === 'attempts') {
-        <div class="glass-panel table-container">
+        <div class="glass-panel p-0 overflow-hidden">
           @if (myAttempts().length > 0) {
-            <p-table [value]="myAttempts()" [paginator]="true" [rows]="10" styleClass="p-datatable-glass custom-table">
+            <p-table [value]="myAttempts()" [paginator]="true" [rows]="10" styleClass="p-datatable-glass">
               <ng-template pTemplate="header">
                 <tr>
                   <th>Test Name</th>
@@ -76,14 +106,14 @@
               </ng-template>
               <ng-template pTemplate="body" let-attempt>
                 <tr>
-                  <td class="font-medium text-primary">{{ attempt.mockTest?.title || 'Unknown Test' }}</td>
+                  <td class="font-bold text-primary">{{ attempt.mockTest?.title || 'Unknown Test' }}</td>
                   <td class="font-mono text-sm text-secondary">{{ (attempt.completedAt | date:'mediumDate') || 'In Progress' }}</td>
                   <td>
                     @if (attempt.status === 'completed') {
-                      <span class="font-bold">{{ attempt.score }} / {{ attempt.mockTest?.totalMarks }}</span>
-                      <span class="text-xs text-tertiary ml-xs font-mono">({{ attempt.percentage | number:'1.0-1' }}%)</span>
+                      <span class="font-bold text-lg">{{ attempt.score }}<span class="text-sm text-tertiary">/{{ attempt.mockTest?.totalMarks }}</span></span>
+                      <span class="text-xs text-secondary ml-sm font-mono bg-secondary px-2 py-1 rounded-md">{{ attempt.percentage | number:'1.0-1' }}%</span>
                     } @else {
-                      <span class="text-warning italic">Pending</span>
+                      <span class="text-warning italic text-sm">Pending</span>
                     }
                   </td>
                   <td>
@@ -95,26 +125,27 @@
                   </td>
                   <td>
                     @if (attempt.rank) {
-                      <span class="rank-badge"><i class="pi pi-trophy text-warning"></i> #{{ attempt.rank }}</span>
+                      <span class="font-bold"><i class="pi pi-trophy text-warning mr-1"></i> #{{ attempt.rank }}</span>
                     } @else {
                       <span class="text-tertiary">-</span>
                     }
                   </td>
                   <td style="text-align: right">
                     @if (attempt.status === 'completed') {
-                      <button class="btn-micro outline" (click)="viewAttemptResult(attempt._id)">View Report</button>
+                      <p-button label="View Report" icon="pi pi-chart-line" severity="secondary" [outlined]="true" size="small" (onClick)="viewAttemptResult(attempt._id)"></p-button>
                     } @else {
-                      <button class="btn-micro primary" (click)="startTest(attempt.mockTest?._id)">Resume</button>
+                      <p-button label="Resume" icon="pi pi-play" size="small" (onClick)="startTest(attempt.mockTest?._id)"></p-button>
                     }
                   </td>
                 </tr>
               </ng-template>
             </p-table>
           } @else {
-            <div class="empty-state surface-subtle">
+            <div class="state-panel p-5xl">
               <div class="icon-circle"><i class="pi pi-history text-tertiary"></i></div>
-              <h3>No past attempts</h3>
+              <h3 class="mt-xl">No past attempts</h3>
               <p class="text-secondary">Take your first mock test to see your performance history here.</p>
+              <p-button label="Browse Available Tests" icon="pi pi-search" styleClass="mt-xl" (onClick)="setTab('available')"></p-button>
             </div>
           }
         </div>

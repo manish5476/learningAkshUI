@@ -1,119 +1,138 @@
-<div class="results-container">
+<div class="page-container">
   
   @if (isLoading()) {
-    <div class="state-overlay cinematic-bg">
-      <div class="loader-ring"></div>
-      <p class="text-secondary mt-xl font-bold uppercase tracking-widest text-sm">Generating Performance Report...</p>
+    <div class="state-panel glass-panel">
+      <i class="pi pi-spin pi-spinner text-primary loading-icon"></i>
+      <h3 class="mt-xl">Analyzing Performance...</h3>
+      <p class="text-secondary">Generating your detailed assessment report.</p>
     </div>
   } @else if (error()) {
-    <div class="state-overlay cinematic-bg">
-      <div class="icon-circle error-glow"><i class="pi pi-exclamation-triangle text-error"></i></div>
-      <h3 class="mt-2xl text-primary font-heading text-3xl">Results Not Found</h3>
-      <button class="btn-glow outline mt-xl" (click)="goBackToDashboard()">Back to Dashboard</button>
+    <div class="state-panel glass-panel">
+      <div class="icon-circle error-bg"><i class="pi pi-exclamation-triangle"></i></div>
+      <h3 class="mt-xl text-error">Results Not Found</h3>
+      <p class="text-secondary mb-2xl">We couldn't retrieve the data for this attempt.</p>
+      <p-button label="Back to Dashboard" icon="pi pi-arrow-left" (onClick)="goBackToDashboard()"></p-button>
     </div>
   } @else if (attemptData()) {
     
-    <div class="result-hero glass-panel" [ngClass]="isPassed() ? 'pass-theme' : 'fail-theme'">
-      <button class="btn-icon btn-ghost back-btn" (click)="goBackToDashboard()">
-        <i class="pi pi-arrow-left"></i>
-      </button>
+    <div class="result-hero glass-panel mb-4xl" [ngClass]="isPassed() ? 'theme-pass' : 'theme-fail'">
+      <div class="hero-top mb-2xl">
+        <p-button icon="pi pi-arrow-left" label="Back to Dashboard" [text]="true" severity="secondary" (onClick)="goBackToDashboard()"></p-button>
+      </div>
 
-      <div class="hero-content text-center">
-        <div class="status-badge mb-lg">
-          @if (isPassed()) {
-            <span class="badge-success"><i class="pi pi-check-circle"></i> PASSED</span>
-          } @else {
-            <span class="badge-danger"><i class="pi pi-times-circle"></i> FAILED</span>
-          }
-        </div>
-
-        <h1 class="test-title m-0">{{ mockTest()?.title }}</h1>
-        <p class="text-secondary mt-sm mb-2xl font-mono">Completed on {{ attemptData().completedAt | date:'medium' }}</p>
-
-        <div class="score-circle mx-auto">
-          <div class="inner-circle surface-raised">
-            <span class="score-val">{{ attemptData().percentage | number:'1.0-1' }}%</span>
-            <span class="score-lbl">Score</span>
+      <div class="hero-content">
+        <div class="score-widget-container shrink-0">
+          <div class="score-circle">
+            <div class="inner-circle">
+              <span class="score-val" [class.text-success]="isPassed()" [class.text-error]="!isPassed()">
+                {{ calculatedPercentage() | number:'1.0-1' }}%
+              </span>
+              <span class="score-lbl">Score</span>
+            </div>
+            <svg class="progress-ring" width="160" height="160">
+              <circle class="ring-bg" stroke-width="8" fill="transparent" r="72" cx="80" cy="80"/>
+              <circle class="ring-fill" 
+                      [attr.stroke]="isPassed() ? 'var(--color-success)' : 'var(--color-error)'" 
+                      stroke-width="8" fill="transparent" r="72" cx="80" cy="80" 
+                      [style.stroke-dasharray]="452" 
+                      [style.stroke-dashoffset]="452 - (452 * calculatedPercentage()) / 100"/>
+            </svg>
           </div>
-          <svg class="progress-ring" width="160" height="160">
-            <circle class="ring-bg" stroke="rgba(255,255,255,0.05)" stroke-width="8" fill="transparent" r="70" cx="80" cy="80"/>
-            <circle class="ring-fill" [attr.stroke]="isPassed() ? 'var(--color-success)' : 'var(--color-error)'" 
-                    stroke-width="8" fill="transparent" r="70" cx="80" cy="80" 
-                    [style.stroke-dasharray]="440" 
-                    [style.stroke-dashoffset]="440 - (440 * attemptData().percentage) / 100"/>
-          </svg>
+        </div>
+
+        <div class="hero-details flex-grow-1">
+          <div class="status-badge-wrapper mb-md">
+            @if (isPassed()) {
+              <p-tag value="PASSED" icon="pi pi-check-circle" severity="success" styleClass="text-lg px-3 py-2"></p-tag>
+            } @else {
+              <p-tag value="FAILED" icon="pi pi-times-circle" severity="danger" styleClass="text-lg px-3 py-2"></p-tag>
+            }
+          </div>
+
+          <h1 class="test-title m-0">{{ mockTest()?.title || 'Assessment Report' }}</h1>
+          <p class="meta-date text-secondary mt-sm">
+            <i class="pi pi-calendar mr-xs"></i> Completed on {{ attemptData().completedAt | date:'medium' }}
+          </p>
+
+          <div class="stats-grid mt-2xl">
+            <div class="bento-stat glass-inset">
+              <div class="s-icon text-primary"><i class="pi pi-bullseye"></i></div>
+              <div class="s-info">
+                <span class="s-lbl">Marks Obtained</span>
+                <span class="s-val">{{ attemptData().score }} <span class="text-tertiary text-sm font-normal">/ {{ mockTest()?.totalMarks || attemptData().score }}</span></span>
+              </div>
+            </div>
+            
+            <div class="bento-stat glass-inset">
+              <div class="s-icon text-warning"><i class="pi pi-trophy"></i></div>
+              <div class="s-info">
+                <span class="s-lbl">Leaderboard</span>
+                <span class="s-val">#{{ attemptData().rank }} <span class="text-tertiary text-sm font-normal">of {{ attemptData().totalStudents }}</span></span>
+              </div>
+            </div>
+
+            <div class="bento-stat glass-inset">
+              <div class="s-icon text-info"><i class="pi pi-stopwatch"></i></div>
+              <div class="s-info">
+                <span class="s-lbl">Time Taken</span>
+                <span class="s-val">{{ formattedTime() }}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="stats-grid mt-2xl">
-      <div class="bento-stat surface-raised hover-lift">
-        <div class="s-icon text-primary bg-primary-light"><i class="pi pi-bullseye"></i></div>
-        <div class="s-info">
-          <span class="s-lbl">Marks Obtained</span>
-          <span class="s-val">{{ attemptData().score }} / {{ mockTest()?.totalMarks }}</span>
-        </div>
+    <div class="review-section">
+      <div class="section-header flex align-items-center gap-sm mb-3xl">
+        <div class="icon-circle-small bg-primary-light text-primary"><i class="pi pi-list"></i></div>
+        <h2 class="section-title m-0">Detailed Review</h2>
       </div>
       
-      <div class="bento-stat surface-raised hover-lift">
-        <div class="s-icon text-warning bg-warning-light"><i class="pi pi-trophy"></i></div>
-        <div class="s-info">
-          <span class="s-lbl">Leaderboard Rank</span>
-          <span class="s-val">#{{ attemptData().rank }} <span class="text-xs text-tertiary font-normal">of {{ attemptData().totalStudents }}</span></span>
-        </div>
-      </div>
-
-      <div class="bento-stat surface-raised hover-lift">
-        <div class="s-icon text-info bg-info-light"><i class="pi pi-stopwatch"></i></div>
-        <div class="s-info">
-          <span class="s-lbl">Time Taken</span>
-          <span class="s-val">{{ formattedTime() }}</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="review-section mt-4xl">
-      <h2 class="section-title gradient-text mb-xl"><i class="pi pi-list"></i> Detailed Review</h2>
-      
-      <div class="questions-list">
+      <div class="questions-list flex flex-col gap-3xl">
         @for (answer of answers(); track answer.questionId?._id; let i = $index) {
           
-          <div class="q-review-card glass-panel surface-subtle mb-xl" [class.wrong-card]="!answer.isCorrect">
+          <div class="q-review-card glass-panel" [class.wrong-card]="!answer.isCorrect">
             
-            <div class="q-header flex justify-between align-center mb-lg pb-md border-bottom-subtle">
-              <span class="q-number font-heading font-bold text-lg text-primary">Question {{ i + 1 }}</span>
-              <div class="q-marks flex gap-sm align-center">
+            <div class="q-header flex-between mb-2xl pb-md border-bottom-subtle">
+              <div class="q-number-badge">
+                <span class="num">{{ i + 1 }}</span>
+              </div>
+              
+              <div class="q-marks flex gap-md align-items-center glass-inset py-xs px-md rounded-full">
                 @if (answer.isCorrect) {
-                  <span class="badge-micro success"><i class="pi pi-check"></i> Correct</span>
-                  <span class="font-mono text-success font-bold">+{{ answer.marksObtained }}</span>
+                  <span class="text-success font-bold flex align-items-center gap-xs"><i class="pi pi-check-circle"></i> Correct</span>
+                  <span class="font-mono text-success font-bold bg-success-light px-2 py-1 rounded-sm">+{{ answer.marksObtained }} Pts</span>
                 } @else {
-                  <span class="badge-micro danger"><i class="pi pi-times"></i> Incorrect</span>
-                  <span class="font-mono text-error font-bold">{{ answer.marksObtained }}</span>
+                  <span class="text-error font-bold flex align-items-center gap-xs"><i class="pi pi-times-circle"></i> Incorrect</span>
+                  <span class="font-mono text-error font-bold bg-error-light px-2 py-1 rounded-sm">{{ answer.marksObtained }} Pts</span>
                 }
               </div>
             </div>
 
-            <div class="q-text text-lg line-height-3 mb-xl">
-              {{ answer.questionId?.question }}
+            <div class="q-text text-xl font-heading font-bold mb-3xl line-height-relaxed text-primary">
+              {{ answer.questionId?.question || 'Question text unavailable' }}
             </div>
 
-            <div class="options-grid flex-col gap-sm mb-xl">
+            <div class="options-grid flex flex-col gap-md mb-2xl">
               @for (option of answer.questionId?.options; track $index; let optIdx = $index) {
                 
                 <div class="review-option" [ngClass]="getOptionState(option, optIdx, answer.selectedOptionIndex)">
                   <div class="opt-indicator">
                     @if (getOptionState(option, optIdx, answer.selectedOptionIndex) === 'correct') {
-                      <i class="pi pi-check-circle text-success"></i>
+                      <i class="pi pi-check-circle text-success text-xl"></i>
                     } @else if (getOptionState(option, optIdx, answer.selectedOptionIndex) === 'incorrect') {
-                      <i class="pi pi-times-circle text-error"></i>
+                      <i class="pi pi-times-circle text-error text-xl"></i>
                     } @else {
-                      <i class="pi pi-circle text-tertiary"></i>
+                      <i class="pi pi-circle text-tertiary text-xl"></i>
                     }
                   </div>
-                  <div class="opt-text flex-1">{{ option.text }}</div>
+                  <div class="opt-text flex-grow-1 text-lg">{{ option.text }}</div>
                   
                   @if (optIdx === answer.selectedOptionIndex) {
-                    <span class="user-pick-tag">Your Answer</span>
+                    <div class="user-pick-tag ml-md">
+                      <p-tag value="Your Answer" severity="secondary"></p-tag>
+                    </div>
                   }
                 </div>
 
@@ -121,9 +140,9 @@
             </div>
 
             @if (answer.questionId?.explanation) {
-              <div class="explanation-box surface-raised">
-                <h4 class="text-info m-0 mb-sm flex align-center gap-sm"><i class="pi pi-info-circle"></i> Explanation</h4>
-                <p class="m-0 text-secondary line-height-3">{{ answer.questionId?.explanation }}</p>
+              <div class="explanation-box glass-inset mt-3xl bg-info-subtle border-info">
+                <h4 class="text-info m-0 mb-sm flex align-items-center gap-sm"><i class="pi pi-info-circle"></i> Explanation</h4>
+                <p class="m-0 text-secondary line-height-relaxed">{{ answer.questionId?.explanation }}</p>
               </div>
             }
 

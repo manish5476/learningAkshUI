@@ -9,9 +9,9 @@ import { catchError } from 'rxjs/operators';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { TableModule } from 'primeng/table';
-import { MockTestService } from '../../../core/services/mock-test.service';
 
 // Services
+import { MockTestService } from '../../../core/services/mock-test.service';
 
 @Component({
   selector: 'app-mock-test-list',
@@ -55,11 +55,19 @@ export class MockTestListComponent implements OnInit {
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: ({ testsRes, attemptsRes }) => {
-        this.availableTests.set(testsRes?.data?.data || testsRes?.data || []);
-        this.myAttempts.set(attemptsRes?.data?.attempts || attemptsRes?.data || []);
+        // Safe mapping to handle the nested "data.data" standard format
+        const tests = testsRes?.data?.data || testsRes?.data || [];
+        this.availableTests.set(Array.isArray(tests) ? tests : []);
+
+        const attempts = attemptsRes?.data?.attempts || attemptsRes?.data || [];
+        this.myAttempts.set(Array.isArray(attempts) ? attempts : []);
+        
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false)
+      error: (err) => {
+        console.error('Failed to load dashboard data', err);
+        this.isLoading.set(false);
+      }
     });
   }
 
@@ -68,7 +76,7 @@ export class MockTestListComponent implements OnInit {
   }
 
   startTest(testId: string): void {
-    // Navigate to a dedicated "Test Taker" component (which we will build next!)
+    // Navigate to a dedicated "Test Taker" component
     this.router.navigate(['/mock-tests/take', testId]);
   }
 
