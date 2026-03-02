@@ -1,15 +1,5 @@
-/* * PRIMENG DESIGN SYSTEM OVERRIDE
- * Source: Project Root Tokens
- * Scope: Full Component Suite
- */
+@use './mixins';
 
-// @use "sass:color";
-
-// ==========================================================================
-// 1. SHARED UTILITIES & MIXINS
-// ==========================================================================
-
-// Input Base Style (Shared across InputText, TextArea, Selects, Number, etc.)
 @mixin input-base-style {
   font-family: var(--font-body);
   font-size: var(--font-size-md);

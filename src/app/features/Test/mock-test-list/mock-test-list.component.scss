@@ -1,54 +1,31 @@
 
-@media (max-width: 768px) {
-  .page-container {
-    padding: var(--spacing-xl) var(--spacing-md); // Less edge padding
-  }
-
-  .assessment-hero {
-    flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
-    gap: var(--spacing-xl);
-  }
-
-  .custom-tabs {
-    width: 100%;
-    .tab-btn {
-      flex: 1; // Make tabs stretch to fill the screen
-      justify-content: center;
-      padding: var(--spacing-md) var(--spacing-sm);
-      font-size: var(--font-size-sm);
-    }
-  }
-
-  .test-card {
-    .card-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: var(--spacing-md);
-    }
-  }
-}
-
+@use '../../../../styles/mixins' as *; 
 
 // ==========================================================================
-// LAYOUT & HEADER
+// LAYOUT & HEADER (Mobile First)
 // ==========================================================================
 .page-container {
-  padding: var(--spacing-3xl) var(--spacing-2xl);
+  padding: var(--spacing-lg) var(--spacing-md);
   max-width: 1400px;
   margin: 0 auto;
+
+  @include md {
+    padding: var(--spacing-3xl) var(--spacing-2xl);
+  }
 }
 
 .assessment-hero {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xl);
+  align-items: flex-start;
+  text-align: left;
+  gap: var(--spacing-xl);
   
-  @media (min-width: 768px) {
+  @include md {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    gap: var(--spacing-3xl);
   }
 
   .title {
@@ -59,24 +36,40 @@
     letter-spacing: -0.02em;
     margin: 0 0 var(--spacing-sm) 0;
   }
-  .subtitle { color: var(--text-secondary); font-size: var(--font-size-lg); }
+  
+  .subtitle { 
+    color: var(--text-secondary); 
+    font-size: var(--font-size-lg); 
+  }
 }
 
 // ==========================================================================
-// SEGMENTED TABS (Sleek App Feel)
+// SEGMENTED TABS
 // ==========================================================================
 .custom-tabs {
   display: flex;
-  padding: var(--spacing-xs); // Tight inner padding
-  border-radius: 40px; // Pill shape
+  width: 100%;
+  padding: var(--spacing-xs);
+  border-radius: 40px; 
   gap: var(--spacing-xs);
   
+  @include md {
+    width: auto;
+  }
+
   .tab-btn {
-    display: inline-flex; align-items: center; gap: var(--spacing-sm);
-    padding: var(--spacing-md) var(--spacing-2xl);
+    flex: 1;
+    display: inline-flex; justify-content: center; align-items: center; gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-sm);
     border-radius: 30px; border: none; background: transparent;
-    color: var(--text-secondary); font-size: var(--font-size-md); font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold);
     cursor: pointer; transition: var(--transition-base);
+
+    @include md {
+      flex: none;
+      padding: var(--spacing-md) var(--spacing-2xl);
+      font-size: var(--font-size-md);
+    }
 
     &:hover:not(.active) { color: var(--text-primary); }
 
@@ -96,9 +89,13 @@
   backdrop-filter: blur(var(--glass-blur-c, 16px));
   border: var(--ui-border-width) solid var(--glass-border-c, var(--border-secondary));
   border-radius: var(--ui-border-radius-xl);
-  padding: var(--spacing-3xl);
+  padding: var(--spacing-2xl);
   box-shadow: var(--shadow-lg);
   transition: var(--transition-base);
+
+  @include md {
+    padding: var(--spacing-3xl);
+  }
 }
 
 .glass-inset {
@@ -126,8 +123,9 @@
 .flex-col { display: flex; flex-direction: column; }
 .flex-grow-1 { flex-grow: 1; }
 .border-top-subtle { border-top: 1px solid var(--border-secondary); }
+.border-round-sm { border-radius: var(--ui-border-radius-sm); }
 
-// Variables for spacing
+// Spacing Utilities
 .mb-xs { margin-bottom: var(--spacing-xs); }
 .mb-sm { margin-bottom: var(--spacing-sm); }
 .mb-md { margin-bottom: var(--spacing-md); }
@@ -147,17 +145,36 @@
 // ==========================================================================
 .test-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: var(--spacing-3xl);
+  grid-template-columns: 1fr; // Single column on mobile
+  gap: var(--spacing-xl);
+
+  @include md {
+    // Flows cleanly into multi-column on larger screens
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: var(--spacing-3xl);
+  }
 }
 
 .test-card {
-  padding: var(--spacing-2xl); // Slightly less padding inside the card than main panels
+  padding: var(--spacing-xl); 
+
+  @include md { padding: var(--spacing-2xl); }
   
   &:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-xl);
     border-color: var(--color-primary-border);
+  }
+
+  .card-header {
+    flex-direction: column; // Stack badge and tag on mobile
+    align-items: flex-start;
+    gap: var(--spacing-md);
+
+    @include md {
+      flex-direction: row;
+      align-items: center;
+    }
   }
 
   .category-badge {
@@ -177,11 +194,15 @@
   .test-desc { font-size: var(--font-size-md); line-height: var(--line-height-relaxed); }
 
   .test-meta-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-md);
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-sm);
     
+    @include md { gap: var(--spacing-md); }
+
     .meta-box {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: var(--spacing-md);
+      padding: var(--spacing-sm);
+      
+      @include md { padding: var(--spacing-md); }
       
       i { font-size: var(--font-size-lg); }
       .meta-value { font-family: var(--font-mono); font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); color: var(--text-primary); }
@@ -190,8 +211,20 @@
 }
 
 // ==========================================================================
-// PRIMENG TABLE GLASS OVERRIDE
+// PRIMENG TABLE RESPONSIVE OVERRIDE
 // ==========================================================================
+
+/* New Wrapper to protect mobile viewports */
+.table-responsive-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  
+  /* Hide scrollbar visually but keep functionality */
+  scrollbar-width: none; 
+  &::-webkit-scrollbar { display: none; }
+}
+
 ::ng-deep .p-datatable-glass {
   .p-datatable-header, .p-datatable-footer, .p-paginator {
     background: transparent !important;
@@ -207,6 +240,7 @@
     letter-spacing: 0.05em;
     border-color: var(--border-secondary) !important;
     padding: var(--spacing-lg) var(--spacing-xl) !important;
+    white-space: nowrap; // Prevents headers from stacking weirdly
   }
 
   .p-datatable-tbody > tr {
@@ -222,3 +256,358 @@
     }
   }
 }
+
+// ==========================================================================
+// HISTORY FEED (Card-Based Past Attempts)
+// ==========================================================================
+
+/* Subtle Border Theming based on Pass/Fail */
+.border-success-subtle { border-left: 4px solid var(--color-success) !important; }
+.border-error-subtle { border-left: 4px solid var(--color-error) !important; }
+.border-warning-subtle { border-left: 4px solid var(--color-warning) !important; }
+
+.history-feed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg); // Tight stack like an activity feed
+
+  @include md {
+    gap: var(--spacing-xl);
+  }
+}
+
+.history-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-xl);
+  transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.2, 1), box-shadow 0.2s;
+
+  @include md {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-2xl);
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .history-main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+    flex-grow: 1;
+
+    @include lg {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      margin-right: var(--spacing-3xl);
+    }
+  }
+
+  /* Left Side: Icon and Text */
+  .history-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+
+    .test-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-size-xl);
+      flex-shrink: 0;
+    }
+  }
+
+  /* Middle: Bento Metrics */
+  .history-metrics {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md) var(--spacing-xl);
+    
+    @include lg {
+      min-width: 350px;
+    }
+
+    .metric {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+
+      &.border-left {
+        border-left: 1px solid var(--border-secondary);
+      }
+
+      .metric-lbl {
+        font-size: var(--font-size-xs);
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: var(--font-weight-semibold);
+        margin-bottom: 2px;
+      }
+      .metric-val {
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-bold);
+        font-family: var(--font-mono);
+      }
+    }
+  }
+
+  /* Right Side: Action Button */
+  .history-action {
+    flex-shrink: 0;
+
+    @include md {
+      width: 160px; // Fixed width for buttons on desktop so they align perfectly
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// @media (max-width: 768px) {
+//   .page-container {
+//     padding: var(--spacing-xl) var(--spacing-md); // Less edge padding
+//   }
+
+//   .assessment-hero {
+//     flex-direction: column;
+//     align-items: flex-start;
+//     text-align: left;
+//     gap: var(--spacing-xl);
+//   }
+
+//   .custom-tabs {
+//     width: 100%;
+//     .tab-btn {
+//       flex: 1; // Make tabs stretch to fill the screen
+//       justify-content: center;
+//       padding: var(--spacing-md) var(--spacing-sm);
+//       font-size: var(--font-size-sm);
+//     }
+//   }
+
+//   .test-card {
+//     .card-header {
+//       flex-direction: column;
+//       align-items: flex-start;
+//       gap: var(--spacing-md);
+//     }
+//   }
+// }
+
+
+// // ==========================================================================
+// // LAYOUT & HEADER
+// // ==========================================================================
+// .page-container {
+//   padding: var(--spacing-3xl) var(--spacing-2xl);
+//   max-width: 1400px;
+//   margin: 0 auto;
+// }
+
+// .assessment-hero {
+//   display: flex;
+//   flex-direction: column;
+//   gap: var(--spacing-3xl);
+  
+//   @media (min-width: 768px) {
+//     flex-direction: row;
+//     justify-content: space-between;
+//     align-items: center;
+//   }
+
+//   .title {
+//     font-family: var(--font-heading);
+//     font-size: var(--font-size-4xl);
+//     color: var(--text-primary);
+//     font-weight: var(--font-weight-bold);
+//     letter-spacing: -0.02em;
+//     margin: 0 0 var(--spacing-sm) 0;
+//   }
+//   .subtitle { color: var(--text-secondary); font-size: var(--font-size-lg); }
+// }
+
+// // ==========================================================================
+// // SEGMENTED TABS (Sleek App Feel)
+// // ==========================================================================
+// .custom-tabs {
+//   display: flex;
+//   padding: var(--spacing-xs); // Tight inner padding
+//   border-radius: 40px; // Pill shape
+//   gap: var(--spacing-xs);
+  
+//   .tab-btn {
+//     display: inline-flex; align-items: center; gap: var(--spacing-sm);
+//     padding: var(--spacing-md) var(--spacing-2xl);
+//     border-radius: 30px; border: none; background: transparent;
+//     color: var(--text-secondary); font-size: var(--font-size-md); font-weight: var(--font-weight-semibold);
+//     cursor: pointer; transition: var(--transition-base);
+
+//     &:hover:not(.active) { color: var(--text-primary); }
+
+//     &.active {
+//       background: var(--component-surface-raised);
+//       color: var(--color-primary);
+//       box-shadow: var(--shadow-sm);
+//     }
+//   }
+// }
+
+// // ==========================================================================
+// // GLASSMORPHISM & UTILS
+// // ==========================================================================
+// .glass-panel {
+//   background: var(--component-surface-raised, var(--glass-bg-c));
+//   backdrop-filter: blur(var(--glass-blur-c, 16px));
+//   border: var(--ui-border-width) solid var(--glass-border-c, var(--border-secondary));
+//   border-radius: var(--ui-border-radius-xl);
+//   padding: var(--spacing-3xl);
+//   box-shadow: var(--shadow-lg);
+//   transition: var(--transition-base);
+// }
+
+// .glass-inset {
+//   background: var(--bg-primary);
+//   border: var(--ui-border-width) solid var(--border-primary);
+//   border-radius: var(--ui-border-radius-lg);
+//   padding: var(--spacing-lg);
+//   box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+// }
+
+// .state-panel {
+//   display: flex; flex-direction: column; align-items: center; justify-content: center;
+//   padding: var(--spacing-5xl); text-align: center; min-height: 400px;
+  
+//   .loading-icon { font-size: var(--font-size-5xl); }
+//   .icon-circle {
+//     width: 64px; height: 64px; border-radius: 50%;
+//     background: var(--bg-secondary); color: var(--text-secondary);
+//     display: flex; align-items: center; justify-content: center;
+//     font-size: var(--font-size-3xl); border: var(--ui-border-width) solid var(--border-primary);
+//   }
+// }
+
+// .flex-between { display: flex; justify-content: space-between; align-items: center; }
+// .flex-col { display: flex; flex-direction: column; }
+// .flex-grow-1 { flex-grow: 1; }
+// .border-top-subtle { border-top: 1px solid var(--border-secondary); }
+
+// // Variables for spacing
+// .mb-xs { margin-bottom: var(--spacing-xs); }
+// .mb-sm { margin-bottom: var(--spacing-sm); }
+// .mb-md { margin-bottom: var(--spacing-md); }
+// .mb-lg { margin-bottom: var(--spacing-lg); }
+// .mb-xl { margin-bottom: var(--spacing-xl); }
+// .mb-2xl { margin-bottom: var(--spacing-2xl); }
+// .mb-3xl { margin-bottom: var(--spacing-3xl); }
+// .mb-4xl { margin-bottom: var(--spacing-4xl); }
+// .mt-xl { margin-top: var(--spacing-xl); }
+// .pt-lg { padding-top: var(--spacing-lg); }
+// .mr-xs { margin-right: var(--spacing-xs); }
+// .ml-sm { margin-left: var(--spacing-sm); }
+// .w-full { width: 100%; }
+
+// // ==========================================================================
+// // TEST CARDS GRID
+// // ==========================================================================
+// .test-grid {
+//   display: grid;
+//   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+//   gap: var(--spacing-3xl);
+// }
+
+// .test-card {
+//   padding: var(--spacing-2xl); // Slightly less padding inside the card than main panels
+  
+//   &:hover {
+//     transform: translateY(-4px);
+//     box-shadow: var(--shadow-xl);
+//     border-color: var(--color-primary-border);
+//   }
+
+//   .category-badge {
+//     display: flex; align-items: center; gap: var(--spacing-xs);
+//     font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold);
+//     color: var(--text-secondary); background: var(--bg-primary);
+//     padding: var(--spacing-xs) var(--spacing-md); border-radius: 20px;
+//     border: var(--ui-border-width) solid var(--border-primary);
+//   }
+
+//   .test-title {
+//     font-family: var(--font-heading); font-size: var(--font-size-2xl);
+//     font-weight: var(--font-weight-bold); color: var(--text-primary);
+//     margin: 0 0 var(--spacing-xs) 0; line-height: var(--line-height-tight);
+//   }
+
+//   .test-desc { font-size: var(--font-size-md); line-height: var(--line-height-relaxed); }
+
+//   .test-meta-grid {
+//     display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-md);
+    
+//     .meta-box {
+//       display: flex; flex-direction: column; align-items: center; justify-content: center;
+//       padding: var(--spacing-md);
+      
+//       i { font-size: var(--font-size-lg); }
+//       .meta-value { font-family: var(--font-mono); font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); color: var(--text-primary); }
+//     }
+//   }
+// }
+
+// // ==========================================================================
+// // PRIMENG TABLE GLASS OVERRIDE
+// // ==========================================================================
+// ::ng-deep .p-datatable-glass {
+//   .p-datatable-header, .p-datatable-footer, .p-paginator {
+//     background: transparent !important;
+//     border: none !important;
+//   }
+  
+//   .p-datatable-thead > tr > th {
+//     background: var(--bg-secondary) !important;
+//     color: var(--text-secondary) !important;
+//     font-family: var(--font-heading);
+//     font-size: var(--font-size-sm);
+//     text-transform: uppercase;
+//     letter-spacing: 0.05em;
+//     border-color: var(--border-secondary) !important;
+//     padding: var(--spacing-lg) var(--spacing-xl) !important;
+//   }
+
+//   .p-datatable-tbody > tr {
+//     background: transparent !important;
+//     transition: var(--transition-base);
+    
+//     &:hover { background: var(--bg-hover) !important; }
+    
+//     > td {
+//       border-color: var(--border-secondary) !important;
+//       padding: var(--spacing-lg) var(--spacing-xl) !important;
+//       color: var(--text-primary);
+//     }
+//   }
+// }

@@ -7,7 +7,13 @@ import { RouterModule } from '@angular/router';
 // PrimeNG
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService, MessageService } from 'primeng/api';
+
 import { CategoryService } from '../../../../core/services/category.service';
 
 @Component({
@@ -18,16 +24,19 @@ import { CategoryService } from '../../../../core/services/category.service';
     RouterModule,
     FormsModule,
     DatePipe,
-    NgClass,
     ConfirmDialogModule,
-    ToastModule
+    ToastModule,
+    ButtonModule,
+    InputTextModule,
+    SelectModule,
+    TagModule,
+    TooltipModule
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './category-list.component.html',
   styleUrls: ['./category-list.component.scss']
 })
 export class CategoryListComponent implements OnInit {
-  // Injectors
   private categoryService = inject(CategoryService);
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
@@ -44,9 +53,16 @@ export class CategoryListComponent implements OnInit {
   
   // Pagination Signals
   currentPage = signal<number>(1);
-  pageSize = signal<number>(10);
+  pageSize = signal<number>(12); // Best for grids (divisible by 2, 3, 4)
 
-  // Computed State (Automatically updates when dependencies change)
+  // Status Dropdown Options
+  statusOptions = [
+    { label: 'All Statuses', value: null },
+    { label: 'Active', value: true },
+    { label: 'Inactive', value: false }
+  ];
+
+  // Computed State
   stats = computed(() => {
     const cats = this.categories();
     const total = cats.length;
@@ -60,7 +76,6 @@ export class CategoryListComponent implements OnInit {
     const status = this.statusFilter();
     const sort = this.sortConfig();
 
-    // Search filter
     if (search) {
       result = result.filter(c => 
         c.name?.toLowerCase().includes(search) || 
@@ -69,12 +84,10 @@ export class CategoryListComponent implements OnInit {
       );
     }
 
-    // Status filter
     if (status !== null) {
       result = result.filter(c => c.isActive === status);
     }
 
-    // Sorting
     return result.sort((a, b) => {
       const valA = a[sort.field] ?? '';
       const valB = b[sort.field] ?? '';
@@ -84,7 +97,6 @@ export class CategoryListComponent implements OnInit {
     });
   });
 
-  // Pagination Computed
   totalPages = computed(() => Math.ceil(this.filteredAndSortedCategories().length / this.pageSize()) || 1);
   
   paginatedCategories = computed(() => {
@@ -98,7 +110,6 @@ export class CategoryListComponent implements OnInit {
 
   loadCategories(): void {
     this.loading.set(true);
-    // API Call
     this.categoryService.getAllCategory({}).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: any) => {
         const payload = res?.data?.data || res?.data || [];
@@ -112,8 +123,6 @@ export class CategoryListComponent implements OnInit {
       }
     });
   }
-
-  // --- Actions & Filters ---
 
   onSearchChange(value: string): void {
     this.searchQuery.set(value);
@@ -131,27 +140,18 @@ export class CategoryListComponent implements OnInit {
     this.currentPage.set(1);
   }
 
-  sortBy(field: string): void {
-    const current = this.sortConfig();
-    const order = current.field === field ? current.order * -1 : 1;
-    this.sortConfig.set({ field, order });
-  }
-
   changePage(page: number): void {
     if (page >= 1 && page <= this.totalPages()) {
       this.currentPage.set(page);
     }
   }
 
-  // --- Dialog Handlers (Removed) ---
-  // openNewCategoryDialog, addSubCategory, viewCategory, editCategory, etc., 
-  // have been removed since navigation is now handled via routerLink in HTML.
-
   deleteCategory(category: any): void {
     this.confirmationService.confirm({
       message: `Are you sure you want to delete "${category.name}"?`,
       header: 'Confirm Delete',
       icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
         this.categoryService.deleteCategory(category._id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
           next: () => {
@@ -169,35 +169,29 @@ export class CategoryListComponent implements OnInit {
 }
 
 // import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
+
 // import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 // import { CommonModule, DatePipe, NgClass } from '@angular/common';
 // import { FormsModule } from '@angular/forms';
 // import { RouterModule } from '@angular/router';
 
 // // PrimeNG
-// import { DialogModule } from 'primeng/dialog';
 // import { ConfirmDialogModule } from 'primeng/confirmdialog';
 // import { ToastModule } from 'primeng/toast';
 // import { ConfirmationService, MessageService } from 'primeng/api';
 // import { CategoryService } from '../../../../core/services/category.service';
-// import { CategoryDetailComponent } from '../category-detail/category-detail.component';
-// import { CategoryFormComponent } from '../category-form/category-form.component';
-
-// // Local Components & Services
 
 // @Component({
 //   selector: 'app-category-list',
 //   standalone: true,
 //   imports: [
+//     CommonModule,
 //     RouterModule,
 //     FormsModule,
 //     DatePipe,
 //     NgClass,
-//     DialogModule,
 //     ConfirmDialogModule,
-//     ToastModule,
-//     CategoryFormComponent,
-//     CategoryDetailComponent
+//     ToastModule
 //   ],
 //   providers: [ConfirmationService, MessageService],
 //   templateUrl: './category-list.component.html',
@@ -222,14 +216,6 @@ export class CategoryListComponent implements OnInit {
 //   // Pagination Signals
 //   currentPage = signal<number>(1);
 //   pageSize = signal<number>(10);
-
-//   // Dialog State Signals
-//   showFormDialog = signal<boolean>(false);
-//   showDetailDialog = signal<boolean>(false);
-//   selectedCategoryId = signal<string | null>(null);
-//   selectedCategory = signal<any>(null);
-//   parentCategoryId = signal<string | null>(null);
-//   dialogTitle = signal<string>('Add New Category');
 
 //   // Computed State (Automatically updates when dependencies change)
 //   stats = computed(() => {
@@ -300,8 +286,6 @@ export class CategoryListComponent implements OnInit {
 
 //   // --- Actions & Filters ---
 
-
-//   // :id/edit
 //   onSearchChange(value: string): void {
 //     this.searchQuery.set(value);
 //     this.currentPage.set(1);
@@ -330,33 +314,9 @@ export class CategoryListComponent implements OnInit {
 //     }
 //   }
 
-//   // --- Dialog Handlers ---
-
-//   openNewCategoryDialog(): void {
-//     this.selectedCategoryId.set(null);
-//     this.parentCategoryId.set(null);
-//     this.dialogTitle.set('Add New Category');
-//     this.showFormDialog.set(true);
-//   }
-
-//   addSubCategory(parentCategory: any): void {
-//     this.selectedCategoryId.set(null);
-//     this.parentCategoryId.set(parentCategory._id);
-//     this.dialogTitle.set(`Add Subcategory under ${parentCategory.name}`);
-//     this.showFormDialog.set(true);
-//   }
-
-//   viewCategory(category: any): void {
-//     this.selectedCategory.set(category);
-//     this.showDetailDialog.set(true);
-//   }
-
-//   editCategory(category: any): void {
-//     this.selectedCategoryId.set(category._id);
-//     this.parentCategoryId.set(category.parentCategory);
-//     this.dialogTitle.set('Edit Category');
-//     this.showFormDialog.set(true);
-//   }
+//   // --- Dialog Handlers (Removed) ---
+//   // openNewCategoryDialog, addSubCategory, viewCategory, editCategory, etc., 
+//   // have been removed since navigation is now handled via routerLink in HTML.
 
 //   deleteCategory(category: any): void {
 //     this.confirmationService.confirm({
@@ -376,34 +336,5 @@ export class CategoryListComponent implements OnInit {
 //         });
 //       }
 //     });
-//   }
-
-//   onCategorySaved(category: any): void {
-//     this.messageService.add({
-//       severity: 'success',
-//       summary: 'Success',
-//       detail: `Category ${this.selectedCategoryId() ? 'updated' : 'created'} successfully`
-//     });
-//     this.closeFormDialog();
-//     this.loadCategories();
-//   }
-
-//   closeFormDialog(): void {
-//     this.showFormDialog.set(false);
-//     this.selectedCategoryId.set(null);
-//     this.parentCategoryId.set(null);
-//   }
-
-//   editFromDetail(): void {
-//     this.closeDetailDialog();
-//     setTimeout(() => {
-//       this.dialogTitle.set('Edit Category');
-//       this.showFormDialog.set(true);
-//     }, 150);
-//   }
-
-//   closeDetailDialog(): void {
-//     this.showDetailDialog.set(false);
-//     this.selectedCategory.set(null);
 //   }
 // }

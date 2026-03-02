@@ -2,6 +2,137 @@
   
   @if (isLoading()) {
     <div class="state-overlay cinematic-bg">
+      <div class="loader-ring mb-xl"></div>
+      <p class="text-secondary font-heading loading-text">Loading your command center...</p>
+    </div>
+  } @else {
+    
+    <div class="welcome-banner glass-panel">
+      <div class="banner-content">
+        <h1 class="gradient-text font-heading m-0">Welcome back, Instructor</h1>
+        <p class="text-secondary mt-sm mb-0">Here's what's happening with your courses today.</p>
+      </div>
+      <div class="banner-actions flex gap-md mt-xl md:mt-0">
+        <p-button label="View All Courses" icon="pi pi-list" severity="secondary" [outlined]="true" routerLink="/instructor/courses"></p-button>
+        <p-button label="Create Course" icon="pi pi-plus" routerLink="/instructor/courses/new"></p-button>
+      </div>
+    </div>
+
+    <div class="stats-grid mt-4xl">
+      <div class="bento-box glass-panel surface-raised hover-lift">
+        <div class="stat-icon-wrapper bg-success-light"><i class="pi pi-wallet text-success"></i></div>
+        <div class="stat-info">
+          <span class="stat-label">Lifetime Revenue</span>
+          <span class="stat-value font-heading text-primary">{{ macroStats().lifetimeRevenue | currency:'USD':'symbol':'1.0-0' }}</span>
+        </div>
+      </div>
+      
+      <div class="bento-box glass-panel surface-raised hover-lift">
+        <div class="stat-icon-wrapper bg-info-light"><i class="pi pi-users text-info"></i></div>
+        <div class="stat-info">
+          <span class="stat-label">Total Students</span>
+          <span class="stat-value font-heading text-primary">{{ macroStats().totalStudents | number }}</span>
+        </div>
+      </div>
+
+      <div class="bento-box glass-panel surface-raised hover-lift">
+        <div class="stat-icon-wrapper bg-primary-light"><i class="pi pi-book text-primary"></i></div>
+        <div class="stat-info">
+          <span class="stat-label">Active Courses</span>
+          <span class="stat-value font-heading text-primary">{{ macroStats().activeCourses }}</span>
+        </div>
+      </div>
+
+      <div class="bento-box glass-panel surface-raised hover-lift">
+        <div class="stat-icon-wrapper bg-warning-light"><i class="pi pi-star-fill text-warning"></i></div>
+        <div class="stat-info">
+          <span class="stat-label">Average Rating</span>
+          <span class="stat-value font-heading text-primary">{{ macroStats().averageRating | number:'1.1-1' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-grid mt-4xl">
+      
+      <div class="left-col">
+        <div class="glass-panel h-full">
+          <div class="section-header flex-between mb-2xl pb-md border-bottom-subtle">
+            <h2 class="section-title font-heading text-xl m-0 flex align-items-center gap-sm">
+              <i class="pi pi-chart-line text-primary"></i> Top Performing Courses
+            </h2>
+            <p-button icon="pi pi-arrow-right" [rounded]="true" [text]="true" severity="secondary" routerLink="/instructor/courses" pTooltip="View All"></p-button>
+          </div>
+
+          <div class="top-courses-list flex-col gap-lg">
+            @for (course of topCourses(); track course._id; let i = $index) {
+              <div class="top-course-item glass-inset surface-subtle p-md border-radius-lg flex align-items-center gap-lg">
+                <div class="rank-badge font-heading text-tertiary text-2xl font-bold w-2rem text-center">{{ i + 1 }}</div>
+                
+                <div class="course-thumbnail bg-ternary border-radius-md overflow-hidden flex-shrink-0">
+                  @if (course.thumbnail) {
+                    <img [src]="course.thumbnail" [alt]="course.title" class="w-full h-full object-cover">
+                  } @else {
+                    <div class="no-img w-full h-full flex-center text-tertiary bg-secondary"><i class="pi pi-image text-xl"></i></div>
+                  }
+                </div>
+
+                <div class="course-details flex-grow-1 overflow-hidden">
+                  <h4 class="c-title text-primary text-md font-bold m-0 mb-xs white-space-nowrap overflow-hidden text-overflow-ellipsis">{{ course.title }}</h4>
+                  <div class="c-meta flex gap-md font-mono text-sm">
+                    <span class="meta-pill text-secondary flex align-items-center gap-xs"><i class="pi pi-users"></i> {{ course.totalEnrollments || 0 }}</span>
+                    <span class="meta-pill text-success flex align-items-center gap-xs"><i class="pi pi-dollar"></i> {{ (course.totalEnrollments || 0) * (course.discountPrice || course.price || 0) | number:'1.0-0' }}</span>
+                  </div>
+                </div>
+
+                <p-button icon="pi pi-chart-bar" severity="secondary" [rounded]="true" [text]="true" [routerLink]="['/instructor/courses', course._id, 'analytics']" pTooltip="Analytics"></p-button>
+              </div>
+            } @empty {
+              <div class="empty-state flex-col flex-center text-center py-5xl">
+                <i class="pi pi-box text-5xl text-tertiary mb-md"></i>
+                <p class="text-secondary mb-lg">No published courses yet.</p>
+                <p-button label="Create One Now" routerLink="/instructor/courses/new"></p-button>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="right-col">
+        <div class="glass-panel h-full">
+          <h2 class="section-title font-heading text-xl m-0 mb-2xl flex align-items-center gap-sm">
+            <i class="pi pi-bell text-info"></i> Recent Activity
+          </h2>
+          
+          <div class="timeline-container relative pl-xl">
+            @for (activity of recentActivity(); track activity.id) {
+              <div class="timeline-item relative pb-3xl flex gap-lg">
+                <div class="t-connector absolute border-radius-sm"></div>
+                
+                <div class="t-icon-wrapper flex-shrink-0 flex-center border-radius-full z-1" [ngClass]="activity.bg">
+                  <i class="pi text-sm" [ngClass]="[activity.icon, activity.color]"></i>
+                </div>
+                
+                <div class="t-content glass-inset surface-subtle flex-grow-1 p-lg border-radius-lg relative top-negative-xs">
+                  <p class="t-text text-primary text-sm line-height-relaxed m-0 mb-xs">{{ activity.text }}</p>
+                  <span class="t-time text-tertiary font-mono text-xs">{{ activity.time | date:'MMM d, h:mm a' }}</span>
+                </div>
+              </div>
+            } @empty {
+              <p class="text-tertiary italic text-center font-sm">It's quiet... too quiet. Activity will appear here soon.</p>
+            }
+          </div>
+        </div>
+      </div>
+
+    </div>
+  }
+</div>
+
+
+<!-- <div class="dashboard-container">
+  
+  @if (isLoading()) {
+    <div class="state-overlay cinematic-bg">
       <div class="loader-ring"></div>
       <p class="text-secondary mt-xl loading-text">Loading your command center...</p>
     </div>
@@ -126,4 +257,4 @@
 
     </div>
   }
-</div>
+</div> -->

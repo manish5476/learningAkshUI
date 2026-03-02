@@ -11,13 +11,15 @@ import { InputTextModule } from 'primeng/inputtext';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DragDropModule } from 'primeng/dragdrop';
 import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
 import { MessageService, ConfirmationService } from 'primeng/api';
+
+// Internal Services & Components
 import { CourseService } from '../../../../core/services/course.service';
 import { SectionService } from '../../../../core/services/section.service';
 import { LessonListComponent } from "../../../lesson/components/lesson-list/lesson-list.component";
 import { DurationPipe } from "../../../../core/pipes/duration.pipe";
-
-// Services
 
 @Component({
   selector: 'app-course-curriculum',
@@ -33,15 +35,16 @@ import { DurationPipe } from "../../../../core/pipes/duration.pipe";
     CheckboxModule,
     DragDropModule,
     TooltipModule,
+    ButtonModule,
+    TagModule,
     LessonListComponent,
     DurationPipe
-],
+  ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './course-curriculum.component.html',
   styleUrl: './course-curriculum.component.scss'
 })
 export class CourseCurriculumComponent implements OnInit {
-  // Injections
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
   private sectionService = inject(SectionService);
@@ -51,8 +54,8 @@ export class CourseCurriculumComponent implements OnInit {
 
   // Signals
   courseId = signal<string>('');
-  course = signal<any>(null); // Replace 'any' with your Course interface
-  sections = signal<any[]>([]); // Replace 'any' with your Section interface
+  course = signal<any>(null); 
+  sections = signal<any[]>([]); 
   loading = signal<boolean>(true);
   
   // Dialog State
@@ -72,7 +75,6 @@ export class CourseCurriculumComponent implements OnInit {
   // Computed Properties (Derived State)
   sectionDialogTitle = computed(() => this.editingSectionId() ? 'Edit Section' : 'Add New Section');
   
-  // Calculate totals dynamically based on the sections array
   totalSections = computed(() => this.sections().length);
   totalLessons = computed(() => 
     this.sections().reduce((acc, curr) => acc + (curr.totalLessons || 0), 0)
@@ -82,7 +84,6 @@ export class CourseCurriculumComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    // Extract ID from route (e.g., /courses/:id/curriculum)
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.courseId.set(id);
@@ -93,25 +94,20 @@ export class CourseCurriculumComponent implements OnInit {
   loadData(): void {
     this.loading.set(true);
     
-    // Fetch Course Details
     this.courseService.getCoursesById(this.courseId()).subscribe({
       next: (res: any) => {
-        // Unwrapping the double data structure based on your JSON snippet
-        // { "status": "success", "data": { "data": { ... } } }
-        const courseData = res.data?.data || res.data; 
+        const courseData = res.data?.data || res.data?.course || res.data; 
         this.course.set(courseData);
       },
       error: (err) => this.showError('Failed to load course details')
     });
 
-    // Fetch Sections
     this.loadSections();
   }
 
   loadSections(): void {
     this.sectionService.getSectionsByCourse(this.courseId()).subscribe({
       next: (res: any) => {
-        // Map over sections to ensure 'expanded' property exists for UI toggling
         const sectionsData = (res.data?.data || res.data || []).map((s: any) => ({
           ...s,
           expanded: false
@@ -157,28 +153,26 @@ export class CourseCurriculumComponent implements OnInit {
 
     const formData = {
       ...this.sectionForm.value,
-      course: this.courseId() // Link section to current course
+      course: this.courseId() 
     };
 
     const editId = this.editingSectionId();
 
     if (editId) {
-      // Update existing
       this.sectionService.updateSection(editId, formData).subscribe({
         next: () => {
           this.showSuccess('Section updated successfully');
           this.closeSectionDialog();
-          this.loadSections(); // Refresh list
+          this.loadSections(); 
         },
         error: () => this.showError('Failed to update section')
       });
     } else {
-      // Create new
       this.sectionService.createSection(formData).subscribe({
         next: () => {
           this.showSuccess('Section created successfully');
           this.closeSectionDialog();
-          this.loadSections(); // Refresh list
+          this.loadSections(); 
         },
         error: () => this.showError('Failed to create section')
       });
@@ -227,32 +221,28 @@ export class CourseCurriculumComponent implements OnInit {
     const fromIndex = this.draggedSectionIndex();
     if (fromIndex === null) return;
 
-    // Determine drop target index based on the element dropped on
     const target = event.target.closest('.section-card');
     if (!target) return;
     
     const toIndex = parseInt(target.getAttribute('data-index'), 10);
     if (isNaN(toIndex) || fromIndex === toIndex) return;
 
-    // Reorder locally first for instant UI feedback
     const updatedSections = [...this.sections()];
     const [movedSection] = updatedSections.splice(fromIndex, 1);
     updatedSections.splice(toIndex, 0, movedSection);
     
     this.sections.set(updatedSections);
 
-    // Prepare payload for backend: { id: string, order: number }[]
     const reorderPayload = updatedSections.map((sec, index) => ({
       id: sec._id,
       order: index
     }));
 
-    // Send to backend
     this.sectionService.reorderSections(this.courseId(), reorderPayload).subscribe({
       next: () => this.showSuccess('Sections reordered'),
       error: () => {
         this.showError('Failed to save new order');
-        this.loadSections(); // Revert on failure
+        this.loadSections(); 
       }
     });
   }

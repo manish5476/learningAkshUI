@@ -1,6 +1,99 @@
 <div class="dashboard-container fade-in">
   <p-toast position="top-right"></p-toast>
 
+  <div class="glass-panel header-panel mb-2xl">
+    <div class="header-content flex-col md:flex-row flex-between gap-lg">
+      <div>
+        <h1 class="page-title text-primary font-heading m-0 mb-xs">My Learning Dashboard</h1>
+        <p class="text-secondary m-0">Track your progress and pick up right where you left off.</p>
+      </div>
+      <div class="stats-badges flex gap-sm">
+        <span class="stat-badge glass-inset">
+          <i class="pi pi-book text-primary"></i>
+          <strong class="font-heading">{{ activeCoursesCount() }}</strong> Active
+        </span>
+        <span class="stat-badge glass-inset">
+          <i class="pi pi-check-circle text-success"></i>
+          <strong class="font-heading">{{ completedCoursesCount() }}</strong> Completed
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="course-grid">
+    @if (isLoading()) {
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="glass-panel course-card skeleton-card flex-col">
+          <p-skeleton width="100%" height="12rem" borderRadius="var(--ui-border-radius-lg) var(--ui-border-radius-lg) 0 0"></p-skeleton>
+          <div class="p-xl flex-col flex-grow-1 gap-md">
+            <p-skeleton width="80%" height="1.5rem"></p-skeleton>
+            <p-skeleton width="60%" height="1rem"></p-skeleton>
+            <p-skeleton width="100%" height="0.5rem" styleClass="mt-md"></p-skeleton>
+            <div class="flex-between mt-auto pt-md">
+              <p-skeleton width="100%" height="2.5rem" borderRadius="var(--ui-border-radius-lg)"></p-skeleton>
+            </div>
+          </div>
+        </div>
+      }
+    } @else if (enrollments().length === 0) {
+      <div class="glass-panel empty-state col-span-full flex-col flex-center text-center">
+        <div class="empty-icon-wrapper flex-center bg-ternary mb-lg">
+          <i class="pi pi-compass text-tertiary"></i>
+        </div>
+        <h3 class="font-heading text-primary text-2xl m-0 mb-xs">No Active Enrollments</h3>
+        <p class="text-secondary mb-xl">You haven't enrolled in any courses yet. Start exploring our catalog!</p>
+        <p-button label="Browse Courses" icon="pi pi-search" routerLink="/courses"></p-button>
+      </div>
+    } @else {
+      @for (enrollment of enrollments(); track enrollment._id) {
+        <div class="glass-panel course-card surface-raised flex-col hover-lift">
+          
+          <div class="course-image-wrapper border-bottom-subtle relative bg-ternary">
+            <img [src]="getCourseThumbnail(enrollment)" [alt]="getCourseTitle(enrollment)" class="course-image w-full h-full object-cover" loading="lazy">
+            <div class="course-status-overlay absolute">
+              @if ((enrollment.progress?.courseProgressPercentage || 0) === 100) {
+                <p-tag severity="success" value="Completed" icon="pi pi-check"></p-tag>
+              } @else {
+                <p-tag severity="info" value="In Progress" icon="pi pi-sync"></p-tag>
+              }
+            </div>
+          </div>
+
+          <div class="course-content p-xl flex-col flex-grow-1">
+            <h3 class="course-title font-heading text-primary text-lg font-bold m-0 mb-xs line-clamp-2" [title]="getCourseTitle(enrollment)">
+              {{ getCourseTitle(enrollment) }}
+            </h3>
+
+            <p class="instructor-name text-secondary text-sm m-0 mb-lg flex align-items-center gap-xs">
+              <i class="pi pi-user text-xs"></i> {{ getInstructorName(enrollment) }}
+            </p>
+
+            <div class="progress-section mt-auto mb-lg">
+              <div class="flex-between mb-xs">
+                <span class="progress-text text-secondary text-sm font-bold uppercase tracking-widest">Progress</span>
+                <span class="progress-percentage text-primary font-mono font-bold">{{ enrollment.progress?.courseProgressPercentage || 0 }}%</span>
+              </div>
+              <p-progressBar [value]="enrollment.progress?.courseProgressPercentage || 0" [showValue]="false" styleClass="custom-progress"></p-progressBar>
+            </div>
+
+            <div class="course-actions flex gap-sm pt-md border-top-subtle">
+              @if ((enrollment.progress?.courseProgressPercentage || 0) === 100) {
+                <p-button label="Review" icon="pi pi-star" severity="secondary" [outlined]="true" class="flex-grow-1 w-full" styleClass="w-full" (onClick)="goToCourse(enrollment)"></p-button>
+                <p-button icon="pi pi-file-pdf" severity="success" [outlined]="true" pTooltip="Download Certificate" (onClick)="downloadCertificate(enrollment._id)"></p-button>
+              } @else {
+                <p-button label="Continue Learning" icon="pi pi-play" class="w-full" styleClass="w-full" (onClick)="goToCourse(enrollment)"></p-button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>
+
+<!-- <div class="dashboard-container fade-in">
+  <p-toast position="top-right"></p-toast>
+
   <div class="glass-panel header-panel">
     <div class="header-content">
       <div>
@@ -96,4 +189,4 @@
     }
     }
   </div>
-</div>
+</div> -->

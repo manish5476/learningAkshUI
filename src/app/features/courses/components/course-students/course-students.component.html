@@ -1,4 +1,121 @@
-<div class="roster-container">
+<div class="roster-container fade-in">
+  <p-toast position="top-right"></p-toast>
+  <p-confirmDialog styleClass="glass-dialog"></p-confirmDialog>
+
+  <header class="dashboard-header glass-panel border-bottom-subtle mb-3xl">
+    <div class="header-content max-w-screen flex-col md:flex-row flex-between gap-xl">
+      
+      <div class="header-left flex align-items-center gap-lg">
+        <p-button icon="pi pi-arrow-left" severity="secondary" [text]="true" [rounded]="true" [routerLink]="['/instructor/courses', courseId()]" pTooltip="Back to Course"></p-button>
+        <div>
+          <h1 class="page-title font-heading text-3xl md:text-4xl text-primary m-0 mb-xs line-height-tight">Student Roster</h1>
+          <p class="course-title text-secondary m-0 font-mono text-sm font-bold flex align-items-center gap-xs">
+            <i class="pi pi-book"></i> {{ courseTitle() }}
+          </p>
+        </div>
+      </div>
+
+      <div class="header-right flex-col md:flex-row align-items-center gap-md w-full md:w-auto">
+        <span class="p-input-icon-left w-full md:w-auto search-wrapper">
+          <i class="pi pi-search text-tertiary"></i>
+          <input type="text" pInputText [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="Search by name or email..." class="w-full">
+        </span>
+        <p-button label="Export CSV" icon="pi pi-download" severity="secondary" [outlined]="true" class="w-full md:w-auto" styleClass="w-full"></p-button>
+      </div>
+
+    </div>
+  </header>
+
+  <main class="max-w-screen">
+    <div class="table-container glass-panel surface-raised">
+      
+      <div class="table-header-row mb-2xl pb-md border-bottom-subtle flex-between">
+        <h3 class="m-0 font-heading text-xl text-primary flex align-items-center gap-sm">
+          <i class="pi pi-users text-info"></i> Enrolled Students <p-tag [value]="filteredStudents().length.toString()" severity="info" [rounded]="true"></p-tag>
+        </h3>
+      </div>
+
+      @if (isLoading()) {
+        <div class="loading-state flex-col flex-center py-5xl">
+          <div class="loader-ring mb-lg"></div>
+          <p class="text-secondary font-heading font-bold uppercase tracking-widest text-sm m-0">Loading student data...</p>
+        </div>
+      } @else if (filteredStudents().length > 0) {
+        
+        <div class="roster-grid flex-col gap-md">
+          
+          <div class="roster-headers hidden-mobile px-xl pb-sm text-xs font-bold uppercase tracking-widest text-tertiary">
+            <div class="col-profile">Student Profile</div>
+            <div class="col-date">Enrolled Date</div>
+            <div class="col-status">Payment Info</div>
+            <div class="col-progress">Course Progress</div>
+            <div class="col-actions text-right">Actions</div>
+          </div>
+
+          @for (enrollment of filteredStudents(); track enrollment._id) {
+            <div class="roster-card glass-inset surface-subtle border-radius-lg p-lg md:px-xl transition-base hover-border-primary">
+              
+              <div class="roster-row">
+                
+                <div class="col-profile flex align-items-center gap-md">
+                  @if (enrollment.student?.profilePicture) {
+                    <p-avatar [image]="enrollment.student.profilePicture" shape="circle" size="large"></p-avatar>
+                  } @else {
+                    <p-avatar [label]="getInitials(enrollment.student?.firstName, enrollment.student?.lastName)" shape="circle" size="large" styleClass="bg-primary-light text-primary font-bold"></p-avatar>
+                  }
+                  <div class="s-info flex-col">
+                    <span class="s-name font-heading font-bold text-primary">{{ enrollment.student?.firstName }} {{ enrollment.student?.lastName }}</span>
+                    <span class="s-email text-sm text-secondary font-mono">{{ enrollment.student?.email }}</span>
+                  </div>
+                </div>
+
+                <div class="col-date flex flex-col md:flex-row md:align-items-center gap-xs">
+                  <span class="mobile-label text-xs uppercase text-tertiary font-bold lg-hidden">Enrolled</span>
+                  <span class="font-mono text-sm text-secondary font-bold">{{ enrollment.enrolledAt | date:'mediumDate' }}</span>
+                </div>
+
+                <div class="col-status flex flex-col md:flex-row md:align-items-center gap-xs">
+                  <span class="mobile-label text-xs uppercase text-tertiary font-bold lg-hidden">Status</span>
+                  @if (enrollment.payment) {
+                    <p-tag value="Paid" severity="success"></p-tag>
+                  } @else {
+                    <p-tag value="Free / Manual" severity="info"></p-tag>
+                  }
+                </div>
+
+                <div class="col-progress flex flex-col justify-content-center gap-xs w-full">
+                  <div class="flex-between w-full">
+                    <span class="mobile-label text-xs uppercase text-tertiary font-bold lg-hidden">Progress</span>
+                    <span class="text-xs font-mono font-bold" [ngClass]="(enrollment.progress?.courseProgressPercentage || 0) === 100 ? 'text-success' : 'text-primary'">
+                      {{ enrollment.progress?.courseProgressPercentage || 0 }}%
+                    </span>
+                  </div>
+                  <p-progressBar [value]="enrollment.progress?.courseProgressPercentage || 0" [showValue]="false" styleClass="custom-progress"></p-progressBar>
+                </div>
+
+                <div class="col-actions flex align-items-center justify-content-end border-top-subtle md:border-none pt-md md:pt-0 mt-md md:mt-0">
+                  <p-button icon="pi pi-ban" severity="danger" [text]="true" [rounded]="true" pTooltip="Revoke Access" tooltipPosition="left" (onClick)="revokeAccess(enrollment)" class="w-full md:w-auto" styleClass="w-full md:w-auto"></p-button>
+                </div>
+
+              </div>
+            </div>
+          }
+        </div>
+
+      } @else {
+        <div class="empty-state flex-col flex-center text-center py-5xl border-dashed border-secondary border-radius-xl">
+          <div class="empty-icon-wrapper flex-center border-radius-full bg-ternary mb-lg border-primary">
+            <i class="pi pi-users text-4xl text-tertiary"></i>
+          </div>
+          <h3 class="font-heading text-2xl text-primary font-bold m-0 mb-xs">No students found</h3>
+          <p class="text-secondary m-0 max-w-prose">We couldn't find any students matching your criteria.</p>
+        </div>
+      }
+    </div>
+  </main>
+</div>
+
+<!-- <div class="roster-container">
   <p-toast position="top-right"></p-toast>
   <p-confirmDialog styleClass="glass-dialog" [style]="{width: '450px'}"></p-confirmDialog>
 
@@ -113,4 +230,4 @@
       </div>
     }
   </div>
-</div>
+</div> -->

@@ -16,7 +16,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { MockTestService } from '../../../core/services/mock-test.service';
 
 interface AnswerMap {
-  [questionId: string]: number; // Maps questionId to selectedOptionIndex
+  [questionId: string]: number;
 }
 
 @Component({
@@ -48,6 +48,7 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
   attemptId = signal<string>('');
   testState = signal<'intro' | 'in-progress' | 'submitting'>('intro');
   isLoading = signal<boolean>(false);
+  isMobilePaletteOpen = signal<boolean>(false); 
   
   // Test Data
   mockTest = signal<any>(null);
@@ -58,7 +59,7 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
   answers = signal<AnswerMap>({});
   
   // Timer State
-  timeRemaining = signal<number>(0); // in seconds
+  timeRemaining = signal<number>(0); 
   private timerInterval: any;
 
   // Computed Values
@@ -83,7 +84,7 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   });
 
-  isTimerDanger = computed(() => this.timeRemaining() < 300 && this.timeRemaining() > 0); // Red when < 5 mins left
+  isTimerDanger = computed(() => this.timeRemaining() < 300 && this.timeRemaining() > 0); 
 
   ngOnInit(): void {
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
@@ -98,7 +99,6 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
     this.clearTimer();
   }
 
-  // --- Step 1: Intro Screen ---
   private fetchTestIntro(id: string): void {
     this.isLoading.set(true);
     this.mockTestService.getById(id)
@@ -115,10 +115,8 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
       });
   }
 
-  // --- Step 2: Start the Exam ---
   startTest(): void {
     this.isLoading.set(true);
-    
     this.mockTestService.startAttempt(this.testId())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -127,7 +125,6 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
           this.attemptId.set(payload.attempt._id);
           this.questions.set(payload.questions);
           
-          // Setup timer (duration is in minutes from backend)
           const durationMins = this.mockTest()?.duration || 30;
           this.timeRemaining.set(durationMins * 60);
           this.startTimer();
@@ -142,7 +139,6 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
       });
   }
 
-  // --- Timer Logic ---
   private startTimer(): void {
     this.clearTimer();
     this.timerInterval = setInterval(() => {
@@ -165,17 +161,16 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
     this.submitTest(true);
   }
 
-  // --- Interaction Logic ---
   selectOption(optionIndex: number): void {
     const qId = this.currentQuestion()?._id;
     if (qId) {
-      // Create a new reference of the object to ensure Angular/Signals detect the change
       this.answers.update(current => ({ ...current, [qId]: optionIndex }));
     }
   }
 
   goToQuestion(index: number): void {
     this.currentIndex.set(index);
+    this.isMobilePaletteOpen.set(false); // Auto-close drawer on mobile
   }
 
   nextQuestion(): void {
@@ -194,7 +189,10 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
     return this.answers()[questionId] !== undefined;
   }
 
-  // --- Step 3: Submission ---
+  togglePalette(): void {
+    this.isMobilePaletteOpen.update(v => !v);
+  }
+
   confirmSubmit(): void {
     const unanswered = this.totalQuestions() - this.answeredCount();
     const msg = unanswered > 0 
@@ -213,7 +211,6 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
     this.clearTimer();
     this.testState.set('submitting');
     
-    // Format answers exactly as your JSON requires: { questionId, selectedOptionIndex }
     const answerPayload = Object.keys(this.answers()).map(qId => ({
       questionId: qId,
       selectedOptionIndex: this.answers()[qId]
@@ -226,13 +223,12 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
           this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Test submitted successfully!' });
           setTimeout(() => {
             this.router.navigate(['/mock-tests/results', this.attemptId()]);
-            // this.router.navigate(['/instructor/mock-tests/results', this.attemptId()]);
           }, 1500);
         },
         error: () => {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to submit test.' });
-          this.testState.set('in-progress'); // Revert state so they can try again
-          this.startTimer(); // Restart timer
+          this.testState.set('in-progress'); 
+          this.startTimer(); 
         }
       });
   }
@@ -241,3 +237,247 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
     this.router.navigate(['/mock-tests']);
   }
 }
+
+// import { Component, OnInit, OnDestroy, inject, DestroyRef, signal, computed } from '@angular/core';
+// import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+// import { CommonModule } from '@angular/common';
+// import { FormsModule } from '@angular/forms';
+// import { ActivatedRoute, Router } from '@angular/router';
+
+// // PrimeNG
+// import { ButtonModule } from 'primeng/button';
+// import { RadioButtonModule } from 'primeng/radiobutton';
+// import { TagModule } from 'primeng/tag';
+// import { ConfirmDialogModule } from 'primeng/confirmdialog';
+// import { ToastModule } from 'primeng/toast';
+// import { TooltipModule } from 'primeng/tooltip';
+// import { ConfirmationService, MessageService } from 'primeng/api';
+
+// // Services
+// import { MockTestService } from '../../../core/services/mock-test.service';
+
+// interface AnswerMap {
+//   [questionId: string]: number; // Maps questionId to selectedOptionIndex
+// }
+
+// @Component({
+//   selector: 'app-mock-test-taker',
+//   standalone: true,
+//   imports: [
+//     CommonModule,
+//     FormsModule,
+//     ButtonModule,
+//     RadioButtonModule,
+//     TagModule,
+//     ConfirmDialogModule,
+//     ToastModule,
+//     TooltipModule
+//   ],
+//   providers: [ConfirmationService, MessageService],
+//   templateUrl: './mock-test-taker.component.html',
+//   styleUrls: ['./mock-test-taker.component.scss']
+// })
+// export class MockTestTakerComponent implements OnInit, OnDestroy {
+//   private route = inject(ActivatedRoute);
+//   private router = inject(Router);
+//   private mockTestService = inject(MockTestService);
+//   private confirmationService = inject(ConfirmationService);
+//   private messageService = inject(MessageService);
+//   private destroyRef = inject(DestroyRef);
+
+//   // Core State
+//   testId = signal<string>('');
+//   attemptId = signal<string>('');
+//   testState = signal<'intro' | 'in-progress' | 'submitting'>('intro');
+//   isLoading = signal<boolean>(false);
+//   isMobilePaletteOpen = signal<boolean>(false); // Drawer state
+  
+//   // Test Data
+//   mockTest = signal<any>(null);
+//   questions = signal<any[]>([]);
+  
+//   // User Interaction State
+//   currentIndex = signal<number>(0);
+//   answers = signal<AnswerMap>({});
+  
+//   // Timer State
+//   timeRemaining = signal<number>(0); // in seconds
+//   private timerInterval: any;
+
+//   // Computed Values
+//   currentQuestion = computed(() => {
+//     const qList = this.questions();
+//     const idx = this.currentIndex();
+//     return qList.length > 0 ? qList[idx] : null;
+//   });
+
+//   answeredCount = computed(() => Object.keys(this.answers()).length);
+//   totalQuestions = computed(() => this.questions().length);
+
+//   formattedTimer = computed(() => {
+//     const totalSeconds = this.timeRemaining();
+//     const hours = Math.floor(totalSeconds / 3600);
+//     const minutes = Math.floor((totalSeconds % 3600) / 60);
+//     const seconds = totalSeconds % 60;
+    
+//     if (hours > 0) {
+//       return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+//     }
+//     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+//   });
+
+//   isTimerDanger = computed(() => this.timeRemaining() < 300 && this.timeRemaining() > 0); // Red when < 5 mins left
+
+//   ngOnInit(): void {
+//     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+//       if (params['id']) {
+//         this.testId.set(params['id']);
+//         this.fetchTestIntro(params['id']);
+//       }
+//     });
+//   }
+
+//   ngOnDestroy(): void {
+//     this.clearTimer();
+//   }
+
+//   private fetchTestIntro(id: string): void {
+//     this.isLoading.set(true);
+//     this.mockTestService.getById(id)
+//       .pipe(takeUntilDestroyed(this.destroyRef))
+//       .subscribe({
+//         next: (res: any) => {
+//           this.mockTest.set(res.data?.mockTest || res.data);
+//           this.isLoading.set(false);
+//         },
+//         error: () => {
+//           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not load test.' });
+//           this.isLoading.set(false);
+//         }
+//       });
+//   }
+
+//   startTest(): void {
+//     this.isLoading.set(true);
+//     this.mockTestService.startAttempt(this.testId())
+//       .pipe(takeUntilDestroyed(this.destroyRef))
+//       .subscribe({
+//         next: (res: any) => {
+//           const payload = res.data;
+//           this.attemptId.set(payload.attempt._id);
+//           this.questions.set(payload.questions);
+          
+//           const durationMins = this.mockTest()?.duration || 30;
+//           this.timeRemaining.set(durationMins * 60);
+//           this.startTimer();
+          
+//           this.testState.set('in-progress');
+//           this.isLoading.set(false);
+//         },
+//         error: (err: any) => {
+//           this.messageService.add({ severity: 'error', summary: 'Cannot Start', detail: err.error?.message || 'Failed to start attempt.' });
+//           this.isLoading.set(false);
+//         }
+//       });
+//   }
+
+//   private startTimer(): void {
+//     this.clearTimer();
+//     this.timerInterval = setInterval(() => {
+//       const current = this.timeRemaining();
+//       if (current > 0) {
+//         this.timeRemaining.set(current - 1);
+//       } else {
+//         this.clearTimer();
+//         this.autoSubmitTimeUp();
+//       }
+//     }, 1000);
+//   }
+
+//   private clearTimer(): void {
+//     if (this.timerInterval) clearInterval(this.timerInterval);
+//   }
+
+//   private autoSubmitTimeUp(): void {
+//     this.messageService.add({ severity: 'warn', summary: 'Time is up!', detail: 'Auto-submitting your test...', sticky: true });
+//     this.submitTest(true);
+//   }
+
+//   selectOption(optionIndex: number): void {
+//     const qId = this.currentQuestion()?._id;
+//     if (qId) {
+//       this.answers.update(current => ({ ...current, [qId]: optionIndex }));
+//     }
+//   }
+
+//   goToQuestion(index: number): void {
+//     this.currentIndex.set(index);
+//     this.isMobilePaletteOpen.set(false); // Close drawer automatically on mobile
+//   }
+
+//   nextQuestion(): void {
+//     if (this.currentIndex() < this.totalQuestions() - 1) {
+//       this.currentIndex.update(i => i + 1);
+//     }
+//   }
+
+//   prevQuestion(): void {
+//     if (this.currentIndex() > 0) {
+//       this.currentIndex.update(i => i - 1);
+//     }
+//   }
+
+//   isAnswered(questionId: string): boolean {
+//     return this.answers()[questionId] !== undefined;
+//   }
+
+//   togglePalette(): void {
+//     this.isMobilePaletteOpen.update(v => !v);
+//   }
+
+//   confirmSubmit(): void {
+//     const unanswered = this.totalQuestions() - this.answeredCount();
+//     const msg = unanswered > 0 
+//       ? `You still have ${unanswered} unanswered questions. Are you sure you want to submit?`
+//       : `You have answered all questions. Ready to submit?`;
+
+//     this.confirmationService.confirm({
+//       message: msg,
+//       header: 'Confirm Submission',
+//       icon: 'pi pi-exclamation-triangle',
+//       accept: () => this.submitTest()
+//     });
+//   }
+
+//   private submitTest(isAutoSubmit = false): void {
+//     this.clearTimer();
+//     this.testState.set('submitting');
+    
+//     const answerPayload = Object.keys(this.answers()).map(qId => ({
+//       questionId: qId,
+//       selectedOptionIndex: this.answers()[qId]
+//     }));
+
+//     this.mockTestService.submitAttempt(this.attemptId(), answerPayload)
+//       .pipe(takeUntilDestroyed(this.destroyRef))
+//       .subscribe({
+//         next: (res: any) => {
+//           this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Test submitted successfully!' });
+//           setTimeout(() => {
+//             // Update routing path if necessary
+//             this.router.navigate(['/instructor/mock-tests/results', this.attemptId()]);
+//           }, 1500);
+//         },
+//         error: () => {
+//           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to submit test.' });
+//           this.testState.set('in-progress'); 
+//           this.startTimer(); 
+//         }
+//       });
+//   }
+
+//   exitTest(): void {
+//     this.router.navigate(['/instructor/mock-tests']);
+//   }
+// }
+

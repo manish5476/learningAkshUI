@@ -1,4 +1,168 @@
-<div class="page-container">
+<div class="form-wrapper fade-in">
+  
+  <header class="page-header flex-col md:flex-row flex-between gap-xl mb-4xl pb-lg border-bottom-subtle">
+    <div class="header-titles flex-col gap-xs flex-grow-1">
+      <p-button icon="pi pi-arrow-left" [text]="true" label="Back to Categories" (onClick)="onCancel()" size="small" severity="secondary" styleClass="p-0 mb-sm align-self-start"></p-button>
+      <h1 class="title font-heading text-3xl md:text-4xl font-bold text-primary m-0 line-height-tight">{{ resolvedCategoryId() ? 'Edit Category' : 'Create New Category' }}</h1>
+      <p class="subtitle text-secondary text-md md:text-lg m-0 max-w-prose">Configure the details, URL, and appearance of your educational content catalog.</p>
+    </div>
+  </header>
+
+  <div class="form-layout-wrapper grid gap-3xl align-items-start">
+    
+    <div class="form-column flex-col col-span-full lg:col-span-8 xl:col-span-9">
+      <div class="form-card glass-panel surface-raised p-2xl md:p-4xl border-radius-xl">
+        <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" class="category-form flex-col gap-2xl">
+
+          @if (parentCategory() && !resolvedCategoryId()) {
+            <div class="info-banner flex align-items-center gap-md bg-info-light border-info border-radius-lg p-lg mb-2xl">
+              <i class="pi pi-sitemap text-info text-2xl"></i>
+              <div class="banner-content flex-col gap-xs">
+                <span class="text-xs uppercase tracking-widest font-bold text-tertiary">Adding subcategory under</span>
+                <span class="text-md font-bold text-primary">{{ parentCategory().name }}</span>
+              </div>
+            </div>
+          }
+
+          <div class="form-grid grid grid-cols-1 md:grid-cols-2 gap-xl">
+            
+            <div class="form-group flex-col gap-xs col-span-full">
+              <label class="input-label text-primary font-bold text-sm" for="name">
+                Category Name <span class="text-error">*</span>
+              </label>
+              <input id="name" type="text" pInputText formControlName="name" placeholder="e.g., Advanced Machine Learning" class="w-full premium-input" [class.input-error]="isFieldInvalid('name')">
+              <div class="helper-text-container mt-xs flex-between">
+                @if (isFieldInvalid('name')) {
+                  <small class="text-error font-bold flex align-items-center gap-xs"><i class="pi pi-exclamation-circle"></i> Category name is required</small>
+                } @else {
+                  <small class="text-tertiary text-xs">This forms the basis of your URL structure.</small>
+                }
+              </div>
+            </div>
+
+            <div class="form-group flex-col gap-xs col-span-full">
+              <label class="input-label text-primary font-bold text-sm" for="slug">URL Slug</label>
+              <div class="slug-input-group flex align-items-stretch bg-primary border-primary border-radius-lg overflow-hidden transition-base" [class.group-error]="isFieldInvalid('slug')">
+                <span class="slug-prefix flex-center px-lg bg-secondary text-tertiary font-mono text-sm border-right-subtle select-none">/categories/</span>
+                <input id="slug" type="text" formControlName="slug" placeholder="advanced-machine-learning" class="slug-input flex-grow-1 font-mono text-primary p-md border-none bg-transparent outline-none">
+              </div>
+              <div class="helper-text-container mt-xs flex-between">
+                @if (isFieldInvalid('slug')) {
+                  <small class="text-error font-bold flex align-items-center gap-xs"><i class="pi pi-exclamation-circle"></i> Use lowercase, numbers, and hyphens only</small>
+                } @else {
+                  <span></span>
+                }
+                @if (categoryForm.get('slug')?.value && !categoryForm.get('slug')?.dirty && !isFieldInvalid('slug')) {
+                  <small class="text-success font-bold flex align-items-center gap-xs"><i class="pi pi-bolt"></i> Auto-generated</small>
+                }
+              </div>
+            </div>
+
+            <div class="form-group flex-col gap-xs col-span-full">
+              <label class="input-label text-primary font-bold text-sm" for="description">Description</label>
+              <textarea id="description" pTextarea formControlName="description" placeholder="Provide a comprehensive description of what learners will find in this category..." [rows]="4" class="w-full premium-input line-height-relaxed"></textarea>
+            </div>
+
+            <div class="form-group flex-col gap-xs">
+              <label class="input-label text-primary font-bold text-sm" for="icon">Icon Class</label>
+              <div class="icon-input-wrapper flex align-items-center gap-md">
+                <div class="icon-preview-box flex-center flex-shrink-0 w-3rem aspect-ratio-1 bg-primary-light border-primary border-radius-md text-primary text-xl shadow-inner">
+                  <i [class]="categoryForm.get('icon')?.value || 'pi pi-folder'"></i>
+                </div>
+                <input id="icon" type="text" pInputText formControlName="icon" placeholder="pi pi-code" class="w-full premium-input flex-grow-1">
+              </div>
+              <small class="text-tertiary text-xs mt-xs">PrimeIcons (pi pi-*) or FontAwesome class</small>
+            </div>
+
+            <div class="form-group flex-col gap-xs">
+              <label class="input-label text-primary font-bold text-sm" for="image">Cover Image URL</label>
+              <input id="image" type="text" pInputText formControlName="image" placeholder="https://..." class="w-full premium-input">
+              <small class="text-tertiary text-xs mt-xs">Optimal size: 800x400px</small>
+            </div>
+
+            <div class="form-group flex-col gap-xs col-span-full">
+              <label class="input-label text-primary font-bold text-sm" for="parentCategory">Parent Hierarchy</label>
+              <p-select id="parentCategory" formControlName="parentCategory" [options]="categories()" [filter]="true" filterBy="name" optionLabel="name" optionValue="_id" placeholder="Select parent category (optional)" [showClear]="true" styleClass="w-full"></p-select>
+              <small class="text-tertiary text-xs mt-xs">Leave empty to establish this as a top-level root category.</small>
+            </div>
+
+            <div class="form-group flex-col col-span-full pt-md">
+              <div class="status-toggle-container glass-inset p-xl flex-col md:flex-row flex-between gap-md border-radius-lg border-secondary">
+                <div class="status-text-block flex-col gap-xs">
+                  <label class="input-label text-primary font-bold text-md m-0">Visibility Status</label>
+                  <p class="text-tertiary text-sm m-0">Toggle to hide or show this category across the platform.</p>
+                </div>
+                <div class="toggle-wrapper flex align-items-center gap-md">
+                  <span class="font-bold text-sm transition-colors" [class.text-tertiary]="categoryForm.get('isActive')?.value" [class.text-secondary]="!categoryForm.get('isActive')?.value">Hidden</span>
+                  <p-toggleswitch formControlName="isActive"></p-toggleswitch>
+                  <span class="font-bold text-sm transition-colors" [class.text-success]="categoryForm.get('isActive')?.value" [class.text-tertiary]="!categoryForm.get('isActive')?.value">Published</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="form-actions hidden-mobile flex justify-content-end gap-md mt-2xl pt-2xl border-top-subtle">
+            <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="onCancel()" [disabled]="isLoading()"></p-button>
+            <p-button [label]="isLoading() ? 'Saving Changes...' : (resolvedCategoryId() ? 'Update Category' : 'Create Category')" [icon]="isLoading() ? 'pi pi-spinner pi-spin' : 'pi pi-check'" type="submit" [disabled]="categoryForm.invalid || isLoading()"></p-button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <aside class="side-panel col-span-full lg:col-span-4 xl:col-span-3 sticky-sidebar">
+      <div class="preview-header flex align-items-center gap-sm mb-lg px-xs">
+        <i class="pi pi-eye text-primary"></i>
+        <span class="font-heading font-bold text-lg text-primary uppercase tracking-widest text-xs">Live Preview</span>
+      </div>
+      
+      <div class="preview-card glass-panel p-0 border-radius-xl overflow-hidden surface-raised transition-base" [class.inactive-preview]="!categoryForm.get('isActive')?.value">
+        
+        <div class="preview-cover relative w-full aspect-ratio-16-9 bg-ternary border-bottom-subtle">
+          @if (categoryForm.get('image')?.value) {
+            <img [src]="categoryForm.get('image')?.value" (error)="$event.target.style.display='none'" class="w-full h-full object-cover">
+          } @else {
+            <div class="cover-pattern w-full h-full opacity-50 mix-blend-overlay"></div>
+          }
+          
+          <div class="absolute top-0 right-0 p-md z-10">
+            <p-tag [value]="categoryForm.get('isActive')?.value ? 'Published' : 'Hidden Draft'" [severity]="categoryForm.get('isActive')?.value ? 'success' : 'danger'" styleClass="shadow-md backdrop-blur"></p-tag>
+          </div>
+        </div>
+
+        <div class="preview-body bg-primary px-xl pb-2xl md:px-2xl md:pb-3xl">
+          <div class="preview-icon-floating flex-center bg-secondary text-primary border-primary border-radius-xl shadow-lg relative w-4rem aspect-ratio-1 text-2xl z-10 mb-md" style="margin-top: -2rem; border-width: 4px;">
+            <i [class]="categoryForm.get('icon')?.value || 'pi pi-folder'"></i>
+          </div>
+          
+          <div class="preview-content flex-col gap-sm">
+            <h4 class="preview-title font-heading text-xl font-bold text-primary m-0 line-height-tight line-clamp-2">{{ categoryForm.get('name')?.value || 'Untitled Category' }}</h4>
+            
+            <div class="preview-slug-pill inline-flex align-items-center gap-xs bg-primary-light text-primary px-md py-xs border-radius-sm border-primary font-mono text-xs font-bold align-self-start">
+              <i class="pi pi-link"></i>
+              <span class="line-clamp-1">/categories/{{ categoryForm.get('slug')?.value || 'untitled' }}</span>
+            </div>
+            
+            <p class="preview-desc text-secondary text-sm line-height-relaxed m-0 mt-sm line-clamp-3">
+              {{ categoryForm.get('description')?.value || 'A beautifully formatted description will appear here to guide your learners.' }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </aside>
+    
+  </div>
+
+  <div class="mobile-bottom-bar glass-panel border-top-subtle lg-hidden flex gap-md">
+    <p-button label="Cancel" severity="secondary" [text]="true" class="flex-grow-1" styleClass="w-full" (onClick)="onCancel()" [disabled]="isLoading()"></p-button>
+    <p-button [label]="isLoading() ? 'Saving...' : 'Save'" [icon]="isLoading() ? 'pi pi-spinner pi-spin' : 'pi pi-check'" type="submit" severity="primary" class="flex-grow-1" styleClass="w-full" (onClick)="onSubmit()" [disabled]="categoryForm.invalid || isLoading()"></p-button>
+  </div>
+
+</div>
+
+
+
+<!-- <div class="page-container">
   <div class="page-header">
     <button type="button" class="btn-back" (click)="onCancel()">
       <i class="pi pi-arrow-left"></i> <span>Back to Categories</span>
@@ -169,4 +333,4 @@
     </div>
     
   </div>
-</div>
+</div> -->

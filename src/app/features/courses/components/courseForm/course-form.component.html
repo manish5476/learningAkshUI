@@ -1,4 +1,343 @@
-<div class="course-form-container glass-panel">
+<div class="form-wrapper">
+  <form [formGroup]="courseForm" (ngSubmit)="onSubmit()" class="app-shell-layout">
+    
+    <header class="form-topbar glass-panel border-bottom-subtle">
+      <div class="topbar-content max-w-screen flex-between gap-md">
+        <div class="header-left flex align-items-center gap-md">
+          <p-button icon="pi pi-times" severity="secondary" [text]="true" [rounded]="true" (onClick)="onCancel()" pTooltip="Cancel"></p-button>
+          <div>
+            <h2 class="form-title font-heading text-xl md:text-2xl text-primary m-0">{{ isEditMode() ? 'Edit Course' : 'Create New Course' }}</h2>
+            <p class="form-subtitle text-secondary text-sm m-0 hidden-mobile">Fill in the details below to {{ isEditMode() ? 'update' : 'create' }} your course</p>
+          </div>
+        </div>
+        <div class="header-actions hidden-mobile flex gap-md">
+          <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="onCancel()"></p-button>
+          <p-button [label]="isLoading() ? 'Saving...' : (isEditMode() ? 'Update Course' : 'Create Course')" 
+                    [icon]="isLoading() ? 'pi pi-spinner pi-spin' : 'pi pi-save'" 
+                    type="submit" 
+                    [disabled]="courseForm.invalid || isLoading()"></p-button>
+        </div>
+      </div>
+    </header>
+
+    <div class="form-workspace-scroll-area">
+      <div class="max-w-screen form-content-grid">
+        
+        <div class="form-progress mb-4xl mt-xl">
+          <div class="progress-steps flex-between relative">
+            <div class="step flex-col flex-center gap-sm z-1 cursor-pointer transition-base" [class.active]="currentStep() >= 1" [class.completed]="currentStep() > 1" (click)="setStep(1)">
+              <div class="step-number border-radius-full flex-center font-heading font-bold bg-ternary border-secondary text-secondary">1</div>
+              <span class="step-label font-bold text-xs uppercase tracking-widest text-secondary hidden-mobile">Basic Info</span>
+            </div>
+            <div class="step-line flex-grow-1 bg-secondary transition-base" [class.bg-success]="currentStep() > 1"></div>
+            
+            <div class="step flex-col flex-center gap-sm z-1 cursor-pointer transition-base" [class.active]="currentStep() >= 2" [class.completed]="currentStep() > 2" (click)="setStep(2)">
+              <div class="step-number border-radius-full flex-center font-heading font-bold bg-ternary border-secondary text-secondary">2</div>
+              <span class="step-label font-bold text-xs uppercase tracking-widest text-secondary hidden-mobile">Content</span>
+            </div>
+            <div class="step-line flex-grow-1 bg-secondary transition-base" [class.bg-success]="currentStep() > 2"></div>
+            
+            <div class="step flex-col flex-center gap-sm z-1 cursor-pointer transition-base" [class.active]="currentStep() >= 3" [class.completed]="currentStep() > 3" (click)="setStep(3)">
+              <div class="step-number border-radius-full flex-center font-heading font-bold bg-ternary border-secondary text-secondary">3</div>
+              <span class="step-label font-bold text-xs uppercase tracking-widest text-secondary hidden-mobile">Pricing</span>
+            </div>
+            <div class="step-line flex-grow-1 bg-secondary transition-base" [class.bg-success]="currentStep() > 3"></div>
+            
+            <div class="step flex-col flex-center gap-sm z-1 cursor-pointer transition-base" [class.active]="currentStep() >= 4" (click)="setStep(4)">
+              <div class="step-number border-radius-full flex-center font-heading font-bold bg-ternary border-secondary text-secondary">4</div>
+              <span class="step-label font-bold text-xs uppercase tracking-widest text-secondary hidden-mobile">Requirements</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-step-container fade-in">
+          
+          @if (currentStep() === 1) {
+            <div class="glass-panel surface-raised mb-2xl">
+              <div class="step-header mb-4xl">
+                <h3 class="font-heading text-3xl text-primary m-0 mb-xs">Basic Information</h3>
+                <p class="text-secondary m-0">Tell us about your course</p>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group flex-col gap-xs col-span-full">
+                  <label class="input-label text-primary font-bold text-sm">
+                    Course Title <span class="text-error">*</span> <span class="text-tertiary font-normal ml-xs">(50-100 characters recommended)</span>
+                  </label>
+                  <div class="input-wrapper relative flex align-items-center">
+                    <i class="pi pi-language absolute left-icon text-tertiary"></i>
+                    <input type="text" pInputText formControlName="title" placeholder="e.g., Complete Web Development Bootcamp 2024" class="w-full input-with-icon" [class.error-border]="isFieldInvalid('title')">
+                  </div>
+                  <div class="flex-between mt-xs">
+                    @if (isFieldInvalid('title')) { <small class="text-error font-bold">Title is required</small> } @else { <span></span> }
+                    <small class="font-mono text-tertiary" [class.text-error]="titleLength > 100">{{ titleLength }}/100</small>
+                  </div>
+                </div>
+
+                <div class="form-group flex-col gap-xs col-span-full">
+                  <label class="input-label text-primary font-bold text-sm">Subtitle <span class="text-tertiary font-normal ml-xs">(Brief description under title)</span></label>
+                  <div class="input-wrapper relative flex align-items-center">
+                    <i class="pi pi-comment absolute left-icon text-tertiary"></i>
+                    <input type="text" pInputText formControlName="subtitle" placeholder="e.g., Learn HTML, CSS, JavaScript, React, Node.js and more" class="w-full input-with-icon">
+                  </div>
+                </div>
+
+                <div class="form-group flex-col gap-xs">
+                  <label class="input-label text-primary font-bold text-sm">Category <span class="text-error">*</span></label>
+                  <p-select appendTo="body" formControlName="category" [options]="categories()" optionLabel="name" optionValue="_id" placeholder="Select category" [filter]="true" filterBy="name" styleClass="w-full"></p-select>
+                  @if (isFieldInvalid('category')) { <small class="text-error font-bold">Category is required</small> }
+                </div>
+
+                <div class="form-group flex-col gap-xs">
+                  <label class="input-label text-primary font-bold text-sm">Difficulty Level <span class="text-error">*</span></label>
+                  <p-select appendTo="body" formControlName="level" [options]="difficultyLevels" optionLabel="name" optionValue="value" placeholder="Select level" styleClass="w-full"></p-select>
+                </div>
+
+                <div class="form-group flex-col gap-xs col-span-full">
+                  <label class="input-label text-primary font-bold text-sm">Language <span class="text-error">*</span></label>
+                  <p-select appendTo="body" formControlName="language" [options]="languages" optionLabel="name" optionValue="value" placeholder="Select language" styleClass="w-full"></p-select>
+                </div>
+
+                <div class="form-group flex-col gap-xs col-span-full">
+                  <label class="input-label text-primary font-bold text-sm">Course Description <span class="text-error">*</span></label>
+                  <textarea pTextarea formControlName="description" rows="8" placeholder="Describe what students will learn..." class="w-full line-height-relaxed" [class.error-border]="isFieldInvalid('description')"></textarea>
+                  <div class="flex-between mt-xs">
+                    @if (isFieldInvalid('description')) { <small class="text-error font-bold">Description is required</small> } @else { <span></span> }
+                    <small class="font-mono text-tertiary" [class.text-error]="wordCount < 50 && courseForm.get('description')?.touched">{{ wordCount }} words (min 50)</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          @if (currentStep() === 2) {
+            <div class="glass-panel surface-raised mb-2xl">
+              <div class="step-header mb-4xl">
+                <h3 class="font-heading text-3xl text-primary m-0 mb-xs">Course Content</h3>
+                <p class="text-secondary m-0">Upload your course media and organize sections</p>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group flex-col gap-xs col-span-full">
+                  <label class="input-label text-primary font-bold text-sm">Course Thumbnail</label>
+                  <div class="upload-area flex-center flex-col bg-ternary border-dashed border-primary border-radius-xl cursor-pointer transition-base relative overflow-hidden" (click)="fileInput.click()" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'thumbnail')">
+                    <input #fileInput type="file" accept="image/*" style="display: none" (change)="onFileSelected($event, 'thumbnail')">
+
+                    @if (!thumbnailPreview()) {
+                      <i class="pi pi-cloud-upload text-5xl text-primary mb-md"></i>
+                      <p class="text-primary font-bold m-0 mb-xs">Drag & drop or click to upload</p>
+                      <span class="text-tertiary font-mono text-xs">Recommended: 1280x720px (16:9)</span>
+                    } @else {
+                      <div class="upload-preview w-full aspect-ratio-16-9 relative">
+                        <img [src]="thumbnailPreview()" alt="Thumbnail" class="w-full h-full object-cover">
+                        <div class="overlay-actions absolute inset-0 flex-center bg-black-alpha-50 opacity-0 transition-base">
+                          <p-button icon="pi pi-trash" severity="danger" [rounded]="true" (onClick)="removeThumbnail($event)"></p-button>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <div class="form-group flex-col gap-xs col-span-full">
+                  <label class="input-label text-primary font-bold text-sm">Preview Video URL</label>
+                  <div class="input-wrapper relative flex align-items-center">
+                    <i class="pi pi-video absolute left-icon text-tertiary"></i>
+                    <input type="url" pInputText formControlName="previewVideo" placeholder="https://www.youtube.com/watch?v=..." class="w-full input-with-icon">
+                  </div>
+                </div>
+
+                <div class="form-group flex-col gap-lg col-span-full mt-2xl pt-xl border-top-subtle">
+                  <label class="input-label text-primary font-heading text-xl font-bold m-0">Course Sections & Lessons</label>
+                  
+                  <div class="sections-container flex-col gap-3xl">
+                    @for (section of sections.controls; track i; let i = $index) {
+                      <div class="section-item glass-inset border-left-accent">
+                        <div class="section-header flex align-items-center gap-md mb-xl">
+                          <i class="pi pi-bars text-tertiary cursor-grab"></i>
+                          <input type="text" pInputText [formControl]="getSectionControl(i, 'title')" placeholder="Section title..." class="w-full font-heading font-bold text-lg">
+                          <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true" (onClick)="removeSection(i)"></p-button>
+                        </div>
+                        
+                        <div class="section-lessons flex-col gap-md pl-3xl">
+                          @for (lesson of getLessons(i).controls; track j; let j = $index) {
+                            <div class="lesson-item flex align-items-center gap-md bg-primary border-radius-lg p-md border-primary transition-base hover-border-secondary">
+                              <i class="pi pi-bars text-tertiary cursor-grab"></i>
+                              <i class="pi text-secondary text-lg" 
+                                 [class.pi-video]="getLessonControl(i, j, 'type').value === 'video'"
+                                 [class.pi-file]="getLessonControl(i, j, 'type').value === 'article'"
+                                 [class.pi-question-circle]="getLessonControl(i, j, 'type').value === 'quiz'">
+                              </i>
+                              <input type="text" pInputText [formControl]="getLessonControl(i, j, 'title')" placeholder="Lesson title..." class="w-full flex-grow-1">
+                              <p-select appendTo="body" [formControl]="getLessonControl(i, j, 'type')" [options]="lessonTypes" optionLabel="name" optionValue="value" styleClass="w-auto"></p-select>
+                              <p-button icon="pi pi-times" severity="secondary" [text]="true" [rounded]="true" (onClick)="removeLesson(i, j)"></p-button>
+                            </div>
+                          }
+                          <p-button label="Add Lesson" icon="pi pi-plus" [text]="true" size="small" (onClick)="addLesson(i)" styleClass="align-self-start mt-sm"></p-button>
+                        </div>
+                      </div>
+                    }
+                    <button type="button" class="btn-dashed-massive w-full flex-center gap-sm" (click)="addSection()">
+                      <i class="pi pi-plus-circle text-2xl"></i> <span class="font-heading font-bold">Add New Section</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          @if (currentStep() === 3) {
+            <div class="glass-panel surface-raised mb-2xl">
+              <div class="step-header mb-4xl">
+                <h3 class="font-heading text-3xl text-primary m-0 mb-xs">Pricing Structure</h3>
+                <p class="text-secondary m-0">Set your course price and promotional discounts</p>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group col-span-full glass-inset flex align-items-center gap-md cursor-pointer transition-base hover-bg-hover" (click)="onFreeToggle()">
+                  <p-checkbox formControlName="isFree" [binary]="true"></p-checkbox>
+                  <label class="text-primary font-bold text-lg m-0 cursor-pointer flex-grow-1">Make this course completely free</label>
+                </div>
+
+                @if (!courseForm.get('isFree')?.value) {
+                  <div class="form-group flex-col gap-xs">
+                    <label class="input-label text-primary font-bold text-sm">Price <span class="text-error">*</span></label>
+                    <p-inputNumber formControlName="price" mode="decimal" [minFractionDigits]="2" [min]="0" styleClass="w-full"></p-inputNumber>
+                  </div>
+
+                  <div class="form-group flex-col gap-xs">
+                    <label class="input-label text-primary font-bold text-sm">Currency</label>
+                    <p-select appendTo="body" formControlName="currency" [options]="currencies" optionLabel="name" optionValue="value" styleClass="w-full"></p-select>
+                  </div>
+
+                  <div class="form-group col-span-full mt-xl pt-xl border-top-subtle flex align-items-center gap-md cursor-pointer transition-base" (click)="toggleDiscount()">
+                    <p-checkbox [ngModel]="hasDiscount()" [ngModelOptions]="{standalone: true}" [binary]="true"></p-checkbox>
+                    <label class="text-primary font-bold m-0 cursor-pointer">Offer a promotional discount</label>
+                  </div>
+
+                  @if (hasDiscount()) {
+                    <div class="form-group flex-col gap-xs col-span-full md:col-span-1">
+                      <label class="input-label text-primary font-bold text-sm">Discounted Price</label>
+                      <p-inputNumber formControlName="discountPrice" mode="decimal" [minFractionDigits]="2" [min]="0" styleClass="w-full"></p-inputNumber>
+                    </div>
+                    
+                    <div class="grid-2-col gap-lg col-span-full">
+                      <div class="form-group flex-col gap-xs">
+                        <label class="input-label text-primary font-bold text-sm">Start Date</label>
+                        <input type="date" pInputText formControlName="discountStartDate" class="w-full">
+                      </div>
+                      <div class="form-group flex-col gap-xs">
+                        <label class="input-label text-primary font-bold text-sm">End Date</label>
+                        <input type="date" pInputText formControlName="discountEndDate" class="w-full">
+                      </div>
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+          }
+
+          @if (currentStep() === 4) {
+            <div class="glass-panel surface-raised mb-2xl">
+              <div class="step-header mb-4xl">
+                <h3 class="font-heading text-3xl text-primary m-0 mb-xs">Requirements & Outcomes</h3>
+                <p class="text-secondary m-0">Define what students need and what they'll achieve</p>
+              </div>
+
+              <div class="form-grid">
+                
+                <div class="form-group flex-col gap-md col-span-full">
+                  <div>
+                    <label class="input-label text-primary font-bold text-lg m-0">What You'll Learn <span class="text-error">*</span></label>
+                    <p class="text-secondary text-sm m-0 mt-xs">Key takeaways students will get from this course</p>
+                  </div>
+                  <div class="array-container flex-col gap-sm p-lg glass-inset">
+                    @for (item of whatYouWillLearn.controls; track i; let i = $index) {
+                      <div class="array-item flex align-items-center gap-md">
+                        <input type="text" pInputText [formControl]="getAsFormControl(item)" placeholder="e.g., Build full-stack web applications" class="w-full flex-grow-1" [class.error-border]="item.invalid && item.touched">
+                        <p-button icon="pi pi-times" severity="danger" [text]="true" [rounded]="true" (onClick)="removeLearningItem(i)"></p-button>
+                      </div>
+                    }
+                    <p-button label="Add Outcome" icon="pi pi-plus" [text]="true" size="small" (onClick)="addLearningItem()" styleClass="align-self-start mt-sm"></p-button>
+                  </div>
+                </div>
+
+                <div class="form-group flex-col gap-md col-span-full">
+                  <div>
+                    <label class="input-label text-primary font-bold text-lg m-0">Requirements</label>
+                    <p class="text-secondary text-sm m-0 mt-xs">What students need to know before taking this course</p>
+                  </div>
+                  <div class="array-container flex-col gap-sm p-lg glass-inset">
+                    @for (req of requirements.controls; track i; let i = $index) {
+                      <div class="array-item flex align-items-center gap-md">
+                        <input type="text" pInputText [formControl]="getAsFormControl(req)" placeholder="e.g., Basic programming knowledge" class="w-full flex-grow-1">
+                        <p-button icon="pi pi-times" severity="danger" [text]="true" [rounded]="true" (onClick)="removeRequirement(i)"></p-button>
+                      </div>
+                    }
+                    <p-button label="Add Requirement" icon="pi pi-plus" [text]="true" size="small" (onClick)="addRequirement()" styleClass="align-self-start mt-sm"></p-button>
+                  </div>
+                </div>
+
+                <div class="form-group flex-col gap-md col-span-full">
+                  <div>
+                    <label class="input-label text-primary font-bold text-lg m-0">Tags</label>
+                    <p class="text-secondary text-sm m-0 mt-xs">Help students find your course (press Enter to add)</p>
+                  </div>
+                  <div class="tags-container glass-inset p-lg">
+                    <div class="tags-list flex flex-wrap gap-sm mb-md">
+                      @for (tag of tags.controls; track i; let i = $index) {
+                        <span class="tag-item inline-flex align-items-center gap-xs bg-info-light text-info border-info px-md py-xs border-radius-full font-bold text-xs">
+                          #{{ tag.value }}
+                          <i class="pi pi-times cursor-pointer ml-xs hover-text-primary transition-base" (click)="removeTag(i)"></i>
+                        </span>
+                      }
+                    </div>
+                    <input type="text" pInputText placeholder="Type and press enter to add a tag" class="w-full" (keydown.enter)="addTag($event)">
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          }
+
+          <div class="step-navigation hidden-mobile flex-between pt-xl mb-4xl">
+            @if (currentStep() > 1) {
+              <p-button label="Previous" icon="pi pi-arrow-left" severity="secondary" [text]="true" size="large" (onClick)="prevStep()"></p-button>
+            } @else { <div></div> }
+            
+            @if (currentStep() < 4) {
+              <p-button label="Next Step" icon="pi pi-arrow-right" iconPos="right" size="large" (onClick)="nextStep()"></p-button>
+            }
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-bottom-bar glass-panel border-top-subtle lg-hidden flex-between gap-md">
+      @if (currentStep() > 1) {
+        <p-button icon="pi pi-arrow-left" severity="secondary" [rounded]="true" [text]="true" (onClick)="prevStep()"></p-button>
+      } @else {
+        <p-button icon="pi pi-times" severity="secondary" [rounded]="true" [text]="true" (onClick)="onCancel()"></p-button>
+      }
+
+      <div class="flex-grow-1 flex justify-content-center gap-xs">
+         <span class="w-1rem h-1rem border-radius-full transition-base" [ngClass]="currentStep() === 1 ? 'bg-primary' : 'bg-secondary'"></span>
+         <span class="w-1rem h-1rem border-radius-full transition-base" [ngClass]="currentStep() === 2 ? 'bg-primary' : 'bg-secondary'"></span>
+         <span class="w-1rem h-1rem border-radius-full transition-base" [ngClass]="currentStep() === 3 ? 'bg-primary' : 'bg-secondary'"></span>
+         <span class="w-1rem h-1rem border-radius-full transition-base" [ngClass]="currentStep() === 4 ? 'bg-primary' : 'bg-secondary'"></span>
+      </div>
+      
+      @if (currentStep() < 4) {
+        <p-button icon="pi pi-arrow-right" severity="primary" [rounded]="true" (onClick)="nextStep()"></p-button>
+      } @else {
+        <p-button icon="pi pi-check" severity="success" [rounded]="true" type="submit" [disabled]="courseForm.invalid || isLoading()"></p-button>
+      }
+    </div>
+
+  </form>
+</div>
+
+<!-- <div class="course-form-container glass-panel">
   <form [formGroup]="courseForm" (ngSubmit)="onSubmit()" class="course-form">
     
     <div class="form-header">
@@ -367,4 +706,4 @@
     </div>
 
   </form>
-</div>
+</div> -->

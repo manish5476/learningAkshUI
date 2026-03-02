@@ -1,4 +1,153 @@
-<div class="page-container">
+<div class="page-container fade-in">
+
+  <header class="page-header flex-col md:flex-row flex-between gap-xl mb-4xl">
+    <div class="header-left flex-col gap-xs flex-grow-1">
+      <nav class="breadcrumb flex align-items-center gap-xs text-xs font-bold uppercase tracking-widest text-tertiary mb-sm">
+        <a routerLink="/" class="bc-link text-tertiary hover-text-primary transition-colors"><i class="pi pi-home"></i></a>
+        <span>/</span>
+        <a routerLink="/categories" class="bc-link text-tertiary hover-text-primary transition-colors text-decoration-none">Categories</a>
+        <span>/</span>
+        <span class="bc-current text-primary">Hierarchy Tree</span>
+      </nav>
+
+      <h1 class="page-title font-heading text-3xl md:text-4xl font-bold text-primary m-0 flex align-items-center gap-md line-height-tight">
+        <div class="title-icon flex-center border-radius-lg bg-primary-light text-primary w-3rem aspect-ratio-1">
+          <i class="pi pi-sitemap text-2xl"></i>
+        </div>
+        Category Hierarchy
+      </h1>
+    </div>
+    
+    <div class="header-actions flex flex-wrap gap-md">
+      <p-button label="Refresh" [icon]="loading() ? 'pi pi-spin pi-spinner' : 'pi pi-refresh'" severity="secondary" [outlined]="true" (onClick)="loadCategoryTree()" [disabled]="loading()"></p-button>
+      <p-button label="Expand All" icon="pi pi-expand" severity="secondary" [outlined]="true" (onClick)="expandAll()" [disabled]="loading()"></p-button>
+      <p-button label="Collapse All" icon="pi pi-compress" severity="secondary" [outlined]="true" (onClick)="collapseAll()" [disabled]="loading()"></p-button>
+    </div>
+  </header>
+
+  <div class="toolbar-section glass-panel flex-col md:flex-row flex-between gap-xl mb-3xl p-lg md:p-xl">
+    <div class="search-wrapper flex-grow-1 relative w-full md:max-w-30rem">
+      <i class="pi pi-search absolute left-icon text-tertiary"></i>
+      <input 
+        type="text" pInputText
+        [ngModel]="searchTerm()" 
+        (ngModelChange)="onSearchChange($event)"
+        placeholder="Search category hierarchy..." 
+        class="w-full input-with-icon border-radius-full">
+    </div>
+    
+    <div class="stats-badges flex flex-wrap gap-md">
+      <p-tag severity="info" value="Total: {{ stats().total }}" icon="pi pi-tags" styleClass="font-bold"></p-tag>
+      <p-tag severity="success" value="Active: {{ stats().active }}" icon="pi pi-check-circle" styleClass="font-bold"></p-tag>
+      <p-tag severity="danger" value="Inactive: {{ stats().inactive }}" icon="pi pi-times-circle" styleClass="font-bold"></p-tag>
+    </div>
+  </div>
+
+  <div class="tree-container glass-panel surface-raised min-h-50vh relative overflow-hidden p-2xl md:p-4xl">
+    
+    @if (loading()) {
+      <div class="state-overlay flex-col flex-center text-center py-5xl">
+        <div class="loader-ring mb-lg"></div>
+        <p class="text-secondary font-heading font-bold uppercase tracking-widest text-sm m-0">Building category hierarchy...</p>
+      </div>
+    } @else if (treeData().length > 0 && !hasVisibleNodes()) {
+      <div class="state-overlay flex-col flex-center text-center py-5xl">
+        <div class="empty-icon-wrapper flex-center border-radius-full bg-ternary border-primary mb-2xl">
+          <i class="pi pi-search text-4xl text-tertiary"></i>
+        </div>
+        <h3 class="font-heading text-2xl text-primary font-bold m-0 mb-sm">No matches found</h3>
+        <p class="text-secondary m-0 mb-3xl">No categories matched your search for "{{ searchTerm() }}"</p>
+        <p-button label="Clear Search" icon="pi pi-times" (onClick)="clearSearch()"></p-button>
+      </div>
+    } @else if (treeData().length === 0) {
+      <div class="state-overlay flex-col flex-center text-center py-5xl">
+        <div class="empty-icon-wrapper flex-center border-radius-full bg-ternary border-primary mb-2xl">
+          <i class="pi pi-folder-open text-4xl text-tertiary"></i>
+        </div>
+        <h3 class="font-heading text-2xl text-primary font-bold m-0 mb-xs">Tree is empty</h3>
+        <p class="text-secondary m-0">No categories exist in the system yet.</p>
+      </div>
+    } @else {
+      <div class="custom-tree flex-col">
+        @for (node of treeData(); track node._id) {
+          <ng-container *ngTemplateOutlet="treeNodeTemplate; context: { $implicit: node, level: 0 }"></ng-container>
+        }
+      </div>
+    }
+
+  </div>
+</div>
+
+<ng-template #treeNodeTemplate let-node let-level="level">
+  @if (!node.hidden) {
+    <div class="node-wrapper flex-col">
+      
+      <div class="node-row flex align-items-center gap-md py-xs" [style.--depth]="level">
+        
+        <div class="node-indent hidden md:flex" [style.width.rem]="level * 2"></div>
+
+        <p-button 
+          [icon]="node.expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" 
+          [text]="true" [rounded]="true" severity="secondary"
+          [styleClass]="(!node.children || node.children.length === 0) ? 'invisible' : ''"
+          (onClick)="toggleNode(node)">
+        </p-button>
+
+        <div class="node-content flex-grow-1 glass-panel surface-raised p-md md:px-xl flex-between flex-wrap gap-md transition-base hover-border-primary">
+          
+          <div class="node-info-main flex align-items-center gap-lg overflow-hidden">
+            <div class="node-visual flex-shrink-0 w-3rem aspect-ratio-1 border-radius-lg overflow-hidden bg-ternary border-primary flex-center shadow-sm">
+              @if (node.image) {
+                <img [src]="node.image" [alt]="node.name" class="w-full h-full object-cover">
+              } @else {
+                <i [class]="node.icon || 'pi pi-folder'" class="text-xl text-primary"></i>
+              }
+            </div>
+
+            <div class="node-text flex-col overflow-hidden">
+              <div class="node-header flex align-items-center gap-md">
+                <span class="node-name font-heading font-bold text-primary text-lg line-clamp-1">{{ node.name }}</span>
+                <span class="status-indicator w-10px aspect-ratio-1 border-radius-full border-primary" 
+                      [ngClass]="node.isActive ? 'bg-success' : 'bg-danger'" 
+                      [title]="node.isActive ? 'Active' : 'Inactive'">
+                </span>
+              </div>
+              <div class="node-meta flex align-items-center gap-sm font-mono text-xs text-tertiary font-bold">
+                <span class="node-slug line-clamp-1">/{{ node.slug }}</span>
+                
+                @if (node.children?.length) {
+                  <span class="meta-dot opacity-50">•</span>
+                  <span class="text-primary">{{ node.children.length }} children</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="node-actions flex align-items-center gap-xl ml-auto">
+            <span class="date-created hidden md:flex align-items-center gap-xs font-mono text-xs text-tertiary font-bold">
+              <i class="pi pi-calendar text-tertiary"></i> {{ node.createdAt | date:'MMM d, y' }}
+            </span>
+            <p-button label="Courses" icon="pi pi-arrow-right" iconPos="right" [outlined]="true" size="small" [routerLink]="['/categories', node._id, 'courses']"></p-button>
+          </div>
+
+        </div>
+      </div>
+
+      @if (node.expanded && node.children && node.children.length > 0) {
+        <div class="node-children relative">
+          <div class="tree-line absolute bg-border-primary border-radius-full" [style.left.rem]="(level * 2) + 2.1"></div>
+          @for (child of node.children; track child._id) {
+            <ng-container *ngTemplateOutlet="treeNodeTemplate; context: { $implicit: child, level: level + 1 }"></ng-container>
+          }
+        </div>
+      }
+
+    </div>
+  }
+</ng-template>
+
+
+<!-- <div class="page-container">
 
   <div class="page-header">
     <div class="header-left">
@@ -158,4 +307,4 @@
 
     </div>
   }
-</ng-template>
+</ng-template> -->

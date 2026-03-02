@@ -12,18 +12,20 @@ import { MessageService } from 'primeng/api';
 
 // Services
 import { QuizService } from '../../../core/services/quiz.service';
+import { Tag } from "primeng/tag";
 
 @Component({
   selector: 'app-lesson-quiz-taker',
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
-    ButtonModule, 
-    RadioButtonModule, 
-    InputTextModule, 
-    TextareaModule
-  ],
+    CommonModule,
+    FormsModule,
+    ButtonModule,
+    RadioButtonModule,
+    InputTextModule,
+    TextareaModule,
+    Tag
+],
   templateUrl: './lesson-quiz-taker.component.html',
   styleUrls: ['./lesson-quiz-taker.component.scss']
 })

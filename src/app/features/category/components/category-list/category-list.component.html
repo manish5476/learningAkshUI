@@ -1,4 +1,141 @@
-<div class="page-container">
+<div class="page-container fade-in">
+  <p-toast position="top-right"></p-toast>
+  <p-confirmDialog styleClass="glass-dialog"></p-confirmDialog>
+
+  <header class="page-header flex-col md:flex-row flex-between gap-xl mb-4xl pb-lg border-bottom-subtle">
+    <div class="header-titles flex-col gap-xs flex-grow-1">
+      <h1 class="title font-heading text-3xl md:text-4xl font-bold text-primary m-0 line-height-tight">Category Management</h1>
+      <p class="subtitle text-secondary text-md md:text-lg m-0 max-w-prose">Organize and structure your educational content catalog.</p>
+    </div>
+    <div class="header-actions flex-shrink-0 w-full md:w-auto">
+      <p-button label="Add Category" icon="pi pi-plus" [routerLink]="['/categories/admin/new']" class="w-full md:w-auto" styleClass="w-full md:w-auto"></p-button>
+    </div>
+  </header>
+
+  <div class="stats-grid mb-4xl">
+    <div class="stat-card glass-panel surface-raised flex align-items-center gap-lg hover-lift">
+      <div class="stat-icon bg-primary-light text-primary flex-center border-radius-full"><i class="pi pi-tags"></i></div>
+      <div class="stat-content flex-col gap-xs">
+        <span class="stat-label text-xs uppercase tracking-widest font-bold text-tertiary">Total Categories</span>
+        <span class="stat-value font-heading text-3xl font-bold text-primary m-0 line-height-tight">{{ stats().total }}</span>
+      </div>
+    </div>
+    
+    <div class="stat-card glass-panel surface-raised flex align-items-center gap-lg hover-lift">
+      <div class="stat-icon bg-success-light text-success flex-center border-radius-full"><i class="pi pi-check-circle"></i></div>
+      <div class="stat-content flex-col gap-xs">
+        <span class="stat-label text-xs uppercase tracking-widest font-bold text-tertiary">Active Categories</span>
+        <span class="stat-value font-heading text-3xl font-bold text-primary m-0 line-height-tight">{{ stats().active }}</span>
+      </div>
+    </div>
+    
+    <div class="stat-card glass-panel surface-raised flex align-items-center gap-lg hover-lift">
+      <div class="stat-icon bg-warning-light text-warning flex-center border-radius-full"><i class="pi pi-pause-circle"></i></div>
+      <div class="stat-content flex-col gap-xs">
+        <span class="stat-label text-xs uppercase tracking-widest font-bold text-tertiary">Inactive Categories</span>
+        <span class="stat-value font-heading text-3xl font-bold text-primary m-0 line-height-tight">{{ stats().inactive }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-toolbar glass-panel mb-2xl p-lg md:p-2xl flex-col md:flex-row flex-between gap-lg">
+    <h2 class="toolbar-title font-heading text-xl text-primary font-bold m-0 flex align-items-center gap-sm">
+      <i class="pi pi-folder-open text-info"></i> Categories Directory
+    </h2>
+    
+    <div class="toolbar-actions flex-col md:flex-row gap-md w-full md:w-auto">
+      <span class="p-input-icon-left w-full md:w-auto flex-grow-1 search-wrapper">
+        <i class="pi pi-search text-tertiary"></i>
+        <input type="text" pInputText [ngModel]="searchQuery()" (ngModelChange)="onSearchChange($event)" placeholder="Search categories..." class="w-full">
+      </span>
+      
+      <p-select [options]="statusOptions" [ngModel]="statusFilter()" (ngModelChange)="onStatusChange($event)" optionLabel="label" optionValue="value" placeholder="All Statuses" styleClass="w-full md:w-auto min-w-12rem"></p-select>
+      
+      <p-button icon="pi pi-filter-slash" severity="secondary" [outlined]="true" (onClick)="clearFilters()" pTooltip="Clear Filters" class="w-full md:w-auto" styleClass="w-full md:w-auto"></p-button>
+    </div>
+  </div>
+
+  <div class="directory-workspace">
+    @if (loading()) {
+      <div class="state-overlay flex-col flex-center text-center py-5xl glass-panel">
+        <div class="loader-ring mb-lg"></div>
+        <p class="text-secondary font-heading font-bold uppercase tracking-widest text-sm m-0">Loading categories...</p>
+      </div>
+    } @else if (paginatedCategories().length > 0) {
+      
+      <div class="category-feed-grid">
+        @for (category of paginatedCategories(); track category._id) {
+          <div class="category-card glass-panel p-0 surface-raised flex-col overflow-hidden hover-border-primary transition-base">
+            
+            <div class="card-hero flex align-items-center gap-md p-lg md:p-xl bg-secondary border-bottom-subtle">
+              <div class="category-thumbnail flex-center flex-shrink-0 border-radius-lg overflow-hidden bg-primary border-primary aspect-ratio-1">
+                @if (category.image) {
+                  <img [src]="category.image" [alt]="category.name" class="w-full h-full object-cover">
+                } @else {
+                  <i [class]="category.icon || 'pi pi-folder'" class="text-2xl text-primary"></i>
+                }
+              </div>
+              <div class="category-meta flex-col flex-grow-1 overflow-hidden gap-xs">
+                <h3 class="category-title-text font-heading text-lg font-bold text-primary m-0 line-clamp-1" [title]="category.name">{{ category.name }}</h3>
+                <span class="category-slug font-mono text-xs text-tertiary line-clamp-1">/{{ category.slug }}</span>
+              </div>
+              <div class="status-indicator flex-shrink-0">
+                <p-tag [value]="category.isActive ? 'Active' : 'Inactive'" [severity]="category.isActive ? 'success' : 'secondary'"></p-tag>
+              </div>
+            </div>
+
+            <div class="card-body p-lg md:p-xl flex-col flex-grow-1 bg-primary">
+              <p class="description-text text-secondary text-sm m-0 line-height-relaxed line-clamp-3 mb-xl">
+                {{ category.description || 'No description provided for this category.' }}
+              </p>
+              
+              <div class="card-meta mt-auto pt-md border-top-subtle flex-between text-xs font-mono text-tertiary font-bold">
+                <span class="flex align-items-center gap-xs"><i class="pi pi-calendar"></i> {{ category.createdAt | date:'mediumDate' }}</span>
+              </div>
+            </div>
+
+            <div class="card-actions flex-between gap-sm p-sm md:p-md bg-ternary border-top-subtle">
+              <div class="flex gap-sm">
+                <p-button icon="pi pi-eye" severity="secondary" [text]="true" [rounded]="true" [routerLink]="['/categories/admin', category._id]" pTooltip="View Details"></p-button>
+                <p-button icon="pi pi-pencil" severity="info" [text]="true" [rounded]="true" [routerLink]="['/categories/admin', category._id, 'edit']" pTooltip="Edit Category"></p-button>
+              </div>
+              <div class="flex gap-sm">
+                <p-button icon="pi pi-sitemap" severity="success" [text]="true" [rounded]="true" [routerLink]="['/categories/admin/new']" [queryParams]="{ parentId: category._id }" pTooltip="Add Subcategory" tooltipPosition="left"></p-button>
+                <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true" (onClick)="deleteCategory(category)" pTooltip="Delete Category" tooltipPosition="left"></p-button>
+              </div>
+            </div>
+
+          </div>
+        }
+      </div>
+
+      @if (totalPages() > 1) {
+        <div class="pagination-wrapper flex-between flex-wrap gap-md mt-4xl glass-panel p-lg">
+          <span class="text-sm text-secondary font-bold font-mono">Showing {{ paginatedCategories().length }} of {{ filteredAndSortedCategories().length }} entries</span>
+          
+          <div class="pagination-controls flex gap-xs bg-primary p-xs border-radius-lg border-secondary">
+            <p-button icon="pi pi-angle-left" severity="secondary" [text]="true" [disabled]="currentPage() === 1" (onClick)="changePage(currentPage() - 1)"></p-button>
+            <p-button [label]="currentPage().toString()" severity="primary"></p-button>
+            <p-button icon="pi pi-angle-right" severity="secondary" [text]="true" [disabled]="currentPage() === totalPages()" (onClick)="changePage(currentPage() + 1)"></p-button>
+          </div>
+        </div>
+      }
+
+    } @else {
+      <div class="empty-state flex-col flex-center text-center py-5xl glass-panel border-dashed border-primary">
+        <div class="empty-icon-wrapper flex-center border-radius-full bg-ternary border-primary mb-2xl">
+          <i class="pi pi-tags text-5xl text-tertiary"></i>
+        </div>
+        <h3 class="font-heading text-2xl text-primary font-bold m-0 mb-xs">No categories found</h3>
+        <p class="text-secondary m-0 mb-xl max-w-prose">Get started by creating your first content category.</p>
+        <p-button label="Add Category" icon="pi pi-plus" [routerLink]="['/categories/admin/new']" size="large"></p-button>
+      </div>
+    }
+  </div>
+</div>
+
+
+<!-- <div class="page-container">
   <p-toast position="top-right"></p-toast>
   <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 
@@ -174,206 +311,4 @@
       }
     }
   </div>
-</div>
-
-<!-- <div class="page-container">
-  <p-toast position="top-right"></p-toast>
-  <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
-
-  <div class="page-header">
-    <div class="header-titles">
-      <h1 class="title">Category Management</h1>
-      <p class="subtitle">Organize and structure your educational content catalog</p>
-    </div>
-    <button (click)="openNewCategoryDialog()" class="btn-primary">
-      <i class="pi pi-plus"></i> Add Category
-    </button>
-  </div>
-
-  <div class="stats-grid">
-    <div class="stat-card glass-panel">
-      <div class="stat-icon icon-primary"><i class="pi pi-tags"></i></div>
-      <div class="stat-content">
-        <p class="stat-label">Total Categories</p>
-        <p class="stat-value">{{ stats().total }}</p>
-      </div>
-    </div>
-    <div class="stat-card glass-panel">
-      <div class="stat-icon icon-success"><i class="pi pi-check-circle"></i></div>
-      <div class="stat-content">
-        <p class="stat-label">Active Categories</p>
-        <p class="stat-value">{{ stats().active }}</p>
-      </div>
-    </div>
-    <div class="stat-card glass-panel">
-      <div class="stat-icon icon-warning"><i class="pi pi-pause-circle"></i></div>
-      <div class="stat-content">
-        <p class="stat-label">Inactive Categories</p>
-        <p class="stat-value">{{ stats().inactive }}</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="table-container glass-panel">
-    
-    <div class="table-toolbar">
-      <span class="toolbar-title">Categories Directory</span>
-      <div class="toolbar-actions">
-        <button (click)="clearFilters()" class="btn-secondary">
-          <i class="pi pi-filter-slash"></i> Clear
-        </button>
-        <div class="search-input-wrapper">
-          <i class="pi pi-search search-icon"></i>
-          <input 
-            type="text" 
-            [ngModel]="searchQuery()" 
-            (ngModelChange)="onSearchChange($event)"
-            placeholder="Search categories..." 
-            class="search-input custom-input"
-          >
-        </div>
-      </div>
-    </div>
-
-    @if (loading()) {
-      <div class="state-overlay">
-        <i class="pi pi-spin pi-spinner loading-icon"></i>
-        <p>Loading your categories...</p>
-      </div>
-    } @else {
-      <div class="custom-table-wrapper">
-        <table class="custom-table">
-          <thead>
-            <tr>
-              <th class="col-sortable w-1/3" (click)="sortBy('name')">
-                <div class="th-content">Category Info <i class="pi pi-sort"></i></div>
-              </th>
-              <th class="w-1/4">Description</th>
-              <th class="w-1/6">
-                <div class="th-filter-content">
-                  <span>Status</span>
-                  <select class="filter-select" [ngModel]="statusFilter()" (ngModelChange)="onStatusChange($event)">
-                    <option [ngValue]="null">All Statuses</option>
-                    <option [ngValue]="true">Active</option>
-                    <option [ngValue]="false">Inactive</option>
-                  </select>
-                </div>
-              </th>
-              <th class="col-sortable w-1/6" (click)="sortBy('createdAt')">
-                <div class="th-content">Created At <i class="pi pi-sort"></i></div>
-              </th>
-              <th class="text-center w-1/6">Actions</th>
-            </tr>
-          </thead>
-          
-          <tbody>
-            @for (category of paginatedCategories(); track category._id) {
-              <tr class="table-row">
-                <td>
-                  <div class="category-cell-info">
-                    <div class="category-thumbnail">
-                      @if (category.image) {
-                        <img [src]="category.image" [alt]="category.name" (error)="$event.target.src='https://via.placeholder.com/150x85?text=No+Image'"/>
-                      } @else {
-                        <div class="no-img"><i [class]="category.icon || 'pi pi-folder'"></i></div>
-                      }
-                    </div>
-                    <div class="category-meta">
-                      <span class="category-title-text">{{ category.name }}</span>
-                      <span class="category-slug">/{{ category.slug }}</span>
-                    </div>
-                  </div>
-                </td>
-
-                <td>
-                  <p class="description-text">{{ category.description || 'No description provided.' }}</p>
-                </td>
-
-                <td>
-                  <span class="status-badge" [ngClass]="category.isActive ? 'status-active' : 'status-inactive'">
-                    {{ category.isActive ? 'Active' : 'Inactive' }}
-                  </span>
-                </td>
-
-                <td class="date-cell">
-                  {{ category.createdAt | date:'mediumDate' }}
-                </td>
-
-                <td>
-                  <div class="action-buttons">
-                    <button [routerLink]="['/categories/admin', category._id]" title="View" class="btn-icon btn-icon-secondary">
-                      <i class="pi pi-eye"></i>
-                    </button>
-                    <button (click)="editCategory(category)" title="Edit" class="btn-icon btn-icon-info">
-                      <i class="pi pi-pencil"></i>
-                    </button>
-                    <button (click)="addSubCategory(category)" title="Add Subcategory" class="btn-icon btn-icon-success">
-                      <i class="pi pi-sitemap"></i>
-                    </button>
-                    <button (click)="deleteCategory(category)" title="Delete" class="btn-icon btn-icon-danger">
-                      <i class="pi pi-trash"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="5">
-                  <div class="state-overlay">
-                    <div class="empty-icon-wrapper">
-                      <i class="pi pi-tags"></i>
-                    </div>
-                    <h3 class="empty-title">No categories found</h3>
-                    <p class="empty-subtitle">Get started by creating your first category.</p>
-                    <button (click)="openNewCategoryDialog()" class="btn-primary mt-lg">
-                      <i class="pi pi-plus"></i> Add Category
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-      
-      @if (filteredAndSortedCategories().length > 0) {
-        <div class="table-footer">
-          <span>Showing {{ paginatedCategories().length }} of {{ filteredAndSortedCategories().length }} entries</span>
-          <div class="pagination-controls">
-            <button class="page-btn" [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)">
-              <i class="pi pi-angle-left"></i>
-            </button>
-            <button class="page-btn active">{{ currentPage() }}</button>
-            <button class="page-btn" [disabled]="currentPage() === totalPages()" (click)="changePage(currentPage() + 1)">
-              <i class="pi pi-angle-right"></i>
-            </button>
-          </div>
-        </div>
-      }
-    }
-  </div>
-
-  <p-dialog appendTo="body" [(visible)]="showFormDialog" [style]="{width: '80%', maxWidth: '900px'}" 
-    [header]="dialogTitle()" [modal]="true" [draggable]="false" [resizable]="false" 
-    [closeOnEscape]="true" [dismissableMask]="true">
-    @if (showFormDialog()) {
-      <app-category-form 
-       [categoryId]="selectedCategoryId() ?? undefined"
-        [parentCategoryId]="parentCategoryId()"
-        (saved)="onCategorySaved($event)"
-        (cancelled)="closeFormDialog()">
-      </app-category-form>
-    }
-  </p-dialog>
-
-  <p-dialog appendTo="body" [(visible)]="showDetailDialog" [style]="{width: '80%', maxWidth: '1000px'}" 
-    header="Category Details" [modal]="true" [draggable]="false" [resizable]="false">
-    @if (showDetailDialog()) {
-      <app-category-detail 
-        [category]="selectedCategory()"
-        (edit)="editFromDetail()"
-        (close)="closeDetailDialog()">
-      </app-category-detail>
-    }
-  </p-dialog>
 </div> -->

@@ -1,4 +1,165 @@
-<div class="embedded-quiz-container glass-panel surface-raised">
+<div class="embedded-quiz-container">
+  
+  @if (isLoading()) {
+    <div class="state-panel glass-panel flex-center">
+      <div class="loader-ring mb-lg"></div>
+      <h3 class="text-primary m-0">Loading Quiz...</h3>
+    </div>
+  } 
+
+  @else if (quizState() === 'intro' && quizData()) {
+    <div class="intro-view glass-panel text-center fade-in">
+      <div class="icon-circle mx-auto mb-2xl"><i class="pi pi-question-circle text-primary"></i></div>
+      
+      <h2 class="text-primary m-0 mb-md text-3xl font-heading font-bold">{{ quizData().title }}</h2>
+      
+      @if (quizData().description) {
+        <p class="text-secondary mb-3xl text-lg max-w-prose mx-auto line-height-relaxed">{{ quizData().description }}</p>
+      }
+      
+      <div class="quiz-specs-bento flex justify-center gap-xl mb-4xl">
+        <div class="bento-box glass-inset">
+          <i class="pi pi-check-square text-success text-2xl mb-xs"></i>
+          <span class="bento-val text-primary">{{ quizData().passingScore }}%</span>
+          <span class="bento-lbl">To Pass</span>
+        </div>
+        <div class="bento-box glass-inset">
+          <i class="pi pi-list text-info text-2xl mb-xs"></i>
+          <span class="bento-val text-primary">{{ questions().length }}</span>
+          <span class="bento-lbl">Questions</span>
+        </div>
+      </div>
+
+      <p-button label="Start Quiz Now" icon="pi pi-play" size="large" (onClick)="startQuiz()"></p-button>
+    </div>
+  }
+
+  @else if (quizState() === 'taking') {
+    <div class="taking-view fade-in">
+      
+      <div class="quiz-header glass-panel mb-3xl flex-between align-items-center sticky-header">
+        <h3 class="m-0 text-xl font-bold text-primary">{{ quizData().title }}</h3>
+        <span class="text-secondary font-mono font-bold bg-secondary px-3 py-2 border-round-xl">
+          {{ questions().length }} Questions
+        </span>
+      </div>
+
+      <div class="questions-list flex-col gap-4xl">
+        @for (q of questions(); track q._id; let i = $index) {
+          <div class="q-card glass-panel">
+            
+            <div class="q-meta flex-between align-items-center mb-2xl pb-md border-bottom-subtle">
+              <span class="q-number text-primary font-bold text-xl">Question {{ i + 1 }}</span>
+              <p-tag [value]="q.points + ' Points'" severity="info"></p-tag>
+            </div>
+
+            <div class="q-prompt text-xl font-heading font-medium line-height-relaxed text-primary mb-3xl">
+              {{ q.question }}
+            </div>
+
+            <div class="answer-area">
+              @switch (q.type) {
+                
+                @case ('multiple-choice') {
+                  <div class="options-group flex-col gap-md">
+                    @for (opt of q.options; track $index; let optIdx = $index) {
+                      <div class="option-tile surface-raised" 
+                           [class.selected]="studentAnswers[q._id] === optIdx" 
+                           (click)="studentAnswers[q._id] = optIdx">
+                        <div class="opt-radio shrink-0">
+                          <p-radioButton [value]="optIdx" [(ngModel)]="studentAnswers[q._id]" [inputId]="q._id + '-' + optIdx"></p-radioButton>
+                        </div>
+                        <label [for]="q._id + '-' + optIdx" class="opt-text ml-md flex-grow-1 cursor-pointer text-lg m-0">{{ opt.text }}</label>
+                      </div>
+                    }
+                  </div>
+                }
+
+                @case ('true-false') {
+                  <div class="options-group grid-2-col gap-md">
+                    <div class="option-tile surface-raised flex-center-content" 
+                         [class.selected]="studentAnswers[q._id] === true" 
+                         (click)="studentAnswers[q._id] = true">
+                      <p-radioButton [value]="true" [(ngModel)]="studentAnswers[q._id]" [inputId]="q._id + '-t'"></p-radioButton>
+                      <label [for]="q._id + '-t'" class="ml-sm cursor-pointer font-bold text-xl m-0">True</label>
+                    </div>
+                    <div class="option-tile surface-raised flex-center-content" 
+                         [class.selected]="studentAnswers[q._id] === false" 
+                         (click)="studentAnswers[q._id] = false">
+                      <p-radioButton [value]="false" [(ngModel)]="studentAnswers[q._id]" [inputId]="q._id + '-f'"></p-radioButton>
+                      <label [for]="q._id + '-f'" class="ml-sm cursor-pointer font-bold text-xl m-0">False</label>
+                    </div>
+                  </div>
+                }
+
+                @case ('short-answer') {
+                  <input pInputText type="text" [(ngModel)]="studentAnswers[q._id]" placeholder="Type your exact answer here..." class="custom-input w-full text-lg">
+                }
+
+                @case ('essay') {
+                  <textarea pTextarea [(ngModel)]="studentAnswers[q._id]" [rows]="4" placeholder="Write your detailed answer here..." class="custom-input textarea-input w-full"></textarea>
+                  <small class="text-tertiary block mt-sm"><i class="pi pi-info-circle"></i> Note: Essays require manual instructor grading.</small>
+                }
+
+              }
+            </div>
+
+          </div>
+        }
+      </div>
+
+      <div class="quiz-footer glass-panel mt-4xl flex justify-end align-items-center">
+        <p-button 
+          [label]="isSubmitting() ? 'Grading...' : 'Submit Answers'" 
+          [icon]="isSubmitting() ? 'pi pi-spinner pi-spin' : 'pi pi-check-circle'" 
+          severity="success"
+          size="large"
+          (onClick)="submitQuiz()" 
+          [disabled]="isSubmitting()">
+        </p-button>
+      </div>
+    </div>
+  }
+
+  @else if (quizState() === 'results') {
+    <div class="results-view glass-panel text-center fade-in" [ngClass]="resultsData().passed ? 'theme-pass' : 'theme-fail'">
+      
+      <div class="icon-circle mx-auto mb-2xl" [ngClass]="resultsData().passed ? 'bg-success-light border-success' : 'bg-error-light border-error'">
+        <i class="pi" [ngClass]="resultsData().passed ? 'pi-check text-success' : 'pi-times text-error'" style="font-size: 3.5rem;"></i>
+      </div>
+      
+      <h2 class="m-0 mb-sm text-4xl font-heading font-bold" [ngClass]="resultsData().passed ? 'text-success' : 'text-error'">
+        {{ resultsData().passed ? 'Quiz Passed!' : 'Quiz Failed' }}
+      </h2>
+      
+      <p class="text-secondary text-xl mb-4xl">
+        You scored <strong class="text-primary">{{ resultsData().score }}</strong> out of {{ resultsData().totalPoints }} points.
+      </p>
+      
+      <div class="score-bar-wrapper mb-4xl mx-auto glass-inset p-lg border-round-xl" style="max-width: 400px;">
+        <div class="flex justify-between align-items-end mb-sm">
+          <span class="text-sm text-secondary font-bold uppercase tracking-widest">Final Score</span>
+          <span class="text-2xl text-primary font-bold font-mono">{{ resultsData().percentage | number:'1.0-1' }}%</span>
+        </div>
+        <div class="score-track">
+          <div class="score-fill" 
+               [style.width]="resultsData().percentage + '%'" 
+               [ngClass]="resultsData().passed ? 'bg-success' : 'bg-error'"></div>
+        </div>
+      </div>
+
+      @if (!resultsData().passed) {
+        <p-button label="Try Again" icon="pi pi-refresh" severity="secondary" [outlined]="true" size="large" (onClick)="retryQuiz()"></p-button>
+      } @else {
+        <div class="success-box glass-inset p-lg border-round-xl inline-block">
+          <p class="text-primary m-0 text-lg font-medium"><i class="pi pi-check-circle text-success mr-sm"></i> Progress saved. You may proceed to the next lesson!</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- <div class="embedded-quiz-container glass-panel surface-raised">
   
   @if (isLoading()) {
     <div class="flex-center p-xl">
@@ -124,4 +285,4 @@
       }
     </div>
   }
-</div>
+</div> -->

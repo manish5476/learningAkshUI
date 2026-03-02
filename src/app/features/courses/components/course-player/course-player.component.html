@@ -1,4 +1,202 @@
-<div class="theater-container" [class.sidebar-collapsed]="!sidebarVisible()">
+<div class="theater-app-shell" [class.sidebar-collapsed]="!sidebarVisible()">
+  <p-toast position="top-right"></p-toast>
+  <p-confirmDialog styleClass="glass-dialog"></p-confirmDialog>
+
+  @if (loading()) {
+    <div class="fullscreen-state cinematic-bg">
+      <div class="loader-ring mb-xl"></div>
+      <p class="text-secondary font-heading font-bold uppercase tracking-widest text-sm m-0">Loading theater experience...</p>
+    </div>
+  } @else if (error()) {
+    <div class="fullscreen-state cinematic-bg">
+      <div class="icon-circle error-glow flex-center mb-2xl">
+        <i class="pi pi-lock text-error text-5xl"></i>
+      </div>
+      <h3 class="text-primary font-heading text-3xl m-0 mb-md">Access Denied</h3>
+      <p class="text-secondary m-0 mb-3xl text-center max-w-prose">{{ error() }}</p>
+      <p-button label="Go to My Learning" icon="pi pi-arrow-left" (onClick)="goToMyLearning()"></p-button>
+    </div>
+  } @else if (course()) {
+
+    <header class="player-topbar glass-panel border-bottom-subtle">
+      <div class="topbar-content flex-between gap-md w-full">
+        
+        <div class="header-left flex align-items-center gap-md flex-grow-1 overflow-hidden">
+          <p-button icon="pi pi-angle-left" severity="secondary" [text]="true" [rounded]="true" (onClick)="goToMyLearning()" pTooltip="Exit to Dashboard" tooltipPosition="bottom" styleClass="flex-shrink-0"></p-button>
+          <h1 class="header-title font-heading text-lg md:text-xl text-primary font-bold m-0 line-clamp-1">{{ course().title }}</h1>
+        </div>
+
+        <div class="header-right flex align-items-center gap-xl flex-shrink-0">
+          <div class="progress-indicator hidden-mobile flex-col gap-xs">
+            <div class="flex-between text-xs font-bold uppercase tracking-widest text-secondary">
+              <span class="flex align-items-center gap-xs"><i class="pi pi-trophy text-warning"></i> Progress</span>
+              <span>{{ courseProgress() }}%</span>
+            </div>
+            <p-progressBar [value]="courseProgress()" [showValue]="false" styleClass="theater-progress"></p-progressBar>
+          </div>
+          
+          @if (courseProgress() === 100) {
+            <p-button label="Certificate" icon="pi pi-verified" severity="success" size="small" (onClick)="completeCourse()" styleClass="hidden-mobile"></p-button>
+            <p-button icon="pi pi-verified" severity="success" [rounded]="true" [text]="true" (onClick)="completeCourse()" class="lg-hidden"></p-button>
+          }
+          
+          <p-button icon="pi pi-bars" severity="secondary" [text]="true" [rounded]="true" class="lg-hidden" (onClick)="toggleSidebar()"></p-button>
+        </div>
+      </div>
+    </header>
+
+    <div class="player-workspace relative flex flex-grow-1 overflow-hidden w-full">
+
+      <main class="content-stage flex-grow-1 custom-scrollbar bg-primary">
+        
+        <button class="sidebar-toggle-btn hidden-mobile border-primary" (click)="toggleSidebar()" pTooltip="Toggle Curriculum" tooltipPosition="left">
+          <i class="pi" [ngClass]="sidebarVisible() ? 'pi-angle-right' : 'pi-angle-left'"></i>
+        </button>
+
+        @if (currentLesson()) {
+          <div class="lesson-stage-inner flex-col max-w-screen mx-auto p-lg md:p-3xl w-full">
+
+            <div class="media-container bg-ternary border-radius-xl overflow-hidden border-secondary relative aspect-ratio-16-9 shadow-glow w-full">
+              @if (currentLesson().type === 'video' && safeVideoUrl()) {
+                <iframe [src]="safeVideoUrl()" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen class="w-full h-full absolute inset-0"></iframe>
+              } @else if (currentLesson().type === 'video' && currentLesson().content?.video?.provider === 'local') {
+                <video controls [src]="currentLesson().content.video.url" class="w-full h-full absolute inset-0 object-contain bg-black"></video>
+              } @else if (currentLesson().type === 'article') {
+                <div class="article-wrapper custom-scrollbar absolute inset-0 p-2xl md:p-4xl bg-secondary overflow-y-auto">
+                  <div class="article-content typography-body text-primary line-height-relaxed" [innerHTML]="currentLesson().content?.article?.body || 'No content provided.'"></div>
+                </div>
+              } @else if (currentLesson().type === 'quiz') {
+                <div class="absolute inset-0 bg-secondary overflow-y-auto custom-scrollbar">
+                  <app-lesson-quiz-taker [quizId]="currentLesson().content.quiz" (quizCompleted)="onProgressUpdatedFromTracker($event)"></app-lesson-quiz-taker>
+                </div>
+              } @else {
+                <div class="processing-wrapper absolute inset-0 flex-col flex-center bg-secondary text-center">
+                  <i class="pi pi-spin pi-spinner text-primary text-5xl mb-md"></i>
+                  <p class="text-secondary font-heading font-bold uppercase tracking-widest text-sm m-0">Loading content...</p>
+                </div>
+              }
+            </div>
+
+            <div class="lesson-meta-bar glass-panel surface-raised mt-2xl flex-col lg:flex-row flex-between gap-xl w-full">
+              <div class="meta-left flex-col gap-sm flex-grow-1">
+                <h2 class="lesson-title gradient-text font-heading text-2xl md:text-3xl font-bold m-0 line-height-tight">{{ currentLesson().title }}</h2>
+                <div class="lesson-badges flex flex-wrap gap-sm">
+                  <p-tag [value]="currentLesson().type | titlecase" icon="pi pi-tag" severity="secondary"></p-tag>
+                  @if (currentLesson().duration) {
+                    <p-tag [value]="currentLesson().duration | duration" icon="pi pi-clock" severity="secondary"></p-tag>
+                  }
+                </div>
+              </div>
+
+              <div class="meta-right flex-shrink-0 w-full lg:w-auto">
+                <app-lesson-progress-tracker [lessonId]="currentLesson()._id" [lessonDuration]="currentLesson().duration" (progressUpdated)="onProgressUpdatedFromTracker($event)"></app-lesson-progress-tracker>
+              </div>
+            </div>
+
+            @if (currentLesson().resources?.length || currentLesson().content?.article?.attachments?.length) {
+              <div class="resources-section glass-inset mt-2xl p-xl md:p-2xl border-radius-lg w-full">
+                <h3 class="section-heading font-heading text-lg text-primary m-0 mb-xl flex align-items-center gap-sm">
+                  <i class="pi pi-paperclip"></i> Downloadable Resources
+                </h3>
+                <div class="resources-grid">
+                  @for (resource of currentLesson().resources; track resource.url) {
+                    <a [href]="resource.url" target="_blank" class="resource-card flex align-items-center gap-md p-md bg-ternary border-secondary border-radius-md text-decoration-none hover-lift transition-base">
+                      <div class="r-icon flex-center bg-secondary border-radius-sm text-secondary w-2rem aspect-ratio-1"><i class="pi pi-download"></i></div>
+                      <div class="r-info flex-col flex-grow-1 overflow-hidden">
+                        <span class="r-title text-primary text-sm font-bold line-clamp-1">{{ resource.title }}</span>
+                        <span class="r-type text-tertiary text-xs uppercase tracking-widest">{{ resource.type | titlecase }}</span>
+                      </div>
+                    </a>
+                  }
+                  @for (attachment of currentLesson().content?.article?.attachments; track attachment) {
+                    <a [href]="attachment" target="_blank" class="resource-card flex align-items-center gap-md p-md bg-ternary border-secondary border-radius-md text-decoration-none hover-lift transition-base">
+                      <div class="r-icon flex-center bg-secondary border-radius-sm text-secondary w-2rem aspect-ratio-1"><i class="pi pi-file-pdf"></i></div>
+                      <div class="r-info flex-col flex-grow-1 overflow-hidden">
+                        <span class="r-title text-primary text-sm font-bold line-clamp-1">Article Attachment</span>
+                        <span class="r-type text-tertiary text-xs uppercase tracking-widest">Document</span>
+                      </div>
+                    </a>
+                  }
+                </div>
+              </div>
+            }
+
+            <div class="bottom-nav mt-3xl pt-2xl border-top-subtle flex-col md:flex-row flex-between gap-md w-full pb-5xl md:pb-xl">
+              <p-button label="Previous Lesson" icon="pi pi-arrow-left" severity="secondary" [outlined]="true" [disabled]="!lessonNav().prev" (onClick)="selectLesson(lessonNav().prev)" class="w-full md:w-auto" styleClass="w-full md:w-auto"></p-button>
+              <p-button label="Next Lesson" icon="pi pi-arrow-right" iconPos="right" [disabled]="!lessonNav().next" (onClick)="selectLesson(lessonNav().next)" class="w-full md:w-auto" styleClass="w-full md:w-auto"></p-button>
+            </div>
+
+          </div>
+        } @else {
+          <div class="fullscreen-state flex-col flex-center text-center p-2xl">
+            <i class="pi pi-play-circle text-5xl text-tertiary mb-md"></i>
+            <h3 class="font-heading text-2xl text-primary font-bold m-0 mb-xs">Ready to Learn?</h3>
+            <p class="text-secondary m-0">Select a lesson from the curriculum to begin.</p>
+          </div>
+        }
+      </main>
+
+      @if (sidebarVisible()) {
+        <div class="sidebar-backdrop absolute inset-0 bg-black-alpha-50 z-40 lg-hidden" (click)="toggleSidebar()"></div>
+      }
+      
+      <aside class="curriculum-sidebar flex-col border-left-subtle transition-transform bg-primary z-50" [class.open]="sidebarVisible()">
+        <div class="sidebar-top p-xl border-bottom-subtle sticky top-0 bg-primary z-10">
+          <h3 class="sidebar-title font-heading text-xl text-primary font-bold m-0">Course Content</h3>
+        </div>
+
+        <div class="sidebar-body flex-grow-1 overflow-y-auto custom-scrollbar">
+          <p-accordion [multiple]="true" [(value)]="expandedSections" styleClass="theater-accordion">
+            @for (section of sections(); track section._id; let i = $index) {
+              <p-accordion-panel [value]="i.toString()">
+                <p-accordion-header>
+                  <div class="flex-between w-full">
+                    <div class="flex-col gap-xs flex-grow-1 overflow-hidden pr-md">
+                      <span class="text-primary font-bold text-sm line-clamp-1">{{ section.title }}</span>
+                      <span class="text-tertiary font-mono text-xs">{{ section.lessons?.length || 0 }} lessons • {{ section.totalDuration || 0 | duration }}</span>
+                    </div>
+                  </div>
+                </p-accordion-header>
+                <p-accordion-content>
+                  <div class="sidebar-lessons flex-col">
+                    @for (lesson of section.lessons; track lesson._id) {
+                      <div class="sb-lesson-item flex align-items-start gap-md p-md cursor-pointer transition-base border-left-transparent hover-bg-hover" 
+                           [class.active-lesson]="currentLesson()?._id === lesson._id"
+                           (click)="selectLesson(lesson)">
+                        
+                        <div class="sb-status flex-center mt-xs">
+                          @if (completedLessons().has(lesson._id)) {
+                            <i class="pi pi-check-circle text-success text-lg"></i>
+                          } @else if (currentLesson()?._id === lesson._id) {
+                            <i class="pi pi-play text-primary text-lg play-pulse"></i>
+                          } @else {
+                            <i class="pi pi-circle text-tertiary text-lg"></i>
+                          }
+                        </div>
+
+                        <div class="sb-info flex-col gap-xs flex-grow-1 overflow-hidden">
+                          <span class="sb-title text-sm line-clamp-2 line-height-relaxed" [ngClass]="currentLesson()?._id === lesson._id ? 'text-primary font-bold' : 'text-secondary'">{{ lesson.title }}</span>
+                          <span class="sb-meta flex align-items-center gap-xs text-xs font-mono text-tertiary">
+                            <i class="pi" [class.pi-video]="lesson.type === 'video'" [class.pi-file-pdf]="lesson.type === 'article'" [class.pi-question-circle]="lesson.type === 'quiz'"></i>
+                            {{ lesson.duration || 0 | duration }}
+                          </span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </p-accordion-content>
+              </p-accordion-panel>
+            }
+          </p-accordion>
+        </div>
+      </aside>
+
+    </div>
+  }
+</div>
+
+
+<!-- <div class="theater-container" [class.sidebar-collapsed]="!sidebarVisible()">
   <p-toast position="top-right"></p-toast>
   <p-confirmDialog [style]="{width: '400px'}"></p-confirmDialog>
 
@@ -99,12 +297,6 @@
                 (progressUpdated)="onProgressUpdatedFromTracker($event)">
               </app-lesson-progress-tracker>
             </div>
-            <!-- <button class="btn-mark-complete" 
-                        [class.completed]="isCurrentLessonCompleted()"
-                        (click)="toggleLessonComplete()">
-                  <i class="pi" [ngClass]="isCurrentLessonCompleted() ? 'pi-check-circle' : 'pi-circle'"></i>
-                  {{ isCurrentLessonCompleted() ? 'Completed' : 'Mark as Complete' }}
-                </button> -->
           </div>
         </div>
 
@@ -209,4 +401,4 @@
 
   </div>
   }
-</div>
+</div> -->
