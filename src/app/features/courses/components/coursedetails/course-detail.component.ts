@@ -133,7 +133,7 @@ export class CourseDetailComponent implements OnInit {
   private loadCurriculum(courseId: string): void {
     forkJoin({
       sectionsRes: this.sectionService.getSectionsByCourse(courseId).pipe(catchError(() => of(null))),
-      lessonsRes: this.lessonService.getAll({ course: courseId, limit: 1000 }).pipe(catchError(() => of(null)))
+      lessonsRes: this.lessonService.getLessonsBySection(this.sectionId).pipe(catchError(() => of(null)))
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: ({ sectionsRes, lessonsRes }) => {
         const rawSections = sectionsRes?.data?.data || sectionsRes?.data || [];
@@ -183,7 +183,7 @@ export class CourseDetailComponent implements OnInit {
     const courseId = this.course()?._id;
     if (!courseId) return;
 
-    this.enrollmentService.enrollInCourse(courseId, null)
+    this.enrollmentService.getMyEnrollments(courseId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {

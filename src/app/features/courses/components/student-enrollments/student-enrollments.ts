@@ -113,23 +113,23 @@ export class StudentEnrollmentsComponent implements OnInit {
   downloadCertificate(enrollmentId: string): void {
     this.messageService.add({ severity: 'info', summary: 'Processing', detail: 'Generating your certificate...' });
     
-    this.enrollmentService.getCertificate(enrollmentId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (blob: Blob) => {
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `Certificate_${enrollmentId}.pdf`; 
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-          document.body.removeChild(a);
-        },
-        error: () => {
-          this.messageService.add({ severity: 'error', summary: 'Failed', detail: 'Could not download certificate.' });
-        }
-      });
+    // this.enrollmentService.getCertificate(enrollmentId)
+    //   .pipe(takeUntilDestroyed(this.destroyRef))
+    //   .subscribe({
+    //     next: (blob: Blob) => {
+    //       const url = window.URL.createObjectURL(blob);
+    //       const a = document.createElement('a');
+    //       a.href = url;
+    //       a.download = `Certificate_${enrollmentId}.pdf`; 
+    //       document.body.appendChild(a);
+    //       a.click();
+    //       window.URL.revokeObjectURL(url);
+    //       document.body.removeChild(a);
+    //     },
+    //     error: () => {
+    //       this.messageService.add({ severity: 'error', summary: 'Failed', detail: 'Could not download certificate.' });
+    //     }
+    //   });
   }
 }
 // // import { Component } from '@angular/core';
