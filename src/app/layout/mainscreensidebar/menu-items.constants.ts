@@ -36,6 +36,19 @@ export const SIDEBAR_MENU: MenuItem[] = [
         label: 'Explore Categories',
         icon: 'pi pi-sitemap',
         routerLink: ['/categories/tree'] // The recursive tree we built
+      },
+      // ==========================
+      // CERTIFICATES SECTION - STUDENT
+      // ==========================
+      {
+        label: 'My Certificates',
+        icon: 'pi pi-certificate',
+        routerLink: ['/certificates/my-certificates']
+      },
+      {
+        label: 'Verify Certificate',
+        icon: 'pi pi-shield',
+        routerLink: ['/certificates/verify']
       }
     ]
   },
@@ -73,6 +86,20 @@ export const SIDEBAR_MENU: MenuItem[] = [
         label: 'Mock Test Builder', 
         icon: 'pi pi-file-edit', 
         routerLink: ['/instructor/mock-tests/new']
+      },
+      // ==========================
+      // CERTIFICATES SECTION - INSTRUCTOR
+      // ==========================
+      {
+        label: 'My Certificates',
+        icon: 'pi pi-certificate',
+        routerLink: ['/certificates/my-certificates']
+      },
+      {
+        label: 'Student Certificates',
+        icon: 'pi pi-users',
+        routerLink: ['/instructor/certificates'],
+        badge: '12' // Example: number of recent certificates issued
       }
     ]
   },
@@ -99,6 +126,47 @@ export const SIDEBAR_MENU: MenuItem[] = [
         label: 'Catalog Structure',
         icon: 'pi pi-sliders-h',
         routerLink: ['/categories/admin'] // The category management directory
+      },
+      // ==========================
+      // CERTIFICATES SECTION - ADMIN
+      // ==========================
+      {
+        label: 'Certificate Dashboard',
+        icon: 'pi pi-chart-pie',
+        routerLink: ['/certificates/admin'],
+        badge: 'New'
+      },
+      {
+        label: 'Certificate Management',
+        icon: 'pi pi-shield',
+        routerLink: ['/certificates/admin/certificates']
+      },
+      {
+        label: 'Issue Certificate',
+        icon: 'pi pi-plus-circle',
+        routerLink: ['/certificates/admin/issue']
+      },
+      {
+        label: 'Bulk Operations',
+        icon: 'pi pi-sync',
+        expanded: false,
+        items: [
+          {
+            label: 'Bulk Generate',
+            icon: 'pi pi-file-pdf',
+            routerLink: ['/certificates/admin/bulk/generate']
+          },
+          {
+            label: 'Bulk Revoke',
+            icon: 'pi pi-times-circle',
+            routerLink: ['/certificates/admin/bulk/revoke']
+          },
+          {
+            label: 'Export Reports',
+            icon: 'pi pi-download',
+            routerLink: ['/certificates/admin/export']
+          }
+        ]
       }
     ]
   },
@@ -115,6 +183,12 @@ export const SIDEBAR_MENU: MenuItem[] = [
         icon: 'pi pi-cog', 
         routerLink: ['/my-profile']
       },
+      // Add certificates to profile section as well
+      {
+        label: 'My Certificates',
+        icon: 'pi pi-certificate',
+        routerLink: ['/certificates/my-certificates']
+      },
       { 
         label: 'Sign Out', 
         icon: 'pi pi-sign-out', 
@@ -123,119 +197,3 @@ export const SIDEBAR_MENU: MenuItem[] = [
     ]
   }
 ];
-
-// export interface MenuItem {
-//   label: string;
-//   icon: string;
-//   routerLink?: string[];
-//   items?: MenuItem[];
-//   badge?: string;
-//   expanded?: boolean;
-//   roles?: string[]; // <-- Added this! ['admin', 'instructor', 'student']
-// }
-
-// export const SIDEBAR_MENU: MenuItem[] = [
-//   // ==========================
-//   // 1. LEARNING / PUBLIC (Visible to everyone)
-//   // ==========================
-//   {
-//     label: 'Learning',
-//     icon: 'pi pi-home',
-//     expanded: true,
-//     items: [
-//       { 
-//         label: 'Dashboard', 
-//         icon: 'pi pi-th-large', 
-//         routerLink: ['/home'] 
-//       },
-//       {
-//         label: 'Browse Courses',
-//         icon: 'pi pi-search',
-//         routerLink: ['/courses']
-//       },
-//       {
-//         label: 'Mock Tests',
-//         icon: 'pi pi-clipboard',
-//         routerLink: ['/mock-tests'] // The student mock test hub
-//       },
-//       {
-//         label: 'Categories',
-//         icon: 'pi pi-sitemap',
-//         routerLink: ['/categories/tree'] 
-//       }
-//     ]
-//   },
-
-//   // ==========================
-//   // 2. INSTRUCTOR AREA
-//   // ==========================
-//   {
-//     label: 'Teaching Hub',
-//     icon: 'pi pi-graduation-cap',
-//     expanded: true,
-//     roles: ['instructor', 'admin'], // <-- Only Instructors and Admins see this block
-//     items: [
-//       { 
-//         label: 'Command Center', 
-//         icon: 'pi pi-chart-line', 
-//         routerLink: ['/instructor/dashboard']
-//       },
-//       { 
-//         label: 'My Courses', 
-//         icon: 'pi pi-book', 
-//         routerLink: ['/instructor/courses']
-//       },
-//       {
-//         label: 'Quiz Manager',
-//         icon: 'pi pi-list',
-//         routerLink: ['/instructor/quizzes']
-//       },
-//       { 
-//         label: 'Create Mock Test', 
-//         icon: 'pi pi-file-edit', 
-//         routerLink: ['/instructor/mock-tests/new']
-//       }
-//     ]
-//   },
-
-//   // ==========================
-//   // 3. ADMIN AREA
-//   // ==========================
-//   {
-//     label: 'Administration',
-//     icon: 'pi pi-briefcase',
-//     roles: ['admin'], // <-- ONLY Admins see this block
-//     items: [
-//       { 
-//         label: 'User Management', 
-//         icon: 'pi pi-users', 
-//         routerLink: ['/users']
-//       },
-//       {
-//         label: 'Manage Categories',
-//         icon: 'pi pi-sliders-h',
-//         routerLink: ['/categories/admin']
-//       }
-//     ]
-//   },
-
-//   // ==========================
-//   // 4. USER ACCOUNT
-//   // ==========================
-//   {
-//     label: 'Account',
-//     icon: 'pi pi-user',
-//     items: [
-//       { 
-//         label: 'Profile Settings', 
-//         icon: 'pi pi-cog', 
-//         routerLink: ['/my-profile']
-//       },
-//       { 
-//         label: 'Logout', 
-//         icon: 'pi pi-sign-out', 
-//         routerLink: ['/auth/login'] 
-//       }
-//     ]
-//   }
-// ];

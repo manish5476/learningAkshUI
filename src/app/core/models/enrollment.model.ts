@@ -1,64 +1,93 @@
-// enrollment.model.ts
-
-import { Course } from './course.model';
-import { User } from './user.model'; // Assuming you have a User model
-
-export interface Payment {
-  _id: string;
-  user: string | User;
-  course?: string | Course;
-  mockTest?: string;
-  amount: number;
-  currency: string;
-  paymentMethod: 'credit_card' | 'debit_card' | 'paypal' | 'bank_transfer' | 'upi' | 'razorpay' | 'stripe';
-  transactionId: string;
-  paymentGateway?: string;
-  status: 'pending' | 'success' | 'failed' | 'refunded';
-  refundAmount?: number;
-  refundReason?: string;
-  refundedAt?: string;
-  metadata?: any;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ProgressTracking {
-  _id?: string;
-  student: string | User;
-  course: string | Course;
-  courseProgressPercentage: number;
-  lastActivity: string;
-}
-
 export interface Enrollment {
   _id: string;
-  course: string | Course;
-  student: string | User;
-  payment?: string | Payment;
-  enrolledAt: string;
-  expiryDate?: string;
+  course: {
+    _id: string;
+    title: string;
+    thumbnail?: string;
+    instructor?: {
+      _id: string;
+      firstName: string;
+      lastName: string;
+    };
+  };
+  student: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    profilePicture?: string;
+  };
+  payment?: {
+    _id: string;
+    amount: number;
+    currency: string;
+    status: string;
+    transactionId: string;
+  };
+  enrolledAt: Date;
+  expiryDate?: Date;
   isActive: boolean;
   isRevoked: boolean;
-  
-  // Virtual / Populated field attached via backend's getMyEnrollments
-  progress?: ProgressTracking; 
-  
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface EnrollmentPayload {
-  courseId: string;
-  paymentId?: string;
+  progress?: EnrollmentProgress;
 }
 
 export interface EnrollmentProgress {
-  enrollmentId: string;
-  courseId: string;
-  studentId: string;
-  progress: number;
-  completedLessons: string[];
-  lastLessonId?: string;
-  lastLessonAt?: string;
-  estimatedCompletionDate?: string;
+  _id: string;
+  student: string;
+  course: string;
+  completedLessons: Array<{
+    lesson: string;
+    completedAt: Date;
+    timeSpent?: number;
+    attempts?: number;
+  }>;
+  completedQuizzes?: Array<{
+    quiz: string;
+    score: number;
+    completedAt: Date;
+    attempts?: number;
+  }>;
+  completedAssignments?: Array<{
+    assignment: string;
+    score: number;
+    completedAt: Date;
+  }>;
+  courseProgressPercentage: number;
+  totalTimeSpent: number;
+  lastActivity: Date;
+  isCompleted: boolean;
+  completedAt?: Date;
+}
+
+export interface EnrollmentStats {
+  totalEnrollments: number;
+  activeEnrollments: number;
+  completedEnrollments: number;
+  totalRevenue: number;
+  byCourse: Array<{
+    course: string;
+    count: number;
+    revenue: number;
+  }>;
+}
+
+export interface CourseAnalytics {
+  totalEnrollments: number;
+  completed: number;
+  completionRate: number;
+  avgProgress: number;
+  dailyActive: Array<{
+    _id: string;
+    count: number;
+  }>;
+  enrollmentsOverTime: Array<{
+    _id: string;
+    count: number;
+  }>;
+}
+
+export interface EnrollmentTrend {
+  _id: string;
+  count: number;
+  revenue?: number;
 }

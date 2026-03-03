@@ -106,7 +106,7 @@ export class CategoryFormComponent implements OnInit {
   }
 
   private loadCategories(): void {
-    this.categoryService.getAllCategory({ isActive: true }) 
+    this.categoryService.getAllCategories({ isActive: true }) 
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
@@ -124,7 +124,7 @@ export class CategoryFormComponent implements OnInit {
 
   private loadCategory(id: string): void {
     this.isLoading.set(true);
-    this.categoryService.getcategoryById(id)
+    this.categoryService.getCategoryById(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
@@ -151,7 +151,7 @@ export class CategoryFormComponent implements OnInit {
   }
 
   private loadParentCategory(id: string): void {
-    this.categoryService.getcategoryById(id)
+    this.categoryService.getCategoryById(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
@@ -343,7 +343,7 @@ export class CategoryFormComponent implements OnInit {
 
 //   private loadCategory(id: string): void {
 //     this.isLoading.set(true);
-//     this.categoryService.getcategoryById(id)
+//     this.categoryService.getCategoryById(id)
 //       .pipe(takeUntilDestroyed(this.destroyRef))
 //       .subscribe({
 //         next: (res: any) => {
@@ -372,7 +372,7 @@ export class CategoryFormComponent implements OnInit {
 //   }
 
 //   private loadParentCategory(id: string): void {
-//     this.categoryService.getcategoryById(id)
+//     this.categoryService.getCategoryById(id)
 //       .pipe(takeUntilDestroyed(this.destroyRef))
 //       .subscribe({
 //         next: (res: any) => {

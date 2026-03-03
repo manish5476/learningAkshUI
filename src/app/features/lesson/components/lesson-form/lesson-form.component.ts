@@ -122,7 +122,7 @@ export class LessonFormComponent implements OnInit {
 
   private loadLesson(id: string): void {
     this.isLoading.set(true);
-    this.lessonService.getById(id)
+    this.lessonService.getById(this.courseId(),this.sectionId(),id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
@@ -249,8 +249,8 @@ export class LessonFormComponent implements OnInit {
 
     const id = this.lessonId();
     const request$ = (id 
-      ? this.lessonService.update(id, payload)
-      : this.lessonService.create(payload)) as Observable<any>; // Cast to avoid union type error
+      ? this.lessonService.update(this.courseId(),this.sectionId(),id,payload)
+      : this.lessonService.create(this.courseId(),this.sectionId(),payload)) as Observable<any>; // Cast to avoid union type error
 
     request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: any) => {

@@ -54,6 +54,10 @@ export const routes: Routes = [
   {
     path: 'auth',
     loadChildren: () => import('./core/routes/auth.routes').then(m => m.AUTH_ROUTES)
+  }, 
+  {
+    path: 'certificates',
+    loadChildren: () => import('./features/certificates/certificate.routes').then(m => m.CERTIFICATE_ROUTES)
   },
   // Wildcard fallback
   {
@@ -105,7 +109,7 @@ export const routes: Routes = [
 //       // Admin routes: Maps to /users
 //       {
 //         path: '',
-//         loadChildren: () => 
+//         loadChildren: () =>
 //           import('./features/Users/admin.routes').then(m => m.ADMIN_ROUTES)
 //       }
 //     ]

@@ -110,7 +110,7 @@ export class CategoryListComponent implements OnInit {
 
   loadCategories(): void {
     this.loading.set(true);
-    this.categoryService.getAllCategory({}).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.categoryService.getAllCategories({}).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: any) => {
         const payload = res?.data?.data || res?.data || [];
         this.categories.set(Array.isArray(payload) ? payload : []);

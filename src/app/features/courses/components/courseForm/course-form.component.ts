@@ -153,7 +153,7 @@ export class CourseFormComponent implements OnInit {
   // --- API Calls ---
 
   private loadCategories(): void {
-    this.categoryService.getAllCategory({ isActive: true })
+    this.categoryService.getAllCategories({ isActive: true })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => this.categories.set(res.data?.data || res.data || []),

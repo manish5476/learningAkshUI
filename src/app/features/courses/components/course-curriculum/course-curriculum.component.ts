@@ -159,7 +159,7 @@ export class CourseCurriculumComponent implements OnInit {
     const editId = this.editingSectionId();
 
     if (editId) {
-      this.sectionService.updateSection(editId, formData).subscribe({
+      this.sectionService.updateSection(this.courseId(),editId, formData).subscribe({
         next: () => {
           this.showSuccess('Section updated successfully');
           this.closeSectionDialog();
@@ -168,7 +168,7 @@ export class CourseCurriculumComponent implements OnInit {
         error: () => this.showError('Failed to update section')
       });
     } else {
-      this.sectionService.createSection(formData).subscribe({
+      this.sectionService.createSection(this.courseId(),formData).subscribe({
         next: () => {
           this.showSuccess('Section created successfully');
           this.closeSectionDialog();
@@ -186,7 +186,7 @@ export class CourseCurriculumComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
-        this.sectionService.deleteSection(section._id).subscribe({
+        this.sectionService.deleteSection(this.courseId(),section._id).subscribe({
           next: () => {
             this.showSuccess('Section deleted');
             this.loadSections();

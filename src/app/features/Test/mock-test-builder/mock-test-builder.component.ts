@@ -102,7 +102,7 @@ export class MockTestBuilderComponent implements OnInit {
   }
 
   private loadCategories(): void {
-    this.categoryService.getAllCategory({ isActive: true })
+    this.categoryService.getAllCategories({ isActive: true })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => this.categories.set(res.data?.data || res.data || []),

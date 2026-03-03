@@ -58,7 +58,7 @@ export class CategoryDetailComponent implements OnInit {
 
   loadFullDetails(id: string): void {
     this.isLoading.set(true);
-    this.categoryService.getcategoryById(id)
+    this.categoryService.getCategoryById(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
@@ -146,7 +146,7 @@ export class CategoryDetailComponent implements OnInit {
 
 //   loadFullDetails(id: string): void {
 //     this.isLoading.set(true);
-//     this.categoryService.getcategoryById(id)
+//     this.categoryService.getCategoryById(id)
 //       .pipe(takeUntilDestroyed(this.destroyRef))
 //       .subscribe({
 //         next: (res: any) => {

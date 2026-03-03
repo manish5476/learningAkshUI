@@ -97,7 +97,7 @@ export class LessonListComponent implements OnInit {
 
   private loadLessons(sectionId: string): void {
     this.loading.set(true);
-    this.lessonService.getLessonsBySection(sectionId)
+    this.lessonService.getLessonsBySection(this.courseId(),sectionId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
@@ -146,7 +146,7 @@ export class LessonListComponent implements OnInit {
     this.lessons.set(newLessons);
 
     // Persist to backend
-    this.lessonService.reorderLessons(this.sectionId(), reorderedPayload)
+    this.lessonService.reorderLessons(this.courseId(),this.sectionId(), reorderedPayload)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -187,7 +187,7 @@ export class LessonListComponent implements OnInit {
       header: 'Confirm Delete',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.lessonService.delete(lesson._id)
+        this.lessonService.delete(this.courseId(),this.sectionId(),lesson._id)
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
             next: () => {

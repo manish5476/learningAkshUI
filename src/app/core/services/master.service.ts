@@ -654,7 +654,46 @@ export class ProgressService {
     return this.baseApi.get<Models.ProgressTracking>(`${this.endpoint}/student/${studentId}/course/${courseId}`);
   }
 }
+export interface Certificate {
+  _id: string;
+  student: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+  };
+  course: {
+    _id: string;
+    title: string;
+  };
+  instructor: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+  };
+  certificateNumber: string;
+  studentName: string;
+  courseName: string;
+  issueDate: Date;
+  expiryDate?: Date;
+  grade?: string;
+  percentage?: number;
+  instructorName: string;
+  certificateUrl?: string;
+  verificationUrl?: string;
+  isValid: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
+export interface CertificateVerification {
+  studentName: string;
+  courseName: string;
+  issueDate: Date;
+  grade?: string;
+  percentage?: number;
+  instructorName: string;
+  isValid: boolean;
+}
 @Injectable({ providedIn: 'root' })
 export class CertificateService {
   private readonly endpoint = 'certificates';
