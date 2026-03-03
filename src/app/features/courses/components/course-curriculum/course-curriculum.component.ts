@@ -91,10 +91,11 @@ export class CourseCurriculumComponent implements OnInit {
     }
   }
 
-  loadData(): void {
+ loadData(): void {
     this.loading.set(true);
     
-    this.courseService.getCoursesById(this.courseId()).subscribe({
+    // 🔥 CHANGED THIS LINE to use the instructor-specific fetch method
+    this.courseService.getInstructorCourseById(this.courseId()).subscribe({
       next: (res: any) => {
         const courseData = res.data?.data || res.data?.course || res.data; 
         this.course.set(courseData);
@@ -104,7 +105,7 @@ export class CourseCurriculumComponent implements OnInit {
 
     this.loadSections();
   }
-
+  
   loadSections(): void {
     this.sectionService.getSectionsByCourse(this.courseId()).subscribe({
       next: (res: any) => {

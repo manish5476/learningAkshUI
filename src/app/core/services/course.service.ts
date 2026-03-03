@@ -29,6 +29,14 @@ export class CourseService {
     return this.baseApi.get<Course[]>(`${this.endpoint}/instructor/my-courses`);
   }
 
+  // Add this inside course.service.ts
+getInstructorCourseById(courseId: string) {
+  // Notice the URL specifically hits our new VIP instructor route
+  return this.baseApi.get(`${this.endpoint}/instructor/courses/${courseId}`);
+}
+  publishCourses(id: string): Observable<ApiResponse<Course>> {
+    return this.baseApi.patch<Course>(`${this.endpoint}/${id}/publish`, {}, { showLoader: true });
+  }
   createCourses(data: CourseFormData): Observable<ApiResponse<{ course: Course }>> {
     return this.baseApi.post<{ course: Course }>(this.endpoint, data, { showLoader: true });
   }
@@ -41,9 +49,7 @@ export class CourseService {
     return this.baseApi.delete<null>(`${this.endpoint}/${id}`, { showLoader: true });
   }
 
-  publishCourses(id: string): Observable<ApiResponse<Course>> {
-    return this.baseApi.patch<Course>(`${this.endpoint}/${id}/publish`, {}, { showLoader: true });
-  }
+
 
   // ==================== ADMIN ROUTES ====================
   approveCourses(id: string): Observable<ApiResponse<Course>> {

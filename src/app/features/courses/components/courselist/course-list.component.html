@@ -1,53 +1,51 @@
 <div class="course-list-container fade-in">
   <p-toast position="top-right"></p-toast>
 
-  <!-- ================= HEADER ================= -->
-  <div class="page-header">
+  <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
     <div>
       <h1 class="page-title">Browse Courses</h1>
       <p class="page-subtitle">
         Discover the perfect course for your learning journey
       </p>
     </div>
+
+    @if (canManageCourses()) {
+      <p-button 
+        label="Create New Course" 
+        icon="pi pi-plus" 
+        [routerLink]="['/instructor/courses/new']">
+      </p-button>
+    }
   </div>
 
-  <!-- ================= FILTERS ================= -->
   <div class="filters-bar">
     <div class="filters-grid">
-
-      <!-- Search -->
       <span class="w-full">
         <input type="text" pInputText [(ngModel)]="filters.search" (ngModelChange)="onFilterChange()"
           placeholder="Search courses..." class="w-full" />
       </span>
 
-      <!-- Category -->
       <p-select [options]="categories()" optionLabel="name" optionValue="_id" [(ngModel)]="filters.category"
         (onChange)="onFilterChange()" placeholder="All Categories" [showClear]="true" styleClass="w-full">
       </p-select>
 
-      <!-- Level -->
       <p-select [options]="levelOptions" [(ngModel)]="filters.level" (onChange)="onFilterChange()"
         placeholder="All Levels" [showClear]="true" styleClass="w-full">
       </p-select>
 
-      <!-- Sort -->
       <p-select [options]="sortOptions" [(ngModel)]="filters.sort" (onChange)="onFilterChange()" placeholder="Sort by"
         styleClass="w-full">
       </p-select>
 
-      <!-- Clear Button -->
       @if (hasActiveFilters()) {
       <button class="clear-filters-btn" (click)="clearFilters()">
         <i class="pi pi-filter-slash"></i>
         Clear
       </button>
       }
-
     </div>
   </div>
 
-  <!-- ================= LOADING STATE ================= -->
   @if (loading()) {
   <div class="courses-grid">
     @for (item of [1,2,3,4,5,6]; track item) {
@@ -60,13 +58,10 @@
   </div>
   }
 
-  <!-- ================= COURSES ================= -->
   @else {
-
   <div class="courses-grid">
     @for (course of courses(); track course._id) {
-    <app-property-course-card [course]="course">
-    </app-property-course-card>
+      <app-property-course-card [course]="course"></app-property-course-card>
     }
 
     @empty {
@@ -76,33 +71,24 @@
       </div>
       <h3>No courses found</h3>
       <p>Try adjusting your search or filters</p>
-      <p-button label="Clear Filters" icon="pi pi-filter-slash" (onClick)="clearFilters()">
-      </p-button>
+      <p-button label="Clear Filters" icon="pi pi-filter-slash" (onClick)="clearFilters()"></p-button>
     </div>
     }
   </div>
 
-  <!-- ================= PAGINATION ================= -->
   @if (pagination().totalPages > 1) {
   <div class="pagination-wrapper">
-
     <button class="pagination-btn" [disabled]="pagination().page === 1" (click)="changePage(pagination().page - 1)">
       <i class="pi pi-chevron-left"></i>
     </button>
-
     <span class="pagination-info">
-      Page {{ pagination().page }}
-      of {{ pagination().totalPages }}
+      Page {{ pagination().page }} of {{ pagination().totalPages }}
     </span>
-
     <button class="pagination-btn" [disabled]="pagination().page === pagination().totalPages"
       (click)="changePage(pagination().page + 1)">
       <i class="pi pi-chevron-right"></i>
     </button>
-
   </div>
   }
-
   }
-
-</div> 
+</div>

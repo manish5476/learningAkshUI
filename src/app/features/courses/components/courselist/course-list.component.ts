@@ -1,5 +1,5 @@
 import { Category } from "./../../../../core/models/course.model";
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -16,6 +16,7 @@ import { Course, CourseQueryParams } from '../../../../core/models/course.model'
 import { PropertyCourseCardComponent } from '../../../../shared/components/course-card.component';
 import { CategoryService } from "../../../../core/services/category.service";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { AuthService } from "../../../../core/services/auth.service"; // <-- IMPORT AUTH SERVICE
 
 @Component({
   selector: 'app-course-list',
@@ -41,6 +42,7 @@ export class CourseListComponent implements OnInit {
   private categoryService = inject(CategoryService);
   private messageService = inject(MessageService);
   private destroyRef = inject(DestroyRef);
+  private authService = inject(AuthService); // <-- INJECT AUTH SERVICE
 
   /* ========================
      FILTER STATE
@@ -59,6 +61,7 @@ export class CourseListComponent implements OnInit {
   courses = signal<Course[]>([]);
   loading = signal<boolean>(true);
   categories = signal<Category[]>([]);
+  currentUser = signal<any>(null); // <-- STORE CURRENT USER
 
   pagination = signal({
     page: 1,
@@ -67,6 +70,12 @@ export class CourseListComponent implements OnInit {
     totalPages: 1,
     hasNextPage: false,
     hasPrevPage: false
+  });
+
+  // <-- COMPUTED SIGNAL FOR PERMISSIONS
+  canManageCourses = computed(() => {
+    const user = this.currentUser();
+    return user && (user.role === 'admin' || user.role === 'instructor');
   });
 
   /* ========================
@@ -88,13 +97,17 @@ export class CourseListComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    // Listen to Auth State
+    this.authService.currentUser$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(user => this.currentUser.set(user));
+
     this.loadCategories();
     this.loadCourses();
   }
 
-  /* ========================
-     LOAD CATEGORIES
-  ======================== */
+  /* ... [Keep all your existing methods: loadCategories, loadCourses, onFilterChange, clearFilters, changePage, hasActiveFilters exactly as they are] ... */
+
   private loadCategories(): void {
     this.categoryService.getAllCategories({ isActive: true })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -103,21 +116,13 @@ export class CourseListComponent implements OnInit {
           this.categories.set(res?.data?.data || res?.data || []);
         },
         error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to load categories'
-          });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load categories' });
         }
       });
   }
 
-  /* ========================
-     LOAD COURSES
-  ======================== */
   loadCourses(): void {
     this.loading.set(true);
-
     const params: CourseQueryParams = {};
     Object.entries(this.filters).forEach(([key, value]) => {
       if (value !== null && value !== undefined && value !== '') {
@@ -135,31 +140,18 @@ export class CourseListComponent implements OnInit {
         },
         error: () => {
           this.loading.set(false);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to load courses'
-          });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load courses' });
         }
       });
   }
 
-  /* ========================
-     FILTER ACTIONS
-  ======================== */
   onFilterChange(): void {
     this.filters.page = 1;
     this.loadCourses();
   }
 
   clearFilters(): void {
-    this.filters = {
-      page: 1,
-      limit: 12,
-      sort: '-createdAt',
-      isPublished: true,
-      isApproved: true
-    };
+    this.filters = { page: 1, limit: 12, sort: '-createdAt', isPublished: true, isApproved: true };
     this.loadCourses();
   }
 

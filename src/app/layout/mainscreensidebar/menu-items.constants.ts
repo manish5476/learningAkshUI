@@ -1,13 +1,3 @@
-export interface MenuItem {
-  label: string;
-  icon: string;
-  routerLink?: string[];
-  items?: MenuItem[];
-  badge?: string;
-  expanded?: boolean;
-  roles?: string[]; 
-}
-
 export const SIDEBAR_MENU: MenuItem[] = [
   // ==========================
   // 1. STUDENT EXPERIENCE (Visible to everyone)
@@ -20,7 +10,7 @@ export const SIDEBAR_MENU: MenuItem[] = [
       { 
         label: 'Dashboard', 
         icon: 'pi pi-th-large', 
-        routerLink: ['/my-learning'] // Your student dashboard with course progress
+        routerLink: ['/my-learning'] 
       },
       {
         label: 'Browse Courses',
@@ -35,16 +25,13 @@ export const SIDEBAR_MENU: MenuItem[] = [
       {
         label: 'Popular Categories',
         icon: 'pi pi-sitemap',
-        routerLink: ['/categories/popular'] // The recursive tree we built
+        routerLink: ['/categories/popular']
       },
       {
         label: 'Explore Categories',
         icon: 'pi pi-sitemap',
-        routerLink: ['/categories/tree'] // The recursive tree we built
+        routerLink: ['/categories/tree']
       },
-      // ==========================
-      // CERTIFICATES SECTION - STUDENT
-      // ==========================
       {
         label: 'My Certificates',
         icon: 'pi pi-certificate',
@@ -70,31 +57,48 @@ export const SIDEBAR_MENU: MenuItem[] = [
       { 
         label: 'Command Center', 
         icon: 'pi pi-chart-line', 
-        routerLink: ['/instructor/dashboard'] // The Bento-stats dashboard
+        routerLink: ['/instructor/dashboard']
       },
       { 
         label: 'Course Manager', 
         icon: 'pi pi-book', 
-        routerLink: ['/instructor/courses'] // The fluid card-based management feed
+        routerLink: ['/instructor/courses']
       },
       { 
         label: 'Build New Course', 
         icon: 'pi pi-plus-circle', 
-        routerLink: ['/instructor/courses/new'] // The 4-step wizard form
+        routerLink: ['/instructor/courses/new']
+      },
+      {
+        label: 'Edit Course',
+        icon: 'pi pi-pencil',
+        routerLink: ['/instructor/courses/:id/edit']
+      },
+      {
+        label: 'Manage Curriculum',
+        icon: 'pi pi-list',
+        routerLink: ['/instructor/courses/:id/curriculum']
+      },
+      {
+        label: 'Student Roster',
+        icon: 'pi pi-users',
+        routerLink: ['/instructor/courses/:id/students']
       },
       {
         label: 'Instructor Assessments',
         icon: 'pi pi-list',
         routerLink: ['/instructor/assessments']
       },
+      {
+        label: 'Quiz Builder',
+        icon: 'pi pi-question-circle',
+        routerLink: ['/instructor/quiz/:id']
+      },
       { 
         label: 'Mock Test Builder', 
         icon: 'pi pi-file-edit', 
         routerLink: ['/instructor/mock-tests/new']
       },
-      // ==========================
-      // CERTIFICATES SECTION - INSTRUCTOR
-      // ==========================
       {
         label: 'My Certificates',
         icon: 'pi pi-certificate',
@@ -104,7 +108,7 @@ export const SIDEBAR_MENU: MenuItem[] = [
         label: 'Student Certificates',
         icon: 'pi pi-users',
         routerLink: ['/instructor/certificates'],
-        badge: '12' // Example: number of recent certificates issued
+        badge: '12'
       }
     ]
   },
@@ -130,11 +134,8 @@ export const SIDEBAR_MENU: MenuItem[] = [
       {
         label: 'Catalog Structure',
         icon: 'pi pi-sliders-h',
-        routerLink: ['/categories/admin'] // The category management directory
+        routerLink: ['/categories/admin']
       },
-      // ==========================
-      // CERTIFICATES SECTION - ADMIN
-      // ==========================
       {
         label: 'Certificate Dashboard',
         icon: 'pi pi-chart-pie',
@@ -188,7 +189,6 @@ export const SIDEBAR_MENU: MenuItem[] = [
         icon: 'pi pi-cog', 
         routerLink: ['/my-profile']
       },
-      // Add certificates to profile section as well
       {
         label: 'My Certificates',
         icon: 'pi pi-certificate',
@@ -202,3 +202,13 @@ export const SIDEBAR_MENU: MenuItem[] = [
     ]
   }
 ];
+
+export interface MenuItem {
+  label: string;
+  icon: string;
+  routerLink?: string[];
+  items?: MenuItem[];
+  badge?: string;
+  expanded?: boolean;
+  roles?: string[]; 
+}
