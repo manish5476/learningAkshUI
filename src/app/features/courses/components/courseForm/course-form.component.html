@@ -84,18 +84,18 @@
 
                 <div class="form-group flex-col gap-xs">
                   <label class="input-label text-primary font-bold text-sm">Category <span class="text-error">*</span></label>
-                  <p-select appendTo="body" formControlName="category" [options]="categories()" optionLabel="name" optionValue="_id" placeholder="Select category" [filter]="true" filterBy="name" styleClass="w-full"></p-select>
+                  <p-select appendTo='body' appendTo="body" formControlName="category" [options]="categories()" optionLabel="name" optionValue="_id" placeholder="Select category" [filter]="true" filterBy="name" styleClass="w-full"></p-select>
                   @if (isFieldInvalid('category')) { <small class="text-error font-bold">Category is required</small> }
                 </div>
 
                 <div class="form-group flex-col gap-xs">
                   <label class="input-label text-primary font-bold text-sm">Difficulty Level <span class="text-error">*</span></label>
-                  <p-select appendTo="body" formControlName="level" [options]="difficultyLevels" optionLabel="name" optionValue="value" placeholder="Select level" styleClass="w-full"></p-select>
+                  <p-select appendTo='body' appendTo="body" formControlName="level" [options]="difficultyLevels" optionLabel="name" optionValue="value" placeholder="Select level" styleClass="w-full"></p-select>
                 </div>
 
                 <div class="form-group flex-col gap-xs col-span-full">
                   <label class="input-label text-primary font-bold text-sm">Language <span class="text-error">*</span></label>
-                  <p-select appendTo="body" formControlName="language" [options]="languages" optionLabel="name" optionValue="value" placeholder="Select language" styleClass="w-full"></p-select>
+                  <p-select appendTo='body' appendTo="body" formControlName="language" [options]="languages" optionLabel="name" optionValue="value" placeholder="Select language" styleClass="w-full"></p-select>
                 </div>
 
                 <div class="form-group flex-col gap-xs col-span-full">
@@ -168,7 +168,7 @@
                                  [class.pi-question-circle]="getLessonControl(i, j, 'type').value === 'quiz'">
                               </i>
                               <input type="text" pInputText [formControl]="getLessonControl(i, j, 'title')" placeholder="Lesson title..." class="w-full flex-grow-1">
-                              <p-select appendTo="body" [formControl]="getLessonControl(i, j, 'type')" [options]="lessonTypes" optionLabel="name" optionValue="value" styleClass="w-auto"></p-select>
+                              <p-select appendTo='body' appendTo="body" [formControl]="getLessonControl(i, j, 'type')" [options]="lessonTypes" optionLabel="name" optionValue="value" styleClass="w-auto"></p-select>
                               <p-button icon="pi pi-times" severity="secondary" [text]="true" [rounded]="true" (onClick)="removeLesson(i, j)"></p-button>
                             </div>
                           }
@@ -206,7 +206,7 @@
 
                   <div class="form-group flex-col gap-xs">
                     <label class="input-label text-primary font-bold text-sm">Currency</label>
-                    <p-select appendTo="body" formControlName="currency" [options]="currencies" optionLabel="name" optionValue="value" styleClass="w-full"></p-select>
+                    <p-select appendTo='body' appendTo="body" formControlName="currency" [options]="currencies" optionLabel="name" optionValue="value" styleClass="w-full"></p-select>
                   </div>
 
                   <div class="form-group col-span-full mt-xl pt-xl border-top-subtle flex align-items-center gap-md cursor-pointer transition-base" (click)="toggleDiscount()">
@@ -423,7 +423,7 @@
             <label class="input-label">Category <span class="required">*</span></label>
             <div class="select-wrapper">
               <i class="field-icon pi pi-folder"></i>
-              <p-select appendTo="body" filter="true" filterBy="name" formControlName="category" [options]="categories()" [invalid]="isFieldInvalid('category')" optionLabel="name" optionValue="_id" placeholder="Select a category" styleClass="w-full custom-select"></p-select>
+              <p-select appendTo='body' appendTo="body" filter="true" filterBy="name" formControlName="category" [options]="categories()" [invalid]="isFieldInvalid('category')" optionLabel="name" optionValue="_id" placeholder="Select a category" styleClass="w-full custom-select"></p-select>
             </div>
             @if (isFieldInvalid('category')) {
               <div class="error-message">Category is required</div>
@@ -434,7 +434,7 @@
             <label class="input-label">Difficulty Level <span class="required">*</span></label>
             <div class="select-wrapper">
               <i class="field-icon pi pi-chart-bar"></i>
-              <p-select appendTo="body" filter="true" filterBy="name" formControlName="level" [options]="difficultyLevels" optionLabel="name" optionValue="value" placeholder="Select Difficulty Level" [invalid]="isFieldInvalid('level')" styleClass="w-full custom-select"></p-select>
+              <p-select appendTo='body' appendTo="body" filter="true" filterBy="name" formControlName="level" [options]="difficultyLevels" optionLabel="name" optionValue="value" placeholder="Select Difficulty Level" [invalid]="isFieldInvalid('level')" styleClass="w-full custom-select"></p-select>
             </div>
           </div>
 
@@ -442,7 +442,7 @@
             <label class="input-label">Language <span class="required">*</span></label>
             <div class="select-wrapper">
               <i class="field-icon pi pi-globe"></i>
-              <p-select appendTo="body" filter="true" filterBy="name" formControlName="language" [options]="languages" optionLabel="name" optionValue="value" placeholder="Select Language" [invalid]="isFieldInvalid('language')" styleClass="w-full custom-select"></p-select>
+              <p-select appendTo='body' appendTo="body" filter="true" filterBy="name" formControlName="language" [options]="languages" optionLabel="name" optionValue="value" placeholder="Select Language" [invalid]="isFieldInvalid('language')" styleClass="w-full custom-select"></p-select>
             </div>
           </div>
 
@@ -525,7 +525,7 @@
                            [class.pi-question-circle]="getLessonControl(i, j, 'type').value === 'quiz'">
                         </i>
                         <input type="text" pInputText [formControl]="getLessonControl(i, j, 'title')" placeholder="Lesson title" class="lesson-input custom-input">
-                        <p-select appendTo="body" [formControl]="getLessonControl(i, j, 'type')" [options]="lessonTypes" optionLabel="name" optionValue="value" styleClass="lesson-type-select"></p-select>
+                        <p-select appendTo='body' appendTo="body" [formControl]="getLessonControl(i, j, 'type')" [options]="lessonTypes" optionLabel="name" optionValue="value" styleClass="lesson-type-select"></p-select>
                         <button type="button" class="btn-icon" (click)="removeLesson(i, j)">
                           <i class="pi pi-times"></i>
                         </button>
@@ -574,7 +574,7 @@
               <label class="input-label">Currency</label>
               <div class="select-wrapper">
                 <i class="field-icon pi pi-money-bill"></i>
-                <p-select appendTo="body" formControlName="currency" [options]="currencies" optionLabel="name" optionValue="value" styleClass="w-full custom-select"></p-select>
+                <p-select appendTo='body' appendTo="body" formControlName="currency" [options]="currencies" optionLabel="name" optionValue="value" styleClass="w-full custom-select"></p-select>
               </div>
             </div>
 

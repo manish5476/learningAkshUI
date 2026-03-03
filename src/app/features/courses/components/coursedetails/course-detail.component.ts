@@ -10,7 +10,7 @@ import { catchError } from 'rxjs/operators';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
+import { TagModule, Tag } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
@@ -18,6 +18,7 @@ import { MessageService } from 'primeng/api';
 // Models & Services
 import { Course, Section } from '../../../../core/models/course.model';
 import { CourseService } from '../../../../core/services/course.service';
+import { Button } from "primeng/button";
 import { SectionService } from '../../../../core/services/section.service';
 import { LessonService } from '../../../../core/services/lesson.service';
 import { EnrollmentService } from '../../../../core/services/enrollment.service';
@@ -30,18 +31,17 @@ type SectionWithUI = Section & { expanded?: boolean; lessons?: any[] };
   imports: [
     CommonModule,
     RouterModule,
-    ReactiveFormsModule,
+    ReactiveFormsModule, 
     CurrencyPipe,
     DecimalPipe,
     TitleCasePipe,
     NgClass,
-    DialogModule,
-    InputTextModule,
-    ButtonModule,
-    TagModule,
-    ToastModule,
-    TooltipModule
-  ],
+    DialogModule, 
+    InputTextModule, 
+    ToastModule     ,
+    Button,
+    Tag
+],
   providers: [MessageService],
   templateUrl: './course-detail.component.html',
   styleUrls: ['./course-detail.component.scss']

@@ -68,9 +68,9 @@
             <input type="text" pInputText [ngModel]="searchQuery()" (ngModelChange)="onSearchChange($event)" placeholder="Discover courses..." class="w-full">
           </span>
 
-          <p-select [options]="levelOptions" [ngModel]="selectedLevel()" (ngModelChange)="onLevelChange($event)" optionLabel="label" optionValue="value" styleClass="w-full md:w-auto min-w-15rem"></p-select>
+          <p-select appendTo='body' [options]="levelOptions" [ngModel]="selectedLevel()" (ngModelChange)="onLevelChange($event)" optionLabel="label" optionValue="value" styleClass="w-full md:w-auto min-w-15rem"></p-select>
           
-          <p-select [options]="sortOptions" [ngModel]="selectedSort()" (ngModelChange)="onSortChange($event)" optionLabel="label" optionValue="value" styleClass="w-full md:w-auto min-w-15rem"></p-select>
+          <p-select appendTo='body' [options]="sortOptions" [ngModel]="selectedSort()" (ngModelChange)="onSortChange($event)" optionLabel="label" optionValue="value" styleClass="w-full md:w-auto min-w-15rem"></p-select>
         </div>
       </div>
 

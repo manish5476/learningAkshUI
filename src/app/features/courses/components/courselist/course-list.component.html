@@ -1,451 +1,175 @@
-<div class="page-container">
-  
-  <div class="page-header">
-    <div class="header-titles">
-      <h1 class="title">{{ isInstructorMode() ? 'My Courses' : 'Browse Courses' }}</h1>
-      <p class="subtitle">{{ isInstructorMode() ? 'Manage, monitor, and publish your courses' : 'Discover the perfect course for your learning journey' }}</p>
-    </div>
+  <div class="page-container">
     
-    @if (isInstructorMode()) {
-      <p-button label="Create New Course" icon="pi pi-plus" [routerLink]="['/courses/instructor/new']"></p-button>
-    }
-  </div>
-
-  <div class="stats-grid mb-4xl">
-    <div class="stat-card glass-panel">
-      <div class="stat-icon icon-primary"><i class="pi pi-book"></i></div>
-      <div class="stat-content">
-        <p class="stat-label">Total Courses</p>
-        <p class="stat-value font-heading">{{ stats().total }}</p>
+    <div class="page-header">
+      <div class="header-titles">
+        <h1 class="title">{{ isInstructorMode() ? 'My Courses' : 'Browse Courses' }}</h1>
+        <p class="subtitle">{{ isInstructorMode() ? 'Manage, monitor, and publish your courses' : 'Discover the perfect course for your learning journey' }}</p>
       </div>
-    </div>
-    <div class="stat-card glass-panel">
-      <div class="stat-icon icon-success"><i class="pi pi-users"></i></div>
-      <div class="stat-content">
-        <p class="stat-label">Total Students</p>
-        <p class="stat-value font-heading">{{ stats().students }}</p>
-      </div>
-    </div>
-    <div class="stat-card glass-panel">
-      <div class="stat-icon icon-warning"><i class="pi pi-star-fill"></i></div>
-      <div class="stat-content">
-        <p class="stat-label">Avg Rating</p>
-        <p class="stat-value font-heading">{{ stats().rating | number:'1.1-1' }}</p>
-      </div>
-    </div>
-    <div class="stat-card glass-panel">
-      <div class="stat-icon icon-info"><i class="pi pi-wallet"></i></div>
-      <div class="stat-content">
-        <p class="stat-label">Est. Revenue</p>
-        <p class="stat-value font-heading">{{ stats().revenue | currency:'INR':'symbol':'1.0-0' }}</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="toolbar-glass glass-panel mb-2xl">
-    <div class="toolbar-actions">
-      <span class="p-input-icon-left search-wrapper">
-        <i class="pi pi-search"></i>
-        <input pInputText type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="Search courses..." class="search-input" />
-      </span>
       
-      <div class="filters-wrapper">
-        <p-select [options]="categories()" optionLabel="name" optionValue="name" 
-                    [ngModel]="selectedCategory()" (ngModelChange)="selectedCategory.set($event)"
-                    placeholder="Any Category" [showClear]="true" styleClass="w-full">
-        </p-select>
-
-        <p-select [options]="levels" [ngModel]="selectedLevel()" (ngModelChange)="selectedLevel.set($event)"
-                    placeholder="Any Level" [showClear]="true" styleClass="w-full">
-          <ng-template let-level pTemplate="item">
-            {{ level | titlecase }}
-          </ng-template>
-          <ng-template let-level pTemplate="selectedItem">
-            {{ level ? (level | titlecase) : 'Any Level' }}
-          </ng-template>
-        </p-select>
-
-        <p-button icon="pi pi-filter-slash" severity="secondary" [text]="true" (onClick)="clearFilters()" pTooltip="Clear Filters"></p-button>
-      </div>
-    </div>
-  </div>
-
-  @if (isLoading()) {
-    <div class="state-overlay glass-panel">
-      <i class="pi pi-spin pi-spinner loading-icon"></i>
-      <p class="text-secondary mt-md font-heading">Loading your courses...</p>
-    </div>
-  } @else {
-    
-    <div class="course-feed-grid">
-      @for (course of filteredAndSortedCourses(); track course._id) {
-        <div class="course-card glass-panel surface-raised">
-          
-          <div class="card-hero">
-            <div class="course-thumbnail">
-              @if (course.thumbnail || course.previewVideo) {
-                <img [src]="course.thumbnail || course.previewVideo" [alt]="course.title" (error)="$event.target.src='https://via.placeholder.com/400x225?text=No+Image'"/>
-              } @else {
-                <div class="no-img flex-center h-full w-full bg-ternary"><i class="pi pi-image text-3xl text-tertiary"></i></div>
-              }
-              <div class="status-overlay">
-                <p-tag [value]="getCourseStatusLabel(course)" [severity]="getCourseStatusSeverity(course)"></p-tag>
-              </div>
-            </div>
-          </div>
-
-          <div class="card-body flex-col flex-grow-1">
-            <div class="meta-tags flex gap-sm mb-sm">
-              <span class="category-badge">{{ course.category.name || 'Uncategorized' }}</span>
-              <span class="level-badge"><i class="pi pi-chart-bar"></i> {{ course.level | titlecase }}</span>
-            </div>
-
-            <h3 class="course-title font-heading text-primary m-0 mb-xs cursor-pointer" 
-                [routerLink]="isInstructorMode() ? ['/courses/instructor', course._id] : ['/courses', course.slug || course._id]">
-              {{ course.title }}
-            </h3>
-            <p class="course-instructor text-secondary text-sm mb-md"><i class="pi pi-user mr-1"></i> {{ course.instructor.firstName }} {{ course.instructor.lastName }}</p>
-
-            <div class="price-block mt-auto pt-md border-top-subtle flex-between">
-              <div class="price-val">
-                @if (course.isFree) {
-                  <span class="price-free font-mono text-success font-bold text-xl">FREE</span>
-                } @else {
-                  <span class="price-current font-mono text-primary font-bold text-xl">{{ course.price | currency:course.currency }}</span>
-                  @if (course.discountPrice) {
-                    <span class="price-discount font-mono text-tertiary ml-sm text-sm line-through">{{ course.discountPrice | currency:course.currency }}</span>
-                  }
-                }
-              </div>
-              
-              <div class="card-actions flex gap-sm">
-                <p-button icon="pi" [icon]="expandedRows().has(course._id!) ? 'pi-chevron-up' : 'pi-chevron-down'" 
-                          [rounded]="true" [text]="true" severity="secondary" 
-                          (onClick)="toggleRow(course._id)" pTooltip="Details"></p-button>
-                
-                @if (isInstructorMode()) {
-                  <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="info" 
-                            [routerLink]="['/courses/instructor', course._id, 'edit']" pTooltip="Edit"></p-button>
-                  @if (!course.isPublished) {
-                    <p-button icon="pi pi-rocket" [rounded]="true" [text]="true" severity="success" 
-                              (onClick)="publishCourse(course)" pTooltip="Publish"></p-button>
-                  }
-                  <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" 
-                            (onClick)="deleteCourse(course)" pTooltip="Delete"></p-button>
-                }
-              </div>
-            </div>
-          </div>
-
-          @if (expandedRows().has(course._id!)) {
-            <div class="card-expanded-area glass-inset border-top-subtle">
-              <p class="description-text text-secondary mb-md">{{ course.description || 'No description provided.' }}</p>
-              
-              <div class="metrics-grid mb-md">
-                <div class="metric-pill"><i class="pi pi-video text-primary"></i> {{ course.totalLessons || 0 }} Lessons</div>
-                <div class="metric-pill"><i class="pi pi-clock text-success"></i> {{ course.totalDuration || 0 }} mins</div>
-                <div class="metric-pill"><i class="pi pi-users text-info"></i> {{ course.totalEnrollments || 0 }} Students</div>
-              </div>
-
-              @if (course.tags.length) {
-                <div class="tags-container flex gap-xs flex-wrap">
-                  @for (tag of course.tags; track tag) {
-                    <span class="tag-primary font-mono text-xs">#{{ tag }}</span>
-                  }
-                </div>
-              }
-            </div>
-          }
-        </div>
-      } @empty {
-        <div class="empty-state glass-panel col-span-full">
-          <div class="empty-icon-wrapper flex-center mb-lg"><i class="pi pi-inbox text-5xl text-tertiary"></i></div>
-          <h3 class="empty-title font-heading text-2xl text-primary m-0 mb-sm">No courses found</h3>
-          <p class="empty-subtitle text-secondary">Try adjusting your search or filters.</p>
-        </div>
+      @if (isInstructorMode()) {
+        <p-button label="Create New Course" icon="pi pi-plus" [routerLink]="['/courses/instructor/new']"></p-button>
       }
     </div>
 
-    @if (filteredAndSortedCourses().length > 0) {
-      <div class="feed-footer mt-4xl text-center text-secondary font-mono text-sm">
-        Showing {{ filteredAndSortedCourses().length }} of {{ courses().length }} courses
+    <div class="stats-grid mb-4xl">
+      <div class="stat-card glass-panel">
+        <div class="stat-icon icon-primary"><i class="pi pi-book"></i></div>
+        <div class="stat-content">
+          <p class="stat-label">Total Courses</p>
+          <p class="stat-value font-heading">{{ stats().total }}</p>
+        </div>
       </div>
-    }
-  }
-</div>
+      <div class="stat-card glass-panel">
+        <div class="stat-icon icon-success"><i class="pi pi-users"></i></div>
+        <div class="stat-content">
+          <p class="stat-label">Total Students</p>
+          <p class="stat-value font-heading">{{ stats().students }}</p>
+        </div>
+      </div>
+      <div class="stat-card glass-panel">
+        <div class="stat-icon icon-warning"><i class="pi pi-star-fill"></i></div>
+        <div class="stat-content">
+          <p class="stat-label">Avg Rating</p>
+          <p class="stat-value font-heading">{{ stats().rating | number:'1.1-1' }}</p>
+        </div>
+      </div>
+      <div class="stat-card glass-panel">
+        <div class="stat-icon icon-info"><i class="pi pi-wallet"></i></div>
+        <div class="stat-content">
+          <p class="stat-label">Est. Revenue</p>
+          <p class="stat-value font-heading">{{ stats().revenue | currency:'INR':'symbol':'1.0-0' }}</p>
+        </div>
+      </div>
+    </div>
 
-<!-- <div class="page-container">
-  
-  <div class="page-header">
-    <div class="header-titles">
-      <h1 class="title">{{ isInstructorMode() ? 'My Courses' : 'Browse Courses' }}</h1>
-      <p class="subtitle">{{ isInstructorMode() ? 'Manage, monitor, and publish your courses' : 'Discover the perfect course for your learning journey' }}</p>
-    </div>
-    
-    @if (isInstructorMode()) {
-      <button routerLink="/courses/instructor/new" class="btn-primary">
-        <i class="pi pi-plus"></i> Create New Course
-      </button>
-    }
-  </div>
-
-  <div class="stats-grid">
-    <div class="stat-card glass-panel">
-      <div class="stat-icon icon-primary"><i class="pi pi-book"></i></div>
-      <div class="stat-content">
-        <p class="stat-label">Total Courses</p>
-        <p class="stat-value">{{ stats().total }}</p>
-      </div>
-    </div>
-    <div class="stat-card glass-panel">
-      <div class="stat-icon icon-success"><i class="pi pi-users"></i></div>
-      <div class="stat-content">
-        <p class="stat-label">Total Students</p>
-        <p class="stat-value">{{ stats().students }}</p>
-      </div>
-    </div>
-    <div class="stat-card glass-panel">
-      <div class="stat-icon icon-warning"><i class="pi pi-star-fill"></i></div>
-      <div class="stat-content">
-        <p class="stat-label">Avg Rating</p>
-        <p class="stat-value">{{ stats().rating | number:'1.1-1' }}</p>
-      </div>
-    </div>
-    <div class="stat-card glass-panel">
-      <div class="stat-icon icon-info"><i class="pi pi-wallet"></i></div>
-      <div class="stat-content">
-        <p class="stat-label">Estimated Revenue</p>
-        <p class="stat-value">{{ stats().revenue | currency:'INR' }}</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="table-container glass-panel">
-    
-    <div class="table-toolbar">
-      <span class="toolbar-title">Course Directory</span>
+    <div class="toolbar-glass glass-panel mb-2xl">
       <div class="toolbar-actions">
-        <button (click)="clearFilters()" class="btn-secondary">
-          <i class="pi pi-filter-slash"></i> Clear
-        </button>
-        <div class="search-input-wrapper">
-          <i class="pi pi-search search-icon"></i>
-          <input 
-            type="text" 
-            [ngModel]="searchQuery()"
-            (input)="onGlobalFilter($event)"
-            placeholder="Search courses..." 
-            class="search-input"
-          >
+        <span class="p-input-icon-left search-wrapper">
+          <!-- <i class="pi pi-search"></i> -->
+          <input pInputText type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="Search courses..." class="search-input" />
+        </span>
+        
+        <div class="filters-wrapper">
+          <p-select appendTo='body' [options]="categories()" optionLabel="name" optionValue="name" 
+                      [ngModel]="selectedCategory()" (ngModelChange)="selectedCategory.set($event)"
+                      placeholder="Any Category" [showClear]="true" styleClass="w-full">
+          </p-select>
+
+          <p-select appendTo='body' [options]="levels" [ngModel]="selectedLevel()" (ngModelChange)="selectedLevel.set($event)"
+                      placeholder="Any Level" [showClear]="true" styleClass="w-full">
+            <ng-template let-level pTemplate="item">
+              {{ level | titlecase }}
+            </ng-template>
+            <ng-template let-level pTemplate="selectedItem">
+              {{ level ? (level | titlecase) : 'Any Level' }}
+            </ng-template>
+          </p-select>
+
+          <p-button icon="pi pi-filter-slash" severity="secondary" [text]="true" (onClick)="clearFilters()" pTooltip="Clear Filters"></p-button>
         </div>
       </div>
     </div>
 
     @if (isLoading()) {
-      <div class="state-overlay">
+      <div class="state-overlay glass-panel">
         <i class="pi pi-spin pi-spinner loading-icon"></i>
-        <p class="text-secondary mt-md">Loading your courses...</p>
+        <p class="text-secondary mt-md font-heading">Loading your courses...</p>
       </div>
     } @else {
-      <div class="custom-table-wrapper">
-        <table class="custom-table">
-          <thead>
-            <tr>
-              <th class="col-expander"></th>
-              <th class="col-sortable" (click)="sortBy('title')">
-                <div class="th-content">Course Title <i class="pi pi-sort"></i></div>
-              </th>
-              <th>
-                <div class="th-filter-content">
-                  <span>Category</span>
-                  <select class="filter-select custom-input" [ngModel]="selectedCategory()" (change)="onCategoryFilter($event)">
-                    <option value="">Any Category</option>
-                    @for (cat of categories(); track cat._id) {
-                      <option [value]="cat.name">{{ cat.name }}</option>
-                    }
-                  </select>
-                </div>
-              </th>
-              <th class="col-sortable" (click)="sortBy('price')">
-                <div class="th-content">Price <i class="pi pi-sort"></i></div>
-              </th>
-              <th>
-                <div class="th-filter-content">
-                  <span>Level</span>
-                  <select class="filter-select custom-input" [ngModel]="selectedLevel()" (change)="onLevelFilter($event)">
-                    <option value="">Any Level</option>
-                    @for (lvl of levels; track lvl) {
-                      <option [value]="lvl">{{ lvl | titlecase }}</option>
-                    }
-                  </select>
-                </div>
-              </th>
-              <th>Status</th>
-              @if (isInstructorMode()) {
-                <th class="text-center">Actions</th>
-              }
-            </tr>
-          </thead>
-          
-          <tbody>
-            @for (course of filteredAndSortedCourses(); track course._id) {
-              <tr class="table-row">
-                <td class="text-center">
-                  <button (click)="toggleRow(course._id)" class="btn-expander">
-                    <i class="pi" [ngClass]="expandedRows().has(course._id!) ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
-                  </button>
-                </td>
-                <td>
-                  <div class="course-cell-info">
-                    <div class="course-thumbnail">
-                      @if (course.thumbnail || course.previewVideo) {
-                        <img [src]="course.thumbnail || course.previewVideo" [alt]="course.title" (error)="$event.target.src='https://via.placeholder.com/150x85?text=No+Image'"/>
-                      } @else {
-                        <div class="no-img">No Img</div>
-                      }
-                    </div>
-                    <div class="course-meta">
-                      <span class="course-title-text" [routerLink]="isInstructorMode() ? ['/courses/instructor', course._id] : ['/courses', course.slug || course._id]">
-                        {{ course.title }}
-                      </span>
-                      <span class="course-instructor">{{ course.instructor.firstName }} {{ course.instructor.lastName }}</span>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <span class="category-badge">
-                    {{ course.category.name || 'Uncategorized' }}
-                  </span>
-                </td>
-                <td>
-                  <div class="price-cell">
-                    @if (course.isFree) {
-                      <span class="price-free">FREE</span>
-                    } @else {
-                      <span class="price-value">{{ course.price | currency:course.currency }}</span>
-                      @if (course.discountPrice) {
-                        <span class="price-discount">{{ course.discountPrice | currency:course.currency }}</span>
-                      }
-                    }
-                  </div>
-                </td>
-                <td class="level-cell">{{ course.level }}</td>
-                <td>
-                  <span class="status-badge" [ngClass]="getStatusClasses(course)">
-                    {{ getCourseStatusLabel(course) }}
-                  </span>
-                </td>
-                
-                @if (isInstructorMode()) {
-                  <td>
-                    <div class="action-buttons">
-                      <button [routerLink]="['/courses/instructor', course._id, 'edit']" title="Edit" class="btn-icon btn-icon-info">
-                        <i class="pi pi-pencil"></i>
-                      </button>
-                      @if (!course.isPublished) {
-                        <button (click)="publishCourse(course)" title="Publish" class="btn-icon btn-icon-success">
-                          <i class="pi pi-rocket"></i>
-                        </button>
-                      }
-                      <button (click)="deleteCourse(course)" title="Delete" class="btn-icon btn-icon-danger">
-                        <i class="pi pi-trash"></i>
-                      </button>
-                    </div>
-                  </td>
-                }
-              </tr>
-
-              @if (expandedRows().has(course._id!)) {
-                <tr class="expanded-row">
-                  <td [attr.colspan]="isInstructorMode() ? 7 : 6">
-                    <div class="expanded-content surface-raised">
-                      <h4 class="expanded-title">
-                        <i [routerLink]="isInstructorMode() ? ['/courses/instructor', course._id] : ['/courses', course.slug || course._id]" class="pi pi-info-circle text-primary cursor-pointer"></i> Course Details
-                      </h4>
-                      
-                      <div class="expanded-grid">
-                        <div class="expanded-col">
-                          <h5 class="section-heading">Description</h5>
-                          <p class="description-text">{{ course.description || 'No description provided.' }}</p>
-                          
-                          <h5 class="section-heading mt-lg">Metrics</h5>
-                          <div class="metrics-container">
-                            <div class="metric-badge">
-                              <i class="pi pi-video icon-primary"></i> {{ course.totalLessons || 0 }} Lessons
-                            </div>
-                            <div class="metric-badge">
-                              <i class="pi pi-clock icon-success"></i> {{ course.totalDuration || 0 }} mins
-                            </div>
-                            <div class="metric-badge">
-                              <i class="pi pi-users icon-info"></i> {{ course.totalEnrollments || 0 }} Students
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="expanded-col">
-                          <div class="outcomes-box">
-                            <h5 class="section-heading">What you'll learn</h5>
-                            <ul class="outcomes-list">
-                              @for (item of course.whatYouWillLearn; track item) {
-                                <li class="outcome-item">
-                                  <i class="pi pi-check-circle icon-success"></i>
-                                  <span>{{ item }}</span>
-                                </li>
-                              } @empty {
-                                <li class="text-muted italic">No outcomes specified</li>
-                              }
-                            </ul>
-                          </div>
-                          
-                          <div class="mt-lg">
-                            <h5 class="section-heading">Requirements</h5>
-                            <div class="tags-container">
-                              @for (req of course.requirements; track req) {
-                                <span class="tag-outline">{{ req }}</span>
-                              } @empty {
-                                <span class="text-muted italic">No requirements specified</span>
-                              }
-                            </div>
-                          </div>
-
-                          @if (course.tags.length) {
-                            <div class="mt-lg">
-                              <h5 class="section-heading">Tags</h5>
-                              <div class="tags-container">
-                                @for (tag of course.tags; track tag) {
-                                  <span class="tag-primary">#{{ tag }}</span>
-                                }
-                              </div>
-                            </div>
-                          }
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              }
-            } @empty {
-              <tr>
-                <td [attr.colspan]="isInstructorMode() ? 7 : 6">
-                  <div class="state-overlay">
-                    <div class="empty-icon-wrapper">
-                      <i class="pi pi-inbox"></i>
-                    </div>
-                    <h3 class="empty-title">No courses found</h3>
-                    <p class="empty-subtitle">Try adjusting your search or filters to find what you're looking for.</p>
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
       
+      <div class="course-feed-grid">
+        @for (course of filteredAndSortedCourses(); track course._id) {
+          <div class="course-card glass-panel surface-raised">
+            
+            <div class="card-hero">
+              <div class="course-thumbnail">
+                @if (course.thumbnail || course.previewVideo) {
+                  <img [src]="course.thumbnail || course.previewVideo" [alt]="course.title" (error)="$event.target.src='https://via.placeholder.com/400x225?text=No+Image'"/>
+                } @else {
+                  <div class="no-img flex-center h-full w-full bg-ternary"><i class="pi pi-image text-3xl text-tertiary"></i></div>
+                }
+                <div class="status-overlay">
+                  <p-tag [value]="getCourseStatusLabel(course)" [severity]="getCourseStatusSeverity(course)"></p-tag>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-body flex-col flex-grow-1">
+              <div class="meta-tags flex gap-sm mb-sm">
+                <span class="category-badge">{{ course.category.name || 'Uncategorized' }}</span>
+                <span class="level-badge"><i class="pi pi-chart-bar"></i> {{ course.level | titlecase }}</span>
+              </div>
+
+              <h3 class="course-title font-heading text-primary m-0 mb-xs cursor-pointer" 
+                  [routerLink]="isInstructorMode() ? ['/courses/instructor', course._id] : ['/courses', course.slug || course._id]">
+                {{ course.title }}
+              </h3>
+              <p class="course-instructor text-secondary text-sm mb-md"><i class="pi pi-user mr-1"></i> {{ course.instructor.firstName }} {{ course.instructor.lastName }}</p>
+
+              <div class="price-block mt-auto pt-md border-top-subtle flex-between">
+                <div class="price-val">
+                  @if (course.isFree) {
+                    <span class="price-free font-mono text-success font-bold text-xl">FREE</span>
+                  } @else {
+                    <span class="price-current font-mono text-primary font-bold text-xl">{{ course.price | currency:course.currency }}</span>
+                    @if (course.discountPrice) {
+                      <span class="price-discount font-mono text-tertiary ml-sm text-sm line-through">{{ course.discountPrice | currency:course.currency }}</span>
+                    }
+                  }
+                </div>
+                
+                <div class="card-actions flex gap-sm">
+                  <p-button icon="pi" [icon]="expandedRows().has(course._id!) ? 'pi-chevron-up' : 'pi-chevron-down'" 
+                            [rounded]="true" [text]="true" severity="secondary" 
+                            (onClick)="toggleRow(course._id)" pTooltip="Details"></p-button>
+                  
+                  @if (isInstructorMode()) {
+                    <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="info" 
+                              [routerLink]="['/courses/instructor', course._id, 'edit']" pTooltip="Edit"></p-button>
+                    @if (!course.isPublished) {
+                      <p-button icon="pi pi-rocket" [rounded]="true" [text]="true" severity="success" 
+                                (onClick)="publishCourse(course)" pTooltip="Publish"></p-button>
+                    }
+                    <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" 
+                              (onClick)="deleteCourse(course)" pTooltip="Delete"></p-button>
+                  }
+                </div>
+              </div>
+            </div>
+
+            @if (expandedRows().has(course._id!)) {
+              <div class="card-expanded-area glass-inset border-top-subtle">
+                <p class="description-text text-secondary mb-md">{{ course.description || 'No description provided.' }}</p>
+                
+                <div class="metrics-grid mb-md">
+                  <div class="metric-pill"><i class="pi pi-video text-primary"></i> {{ course.totalLessons || 0 }} Lessons</div>
+                  <div class="metric-pill"><i class="pi pi-clock text-success"></i> {{ course.totalDuration || 0 }} mins</div>
+                  <div class="metric-pill"><i class="pi pi-users text-info"></i> {{ course.totalEnrollments || 0 }} Students</div>
+                </div>
+
+                @if (course.tags.length) {
+                  <div class="tags-container flex gap-xs flex-wrap">
+                    @for (tag of course.tags; track tag) {
+                      <span class="tag-primary font-mono text-xs">#{{ tag }}</span>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        } @empty {
+          <div class="empty-state glass-panel col-span-full">
+            <div class="empty-icon-wrapper flex-center mb-lg"><i class="pi pi-inbox text-5xl text-tertiary"></i></div>
+            <h3 class="empty-title font-heading text-2xl text-primary m-0 mb-sm">No courses found</h3>
+            <p class="empty-subtitle text-secondary">Try adjusting your search or filters.</p>
+          </div>
+        }
+      </div>
+
       @if (filteredAndSortedCourses().length > 0) {
-        <div class="table-footer">
-          <span>Showing {{ filteredAndSortedCourses().length }} of {{ courses().length }} total courses</span>
+        <div class="feed-footer mt-4xl text-center text-secondary font-mono text-sm">
+          Showing {{ filteredAndSortedCourses().length }} of {{ courses().length }} courses
         </div>
       }
     }
   </div>
-</div> -->

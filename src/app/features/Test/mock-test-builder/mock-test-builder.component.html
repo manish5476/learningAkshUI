@@ -74,12 +74,12 @@
 
               <div class="form-group mb-xl">
                 <label class="input-label">Difficulty Level</label>
-                <p-select formControlName="level" [options]="levels" optionLabel="label" optionValue="value" styleClass="w-full custom-select" appendTo="body"></p-select>
+                <p-select appendTo='body' formControlName="level" [options]="levels" optionLabel="label" optionValue="value" styleClass="w-full custom-select" appendTo="body"></p-select>
               </div>
 
               <div class="form-group mb-2xl">
                 <label class="input-label">Assigned Category <span class="required-asterisk">*</span></label>
-                <p-select appendTo="body" [filter]="true" filterBy="name" formControlName="category"
+                <p-select appendTo='body' appendTo="body" [filter]="true" filterBy="name" formControlName="category"
                   [options]="categories()" optionLabel="name" optionValue="_id"
                   placeholder="Select a parent category" styleClass="w-full custom-select"
                   [class.input-error]="isFieldInvalid('category')">
@@ -266,12 +266,12 @@
 
               <div class="form-group mb-xl">
                 <label class="input-label">Difficulty Level</label>
-                <p-select formControlName="level" [options]="levels" optionLabel="label" optionValue="value" styleClass="w-full custom-select" appendTo="body"></p-select>
+                <p-select appendTo='body' formControlName="level" [options]="levels" optionLabel="label" optionValue="value" styleClass="w-full custom-select" appendTo="body"></p-select>
               </div>
 
               <div class="form-group mb-2xl">
                 <label class="input-label">Assigned Category <span class="required-asterisk">*</span></label>
-                <p-select appendTo="body" [filter]="true" filterBy="name" formControlName="category"
+                <p-select appendTo='body' appendTo="body" [filter]="true" filterBy="name" formControlName="category"
                   [options]="categories()" optionLabel="name" optionValue="_id"
                   placeholder="Select a parent category" styleClass="w-full custom-select"
                   [class.input-error]="isFieldInvalid('category')">

@@ -5,10 +5,12 @@ import { AuthGuard } from '../../core/authentication/guards/auth.guard';
 export const CATEGORY_ROUTES: Routes = [
   {
     path: 'categories',
+    // redirectTo:'',
+    // pathMatch:'full',
     children: [
       // Public routes
       {
-        path: 'list',
+        path: '',
         loadComponent: () => import('./../../features/category/components/category-list/category-list.component').then(m => m.CategoryListComponent),
         title: 'Category Tree'
       },

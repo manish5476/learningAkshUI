@@ -77,7 +77,7 @@ import { UserDetailComponent } from "./user-detail.component";
         </div>
         <div class="filter-group">
           <div class="filter-item">
-            <p-select 
+            <p-select appendTo='body' 
               [options]="roleOptions" 
               [ngModel]="selectedRole()" 
               (ngModelChange)="onRoleChange($event)"
@@ -88,7 +88,7 @@ import { UserDetailComponent } from "./user-detail.component";
             </p-select>
           </div>
           <div class="filter-item">
-            <p-select 
+            <p-select appendTo='body' 
               [options]="statusOptions" 
               [ngModel]="selectedStatus()" 
               (ngModelChange)="onStatusChange($event)"

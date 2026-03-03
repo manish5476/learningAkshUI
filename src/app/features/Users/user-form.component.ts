@@ -63,7 +63,7 @@ import { UserService } from '../../core/services/user.service';
 
           <div class="form-group">
             <label class="input-label">Gender</label>
-            <p-select formControlName="gender" [options]="genderOptions" optionLabel="label" optionValue="value"
+            <p-select appendTo='body' formControlName="gender" [options]="genderOptions" optionLabel="label" optionValue="value"
                       placeholder="Select gender" styleClass="w-full" [showClear]="true">
             </p-select>
           </div>
@@ -98,7 +98,7 @@ import { UserService } from '../../core/services/user.service';
 
           <div class="form-group">
             <label class="input-label">System Role <span class="required">*</span></label>
-            <p-select formControlName="role" [options]="roleOptions" optionLabel="label" optionValue="value"
+            <p-select appendTo='body' formControlName="role" [options]="roleOptions" optionLabel="label" optionValue="value"
                       placeholder="Assign a role" styleClass="w-full"
                       [class.ng-invalid]="isFieldInvalid('role')" [class.ng-dirty]="isFieldInvalid('role')">
             </p-select>

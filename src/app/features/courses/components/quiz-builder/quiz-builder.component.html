@@ -104,7 +104,7 @@
               <div class="form-group flex-col gap-xs">
                 <label class="input-label text-secondary font-bold text-sm">Question Type <span
                     class="text-error">*</span></label>
-                <p-select formControlName="type" [options]="questionTypes" optionLabel="label" optionValue="value"
+                <p-select appendTo='body' formControlName="type" [options]="questionTypes" optionLabel="label" optionValue="value"
                   styleClass="w-full" (onChange)="onQuestionTypeChange(i, $event.value)">
                   <ng-template let-item pTemplate="item">
                     <div class="flex align-items-center gap-sm">
@@ -330,7 +330,7 @@
               <div class="grid-2-col gap-2xl mb-xl">
                 <div class="form-group">
                   <label class="input-label">Question Type <span class="required-asterisk">*</span></label>
-                  <p-select formControlName="type" [options]="questionTypes" optionLabel="label" optionValue="value" styleClass="w-full custom-select" (onChange)="onQuestionTypeChange(i, $event.value)">
+                  <p-select appendTo='body' formControlName="type" [options]="questionTypes" optionLabel="label" optionValue="value" styleClass="w-full custom-select" (onChange)="onQuestionTypeChange(i, $event.value)">
                     <ng-template let-item pTemplate="item">
                       <div class="flex align-items-center gap-sm">
                         <i [class]="item.icon" class="text-primary"></i> <span class="font-medium">{{ item.label }}</span>

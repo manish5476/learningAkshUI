@@ -65,9 +65,9 @@ export const SIDEBAR_MENU: MenuItem[] = [
         routerLink: ['/instructor/courses/new'] // The 4-step wizard form
       },
       {
-        label: 'Quiz Architect',
+        label: 'Instructor Assessments',
         icon: 'pi pi-list',
-        routerLink: ['/instructor/quizzes']
+        routerLink: ['/instructor/assessments']
       },
       { 
         label: 'Mock Test Builder', 
@@ -89,6 +89,11 @@ export const SIDEBAR_MENU: MenuItem[] = [
         label: 'User Directory', 
         icon: 'pi pi-users', 
         routerLink: ['/users']
+      },
+      { 
+        label: 'Instructor Directory', 
+        icon: 'pi pi-users', 
+        routerLink: ['/instructor/dashboard']
       },
       {
         label: 'Catalog Structure',

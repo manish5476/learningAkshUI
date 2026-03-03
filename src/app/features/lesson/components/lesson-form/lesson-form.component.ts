@@ -343,7 +343,7 @@ export class LessonFormComponent implements OnInit {
 
 //         <div class="form-group">
 //           <label class="input-label">Lesson Type <span class="required">*</span></label>
-//           <p-select 
+//           <p-select appendTo='body' 
 //             formControlName="type"
 //             [options]="lessonTypes"
 //             optionLabel="label"
@@ -396,7 +396,7 @@ export class LessonFormComponent implements OnInit {
 
 //           <div class="form-group">
 //             <label class="input-label">Video Provider</label>
-//             <p-select 
+//             <p-select appendTo='body' 
 //               formControlName="videoProvider"
 //               [options]="videoProviders"
 //               optionLabel="label"
@@ -473,7 +473,7 @@ export class LessonFormComponent implements OnInit {
 //                   placeholder="Resource title"
 //                   class="resource-title">
                 
-//                 <p-select 
+//                 <p-select appendTo='body' 
 //                   formControlName="type"
 //                   [options]="resourceTypes"
 //                   optionLabel="label"

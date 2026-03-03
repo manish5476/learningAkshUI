@@ -12,6 +12,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
+import { Button } from "primeng/button";
 
 // Models & Services
 import { Course, Category } from '../../../../core/models/course.model';
@@ -21,7 +22,7 @@ import { CourseService } from '../../../../core/services/course.service';
 @Component({
   selector: 'app-course-form',
   standalone: true,
-  imports: [FormsModule,
+  imports:  [FormsModule,
     CommonModule, 
     ReactiveFormsModule, 
     SelectModule, 

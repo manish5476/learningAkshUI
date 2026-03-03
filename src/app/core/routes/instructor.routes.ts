@@ -37,10 +37,20 @@ export const INSTRUCTOR_ROUTES: Routes = [
         loadComponent: () => import('../../features/courses/components/course-students/course-students.component').then(m => m.CourseStudentsComponent),
         title: 'Student Roster'
       },
+       {
+        path: 'assessments',
+        loadComponent: () => import('../../features/Test/instructor-assessments/instructor-assessments.component').then(m => m.InstructorAssessmentsComponent),
+        title: 'Quiz Manager'
+      },
       {
         path: 'quiz/:id', // The complex Quiz Builder tool
         loadComponent: () => import('../../features/courses/components/quiz-builder/quiz-builder.component').then(m => m.QuizBuilderComponent),
         title: 'Quiz Architect'
+      },
+      {
+        path: 'mock-tests/new',
+        loadComponent: () => import('../../features/Test/mock-test-builder/mock-test-builder.component').then(m => m.MockTestBuilderComponent),
+        title: 'Create Mock Test'
       }
     ]
   }
@@ -95,11 +105,11 @@ export const INSTRUCTOR_ROUTES: Routes = [
 //         loadComponent: () => import('../../features/courses/components/course-analytics/course-analytics.component').then(m => m.CourseAnalyticsComponent),
 //         title: 'Course Analytics'
 //       },
-//       {
-//         path: 'quizzes',
-//         loadComponent: () => import('../../features/Test/instructor-assessments/instructor-assessments.component').then(m => m.InstructorAssessmentsComponent),
-//         title: 'Quiz Manager'
-//       },
+      // {
+      //   path: 'quizzes',
+      //   loadComponent: () => import('../../features/Test/instructor-assessments/instructor-assessments.component').then(m => m.InstructorAssessmentsComponent),
+      //   title: 'Quiz Manager'
+      // },
 //       {
 //         path: 'quiz/:id', // Handles both 'new' and actual MongoDB IDs
 //         loadComponent: () => import('../../features/courses/components/quiz-builder/quiz-builder.component').then(m => m.QuizBuilderComponent),
