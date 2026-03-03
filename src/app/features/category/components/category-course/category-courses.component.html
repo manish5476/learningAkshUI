@@ -1,318 +1,338 @@
 <div class="ultimate-container fade-in">
-  
+
   @if (loading()) {
     <div class="content-wrapper">
+
+      <!-- HEADER SKELETON -->
       <div class="category-header glass-panel mb-3xl">
-        <p-skeleton width="200px" height="1.5rem" styleClass="mb-md"></p-skeleton>
-        <p-skeleton width="60%" height="3rem" styleClass="mb-sm"></p-skeleton>
+        <p-skeleton width="200px" height="1.5rem" class="mb-md"></p-skeleton>
+        <p-skeleton width="60%" height="3rem" class="mb-sm"></p-skeleton>
         <p-skeleton width="80%" height="1rem"></p-skeleton>
       </div>
+
+      <!-- CARD SKELETON GRID -->
       <div class="courses-grid">
         @for (item of [1,2,3,4,5,6]; track item) {
-          <div class="glass-panel surface-raised p-0 overflow-hidden flex-col">
-            <p-skeleton width="100%" height="200px" borderRadius="0"></p-skeleton>
-            <div class="p-xl flex-col gap-md flex-grow-1">
-              <p-skeleton width="90%" height="1.5rem"></p-skeleton>
-              <p-skeleton width="60%" height="1rem"></p-skeleton>
-              <div class="mt-auto pt-md flex-between">
-                <p-skeleton width="30%" height="2rem"></p-skeleton>
-                <p-skeleton width="20%" height="1rem"></p-skeleton>
-              </div>
-            </div>
+          <div class="course-card-skeleton">
+            <p-skeleton height="200px" borderRadius="12px"></p-skeleton>
+            <p-skeleton width="80%" height="20px" class="mt-md"></p-skeleton>
+            <p-skeleton width="60%" height="16px" class="mt-sm"></p-skeleton>
           </div>
         }
       </div>
-    </div> 
-  } @else {
-    <div class="content-wrapper">
-      
-      <header class="category-header glass-panel flex-col md:flex-row flex-between gap-2xl mb-3xl">
-        <div class="header-left flex-col gap-sm flex-grow-1">
-          <nav class="breadcrumb flex align-items-center gap-xs text-xs font-bold uppercase tracking-widest text-tertiary mb-sm">
-            <a routerLink="/" class="bc-link text-tertiary hover-text-primary transition-colors"><i class="pi pi-home"></i></a>
-            <span>/</span>
-            <a routerLink="/categories" class="bc-link text-tertiary hover-text-primary transition-colors text-decoration-none">Categories</a>
-            <span>/</span>
-            <span class="bc-current text-primary">{{ category()?.name }}</span>
-          </nav>
-
-          <h1 class="category-title font-heading text-4xl md:text-5xl font-bold text-primary m-0 flex align-items-center gap-md line-height-tight">
-            <i [class]="category()?.icon || 'pi pi-folder'" class="text-primary"></i>
-            <span>{{ category()?.name }}</span>
-          </h1>
-          
-          @if (category()?.description) {
-            <p class="category-description text-secondary text-lg max-w-prose m-0 line-height-relaxed">{{ category()?.description }}</p>
-          }
-        </div>
-
-        <div class="header-right flex-shrink-0 w-full md:w-auto">
-          <div class="category-stats flex align-items-center gap-xl bg-ternary border-primary border-radius-lg p-xl">
-            <div class="stat-item flex-col gap-xs">
-              <span class="stat-label text-xs uppercase tracking-widest font-bold text-tertiary">Courses</span>
-              <span class="stat-value font-heading text-3xl font-bold text-primary m-0 line-height-tight">{{ courses().length }}</span>
-            </div>
-            <div class="stat-divider w-1px bg-border-secondary h-3rem"></div>
-            <div class="stat-item flex-col gap-xs">
-              <span class="stat-label text-xs uppercase tracking-widest font-bold text-tertiary">Status</span>
-              <p-tag [value]="category()?.isActive ? 'Active' : 'Inactive'" [severity]="category()?.isActive ? 'success' : 'secondary'"></p-tag>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div class="filters-section glass-panel mb-4xl">
-        <div class="filter-group flex-col md:flex-row gap-lg">
-          <span class="p-input-icon-left flex-grow-1 w-full md:w-auto search-wrapper">
-            <i class="pi pi-search text-tertiary"></i>
-            <input type="text" pInputText [ngModel]="searchQuery()" (ngModelChange)="onSearchChange($event)" placeholder="Discover courses..." class="w-full">
-          </span>
-
-          <p-select appendTo='body' [options]="levelOptions" [ngModel]="selectedLevel()" (ngModelChange)="onLevelChange($event)" optionLabel="label" optionValue="value" styleClass="w-full md:w-auto min-w-15rem"></p-select>
-          
-          <p-select appendTo='body' [options]="sortOptions" [ngModel]="selectedSort()" (ngModelChange)="onSortChange($event)" optionLabel="label" optionValue="value" styleClass="w-full md:w-auto min-w-15rem"></p-select>
-        </div>
-      </div>
-
-      <div class="courses-grid">
-        @for (course of paginatedCourses(); track course._id) {
-          <div class="course-card glass-panel p-0 surface-raised hover-lift flex-col overflow-hidden cursor-pointer" [routerLink]="['/courses/', course.slug]">
-            
-            <div class="card-hero-img relative w-full aspect-ratio-16-9 bg-ternary border-bottom-subtle overflow-hidden">
-              @if (course.thumbnail) {
-                <img [src]="course.thumbnail" class="w-full h-full object-cover transition-transform hover-scale-105" alt="Course Cover">
-              } @else {
-                <div class="flex-center w-full h-full text-tertiary"><i class="pi pi-image text-4xl"></i></div>
-              }
-              <div class="absolute top-0 right-0 p-md">
-                <p-tag [value]="course.level | titlecase" severity="secondary" styleClass="backdrop-blur bg-black-alpha-50 text-white border-none"></p-tag>
-              </div>
-            </div>
-
-            <div class="card-content p-xl flex-col flex-grow-1">
-              <h3 class="course-title font-heading text-xl font-bold text-primary m-0 mb-xs line-clamp-2 line-height-tight">{{ course.title }}</h3>
-              <p class="course-instructor text-sm text-secondary font-medium m-0 mb-xl flex align-items-center gap-xs">
-                <i class="pi pi-user text-xs"></i> By {{ course.instructor?.firstName }} {{ course.instructor?.lastName }}
-              </p>
-              
-              <div class="course-bottom-info mt-auto pt-md border-top-subtle flex-between align-items-end">
-                <div class="course-price flex-col gap-xs font-mono">
-                  @if (course.isFree) {
-                    <span class="text-success font-bold text-xl">Free</span>
-                  } @else {
-                    @if (course.discountPrice) {
-                      <span class="text-primary font-bold text-xl">{{ course.discountPrice | currency:course.currency:'symbol':'1.0-0' }}</span>
-                      <span class="text-tertiary text-xs text-strike font-medium">{{ course.price | currency:course.currency:'symbol':'1.0-0' }}</span>
-                    } @else {
-                      <span class="text-primary font-bold text-xl">{{ course.price | currency:course.currency:'symbol':'1.0-0' }}</span>
-                    }
-                  }
-                </div>
-
-                <div class="rating-badge flex align-items-center gap-xs text-sm font-bold bg-ternary border-secondary px-md py-xs border-radius-full">
-                  <i class="pi pi-star-fill text-warning"></i> 
-                  <span class="text-primary">{{ course.rating | number:'1.1-1' }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        } @empty {
-          <div class="empty-state glass-panel col-span-full flex-col flex-center text-center py-5xl border-dashed border-primary">
-            <div class="empty-icon-wrapper flex-center border-radius-full bg-ternary border-primary mb-2xl">
-              <i class="pi pi-compass text-5xl text-tertiary"></i>
-            </div>
-            <h3 class="font-heading text-3xl text-primary font-bold m-0 mb-sm">No Courses Found</h3>
-            <p class="text-secondary text-lg m-0 mb-3xl max-w-prose">{{ searchQuery() ? 'Try adjusting your search terms or filters.' : 'This category currently has no active courses.' }}</p>
-            <p-button label="Browse All Courses" icon="pi pi-search" routerLink="/courses" size="large"></p-button>
-          </div>
-        }
-      </div>
-
-      @if (totalPages() > 1) {
-        <div class="pagination-wrapper flex-center mt-5xl">
-          <div class="glass-inset p-sm border-radius-lg flex gap-xs">
-            <p-button icon="pi pi-chevron-left" severity="secondary" [text]="true" [disabled]="currentPage() === 1" (onClick)="changePage(currentPage() - 1)"></p-button>
-            
-            @for (page of visiblePages(); track page) {
-              <p-button [label]="page.toString()" 
-                        [severity]="page === currentPage() ? 'primary' : 'secondary'" 
-                        [text]="page !== currentPage()"
-                        (onClick)="changePage(page)"></p-button>
-            }
-            
-            <p-button icon="pi pi-chevron-right" severity="secondary" [text]="true" [disabled]="currentPage() === totalPages()" (onClick)="changePage(currentPage() + 1)"></p-button>
-          </div>
-        </div>
-      }
     </div>
   }
-</div>
 
+  @else {
 
-
-<!-- <div class="ultimate-container">
-  
-  @if (loading()) {
-    <div class="loading-section glass-panel">
-      <div class="skeleton-header animate-pulse">
-        <div class="skeleton-line skeleton-title"></div>
-        <div class="skeleton-line skeleton-subtitle"></div>
-      </div>
-      <div class="courses-grid">
-        @for (item of [1,2,3,4,5,6]; track item) {
-          <div class="uiverse-card skeleton-card animate-pulse">
-             <div class="skeleton-layer"></div>
-          </div>
-        }
-      </div>
-    </div> 
-  } @else {
     <div class="content-wrapper">
-      <div class="category-header glass-panel">
-        <div class="header-left">
+
+      <!-- ================= CATEGORY HEADER ================= -->
+      <header class="category-header glass-panel flex-col md:flex-row flex-between gap-2xl mb-4xl">
+
+        <div class="header-left flex-col gap-sm flex-grow-1">
+
+          <!-- Breadcrumb -->
           <nav class="breadcrumb">
             <a routerLink="/" class="bc-link"><i class="pi pi-home"></i></a>
-            <span class="bc-sep">/</span>
+            <span>/</span>
             <a routerLink="/categories" class="bc-link">Categories</a>
-            <span class="bc-sep">/</span>
+            <span>/</span>
             <span class="bc-current">{{ category()?.name }}</span>
           </nav>
 
+          <!-- Title -->
           <h1 class="category-title">
-            <i [class]="category()?.icon || 'pi pi-folder'" class="category-icon"></i>
-            <span>{{ category()?.name }}</span>
+            <i [class]="category()?.icon || 'pi pi-folder'"></i>
+            {{ category()?.name }}
           </h1>
+
           @if (category()?.description) {
-            <p class="category-description">{{ category()?.description }}</p>
+            <p class="category-description">
+              {{ category()?.description }}
+            </p>
           }
+
         </div>
 
+        <!-- Stats -->
         <div class="header-right">
           <div class="category-stats">
             <div class="stat-item">
               <span class="stat-label">Courses</span>
               <span class="stat-value">{{ courses().length }}</span>
             </div>
+
             <div class="stat-divider"></div>
+
             <div class="stat-item">
               <span class="stat-label">Status</span>
-              <span class="status-badge" [ngClass]="category()?.isActive ? 'status-active' : 'status-inactive'">
-                {{ category()?.isActive ? 'Active' : 'Inactive' }}
-              </span>
+              <p-tag
+                [value]="category()?.isActive ? 'Active' : 'Inactive'"
+                [severity]="category()?.isActive ? 'success' : 'secondary'">
+              </p-tag>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="filters-section glass-panel">
+      </header>
+
+
+      <!-- ================= FILTERS ================= -->
+      <div class="filters-section glass-panel mb-4xl">
         <div class="filter-group">
-          <div class="search-wrapper">
-            <i class="pi pi-search search-icon"></i>
-            <input 
-              type="text" 
-              [ngModel]="searchQuery()" 
-              (ngModelChange)="onSearchChange($event)"
-              placeholder="Discover courses..." 
-              class="custom-input search-input">
-          </div>
 
-          <select [ngModel]="selectedLevel()" (ngModelChange)="onLevelChange($event)" class="custom-input filter-select">
-            <option [ngValue]="null">All Levels</option>
-            @for (opt of levelOptions; track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
-            }
-          </select>
+          <input
+            type="text"
+            pInputText
+            [ngModel]="searchQuery()"
+            (ngModelChange)="onSearchChange($event)"
+            placeholder="Discover courses..."
+            class="w-full"
+          />
 
-          <select [ngModel]="selectedSort()" (ngModelChange)="onSortChange($event)" class="custom-input filter-select">
-            @for (opt of sortOptions; track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
-            }
-          </select>
+          <p-select
+            appendTo="body"
+            [options]="levelOptions"
+            [ngModel]="selectedLevel()"
+            (ngModelChange)="onLevelChange($event)"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full md:w-auto">
+          </p-select>
+
+          <p-select
+            appendTo="body"
+            [options]="sortOptions"
+            [ngModel]="selectedSort()"
+            (ngModelChange)="onSortChange($event)"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full md:w-auto">
+          </p-select>
+
         </div>
       </div>
 
+
+      <!-- ================= COURSES GRID ================= -->
       <div class="courses-grid">
+
         @for (course of paginatedCourses(); track course._id) {
-          <div class="uiverse-card" [routerLink]="['/courses/', course.slug]">
-            
-            <div class="card-bg-base">
-              <div class="card-bg-cutout">
-                @if (course.thumbnail) {
-                  <img [src]="course.thumbnail" class="course-bg-img" alt="cover">
-                }
-              </div>
-            </div>
+          <!-- 🔥 REUSED SHARED CARD COMPONENT -->
+          <app-property-course-card
+            [course]="course">
+          </app-property-course-card>
+        }
 
-            <div class="card-glass-layer"></div>
-
-            <div class="card-content-layer">
-              <div class="card-left-panel">
-                <span class="course-title">{{ course.title }}</span>
-                <span class="course-instructor">By {{ course.instructor?.firstName }} {{ course.instructor?.lastName }}</span>
-                
-                <div class="course-bottom-info">
-                  <span class="course-price">
-                    @if (course.isFree) {
-                      <span class="free-badge">Free</span>
-                    } @else {
-                      @if (course.discountPrice) {
-                        <span class="price-discount">{{ course.discountPrice | currency:course.currency:'symbol':'1.0-0' }}</span>
-                        <span class="price-original">{{ course.price | currency:course.currency:'symbol':'1.0-0' }}</span>
-                      } @else {
-                        <span>{{ course.price | currency:course.currency:'symbol':'1.0-0' }}</span>
-                      }
-                    }
-                  </span>
-                </div>
-              </div>
-
-              <div class="card-right-panel">
-                <span class="right-text level-badge">{{ course.level }}</span>
-                <span class="right-text rating-badge">
-                  <i class="pi pi-star-fill text-warning"></i> {{ course.rating | number:'1.1-1' }}
-                </span>
-                
-                <div class="arrow-btn">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" class="arrow-icon">
-                    <path d="M4.646 2.146a.5.5 0 0 0 0 .708L7.793 6L4.646 9.146a.5.5 0 1 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z" fill="currentColor"></path>
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
-        } @empty {
-          <div class="empty-state glass-panel">
-            <div class="empty-icon-wrapper">
+        @empty {
+          <div class="empty-state col-span-full">
+            <div class="empty-icon">
               <i class="pi pi-compass"></i>
             </div>
             <h3>No Courses Found</h3>
-            <p>{{ searchQuery() ? 'Adjust your filters or search terms.' : 'This category has no courses yet.' }}</p>
-            <button routerLink="/courses" class="btn-primary">
-              Browse All Courses
-            </button>
+            <p>
+              {{ searchQuery()
+                  ? 'Try adjusting your search terms or filters.'
+                  : 'This category currently has no active courses.' }}
+            </p>
+
+            <p-button
+              label="Browse All Courses"
+              icon="pi pi-search"
+              routerLink="/courses">
+            </p-button>
+          </div>
+        }
+
+      </div>
+
+
+      <!-- ================= PAGINATION ================= -->
+      @if (totalPages() > 1) {
+        <div class="pagination-wrapper">
+          <div class="glass-inset">
+
+            <p-button
+              icon="pi pi-chevron-left"
+              severity="secondary"
+              [text]="true"
+              [disabled]="currentPage() === 1"
+              (onClick)="changePage(currentPage() - 1)">
+            </p-button>
+
+            @for (page of visiblePages(); track page) {
+              <p-button
+                [label]="page.toString()"
+                [severity]="page === currentPage() ? 'primary' : 'secondary'"
+                [text]="page !== currentPage()"
+                (onClick)="changePage(page)">
+              </p-button>
+            }
+
+            <p-button
+              icon="pi pi-chevron-right"
+              severity="secondary"
+              [text]="true"
+              [disabled]="currentPage() === totalPages()"
+              (onClick)="changePage(currentPage() + 1)">
+            </p-button>
+
+          </div>
+        </div>
+      }
+
+    </div>
+  }
+
+</div>
+
+<!-- <div class="ultimate-container fade-in">
+    
+    @if (loading()) {
+      <div class="content-wrapper">
+        <div class="category-header glass-panel mb-3xl">
+          <p-skeleton width="200px" height="1.5rem" styleClass="mb-md"></p-skeleton>
+          <p-skeleton width="60%" height="3rem" styleClass="mb-sm"></p-skeleton>
+          <p-skeleton width="80%" height="1rem"></p-skeleton>
+        </div>
+        <div class="courses-grid">
+          @for (item of [1,2,3,4,5,6]; track item) {
+            <div class="glass-panel surface-raised p-0 overflow-hidden flex-col">
+              <p-skeleton width="100%" height="200px" borderRadius="0"></p-skeleton>
+              <div class="p-xl flex-col gap-md flex-grow-1">
+                <p-skeleton width="90%" height="1.5rem"></p-skeleton>
+                <p-skeleton width="60%" height="1rem"></p-skeleton>
+                <div class="mt-auto pt-md flex-between">
+                  <p-skeleton width="30%" height="2rem"></p-skeleton>
+                  <p-skeleton width="20%" height="1rem"></p-skeleton>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div> 
+    } @else {
+      <div class="content-wrapper">
+        
+        <header class="category-header glass-panel flex-col md:flex-row flex-between gap-2xl mb-3xl">
+          <div class="header-left flex-col gap-sm flex-grow-1">
+            <nav class="breadcrumb flex align-items-center gap-xs text-xs font-bold uppercase tracking-widest text-tertiary mb-sm">
+              <a routerLink="/" class="bc-link text-tertiary hover-text-primary transition-colors"><i class="pi pi-home"></i></a>
+              <span>/</span>
+              <a routerLink="/categories" class="bc-link text-tertiary hover-text-primary transition-colors text-decoration-none">Categories</a>
+              <span>/</span>
+              <span class="bc-current text-primary">{{ category()?.name }}</span>
+            </nav>
+
+            <h1 class="category-title font-heading text-4xl md:text-5xl font-bold text-primary m-0 flex align-items-center gap-md line-height-tight">
+              <i [class]="category()?.icon || 'pi pi-folder'" class="text-primary"></i>
+              <span>{{ category()?.name }}</span>
+            </h1>
+            
+            @if (category()?.description) {
+              <p class="category-description text-secondary text-lg max-w-prose m-0 line-height-relaxed">{{ category()?.description }}</p>
+            }
+          </div>
+
+          <div class="header-right flex-shrink-0 w-full md:w-auto">
+            <div class="category-stats flex align-items-center gap-xl bg-ternary border-primary border-radius-lg p-xl">
+              <div class="stat-item flex-col gap-xs">
+                <span class="stat-label text-xs uppercase tracking-widest font-bold text-tertiary">Courses</span>
+                <span class="stat-value font-heading text-3xl font-bold text-primary m-0 line-height-tight">{{ courses().length }}</span>
+              </div>
+              <div class="stat-divider w-1px bg-border-secondary h-3rem"></div>
+              <div class="stat-item flex-col gap-xs">
+                <span class="stat-label text-xs uppercase tracking-widest font-bold text-tertiary">Status</span>
+                <p-tag [value]="category()?.isActive ? 'Active' : 'Inactive'" [severity]="category()?.isActive ? 'success' : 'secondary'"></p-tag>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div class="filters-section glass-panel mb-4xl">
+          <div class="filter-group flex-col md:flex-row gap-lg">
+            <span class="p-input-icon-left flex-grow-1 w-full md:w-auto search-wrapper">
+              <i class="pi pi-search text-tertiary"></i>
+              <input type="text" pInputText [ngModel]="searchQuery()" (ngModelChange)="onSearchChange($event)" placeholder="Discover courses..." class="w-full">
+            </span>
+
+            <p-select appendTo='body' [options]="levelOptions" [ngModel]="selectedLevel()" (ngModelChange)="onLevelChange($event)" optionLabel="label" optionValue="value" styleClass="w-full md:w-auto min-w-15rem"></p-select>
+            <p-select appendTo='body' [options]="sortOptions" [ngModel]="selectedSort()" (ngModelChange)="onSortChange($event)" optionLabel="label" optionValue="value" styleClass="w-full md:w-auto min-w-15rem"></p-select>
+          </div>
+        </div>
+
+        <div class="courses-grid">
+          @for (course of paginatedCourses(); track course._id) {
+            <div class="course-card glass-panel p-0 surface-raised hover-lift flex-col overflow-hidden cursor-pointer" [routerLink]="['/courses/', course.slug]">
+              
+              <div class="card-hero-img relative w-full aspect-ratio-16-9 bg-ternary border-bottom-subtle overflow-hidden">
+                @if (course.thumbnail) {
+                  <img [src]="course.thumbnail" class="w-full h-full object-cover transition-transform hover-scale-105" alt="Course Cover">
+                } @else {
+                  <div class="flex-center w-full h-full text-tertiary"><i class="pi pi-image text-4xl"></i></div>
+                }
+                <div class="absolute top-0 right-0 p-md">
+                  <p-tag [value]="course.level | titlecase" severity="secondary" styleClass="backdrop-blur bg-black-alpha-50 text-white border-none"></p-tag>
+                </div>
+              </div>
+
+              <div class="card-content p-xl flex-col flex-grow-1">
+                <h3 class="course-title font-heading text-xl font-bold text-primary m-0 mb-xs line-clamp-2 line-height-tight">{{ course.title }}</h3>
+                <p class="course-instructor text-sm text-secondary font-medium m-0 mb-xl flex align-items-center gap-xs">
+                  <i class="pi pi-user text-xs"></i> By {{ course.instructor?.firstName }} {{ course.instructor?.lastName }}
+                </p>
+                
+                <div class="course-bottom-info mt-auto pt-md border-top-subtle flex-between align-items-end">
+                  <div class="course-price flex-col gap-xs font-mono">
+                    @if (course.isFree) {
+                      <span class="text-success font-bold text-xl">Free</span>
+                    } @else {
+                      @if (course.discountPrice) {
+                        <span class="text-primary font-bold text-xl">{{ course.discountPrice | currency:course.currency:'symbol':'1.0-0' }}</span>
+                        <span class="text-tertiary text-xs text-strike font-medium">{{ course.price | currency:course.currency:'symbol':'1.0-0' }}</span>
+                      } @else {
+                        <span class="text-primary font-bold text-xl">{{ course.price | currency:course.currency:'symbol':'1.0-0' }}</span>
+                      }
+                    }
+                  </div>
+
+                  <div class="rating-badge flex align-items-center gap-xs text-sm font-bold bg-ternary border-secondary px-md py-xs border-radius-full">
+                    <i class="pi pi-star-fill text-warning"></i> 
+                    <span class="text-primary">{{ course.rating | number:'1.1-1' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-state glass-panel col-span-full flex-col flex-center text-center py-5xl border-dashed border-primary">
+              <div class="empty-icon-wrapper flex-center border-radius-full bg-ternary border-primary mb-2xl">
+                <i class="pi pi-compass text-5xl text-tertiary"></i>
+              </div>
+              <h3 class="font-heading text-3xl text-primary font-bold m-0 mb-sm">No Courses Found</h3>
+              <p class="text-secondary text-lg m-0 mb-3xl max-w-prose">{{ searchQuery() ? 'Try adjusting your search terms or filters.' : 'This category currently has no active courses.' }}</p>
+              <p-button label="Browse All Courses" icon="pi pi-search" routerLink="/courses" size="large"></p-button>
+            </div>
+          }
+        </div>
+
+        @if (totalPages() > 1) {
+          <div class="pagination-wrapper flex-center mt-5xl">
+            <div class="glass-inset p-sm border-radius-lg flex gap-xs">
+              <p-button icon="pi pi-chevron-left" severity="secondary" [text]="true" [disabled]="currentPage() === 1" (onClick)="changePage(currentPage() - 1)"></p-button>
+              
+              @for (page of visiblePages(); track page) {
+                <p-button [label]="page.toString()" 
+                          [severity]="page === currentPage() ? 'primary' : 'secondary'" 
+                          [text]="page !== currentPage()"
+                          (onClick)="changePage(page)"></p-button>
+              }
+              
+              <p-button icon="pi pi-chevron-right" severity="secondary" [text]="true" [disabled]="currentPage() === totalPages()" (onClick)="changePage(currentPage() + 1)"></p-button>
+            </div>
           </div>
         }
       </div>
-
-      @if (totalPages() > 1) {
-        <div class="pagination glass-panel">
-          <button class="page-btn" [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)">
-            <i class="pi pi-chevron-left"></i>
-          </button>
-          
-          @for (page of visiblePages(); track page) {
-            <button class="page-btn" 
-                    [class.active]="page === currentPage()" 
-                    (click)="changePage(page)">
-              {{ page }}
-            </button>
-          }
-          
-          <button class="page-btn" [disabled]="currentPage() === totalPages()" (click)="changePage(currentPage() + 1)">
-            <i class="pi pi-chevron-right"></i>
-          </button>
-        </div>
-      }
-    </div>
-  }
-</div> -->
+    }
+  </div>
+ -->

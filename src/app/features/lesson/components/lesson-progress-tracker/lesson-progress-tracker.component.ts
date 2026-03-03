@@ -13,7 +13,7 @@ import { LessonService, LessonProgress } from '../../../../core/services/lesson.
 @Component({
   selector: 'app-lesson-progress-tracker',
   standalone: true,
-  imports: [CommonModule, ButtonModule,CommonModule, ProgressBarModule, DatePipe],
+  imports: [CommonModule, ButtonModule,CommonModule, ProgressBarModule, ],//DatePipe
   templateUrl: './lesson-progress-tracker.component.html',
   styleUrls: ['./lesson-progress-tracker.component.scss']
 })

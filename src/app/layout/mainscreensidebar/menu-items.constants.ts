@@ -33,6 +33,11 @@ export const SIDEBAR_MENU: MenuItem[] = [
         routerLink: ['/mock-tests']
       },
       {
+        label: 'Popular Categories',
+        icon: 'pi pi-sitemap',
+        routerLink: ['/categories/popular'] // The recursive tree we built
+      },
+      {
         label: 'Explore Categories',
         icon: 'pi pi-sitemap',
         routerLink: ['/categories/tree'] // The recursive tree we built

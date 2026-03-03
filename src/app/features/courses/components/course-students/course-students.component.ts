@@ -91,20 +91,20 @@ export class CourseStudentsComponent implements OnInit {
 
   private fetchStudents(courseId: string): void {
     this.isLoading.set(true);
-    this.enrollmentService.getCourseStudents(courseId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res: any) => {
-          const data = res.data?.students || res.data || [];
-          this.enrollments.set(data);
-          this.isLoading.set(false);
-        },
-        error: (err: any) => {
-          console.error('Failed to load students', err);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not load student list.' });
-          this.isLoading.set(false);
-        }
-      });
+    // this.enrollmentService.getCourseStudents(courseId)
+    //   .pipe(takeUntilDestroyed(this.destroyRef))
+    //   .subscribe({
+    //     next: (res: any) => {
+    //       const data = res.data?.students || res.data || [];
+    //       this.enrollments.set(data);
+    //       this.isLoading.set(false);
+    //     },
+    //     error: (err: any) => {
+    //       console.error('Failed to load students', err);
+    //       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not load student list.' });
+    //       this.isLoading.set(false);
+    //     }
+    //   });
   }
 
   revokeAccess(enrollment: any): void {
@@ -113,20 +113,20 @@ export class CourseStudentsComponent implements OnInit {
       header: 'Revoke Access',
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
-      accept: () => {
-        this.enrollmentService.cancelEnrollment(enrollment._id, 'Instructor revoked access')
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({
-            next: () => {
-              this.messageService.add({ severity: 'success', summary: 'Access Revoked', detail: 'Student has been removed from the course.' });
-              // Optimistically remove from UI
-              this.enrollments.update(list => list.filter(e => e._id !== enrollment._id));
-            },
-            error: (err) => {
-              this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message || 'Failed to revoke access.' });
-            }
-          });
-      }
+      // accept: () => {
+      //   this.enrollmentService.cancelEnrollment(enrollment._id, 'Instructor revoked access')
+      //     .pipe(takeUntilDestroyed(this.destroyRef))
+      //     .subscribe({
+      //       next: () => {
+      //         this.messageService.add({ severity: 'success', summary: 'Access Revoked', detail: 'Student has been removed from the course.' });
+      //         // Optimistically remove from UI
+      //         this.enrollments.update(list => list.filter(e => e._id !== enrollment._id));
+      //       },
+      //       error: (err) => {
+      //         this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message || 'Failed to revoke access.' });
+      //       }
+      //     });
+      // }
     });
   }
 

@@ -24,6 +24,12 @@ export const COURSE_ROUTES: Routes = [
     ]
   }
 ];
+
+
+
+
+
+
 // import { Routes } from '@angular/router';
 // import { AuthGuard } from '../../core/authentication/guards/auth.guard';
 

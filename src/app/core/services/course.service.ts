@@ -16,12 +16,6 @@ export class CourseService {
     return this.baseApi.get<Course[]>(this.endpoint, { params });
   }
 
-  // -------- remaining
-  searchCourses(params?: CourseQueryParams): Observable<ApiResponse<Course[]>> {
-    // Note: If you use the factory pattern on the backend, this can just call the base endpoint with search params
-    return this.baseApi.get<Course[]>(`${this.endpoint}/search`, { params });
-  }
-
   getCoursesById(id: string): Observable<ApiResponse<any>> {
     return this.baseApi.get<Course>(`${this.endpoint}/${id}`);
   }
@@ -31,7 +25,7 @@ export class CourseService {
   }
 
   // ==================== INSTRUCTOR ROUTES ====================
-  getMyCourses(): Observable<ApiResponse<any>> {
+  getInstructorCourses(): Observable<ApiResponse<any>> {
     return this.baseApi.get<Course[]>(`${this.endpoint}/instructor/my-courses`);
   }
 

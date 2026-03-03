@@ -390,9 +390,7 @@ export class CourseFormComponent implements OnInit {
 
     this.isLoading.set(true);
     const formData = this.courseForm.getRawValue();
-    
     const activeId = this.route.snapshot.paramMap.get('id') || this.courseId();
-
     const request$ = (this.isEditMode() && activeId
       ? this.courseService.updateCourses(activeId, formData)
       : this.courseService.createCourses(formData)) as import('rxjs').Observable<any>;

@@ -1,4 +1,472 @@
-<p-toast position="top-right"></p-toast>
+<!-- course-detail.component.html -->
+<div class="course-detail-container">
+  <p-toast position="top-right"></p-toast>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="loader-ring"></div>
+      <div class="loading-skeleton">
+        <div class="skeleton-header"></div>
+        <div class="skeleton-content">
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Error State -->
+  @else if (error()) {
+    <div class="error-state">
+      <div class="error-icon">⚠️</div>
+      <h2>Oops! Something went wrong</h2>
+      <p>{{ error() }}</p>
+      <button class="retry-btn" (click)="retry()">
+        <i class="pi pi-refresh"></i>
+        Try Again
+      </button>
+    </div>
+  }
+
+  <!-- Course Content -->
+  @else if (course(); as course) {
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+      <div class="nav-left">
+        <a [routerLink]="isInstructorMode() ? '/instructor/courses' : '/courses'" 
+           class="back-link">
+          <i class="pi pi-arrow-left"></i>
+          <span>{{ isInstructorMode() ? 'My Courses' : 'All Courses' }}</span>
+        </a>
+        <span class="separator">/</span>
+        <span class="category">{{ getCategoryName() }}</span>
+      </div>
+
+      @if (isInstructorMode()) {
+        <div class="nav-right">
+          <span class="status-badge" [ngClass]="getCourseStatus().severity">
+            <i [class]="getCourseStatus().icon"></i>
+            {{ getCourseStatus().label }}
+          </span>
+          <button class="icon-btn" (click)="editCourse()" pTooltip="Edit Course">
+            <i class="pi pi-pencil"></i>
+          </button>
+          @if (!course.isPublished) {
+            <button class="publish-btn" (click)="publishCourse()">
+              <i class="pi pi-rocket"></i>
+              Publish
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+      <!-- Left Column - Main Content -->
+      <div class="main-content">
+        <!-- Course Header -->
+        <div class="course-header">
+          <h1 class="course-title">{{ course.title }}</h1>
+          <p class="course-subtitle">{{ course.subtitle || course.description | slice:0:200 }}{{ (course.description.length || 0) > 200 ? '...' : '' }}</p>
+          
+          <div class="meta-stats">
+            <div class="stat">
+              <i class="pi pi-signal"></i>
+              <span>{{ course.level | titlecase }}</span>
+            </div>
+            <div class="stat">
+              <i class="pi pi-users"></i>
+              <span>{{ course.totalEnrollments }} enrolled</span>
+            </div>
+            <div class="stat">
+              <i class="pi pi-clock"></i>
+              <span>{{ formatDuration(actualTotalDuration()) }}</span>
+            </div>
+            <div class="stat">
+              <i class="pi pi-book"></i>
+              <span>{{ actualTotalLessons() }} lessons</span>
+            </div>
+            <div class="stat">
+              <i class="pi pi-globe"></i>
+              <span>{{ course.language }}</span>
+            </div>
+          </div>
+
+          <!-- Instructor Info -->
+          <div class="instructor-card">
+            <div class="instructor-avatar">
+              @if (course.instructor.profilePicture) {
+                <img [src]="course.instructor.profilePicture" [alt]="course.instructor.firstName">
+              } @else {
+                <div class="avatar-placeholder">
+                  {{ course.instructor.firstName.charAt(0) }}{{ course.instructor.lastName.charAt(0) }}
+                </div>
+              }
+            </div>
+            <div class="instructor-info">
+              <span class="label">Created by</span>
+              <span class="name">{{ course.instructor.firstName }} {{ course.instructor.lastName }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Course Description -->
+        @if (course.description) {
+          <section class="content-section">
+            <h2 class="section-title">About This Course</h2>
+            <div class="description" [innerHTML]="course.description"></div>
+          </section>
+        }
+
+        <!-- What You'll Learn -->
+        @if (course.whatYouWillLearn.length) {
+          <section class="content-section">
+            <h2 class="section-title">What You'll Learn</h2>
+            <div class="learn-grid">
+              @for (item of course.whatYouWillLearn; track item) {
+                <div class="learn-item">
+                  <i class="pi pi-check-circle"></i>
+                  <span>{{ item }}</span>
+                </div>
+              }
+            </div>
+          </section>
+        }
+
+        <!-- Course Curriculum -->
+        <section class="content-section">
+          <div class="section-header">
+            <h2 class="section-title">Course Curriculum</h2>
+            @if (isInstructorMode()) {
+              <button class="edit-btn" (click)="editCurriculum()">
+                <i class="pi pi-pencil"></i>
+                Manage
+              </button>
+            }
+          </div>
+
+          <div class="curriculum-stats">
+            <span>{{ sections().length }} sections</span>
+            <span class="dot">•</span>
+            <span>{{ actualTotalLessons() }} lessons</span>
+            <span class="dot">•</span>
+            <span>{{ formatDuration(actualTotalDuration()) }} total length</span>
+          </div>
+
+          <div class="curriculum-list">
+            @for (section of sections(); track section._id; let i = $index) {
+              <div class="curriculum-item" [class.expanded]="section.expanded">
+                <div class="item-header" (click)="toggleSection(i)">
+                  <div class="header-left">
+                    <i class="pi" [ngClass]="section.expanded ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+                    <h3>{{ section.title }}</h3>
+                  </div>
+                  <div class="header-right">
+                    <span>{{ section.lessons?.length || 0 }} lessons</span>
+                    <span class="duration">{{ formatDuration(section.totalDuration || 0) }}</span>
+                  </div>
+                </div>
+
+                @if (section.expanded) {
+                  <div class="item-content">
+                    @if (section.description) {
+                      <p class="section-description">{{ section.description }}</p>
+                    }
+                    
+                    <div class="lessons-list">
+                      @for (lesson of section.lessons; track lesson._id) {
+                        <div class="lesson-item">
+                          <div class="lesson-info">
+                            <i [class]="getLessonIcon(lesson.type)"></i>
+                            <span class="lesson-title">{{ lesson.title }}</span>
+                          </div>
+                          <div class="lesson-meta">
+                            @if (lesson.isFree) {
+                              <span class="free-badge">FREE</span>
+                            }
+                            <span class="duration">{{ formatDuration(lesson.duration) }}</span>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </section>
+
+        <!-- Requirements & Target Audience Grid -->
+        <div class="info-grid">
+          @if (course.requirements.length) {
+            <section class="info-card">
+              <h3>Requirements</h3>
+              <ul>
+                @for (req of course.requirements; track req) {
+                  <li>{{ req }}</li>
+                }
+              </ul>
+            </section>
+          }
+
+          @if (course.targetAudience.length) {
+            <section class="info-card">
+              <h3>Who this course is for</h3>
+              <ul>
+                @for (audience of course.targetAudience; track audience) {
+                  <li>{{ audience }}</li>
+                }
+              </ul>
+            </section>
+          }
+        </div>
+      </div>
+
+      <!-- Right Column - Sidebar -->
+      <div class="sidebar">
+        <div class="action-card">
+          <!-- Course Image -->
+          <div class="card-image">
+            <img [src]="course.thumbnail || 'assets/images/course-placeholder.jpg'" 
+                 [alt]="course.title">
+            @if (!isInstructorMode() && course.previewVideo) {
+              <div class="play-overlay">
+                <i class="pi pi-play-circle"></i>
+              </div>
+            }
+          </div>
+
+          <!-- Price Section -->
+          <div class="card-price">
+            @if (course.isFree) {
+              <span class="free-price">Free</span>
+            } @else {
+              @if (course.discountPrice) {
+                <div class="discount-price">
+                  <span class="current">{{ course.discountPrice | currency:course.currency }}</span>
+                  <span class="original">{{ course.price | currency:course.currency }}</span>
+                  <span class="discount-badge">-{{ calculateDiscount() }}%</span>
+                </div>
+              } @else {
+                <span class="regular-price">{{ course.price | currency:course.currency }}</span>
+              }
+            }
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="card-actions">
+            @if (isInstructorMode()) {
+              <button class="action-btn secondary" (click)="editPricing()">
+                <i class="pi pi-dollar"></i>
+                Manage Pricing
+              </button>
+              <button class="action-btn" (click)="previewCourse()">
+                <i class="pi pi-eye"></i>
+                Preview
+              </button>
+            } @else {
+              @if (isEnrolled()) {
+                <button class="action-btn success" (click)="goToLearning()">
+                  <i class="pi pi-play-circle"></i>
+                  Go to Course
+                </button>
+                <div class="progress-indicator">
+                  <div class="progress-bar">
+                    <div class="progress-fill" [style.width.%]="userProgress()"></div>
+                  </div>
+                  <span class="progress-text">{{ userProgress() }}% Complete</span>
+                </div>
+              } @else {
+                <button class="action-btn" (click)="openCheckout()">
+                  <i class="pi pi-bolt"></i>
+                  {{ course.isFree ? 'Enroll for Free' : 'Enroll Now' }}
+                </button>
+                <p class="guarantee">
+                  <i class="pi pi-shield"></i>
+                  30-Day Money-Back Guarantee
+                </p>
+              }
+            }
+          </div>
+
+          <!-- Course Includes -->
+          <div class="course-includes">
+            <h4>This course includes:</h4>
+            <ul>
+              <li>
+                <i class="pi pi-video"></i>
+                <span>{{ formatDuration(actualTotalDuration()) }} on-demand video</span>
+              </li>
+              <li>
+                <i class="pi pi-file"></i>
+                <span>{{ actualTotalLessons() }} lessons</span>
+              </li>
+              <li>
+                <i class="pi pi-mobile"></i>
+                <span>Access on mobile and TV</span>
+              </li>
+              <li>
+                <i class="pi pi-trophy"></i>
+                <span>Certificate of completion</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Tags -->
+          @if (course.tags.length) {
+            <div class="course-tags">
+              @for (tag of course.tags; track tag) {
+                <span class="tag">#{{ tag }}</span>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Checkout Modal -->
+<p-dialog 
+  [(visible)]="showCheckoutModal" 
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="checkout-dialog"
+  [dismissableMask]="true"
+  (onHide)="closeCheckout()">
+  
+  <div class="checkout-modal">
+    <button class="close-btn" (click)="closeCheckout()">
+      <i class="pi pi-times"></i>
+    </button>
+
+    <div class="modal-grid">
+      <!-- Left Column - Course Info -->
+      <div class="modal-course-info">
+        <div class="modal-image">
+          <img [src]="course()?.thumbnail || 'assets/images/course-placeholder.jpg'" 
+               [alt]="course()?.title">
+        </div>
+        
+        <div class="modal-course-details">
+          <h2>{{ course()?.title }}</h2>
+          <p class="instructor">with {{ course()?.instructor?.firstName }} {{ course()?.instructor?.lastName }}</p>
+          
+          <div class="modal-price">
+            @if (course()?.isFree) {
+              <span class="free">Free Access</span>
+            } @else {
+              @if (course()?.discountPrice) {
+                <span class="current">{{ course()?.discountPrice | currency:course()?.currency }}</span>
+                <span class="original">{{ course()?.price | currency:course()?.currency }}</span>
+              } @else {
+                <span class="current">{{ course()?.price | currency:course()?.currency }}</span>
+              }
+            }
+          </div>
+
+          <div class="modal-includes">
+            <h4>This course includes:</h4>
+            <ul>
+              <li><i class="pi pi-check-circle"></i> Full lifetime access</li>
+              <li><i class="pi pi-check-circle"></i> Certificate of completion</li>
+              <li><i class="pi pi-check-circle"></i> 30-day money-back guarantee</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column - Payment Form -->
+      <div class="modal-payment">
+        <h3>Complete Your Enrollment</h3>
+        
+        @if (!course()?.isFree) {
+          <form [formGroup]="checkoutForm" class="payment-form">
+            <div class="form-group">
+              <label>Cardholder Name</label>
+              <input 
+                type="text" 
+                pInputText 
+                formControlName="cardName"
+                placeholder="Name on card"
+                [class.error]="checkoutForm.get('cardName')?.invalid && checkoutForm.get('cardName')?.touched">
+              @if (checkoutForm.get('cardName')?.invalid && checkoutForm.get('cardName')?.touched) {
+                <small class="error-text">Name is required</small>
+              }
+            </div>
+
+            <div class="form-group">
+              <label>Card Number</label>
+              <input 
+                type="text" 
+                pInputText 
+                formControlName="cardNumber"
+                placeholder="1234 5678 9012 3456"
+                maxlength="16"
+                [class.error]="checkoutForm.get('cardNumber')?.invalid && checkoutForm.get('cardNumber')?.touched">
+              @if (checkoutForm.get('cardNumber')?.invalid && checkoutForm.get('cardNumber')?.touched) {
+                <small class="error-text">Valid 16-digit card number required</small>
+              }
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Expiry</label>
+                <input 
+                  type="text" 
+                  pInputText 
+                  formControlName="expiry"
+                  placeholder="MM/YY"
+                  maxlength="5"
+                  [class.error]="checkoutForm.get('expiry')?.invalid && checkoutForm.get('expiry')?.touched">
+              </div>
+
+              <div class="form-group">
+                <label>CVV</label>
+                <input 
+                  type="password" 
+                  pInputText 
+                  formControlName="cvv"
+                  placeholder="123"
+                  maxlength="4"
+                  [class.error]="checkoutForm.get('cvv')?.invalid && checkoutForm.get('cvv')?.touched">
+              </div>
+            </div>
+          </form>
+        } @else {
+          <div class="free-message">
+            <i class="pi pi-gift"></i>
+            <h4>You're getting this course for free!</h4>
+            <p>No payment required. Click below to start learning instantly.</p>
+          </div>
+        }
+
+        <button 
+          class="checkout-btn" 
+          (click)="processEnrollment()"
+          [disabled]="isProcessingPayment() || (!course()?.isFree && checkoutForm.invalid)">
+          @if (isProcessingPayment()) {
+            <i class="pi pi-spin pi-spinner"></i>
+            Processing...
+          } @else {
+            {{ course()?.isFree ? 'Enroll for Free' : 'Complete Purchase' }}
+          }
+        </button>
+
+        <p class="secure-badge">
+          <i class="pi pi-lock"></i>
+          Secure SSL encrypted payment
+        </p>
+      </div>
+    </div>
+  </div>
+</p-dialog>
+
+<!-- <p-toast position="top-right"></p-toast>
 
 @if (isLoading()) {
   <div class="state-overlay cinematic-bg">
@@ -328,4 +796,4 @@
       </div>
     </div>
   </div>
-</p-dialog>
+</p-dialog> -->

@@ -15,6 +15,11 @@ export const CATEGORY_ROUTES: Routes = [
         title: 'Category Tree'
       },
       {
+        path: 'popular',
+        loadComponent: () => import('./../../features/category/components/popular-categories/popular-categories.component').then(m => m.PopularCategoriesComponent),
+        title: 'Category Tree'
+      },
+      {
         path: 'tree',
         loadComponent: () => import('./../../features/category/components/category-tree/category-tree.component').then(m => m.CategoryTreeComponent),
         title: 'Category Tree'

@@ -1,175 +1,108 @@
-  <div class="page-container">
-    
-    <div class="page-header">
-      <div class="header-titles">
-        <h1 class="title">{{ isInstructorMode() ? 'My Courses' : 'Browse Courses' }}</h1>
-        <p class="subtitle">{{ isInstructorMode() ? 'Manage, monitor, and publish your courses' : 'Discover the perfect course for your learning journey' }}</p>
-      </div>
-      
-      @if (isInstructorMode()) {
-        <p-button label="Create New Course" icon="pi pi-plus" [routerLink]="['/courses/instructor/new']"></p-button>
+<div class="course-list-container fade-in">
+  <p-toast position="top-right"></p-toast>
+
+  <!-- ================= HEADER ================= -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Browse Courses</h1>
+      <p class="page-subtitle">
+        Discover the perfect course for your learning journey
+      </p>
+    </div>
+  </div>
+
+  <!-- ================= FILTERS ================= -->
+  <div class="filters-bar">
+    <div class="filters-grid">
+
+      <!-- Search -->
+      <span class="w-full">
+        <input type="text" pInputText [(ngModel)]="filters.search" (ngModelChange)="onFilterChange()"
+          placeholder="Search courses..." class="w-full" />
+      </span>
+
+      <!-- Category -->
+      <p-select [options]="categories()" optionLabel="name" optionValue="_id" [(ngModel)]="filters.category"
+        (onChange)="onFilterChange()" placeholder="All Categories" [showClear]="true" styleClass="w-full">
+      </p-select>
+
+      <!-- Level -->
+      <p-select [options]="levelOptions" [(ngModel)]="filters.level" (onChange)="onFilterChange()"
+        placeholder="All Levels" [showClear]="true" styleClass="w-full">
+      </p-select>
+
+      <!-- Sort -->
+      <p-select [options]="sortOptions" [(ngModel)]="filters.sort" (onChange)="onFilterChange()" placeholder="Sort by"
+        styleClass="w-full">
+      </p-select>
+
+      <!-- Clear Button -->
+      @if (hasActiveFilters()) {
+      <button class="clear-filters-btn" (click)="clearFilters()">
+        <i class="pi pi-filter-slash"></i>
+        Clear
+      </button>
       }
+
     </div>
+  </div>
 
-    <div class="stats-grid mb-4xl">
-      <div class="stat-card glass-panel">
-        <div class="stat-icon icon-primary"><i class="pi pi-book"></i></div>
-        <div class="stat-content">
-          <p class="stat-label">Total Courses</p>
-          <p class="stat-value font-heading">{{ stats().total }}</p>
-        </div>
-      </div>
-      <div class="stat-card glass-panel">
-        <div class="stat-icon icon-success"><i class="pi pi-users"></i></div>
-        <div class="stat-content">
-          <p class="stat-label">Total Students</p>
-          <p class="stat-value font-heading">{{ stats().students }}</p>
-        </div>
-      </div>
-      <div class="stat-card glass-panel">
-        <div class="stat-icon icon-warning"><i class="pi pi-star-fill"></i></div>
-        <div class="stat-content">
-          <p class="stat-label">Avg Rating</p>
-          <p class="stat-value font-heading">{{ stats().rating | number:'1.1-1' }}</p>
-        </div>
-      </div>
-      <div class="stat-card glass-panel">
-        <div class="stat-icon icon-info"><i class="pi pi-wallet"></i></div>
-        <div class="stat-content">
-          <p class="stat-label">Est. Revenue</p>
-          <p class="stat-value font-heading">{{ stats().revenue | currency:'INR':'symbol':'1.0-0' }}</p>
-        </div>
-      </div>
+  <!-- ================= LOADING STATE ================= -->
+  @if (loading()) {
+  <div class="courses-grid">
+    @for (item of [1,2,3,4,5,6]; track item) {
+    <div class="course-card-skeleton">
+      <p-skeleton height="200px" borderRadius="12px"></p-skeleton>
+      <p-skeleton width="80%" height="22px" class="mt-md"></p-skeleton>
+      <p-skeleton width="60%" height="18px" class="mt-sm"></p-skeleton>
     </div>
-
-    <div class="toolbar-glass glass-panel mb-2xl">
-      <div class="toolbar-actions">
-        <span class="p-input-icon-left search-wrapper">
-          <!-- <i class="pi pi-search"></i> -->
-          <input pInputText type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="Search courses..." class="search-input" />
-        </span>
-        
-        <div class="filters-wrapper">
-          <p-select appendTo='body' [options]="categories()" optionLabel="name" optionValue="name" 
-                      [ngModel]="selectedCategory()" (ngModelChange)="selectedCategory.set($event)"
-                      placeholder="Any Category" [showClear]="true" styleClass="w-full">
-          </p-select>
-
-          <p-select appendTo='body' [options]="levels" [ngModel]="selectedLevel()" (ngModelChange)="selectedLevel.set($event)"
-                      placeholder="Any Level" [showClear]="true" styleClass="w-full">
-            <ng-template let-level pTemplate="item">
-              {{ level | titlecase }}
-            </ng-template>
-            <ng-template let-level pTemplate="selectedItem">
-              {{ level ? (level | titlecase) : 'Any Level' }}
-            </ng-template>
-          </p-select>
-
-          <p-button icon="pi pi-filter-slash" severity="secondary" [text]="true" (onClick)="clearFilters()" pTooltip="Clear Filters"></p-button>
-        </div>
-      </div>
-    </div>
-
-    @if (isLoading()) {
-      <div class="state-overlay glass-panel">
-        <i class="pi pi-spin pi-spinner loading-icon"></i>
-        <p class="text-secondary mt-md font-heading">Loading your courses...</p>
-      </div>
-    } @else {
-      
-      <div class="course-feed-grid">
-        @for (course of filteredAndSortedCourses(); track course._id) {
-          <div class="course-card glass-panel surface-raised">
-            
-            <div class="card-hero">
-              <div class="course-thumbnail">
-                @if (course.thumbnail || course.previewVideo) {
-                  <img [src]="course.thumbnail || course.previewVideo" [alt]="course.title" (error)="$event.target.src='https://via.placeholder.com/400x225?text=No+Image'"/>
-                } @else {
-                  <div class="no-img flex-center h-full w-full bg-ternary"><i class="pi pi-image text-3xl text-tertiary"></i></div>
-                }
-                <div class="status-overlay">
-                  <p-tag [value]="getCourseStatusLabel(course)" [severity]="getCourseStatusSeverity(course)"></p-tag>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-body flex-col flex-grow-1">
-              <div class="meta-tags flex gap-sm mb-sm">
-                <span class="category-badge">{{ course.category.name || 'Uncategorized' }}</span>
-                <span class="level-badge"><i class="pi pi-chart-bar"></i> {{ course.level | titlecase }}</span>
-              </div>
-
-              <h3 class="course-title font-heading text-primary m-0 mb-xs cursor-pointer" 
-                  [routerLink]="isInstructorMode() ? ['/courses/instructor', course._id] : ['/courses', course.slug || course._id]">
-                {{ course.title }}
-              </h3>
-              <p class="course-instructor text-secondary text-sm mb-md"><i class="pi pi-user mr-1"></i> {{ course.instructor.firstName }} {{ course.instructor.lastName }}</p>
-
-              <div class="price-block mt-auto pt-md border-top-subtle flex-between">
-                <div class="price-val">
-                  @if (course.isFree) {
-                    <span class="price-free font-mono text-success font-bold text-xl">FREE</span>
-                  } @else {
-                    <span class="price-current font-mono text-primary font-bold text-xl">{{ course.price | currency:course.currency }}</span>
-                    @if (course.discountPrice) {
-                      <span class="price-discount font-mono text-tertiary ml-sm text-sm line-through">{{ course.discountPrice | currency:course.currency }}</span>
-                    }
-                  }
-                </div>
-                
-                <div class="card-actions flex gap-sm">
-                  <p-button icon="pi" [icon]="expandedRows().has(course._id!) ? 'pi-chevron-up' : 'pi-chevron-down'" 
-                            [rounded]="true" [text]="true" severity="secondary" 
-                            (onClick)="toggleRow(course._id)" pTooltip="Details"></p-button>
-                  
-                  @if (isInstructorMode()) {
-                    <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="info" 
-                              [routerLink]="['/courses/instructor', course._id, 'edit']" pTooltip="Edit"></p-button>
-                    @if (!course.isPublished) {
-                      <p-button icon="pi pi-rocket" [rounded]="true" [text]="true" severity="success" 
-                                (onClick)="publishCourse(course)" pTooltip="Publish"></p-button>
-                    }
-                    <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" 
-                              (onClick)="deleteCourse(course)" pTooltip="Delete"></p-button>
-                  }
-                </div>
-              </div>
-            </div>
-
-            @if (expandedRows().has(course._id!)) {
-              <div class="card-expanded-area glass-inset border-top-subtle">
-                <p class="description-text text-secondary mb-md">{{ course.description || 'No description provided.' }}</p>
-                
-                <div class="metrics-grid mb-md">
-                  <div class="metric-pill"><i class="pi pi-video text-primary"></i> {{ course.totalLessons || 0 }} Lessons</div>
-                  <div class="metric-pill"><i class="pi pi-clock text-success"></i> {{ course.totalDuration || 0 }} mins</div>
-                  <div class="metric-pill"><i class="pi pi-users text-info"></i> {{ course.totalEnrollments || 0 }} Students</div>
-                </div>
-
-                @if (course.tags.length) {
-                  <div class="tags-container flex gap-xs flex-wrap">
-                    @for (tag of course.tags; track tag) {
-                      <span class="tag-primary font-mono text-xs">#{{ tag }}</span>
-                    }
-                  </div>
-                }
-              </div>
-            }
-          </div>
-        } @empty {
-          <div class="empty-state glass-panel col-span-full">
-            <div class="empty-icon-wrapper flex-center mb-lg"><i class="pi pi-inbox text-5xl text-tertiary"></i></div>
-            <h3 class="empty-title font-heading text-2xl text-primary m-0 mb-sm">No courses found</h3>
-            <p class="empty-subtitle text-secondary">Try adjusting your search or filters.</p>
-          </div>
-        }
-      </div>
-
-      @if (filteredAndSortedCourses().length > 0) {
-        <div class="feed-footer mt-4xl text-center text-secondary font-mono text-sm">
-          Showing {{ filteredAndSortedCourses().length }} of {{ courses().length }} courses
-        </div>
-      }
     }
   </div>
+  }
+
+  <!-- ================= COURSES ================= -->
+  @else {
+
+  <div class="courses-grid">
+    @for (course of courses(); track course._id) {
+    <app-property-course-card [course]="course">
+    </app-property-course-card>
+    }
+
+    @empty {
+    <div class="empty-state col-span-full">
+      <div class="empty-icon">
+        <i class="pi pi-search"></i>
+      </div>
+      <h3>No courses found</h3>
+      <p>Try adjusting your search or filters</p>
+      <p-button label="Clear Filters" icon="pi pi-filter-slash" (onClick)="clearFilters()">
+      </p-button>
+    </div>
+    }
+  </div>
+
+  <!-- ================= PAGINATION ================= -->
+  @if (pagination().totalPages > 1) {
+  <div class="pagination-wrapper">
+
+    <button class="pagination-btn" [disabled]="pagination().page === 1" (click)="changePage(pagination().page - 1)">
+      <i class="pi pi-chevron-left"></i>
+    </button>
+
+    <span class="pagination-info">
+      Page {{ pagination().page }}
+      of {{ pagination().totalPages }}
+    </span>
+
+    <button class="pagination-btn" [disabled]="pagination().page === pagination().totalPages"
+      (click)="changePage(pagination().page + 1)">
+      <i class="pi pi-chevron-right"></i>
+    </button>
+
+  </div>
+  }
+
+  }
+
+</div> 

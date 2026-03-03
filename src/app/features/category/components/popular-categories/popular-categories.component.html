@@ -1,0 +1,314 @@
+   <div class="popular-categories-container fade-in">
+      
+      <!-- Hero Section with Stats -->
+      <div class="hero-section glass-panel surface-raised mb-4xl p-4xl">
+        <div class="hero-content text-center">
+          <h1 class="hero-title font-heading text-4xl md:text-5xl text-primary font-bold m-0 mb-md">
+            Explore Popular Categories
+          </h1>
+          <p class="hero-subtitle text-secondary text-lg max-w-prose mx-auto mb-4xl">
+            Discover the most enrolled courses across {{ totalCategories() }} categories with {{ totalCourses() }}+ courses
+          </p>
+          
+          <!-- Quick Stats -->
+          <div class="quick-stats flex-center flex-wrap gap-3xl">
+            <div class="stat-item text-center">
+              <span class="stat-value text-3xl font-bold text-primary">{{ totalCategories() }}</span>
+              <span class="stat-label text-tertiary block text-sm">Total Categories</span>
+            </div>
+            <div class="stat-item text-center">
+              <span class="stat-value text-3xl font-bold text-primary">{{ totalCourses() }}</span>
+              <span class="stat-label text-tertiary block text-sm">Active Courses</span>
+            </div>
+            <div class="stat-item text-center">
+              <span class="stat-value text-3xl font-bold text-primary">{{ avgCoursesPerCategory() }}</span>
+              <span class="stat-label text-tertiary block text-sm">Avg Courses/Cat</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar glass-panel p-xl mb-4xl">
+        <div class="filter-grid">
+          <!-- Search -->
+          <div class="search-wrapper">
+            <span class="p-input-icon-left w-full">
+              <!-- <i class="pi pi-search"></i> -->
+              <input 
+                type="text" 
+                pInputText 
+                [(ngModel)]="searchQuery" 
+                (ngModelChange)="onSearch()"
+                placeholder="Search categories..." 
+                class="w-full">
+            </span>
+          </div>
+
+          <!-- Sort select -->
+          <div class="sort-wrapper">
+            <p-select 
+              [options]="sortOptions" 
+              [(ngModel)]="selectedSort" 
+              (onChange)="onSortChange()"
+              placeholder="Sort by" 
+              styleClass="w-full"
+              optionLabel="label" 
+              optionValue="value">
+            </p-select>
+          </div>
+
+          <!-- Limit select -->
+          <div class="limit-wrapper">
+            <p-select 
+              [options]="limitOptions" 
+              [(ngModel)]="selectedLimit" 
+              (onChange)="onLimitChange()"
+              placeholder="Items per page" 
+              styleClass="w-full"
+              optionLabel="label" 
+              optionValue="value">
+            </p-select>
+          </div>
+
+          <!-- Active Filter Toggle -->
+          <div class="filter-toggle-wrapper flex align-items-center">
+            <p-checkbox 
+              [(ngModel)]="showTrendingOnly" 
+              binary="true" 
+              (onChange)="onFilterChange()"
+              inputId="trending">
+            </p-checkbox>
+            <label for="trending" class="ml-sm cursor-pointer text-secondary">Show trending only</label>
+          </div>
+
+          <!-- Clear Filters -->
+          @if (hasActiveFilters()) {
+            <button class="clear-filters-btn" (click)="clearFilters()">
+              <i class="pi pi-filter-slash mr-xs"></i>
+              Clear Filters
+            </button>
+          }
+        </div>
+
+        <!-- Active Filters Display -->
+    <!-- Active Filters Display -->
+@if (hasActiveFilters()) {
+  <div class="active-filters mt-lg pt-lg border-top-subtle">
+    <span class="text-tertiary text-sm mr-md">Active filters:</span>
+    @if (searchQuery()) {
+      <span class="filter-tag">
+        Search: "{{ searchQuery() }}"
+        <i class="pi pi-times" (click)="searchQuery.set(''); onSearch()"></i>
+      </span>
+    }
+    @if (selectedSort()) {
+      <span class="filter-tag">
+        Sort: {{ getSortLabel(selectedSort()) }}
+        <i class="pi pi-times" (click)="selectedSort.set(null); onSortChange()"></i>
+      </span>
+    }
+    @if (showTrendingOnly()) {
+      <span class="filter-tag trending">
+        Trending only
+        <i class="pi pi-times" (click)="showTrendingOnly.set(false); onFilterChange()"></i>
+      </span>
+    }
+  </div>
+}
+      </div>
+
+      <!-- Loading State with Skeleton -->
+      @if (loading()) {
+        <div class="categories-grid">
+          @for (item of [1,2,3,4,5,6]; track item) {
+            <div class="category-card-skeleton glass-panel p-xl">
+              <div class="skeleton-header flex align-items-center gap-lg mb-lg">
+                <p-skeleton shape="circle" size="56px"></p-skeleton>
+                <div class="flex-grow-1">
+                  <p-skeleton width="80%" height="28px" styleClass="mb-sm"></p-skeleton>
+                  <p-skeleton width="40%" height="20px"></p-skeleton>
+                </div>
+              </div>
+              <p-skeleton width="100%" height="80px" styleClass="mb-lg"></p-skeleton>
+              <div class="skeleton-footer flex-between">
+                <p-skeleton width="80px" height="24px"></p-skeleton>
+                <p-skeleton width="100px" height="36px" borderRadius="18px"></p-skeleton>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <!-- Categories Grid -->
+        <div class="categories-grid">
+          @for (category of filteredCategories(); track category._id) {
+            <div class="category-card glass-panel surface-raised" 
+                 [class.trending]="category.trending"
+                 [style.--trending-color]="getTrendingColor(category)">
+              
+              <!-- Trending Badge -->
+              @if (category.trending) {
+                <div class="trending-badge">
+                  <i class="pi pi-bolt"></i>
+                  <span>Trending</span>
+                </div>
+              }
+
+              <!-- Card Header -->
+              <div class="card-header p-2xl pb-lg">
+                <div class="flex align-items-start gap-lg">
+                  <!-- Icon/Image with Gradient Background -->
+                  <div class="category-media" [ngClass]="getMediaClass(category)">
+                    @if (category.image) {
+                      <img [src]="category.image" [alt]="category.name" class="category-image" loading="lazy">
+                      <div class="image-overlay"></div>
+                    } @else {
+                      <div class="category-icon" [style.background]="getGradient(category)">
+                        <i [class]="category.icon || getDefaultIcon(category)"></i>
+                      </div>
+                    }
+                  </div>
+                  
+                  <!-- Category Info -->
+                  <div class="category-info flex-grow-1">
+                    <h3 class="category-name font-heading text-xl text-primary font-bold m-0 mb-xs line-clamp-1">
+                      {{ category.name }}
+                    </h3>
+                    <div class="category-meta flex flex-wrap gap-sm">
+                      <span class="meta-badge courses">
+                        <i class="pi pi-book mr-xs"></i>
+                        {{ category.courseCount }} {{ category.courseCount === 1 ? 'Course' : 'Courses' }}
+                      </span>
+                      @if (category.subcategories) {
+                        <span class="meta-badge subcategories">
+                          <i class="pi pi-sitemap mr-xs"></i>
+                          {{ category.subcategories }} Sub
+                        </span>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card Body with Stats -->
+              <div class="card-body px-2xl pb-xl">
+                <!-- Progress Bar (Popularity) -->
+                <div class="popularity-meter mb-lg">
+                  <div class="flex-between mb-sm">
+                    <span class="text-tertiary text-xs uppercase tracking-widest font-bold">Popularity</span>
+                    <span class="text-primary font-bold text-sm">{{ getPopularityPercentage(category) }}%</span>
+                  </div>
+                  <p-progressBar 
+                    [value]="getPopularityPercentage(category)" 
+                    [showValue]="false"
+                    styleClass="popularity-progress">
+                  </p-progressBar>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                  <div class="stat-item">
+                    <i class="pi pi-users text-info"></i>
+                    <div>
+                      <span class="stat-value">{{ category.courseCount * 85 | number }}</span>
+                      <span class="stat-label">Students</span>
+                    </div>
+                  </div>
+                  <div class="stat-item">
+                    <i class="pi pi-star-fill text-warning"></i>
+                    <div>
+                      <span class="stat-value">{{ category.avgRating || '4.5' }}</span>
+                      <span class="stat-label">Rating</span>
+                    </div>
+                  </div>
+                  <div class="stat-item">
+                    <i class="pi pi-clock text-success"></i>
+                    <div>
+                      <span class="stat-value">{{ category.courseCount * 12 }}</span>
+                      <span class="stat-label">Hours</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Sample Courses Preview (Mock) -->
+                @if (category.courseCount > 0) {
+                  <div class="courses-preview mt-lg pt-lg border-top-subtle">
+                    <div class="flex-between mb-sm">
+                      <span class="text-tertiary text-xs uppercase tracking-widest font-bold">Popular courses</span>
+                      <span class="text-info text-xs cursor-pointer hover:underline">View all →</span>
+                    </div>
+                    <div class="preview-items">
+                      @for (i of [1,2,3]; track i) {
+                        @if (i <= Math.min(3, category.courseCount)) {
+                          <div class="preview-item flex align-items-center gap-sm">
+                            <i class="pi pi-play-circle text-tertiary"></i>
+                            <span class="text-secondary text-sm flex-grow-1 line-clamp-1">
+                              {{ getSampleCourseName(category, i) }}
+                            </span>
+                            <span class="text-tertiary text-xs">{{ 20 + i * 15 }} min</span>
+                          </div>
+                        }
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <!-- Card Footer -->
+              <div class="card-footer bg-ternary border-top-subtle p-xl flex-between flex-wrap gap-md">
+                <div class="instructor-avatars" [routerLink]="['/instructors', category.slug]">
+                  <p-avatarGroup>
+                    @for (a of [1,2,3]; track a) {
+                      <p-avatar 
+                        image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" 
+                        size="normal" 
+                        shape="circle">
+                      </p-avatar>
+                    }
+                    @if (category.courseCount > 3) {
+                      <p-avatar label="+{{category.courseCount - 3}}" size="normal" shape="circle"></p-avatar>
+                    }
+                  </p-avatarGroup>
+                </div>
+                
+                <div class="flex gap-sm">
+                  <button class="explore-btn"[routerLink]="['/categories', category._id, 'courses']">
+                    <span>Explore</span>
+                    <i class="pi pi-arrow-right"></i>
+                  </button>
+                  <button class="favorite-btn" (click)="toggleFavorite(category)" 
+                          [class.active]="isFavorite(category)" pTooltip="Add to favorites">
+                    <i class="pi" [class.pi-heart]="!isFavorite(category)" [class.pi-heart-fill]="isFavorite(category)"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          } @empty {
+            <!-- Empty State -->
+            <div class="empty-state glass-panel col-span-full flex-col flex-center text-center py-5xl">
+              <div class="empty-icon-wrapper flex-center border-radius-full bg-ternary mb-2xl">
+                <i class="pi pi-search text-5xl text-tertiary"></i>
+              </div>
+              <h3 class="font-heading text-2xl text-primary font-bold m-0 mb-xs">No categories found</h3>
+              <p class="text-secondary m-0 mb-xl max-w-prose">Try adjusting your search or filters</p>
+              <p-button label="Clear Filters" icon="pi pi-filter-slash" (onClick)="clearFilters()"></p-button>
+            </div>
+          }
+        </div>
+
+        <!-- Load More Button -->
+        @if (hasMorePages()) {
+          <div class="load-more-container text-center mt-4xl">
+            <button class="load-more-btn" (click)="loadMore()" [disabled]="loadingMore()">
+              @if (loadingMore()) {
+                <i class="pi pi-spin pi-spinner mr-sm"></i>
+                Loading...
+              } @else {
+                <span>Load More Categories</span>
+                <i class="pi pi-arrow-down ml-sm"></i>
+              }
+            </button>
+          </div>
+        }
+      }
+    </div>
