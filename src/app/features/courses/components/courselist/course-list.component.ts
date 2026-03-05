@@ -106,7 +106,6 @@ export class CourseListComponent implements OnInit {
     this.loadCourses();
   }
 
-  /* ... [Keep all your existing methods: loadCategories, loadCourses, onFilterChange, clearFilters, changePage, hasActiveFilters exactly as they are] ... */
 
   private loadCategories(): void {
     this.categoryService.getAllCategories({ isActive: true })
