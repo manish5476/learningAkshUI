@@ -134,16 +134,16 @@ import {AuthService} from '../../../core/services/auth.service';
                     <label class="input-label">Confirm <span class="req">*</span></label>
                     <div class="input-wrapper">
                       <i class="field-icon fas fa-check-circle"></i>
-                      <input [type]="showpasswordConfirm ? 'text' : 'password'" formControlName="passwordConfirm" placeholder="••••••••" class="glass-input-field pr-10"
-                             [class.invalid]="isFieldInvalid('passwordConfirm') || signupForm.hasError('mismatch')"/>
+                      <input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirmPassword" placeholder="••••••••" class="glass-input-field pr-10"
+                             [class.invalid]="isFieldInvalid('confirmPassword') || signupForm.hasError('mismatch')"/>
                       <button type="button" class="eye-btn" (click)="togglePassword('confirm')">
-                        <i [class]="showpasswordConfirm ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                        <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
                       </button>
                     </div>
                   </div>
                 </div>
 
-                <small class="error-text block" *ngIf="signupForm.hasError('mismatch') && signupForm.get('passwordConfirm')?.touched">
+                <small class="error-text block" *ngIf="signupForm.hasError('mismatch') && signupForm.get('confirmPassword')?.touched">
                   Passwords do not match.
                 </small>
 
@@ -463,7 +463,7 @@ export class SignupComponent implements OnInit, OnDestroy {
   signupForm!: FormGroup;
   isLoading = false;
   showPassword = false;
-  showpasswordConfirm = false;
+  showConfirmPassword = false;
 
   expertiseOptions = ['Web Dev', 'Data Science', 'UI/UX Design', 'Cloud', 'Marketing'];
   interestOptions = ['Programming', 'Design', 'Business', 'AI/ML', 'Photography'];
@@ -488,14 +488,14 @@ export class SignupComponent implements OnInit, OnDestroy {
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
-      passwordConfirm: ['', Validators.required]
+      confirmPassword: ['', Validators.required]
     }, { validators: this.passwordMatchValidator });
   }
 
   private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.get('password');
-    const passwordConfirm = control.get('passwordConfirm');
-    if (password && passwordConfirm && password.value !== passwordConfirm.value) {
+    const confirmPassword = control.get('confirmPassword');
+    if (password && confirmPassword && password.value !== confirmPassword.value) {
       return { mismatch: true };
     }
     return null;
@@ -514,7 +514,7 @@ export class SignupComponent implements OnInit, OnDestroy {
     if (field === 'password') {
       this.showPassword = !this.showPassword;
     } else {
-      this.showpasswordConfirm = !this.showpasswordConfirm;
+      this.showConfirmPassword = !this.showConfirmPassword;
     }
   }
 
