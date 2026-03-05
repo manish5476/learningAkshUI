@@ -280,8 +280,7 @@
           </div>
           } @else {
           <button class="action-btn" (click)="openCheckout()">
-            <i class="pi pi-bolt"></i>
-            {{ course.isFree ? 'Enroll for Free' : 'Enroll Now' }}
+            <i class="pi pi-bolt"></i> {{ course.isFree ? 'Enroll for Free' : 'Enroll Now' }}
           </button>
           <p class="guarantee">
             <i class="pi pi-shield"></i>
@@ -325,6 +324,7 @@
   </div>
   }
 </div>
+
 <p-dialog [(visible)]="showCheckoutModal" [modal]="true" [draggable]="false" [resizable]="false"
   styleClass="checkout-dialog" [dismissableMask]="true" (onHide)="closeCheckout()">
 

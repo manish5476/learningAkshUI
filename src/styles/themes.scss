@@ -300,6 +300,449 @@ $breakpoints: (
 }
 
 /* =========================================
+   THEME: AKSH HORIZON LIGHT (Premium Soft Light)
+   Vibe: Calm, Focused, Academic, Ultra-Clean
+   Brand Colors: Deep Navy (#0B2D72) & Sage Green (#A2CB8B)
+   ========================================= */
+.theme-aksh-horizon-light {
+  /* 1. THE CANVAS (Soft & Easy on the eyes)
+     A very pale, cool gray-blue background. This prevents the "snow blindness" 
+     of a purely white screen and makes the white lesson cards stand out.
+  */
+  --theme-bg-primary: #f4f7f9; 
+  
+  /* Pure white for the main surfaces (video container, sidebar) */
+  --theme-bg-secondary: #ffffff; 
+  
+  /* Soft hover state background */
+  --theme-bg-ternary: #e9eef2;
+
+  /* 2. TYPOGRAPHY (Anchored by Navy)
+     Replacing harsh black with your Deep Navy makes the text look incredibly premium.
+  */
+  --theme-text-primary: #0B2D72;   /* Deep Navy for main headings */
+  --theme-text-secondary: #475569; /* Slate for readable body text */
+  --theme-text-tertiary: #94a3b8;  /* Muted gray for timestamps/meta */
+  --theme-text-label: #A2CB8B;     /* Sage green for subtle labels */
+
+  /* 3. BORDERS (Soft Navy Tints) */
+  --theme-border-primary: rgba(11, 45, 114, 0.12); 
+  --theme-border-secondary: rgba(11, 45, 114, 0.06); 
+
+  /* 4. BRAND ACCENTS (The Core Colors) */
+  --theme-accent-primary: #0B2D72;   /* Navy for primary buttons/actions */
+  --theme-accent-secondary: #A2CB8B; /* Sage for secondary actions/success */
+  --theme-accent-tertiary: #1e40af;  /* Slightly lighter blue for hovers */
+  
+  /* A very elegant, corporate gradient */
+  --theme-accent-gradient: linear-gradient(135deg, #0B2D72 0%, #A2CB8B 100%);
+  
+  --theme-accent-focus: rgba(11, 45, 114, 0.15);
+  --theme-accent-hover: #0f3a8f;
+
+  /* 5. AIRY GLASS & SHADOWS */
+  --glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.7) 100%);
+  --glass-blur: 20px; 
+  --glass-border: rgba(255, 255, 255, 0.9);
+
+  /* A very soft, diffuse drop shadow tinted with your navy blue */
+  --glass-shadow:
+    0 12px 36px rgba(11, 45, 114, 0.06), 
+    0 4px 8px rgba(11, 45, 114, 0.03);
+
+  /* 6. LOGICAL STATUS COLORS */
+  --theme-success: #A2CB8B; /* Sage Green for completed lessons! */
+  --theme-warning: #f59e0b; 
+  --theme-error: #ef4444;   
+  --theme-info: #0B2D72;    /* Navy Blue for informational/active states */
+
+  --theme-disabled: #f1f5f9;
+  --theme-disabled-text: #cbd5e1;
+
+  /* 7. MICRO-INTERACTIONS */
+  --component-bg-hover: rgba(11, 45, 114, 0.04);   /* Micro-tint of navy on hover */
+  --component-bg-active: rgba(162, 203, 139, 0.15); /* Soft sage tint for the currently playing lesson */
+  --component-border-focus: #0B2D72;
+  --component-surface-raised: #ffffff;
+  --component-divider: rgba(11, 45, 114, 0.08);
+
+  --scroll-thumb: rgba(11, 45, 114, 0.2); 
+  --scroll-track: transparent;
+
+  @include apply-canonical-mapping;
+}
+/* =========================================
+   THEME: AKSH SOVEREIGN (Quiet Luxury / Billionaire Tier)
+   Vibe: Elite, Calming, "Quiet Luxury", Zero Eye-Strain
+   Brand Colors: Smoked Crystal, Titanium, and Soft Sage
+   ========================================= */
+.theme-aksh-sovereign {
+  /* 1. THE CANVAS (Oxidized Titanium & Deep Forest)
+     Not harsh black, not bright gray. A profoundly deep, rich dark tone 
+     that feels like an expensive matte material. Completely rests the eyes.
+  */
+  --theme-bg-primary: radial-gradient(circle at 50% -20%, #151e18 0%, #080a09 100%);
+  
+  /* 2. SMOKED CRYSTAL SURFACES
+     Instead of bright white or gray, we use a microscopic white opacity (2%) 
+     so the massive blur does all the heavy lifting.
+  */
+  --theme-bg-secondary: rgba(255, 255, 255, 0.02); 
+  --theme-bg-ternary: rgba(0, 0, 0, 0.2); 
+
+  /* 3. TYPOGRAPHY (Brushed Platinum)
+     Pure white (#FFF) burns the retina. We use a soft, cool platinum for primary 
+     text, and a warm silver for secondary text.
+  */
+  --theme-text-primary: #E2E8F0;   
+  --theme-text-secondary: #9CA3AF; 
+  --theme-text-tertiary: #6B7280;  
+  --theme-text-label: #A3B18A;     /* Soft Sage for elegant micro-labels */
+
+  /* 4. HAIRLINE BORDERS (The hallmark of premium UI) */
+  --theme-border-primary: rgba(255, 255, 255, 0.04); 
+  --theme-border-secondary: rgba(255, 255, 255, 0.02);
+
+  /* 5. ORGANIC ACCENTS (Sage & Fern)
+     No neon. We use colors found in nature to keep the mind fresh and un-irritated 
+     during hours of video watching.
+  */
+  --theme-accent-primary: #A3B18A;   /* Expensive Soft Sage */
+  --theme-accent-secondary: #588157; /* Deep Fern Green */
+  --theme-accent-tertiary: #DAD7CD;  /* Pearl highlight */
+  
+  /* An elegant, subtle gradient for progress bars */
+  --theme-accent-gradient: linear-gradient(135deg, #A3B18A 0%, #588157 100%);
+  
+  --theme-accent-focus: rgba(163, 177, 138, 0.15);
+  --theme-accent-hover: #C2D5AA; /* Brighter sage for hover */
+
+  /* 6. THE "SOVEREIGN" GLASS ENGINE
+     Massive 80px blur traps the underlying dark green ambient light perfectly. 
+  */
+  --glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.005) 100%);
+  --glass-blur: 80px; /* Extreme blur for a physical, expensive feel */
+  --glass-border: rgba(255, 255, 255, 0.05);
+
+  /* The physical edge: A microscopic white line on the top rim mimics overhead lighting 
+     hitting a sheet of polished glass. */
+  --glass-shadow:
+    0 40px 60px -15px rgba(0, 0, 0, 0.7), 
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.01);
+
+  /* 7. RESTRAINED STATUS COLORS */
+  --theme-success: #A3B18A; /* Sage */
+  --theme-warning: #D4A373; /* Soft Sand/Gold instead of harsh yellow */
+  --theme-error: #E5989B;   /* Muted Rose instead of harsh red */
+  --theme-info: #A3B18A;    
+
+  --theme-disabled: rgba(255, 255, 255, 0.02);
+  --theme-disabled-text: rgba(255, 255, 255, 0.15);
+
+  /* 8. WHISPER-QUIET MICRO-INTERACTIONS */
+  --component-bg-hover: rgba(255, 255, 255, 0.03); /* Barely perceptible lift */
+  --component-bg-active: rgba(163, 177, 138, 0.08); /* Sophisticated sage tint when playing */
+  --component-border-focus: rgba(163, 177, 138, 0.4);
+  --component-surface-raised: #0d120f; 
+  --component-divider: rgba(255, 255, 255, 0.04);
+
+  --scroll-thumb: rgba(255, 255, 255, 0.08); 
+  --scroll-track: transparent;
+
+  @include apply-canonical-mapping;
+} 
+/* =========================================
+   THEME: AKSH ZENITH (Ultra-Premium Cinematic Dark)
+   Vibe: Elite, Immersive, Zero-Distraction, SaaS-Level
+   ========================================= */
+.theme-aksh-zenith {
+  /* 1. THE VOID (Cinematic Background)
+     Almost pure black with a microscopic tint of navy. 
+     This makes the video the absolute center of attention.
+  */
+  --theme-bg-primary: #050911; 
+  
+  /* 2. ELEVATED SURFACES (The "Linear" App Effect)
+     Instead of bright grays, we use pure white at ultra-low opacities (2% and 4%).
+     This creates a glassy, premium feel without looking muddy.
+  */
+  --theme-bg-secondary: rgba(255, 255, 255, 0.02);
+  --theme-bg-ternary: rgba(255, 255, 255, 0.04);
+
+  /* 3. TYPOGRAPHY (Stark Contrast) */
+  --theme-text-primary: #ffffff; /* Pure white for active titles */
+  --theme-text-secondary: rgba(255, 255, 255, 0.65); /* Elegant muted gray */
+  --theme-text-tertiary: rgba(255, 255, 255, 0.40); /* Deeply muted for timestamps */
+  --theme-text-label: #00a0e9; /* Bright blue for tiny accents */
+
+  /* 4. HAIRLINE BORDERS (The secret to premium UI) */
+  --theme-border-primary: rgba(255, 255, 255, 0.06); 
+  --theme-border-secondary: rgba(255, 255, 255, 0.03);
+
+  /* 5. BRAND LASERS (Your Logo Colors) */
+  --theme-accent-primary: #0072bc;   /* Logo Blue */
+  --theme-accent-secondary: #8dc63f; /* Logo Green */
+  --theme-accent-tertiary: #00a0e9;  /* Neon Blue highlight */
+  
+  /* A razor-sharp 90-degree gradient for premium progress bars */
+  --theme-accent-gradient: linear-gradient(90deg, #0072bc 0%, #8dc63f 100%);
+  
+  --theme-accent-focus: rgba(0, 114, 188, 0.25);
+  --theme-accent-hover: #008be6;
+
+  /* 6. CINEMATIC GLASS & SHADOWS */
+  --glass-bg: rgba(255, 255, 255, 0.01);
+  --glass-blur: 40px; /* Heavy blur for a true frosted look */
+  --glass-border: rgba(255, 255, 255, 0.08);
+
+  /* Multi-layered shadow: A sharp inner highlight, and a massive soft outer drop shadow */
+  --glass-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 40px 80px -20px rgba(0, 0, 0, 0.8), 
+    0 10px 20px -5px rgba(0, 0, 0, 0.5);
+
+  /* 7. LOGICAL STATUS COLORS */
+  --theme-success: #8dc63f; /* COMPLETED lessons glow with Logo Green */
+  --theme-warning: #fbbf24; 
+  --theme-error: #f87171;   
+  --theme-info: #00a0e9;    /* ACTIVE/PLAYING lessons glow with Logo Blue */
+
+  --theme-disabled: rgba(255, 255, 255, 0.02);
+  --theme-disabled-text: rgba(255, 255, 255, 0.2);
+
+  /* 8. MICRO-INTERACTIONS */
+  --component-bg-hover: rgba(255, 255, 255, 0.04); /* Subtle white lift on hover */
+  --component-bg-active: rgba(0, 114, 188, 0.08);  /* Deep blue tint when selected */
+  --component-border-focus: rgba(0, 114, 188, 0.5);
+  --component-surface-raised: #080c16; /* For dropdowns and popovers */
+  --component-divider: rgba(255, 255, 255, 0.06);
+
+  --scroll-thumb: rgba(255, 255, 255, 0.15); /* Minimalist scrollbar */
+  --scroll-track: transparent;
+
+  @include apply-canonical-mapping;
+}
+/* =========================================
+   THEME: AKSH AURORA LIGHT (Blue-Green Combi - Light Mode)
+   Vibe: Crisp, Fresh, Brand-Immersive, Professional
+   Brand Colors: Cerulean Blue (#0072bc) & Lime Green (#8dc63f)
+   ========================================= */
+.theme-aksh-aurora-light {
+  /* 1. THE BACKGROUND (Fresh & Clean)
+     A very soft, icy-blue tinted off-white for the main app shell, 
+     making the pure white lesson cards pop out beautifully.
+  */
+  --theme-bg-primary: #f0f7fb; 
+  
+  /* Pure white for components, cards, and the active video stage */
+  --theme-bg-secondary: #ffffff; 
+  
+  /* A very soft blue-gray for hovered or inset areas */
+  --theme-bg-ternary: #e1eff7;
+
+  /* 2. TEXT (High Contrast Slate & Brand Colors) */
+  --theme-text-primary: #0f172a;   /* Very dark slate for main headings */
+  --theme-text-secondary: #475569; /* Medium slate for descriptions */
+  --theme-text-tertiary: #64748b;  /* Lighter slate for meta info */
+  --theme-text-label: #0072bc;     /* Logo Blue for subtle labels */
+
+  /* 3. BORDERS (Tinted with Brand Blue)
+     Instead of harsh gray lines, we use a very transparent version of your Logo Blue.
+  */
+  --theme-border-primary: rgba(0, 114, 188, 0.15); 
+  --theme-border-secondary: rgba(0, 114, 188, 0.08); 
+
+  /* 4. EXACT LOGO BRAND ACCENTS */
+  --theme-accent-primary: #0072bc;   /* Exact Logo Blue */
+  --theme-accent-secondary: #8dc63f; /* Exact Logo Green */
+  --theme-accent-tertiary: #00a0e9;  /* Lighter vibrant blue */
+  
+  /* The ultimate combi gradient: Blue flowing into Green */
+  --theme-accent-gradient: linear-gradient(135deg, #0072bc 0%, #8dc63f 100%);
+  
+  --theme-accent-focus: rgba(0, 114, 188, 0.2);
+  --theme-accent-hover: #005b96; /* Slightly darker blue for hover contrast on light bg */
+
+  /* 5. THE "CLEAN GLASS" EFFECT */
+  /* Frosted white glass with a tiny hint of blue reflection */
+  --glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 100%);
+  --glass-blur: 16px; 
+  --glass-border: rgba(255, 255, 255, 0.8);
+
+  /* Soft, airy shadow with a tiny hint of blue to match the brand */
+  --glass-shadow:
+    0 12px 32px rgba(0, 114, 188, 0.08), 
+    0 4px 6px rgba(0, 114, 188, 0.04);
+
+  /* 6. STATUS COLORS (Mapped to Logo) */
+  --theme-success: #8dc63f; /* Logo Green */
+  --theme-warning: #f59e0b; 
+  --theme-error: #ef4444;   
+  --theme-info: #0072bc;    /* Logo Blue */
+
+  --theme-disabled: #f1f5f9;
+  --theme-disabled-text: #94a3b8;
+
+  /* 7. COMPONENT INTERACTIVE STATES */
+  --component-bg-hover: rgba(0, 114, 188, 0.04);   /* Very soft blue glow on hover */
+  --component-bg-active: rgba(141, 198, 63, 0.1);  /* Soft green glow for active items */
+  --component-border-focus: #0072bc;
+  --component-surface-raised: #ffffff;
+  --component-divider: rgba(0, 114, 188, 0.1);
+
+  /* Scrollbar thumb gets a soft blue tint */
+  --scroll-thumb: rgba(0, 114, 188, 0.2); 
+  --scroll-track: transparent;
+
+  @include apply-canonical-mapping;
+}
+/* =========================================
+   THEME: AKSH AURORA (True Blue-Green Combi)
+   Vibe: Vibrant, Fluid, Brand-Immersive
+   Brand Colors: Cerulean Blue (#0072bc) & Lime Green (#8dc63f)
+   ========================================= */
+.theme-aksh-aurora {
+  /* 1. THE BACKGROUND (The Blue-Green Fusion)
+     A deep, rich gradient that starts with dark brand blue in the top left 
+     and flows into dark brand green in the bottom right.
+  */
+  --theme-bg-primary: linear-gradient(135deg, #021221 0%, #051a24 50%, #062113 100%);
+  
+  /* Tinted secondary surfaces so the cards feel like they belong in the blue/green environment */
+  --theme-bg-secondary: rgba(0, 114, 188, 0.06); /* Slight blue tint */
+  --theme-bg-ternary: rgba(0, 0, 0, 0.25);
+
+  /* 2. TEXT (Crisp White & Minty/Ice Tints) */
+  --theme-text-primary: #ffffff;
+  --theme-text-secondary: #e2e8f0;
+  --theme-text-tertiary: #94a3b8;
+  --theme-text-label: #8dc63f; /* Logo Green for tiny labels */
+
+  /* 3. BORDERS (Tinted with Brand Colors) */
+  --theme-border-primary: rgba(0, 114, 188, 0.25); /* Blue tinted main borders */
+  --theme-border-secondary: rgba(141, 198, 63, 0.15); /* Green tinted subtle borders */
+
+  /* 4. EXACT LOGO BRAND ACCENTS */
+  --theme-accent-primary: #0072bc;   /* Exact Logo Blue */
+  --theme-accent-secondary: #8dc63f; /* Exact Logo Green */
+  --theme-accent-tertiary: #00a0e9;  /* Lighter vibrant blue */
+  
+  /* The ultimate combi gradient: Blue flowing into Green */
+  --theme-accent-gradient: linear-gradient(135deg, #0072bc 0%, #8dc63f 100%);
+  
+  --theme-accent-focus: rgba(0, 114, 188, 0.3);
+  --theme-accent-hover: #008be6;
+
+  /* 5. THE "COMBI GLASS" EFFECT */
+  /* The glass itself shifts from a blue tint to a green tint */
+  --glass-bg: linear-gradient(145deg, rgba(0, 114, 188, 0.1) 0%, rgba(141, 198, 63, 0.03) 100%);
+  --glass-blur: 24px; 
+  --glass-border: rgba(255, 255, 255, 0.12);
+
+  /* Shadow with a very subtle blue/green inner glow */
+  --glass-shadow:
+    0 16px 32px rgba(0, 0, 0, 0.6), 
+    inset 0 1px 0 rgba(0, 114, 188, 0.2),
+    inset 0 -1px 0 rgba(141, 198, 63, 0.1);
+
+  /* 6. STATUS COLORS (Mapped to Logo) */
+  --theme-success: #8dc63f; /* Logo Green */
+  --theme-warning: #f59e0b; 
+  --theme-error: #ef4444;   
+  --theme-info: #0072bc;    /* Logo Blue */
+
+  --theme-disabled: rgba(255, 255, 255, 0.05);
+  --theme-disabled-text: rgba(255, 255, 255, 0.3);
+
+  /* 7. COMPONENT INTERACTIVE STATES */
+  --component-bg-hover: rgba(0, 114, 188, 0.15); /* Hover states glow blue */
+  --component-bg-active: rgba(141, 198, 63, 0.15); /* Active states glow green */
+  --component-border-focus: #0072bc;
+  --component-surface-raised: rgba(2, 18, 33, 0.8);
+  --component-divider: rgba(255, 255, 255, 0.08);
+
+  /* Scrollbar thumb gets the green accent so it pops against the dark blue background */
+  --scroll-thumb: rgba(141, 198, 63, 0.4); 
+  --scroll-track: rgba(0, 0, 0, 0.2);
+
+  @include apply-canonical-mapping;
+}
+/* =========================================
+   THEME: AKSH MIDNIGHT (Premium Dark Glass)
+   Vibe: Deep Space, Focus, Vibrant Brand Accents
+   Brand Colors: Azure Blue (#007ACC) & Lime Green (#8CC63F)
+   ========================================= */
+.theme-aksh-midnight {
+  /* 1. THE BACKGROUND (Deep Navy/Slate with a subtle Blue Glow)
+     Creates a focused, cinematic environment for the video player.
+  */
+  --theme-bg-primary: radial-gradient(
+    circle at 50% 0%,
+    #0f2942 0%,    /* Subtle Navy Blue Glow at top */
+    #061224 40%,   /* Deep Slate Midground */
+    #02060d 100%   /* Near Black/Deep Void at edges */
+  );
+
+  --theme-bg-secondary: rgba(15, 25, 45, 0.4); /* Glass surface tint */
+  --theme-bg-ternary: rgba(0, 0, 0, 0.35);     /* Deep inset backgrounds */
+
+  /* 2. TEXT (Crisp White & Slate) */
+  --theme-text-primary: #ffffff;
+  --theme-text-secondary: #cbd5e1; /* Soft Slate */
+  --theme-text-tertiary: #94a3b8;  /* Muted Slate */
+  --theme-text-label: #38bdf8;     /* Light Sky Blue for subtle labels */
+
+  /* 3. BORDERS (Crystalline with a hint of blue) */
+  --theme-border-primary: rgba(255, 255, 255, 0.12);
+  --theme-border-secondary: rgba(255, 255, 255, 0.05);
+
+  /* 4. BRAND ACCENTS (Extracted from Learning Aksh Logo) */
+  --theme-accent-primary: #007ACC;   /* Logo Azure Blue */
+  --theme-accent-secondary: #8CC63F; /* Logo Lime Green */
+  --theme-accent-tertiary: #38bdf8;  /* Bright highlight blue */
+  
+  /* The signature gradient combining both logo figures */
+  --theme-accent-gradient: linear-gradient(135deg, #007ACC 0%, #8CC63F 100%);
+  
+  --theme-accent-focus: rgba(0, 122, 204, 0.3); /* Blue focus ring */
+  --theme-accent-hover: #3399ff; /* Lighter blue for hovers */
+
+  /* 5. THE "DEEP GLASS" EFFECT */
+  /* A smooth frost effect tailored for dark backgrounds */
+  --glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.01) 100%);
+  --glass-blur: 24px; 
+  --glass-border: rgba(255, 255, 255, 0.15);
+
+  /* Premium floating shadow with a subtle blue inner-light */
+  --glass-shadow:
+    0 24px 48px -12px rgba(0, 0, 0, 0.8), 
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+
+  /* 6. STATUS COLORS */
+  --theme-success: #8CC63F; /* Mapped to Logo Green! */
+  --theme-warning: #facc15; /* Yellow */
+  --theme-error: #ef4444;   /* Red */
+  --theme-info: #007ACC;    /* Mapped to Logo Blue */
+
+  --theme-disabled: rgba(255, 255, 255, 0.05);
+  --theme-disabled-text: rgba(255, 255, 255, 0.25);
+
+  /* 7. COMPONENT STATES */
+  --component-bg-hover: rgba(255, 255, 255, 0.08);
+  --component-bg-active: rgba(0, 122, 204, 0.15); /* Blue tinted active state */
+  --component-border-focus: #007ACC;
+  --component-surface-raised: rgba(10, 15, 30, 0.6);
+  --component-divider: rgba(255, 255, 255, 0.08);
+
+  --scroll-thumb: rgba(0, 122, 204, 0.4); /* Blue scrollbar */
+  --scroll-track: transparent;
+
+  @include apply-canonical-mapping;
+}
+
+/* =========================================
    THEME 3: BIO-FROST (Your Requested Nature Glass)
    Vibe: Organic, Fresh, Minty
    ========================================= */

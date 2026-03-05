@@ -5,7 +5,12 @@
 /* ==========================================================================
    CSS RESET & BASE TYPOGRAPHY (The Fix for "Zoomed In" UI)
    ========================================================================== */
-
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden; /* Forces scrolling to be handled by .main-content only */
+}
 /* 1. Global Box Sizing */
 *, *::before, *::after {
   box-sizing: border-box;

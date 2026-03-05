@@ -96,7 +96,7 @@ export class LessonService {
   /**
    * Get lesson with access control (For student viewing/paywall checks)
    */
-  getLessonWithAccess(courseId: string, sectionId: string, id: string): Observable<ApiResponse<Lesson>> {
+  getLessonWithAccess(courseId: any, sectionId: any, id: string): Observable<ApiResponse<Lesson>> {
     return this.baseApi.get<Lesson>(`${this.getBaseUrl(courseId, sectionId)}/${id}/access`, { 
       showLoader: true,
       skipAuth: false 

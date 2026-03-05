@@ -28,22 +28,22 @@ export const INSTRUCTOR_ROUTES: Routes = [
         title: 'Course Settings'
       },
       {
-        path: 'courses/:id/curriculum', // Drag & Drop curriculum builder
+        path: 'courses/:id/curriculum',
         loadComponent: () => import('../../features/courses/components/course-curriculum/course-curriculum.component').then(m => m.CourseCurriculumComponent),
         title: 'Manage Curriculum'
       },
       {
-        path: 'courses/:id/students', // The responsive student roster feed
+        path: 'courses/:id/students',
         loadComponent: () => import('../../features/courses/components/course-students/course-students.component').then(m => m.CourseStudentsComponent),
         title: 'Student Roster'
       },
-       {
+      {
         path: 'assessments',
         loadComponent: () => import('../../features/Test/instructor-assessments/instructor-assessments.component').then(m => m.InstructorAssessmentsComponent),
         title: 'Quiz Manager'
       },
       {
-        path: 'quiz/:id', // The complex Quiz Builder tool
+        path: 'quiz/:id',
         loadComponent: () => import('../../features/courses/components/quiz-builder/quiz-builder.component').then(m => m.QuizBuilderComponent),
         title: 'Quiz Architect'
       },

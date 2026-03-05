@@ -21,6 +21,7 @@ import { EnrollmentService } from '../../../../core/services/enrollment.service'
 import { LessonService } from '../../../../core/services/lesson.service';
 import { LessonProgressTrackerComponent } from "../../../lesson/components/lesson-progress-tracker/lesson-progress-tracker.component";
 import { LessonQuizTakerComponent } from "../../../Test/lesson-quiz-taker/lesson-quiz-taker.component";
+import { mediaPlayerComponent } from "../../../../shared/components/media-player/course-player.component";
 
 @Component({
   selector: 'app-course-player',
@@ -38,13 +39,15 @@ import { LessonQuizTakerComponent } from "../../../Test/lesson-quiz-taker/lesson
     DurationPipe,
     TitleCasePipe,
     LessonProgressTrackerComponent,
-    LessonQuizTakerComponent
-  ],
+    LessonQuizTakerComponent,
+    mediaPlayerComponent
+],
   providers: [MessageService, ConfirmationService],
   templateUrl: './course-player.component.html',
   styleUrls: ['./course-player.component.scss']
 })
 export class CoursePlayerComponent implements OnInit {
+
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private courseService = inject(CourseService);
@@ -60,7 +63,7 @@ export class CoursePlayerComponent implements OnInit {
   course = signal<any>(null);
   sections = signal<any[]>([]);
   currentLesson = signal<any>(null);
-  
+
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
 
@@ -70,6 +73,21 @@ export class CoursePlayerComponent implements OnInit {
   sidebarVisible = signal<boolean>(true);
   expandedSections = signal<string[]>(['0']);
 
+  videoToken = computed<string>(() => {
+    const lesson = this.currentLesson();
+    if (lesson?.type !== 'video' || !lesson?.content?.video) return '';
+
+    const url = lesson.content.video.url;
+    const provider = lesson.content.video.provider;
+
+    if (provider === 'youtube') {
+      return this.extractYouTubeId(url);
+    }
+    
+    // For local videos, return the URL or token
+    return url; 
+  });
+  
   // Computed: Flattened lessons for easy next/prev navigation
   private flatLessons = computed(() => {
     const secs = this.sections();
@@ -126,7 +144,7 @@ export class CoursePlayerComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.onResize(); 
+    this.onResize();
 
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       if (params['id']) {
@@ -156,24 +174,24 @@ export class CoursePlayerComponent implements OnInit {
     if (progress.completed) {
       const next = this.lessonNav().next;
       if (next) {
-        setTimeout(() => this.selectLesson(next), 1500); 
+        setTimeout(() => this.selectLesson(next), 1500);
       }
     }
   }
-  
+
   private loadCourseData(): void {
     this.loading.set(true);
-    
+
     this.courseService.getCoursesBySlug(this.courseId())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
           const courseData = res.data?.course || res.data;
           const sectionData = res.data?.sections || courseData.sections || [];
-          
+
           this.course.set(courseData);
           this.sections.set(sectionData);
-          
+
           this.loadProgress();
         },
         error: (error: any) => {
@@ -192,7 +210,7 @@ export class CoursePlayerComponent implements OnInit {
           const progressData = res.data;
           this.completedLessons.set(new Set(progressData?.completedLessons || []));
           this.courseProgress.set(progressData?.progress || 0);
-          
+
           if (progressData?.lastLessonId && !this.currentLesson()) {
             this.restoreLastLesson(progressData.lastLessonId);
           } else {
@@ -227,22 +245,57 @@ export class CoursePlayerComponent implements OnInit {
     this.currentLesson.set(lesson);
     this.expandSectionForLesson(lesson._id);
 
-    // if (!lesson.content) {
-    //   this.lessonService.getLessonWithAccess(lesson._id)
-    //     .pipe(takeUntilDestroyed(this.destroyRef))
-    //     .subscribe({
-    //       next: (res: any) => {
-    //         if (this.currentLesson()?._id === lesson._id) {
-    //           this.currentLesson.set(res.data?.lesson || res.data);
-    //         }
-    //       }
-    //     });
-    // }
+    if (!lesson.content) {
+      this.lessonService.getLessonWithAccess(this.courseId(), lesson.section, lesson._id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (res: any) => {
+            if (this.currentLesson()?._id === lesson._id) {
+              this.currentLesson.set(res.data?.lesson || res.data);
+            }
+          },
+          error: (err) => {
+            // Check if it's our 403 Forbidden error from the backend
+            if (err.status === 403) {
+              this.error.set('premium_locked'); // Using a specific string to trigger the UI
+            } else {
+              this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not load lesson content' });
+            }
+          }
+        });
+    }
 
     if (window.innerWidth <= 1024) {
       this.sidebarVisible.set(false);
     }
   }
+  
+  // selectLesson(lesson: any): void {
+  //   this.currentLesson.set(lesson);
+  //   this.expandSectionForLesson(lesson._id);
+  //   if (!lesson.content) {
+  //     this.lessonService.getLessonWithAccess(this.courseId(), lesson.section, lesson._id)
+  //       .pipe(takeUntilDestroyed(this.destroyRef))
+  //       .subscribe({
+  //         next: (res: any) => {
+  //           if (this.currentLesson()?._id === lesson._id) {
+  //             this.currentLesson.set(res.data?.lesson || res.data);
+  //           }
+  //         },
+  //         error: (err) => {
+  //           if (err.status === 403) {
+  //             this.error.set('This is a premium lesson. Please enroll in the course to unlock it.');
+  //           } else {
+  //             this.error.set('Could not load lesson content.');
+  //           }
+  //         }
+  //       });
+  //   }
+
+  //   if (window.innerWidth <= 1024) {
+  //     this.sidebarVisible.set(false);
+  //   }
+  // }
 
   private expandSectionForLesson(lessonId: string): void {
     const secs = this.sections();

@@ -12,15 +12,16 @@
   width: 100vw;
   display: flex;
   flex-direction: column;
-  overflow: hidden; 
+  overflow: hidden; /* Prevents the entire page from scrolling */
   position: relative;
   background: var(--bg-primary);
 }
 
 /* 2. Top Header */
 app-mainscreen-header {
+  display: block; /* CRITICAL: Custom elements are inline by default */
   height: var(--header-height);
-  flex-shrink: 0;
+  flex: 0 0 var(--header-height); /* CRITICAL: Forces exact height, prevents shrinking/growing */
   position: relative;
   z-index: 500;
 }
@@ -28,9 +29,10 @@ app-mainscreen-header {
 /* 3. Content Wrapper */
 .layout-body {
   display: flex;
-  flex: 1;
+  flex: 1 1 auto; /* Takes ONLY the remaining space */
   position: relative;
-  overflow: hidden;
+  overflow: hidden; /* Strict containment for children */
+  height: calc(100dvh - var(--header-height)); /* Fallback strict boundary */
   z-index: 1;
 }
 
@@ -39,6 +41,7 @@ app-mainscreen-header {
   flex: 1;
   height: 100%;
   width: 100%;
+  position: relative; /* Confines any absolute elements inside routed components */
   
   /* Native scrolling feel */
   overflow-y: auto;
@@ -86,18 +89,18 @@ app-mainscreen-header {
 // @use '../../../styles/mixins' as *;
 
 // :host {
-//   /* Define layout constants as CSS variables so they can be shared */
-//   --header-height: 64px;
+//   /* Define layout constants to share across components */
+//   --header-height: 70px;
 //   --sidebar-width: 260px;
 // }
 
-// /* 1. App Shell Container */
+// /* 1. App Shell Container (Native App Feel) */
 // .layout-root {
-//   height: 100dvh; /* 100dvh prevents iOS/Android browser bars from hiding the bottom */
+//   height: 100dvh; /* 100dvh is crucial for mobile browsers to avoid URL bar jumping */
 //   width: 100vw;
 //   display: flex;
 //   flex-direction: column;
-//   overflow: hidden; /* Locks the background */
+//   overflow: hidden; 
 //   position: relative;
 //   background: var(--bg-primary);
 // }
@@ -108,7 +111,6 @@ app-mainscreen-header {
 //   flex-shrink: 0;
 //   position: relative;
 //   z-index: 500;
-//   border-bottom: 1px solid var(--border-secondary);
 // }
 
 // /* 3. Content Wrapper */
@@ -157,120 +159,14 @@ app-mainscreen-header {
 // .mobile-backdrop {
 //   position: fixed;
 //   inset: 0;
-//   background: rgba(0, 0, 0, 0.6);
+//   background: rgba(0, 0, 0, 0.5);
 //   backdrop-filter: blur(4px);
 //   z-index: 1500; /* Above header (500), below sidebar (2000) */
 //   animation: fadeIn 0.3s ease-out;
+//   cursor: pointer;
 // }
 
 // @keyframes fadeIn { 
 //   from { opacity: 0; } 
 //   to { opacity: 1; } 
 // }
-
-// // /* Variables */
-// // $sidebar-width: 260px;
-// // $header-height: 64px;
-
-// // /* 1. Root Container */
-// // .layout-root {
-// //   height: 100vh;
-// //   width: 100vw;
-// //   display: flex;
-// //   flex-direction: column;
-// //   overflow: hidden;
-// //   position: relative;
-// // }
-
-// // /* 2. Header */
-// // app-mainscreen-header {
-// //   height: $header-height;
-// //   flex-shrink: 0;
-// //   position: relative;
-// //   z-index: 500; /* High, but lower than Sidebar */
-// //   background: var(--bg-surface);
-// //   border-bottom: 1px solid var(--border-subtle);
-// // }
-
-// // /* 3. Sidebar - ALWAYS ON TOP FIX */
-// // app-mainscreen-sidebar {
-// //   /* Use FIXED positioning to float above everything else */
-// //   position: fixed; 
-// //   top: $header-height; /* Starts below header (optional, set to 0 to cover header) */
-// //   left: 0;
-// //   bottom: 0;
-// //   width: $sidebar-width;
-  
-// //   /* CRITICAL: Higher than datepickers (usually 1000) and content */
-// //   z-index: 1100; 
-  
-// //   /* Smooth Animation */
-// //   transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  
-// //   /* Visuals handled inside the component, but we set boundaries here */
-// // }
-
-// // /* 4. Layout Body (Content Wrapper) */
-// // .layout-body {
-// //   display: flex;
-// //   flex: 1;
-// //   position: relative;
-// //   overflow: hidden; /* Scroll happens inside main-content */
-// //   z-index: 1; /* Lowest level */
-// // }
-
-// // /* 5. Main Content Area */
-// // .main-content {
-// //   flex: 1;
-// //   height: 100%;
-// //   width: 100%;
-// //   overflow-y: auto;
-// //   background: var(--bg-body-secondary);
-  
-// //   /* Default: Content takes full width (Sidebar floats over it) */
-// //   margin-left: 0;
-// //   padding: 1.5rem;
-  
-// //   /* Smooth push animation */
-// //   transition: margin-left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-// // }
-
-// // /* --- PINNED STATE (Desktop Only) --- */
-// // /* When pinned, we squeeze the content to make room */
-// // .layout-root.is-pinned {
-  
-// //   /* Shift content to the right */
-// //   .main-content {
-// //     margin-left: $sidebar-width;
-// //   }
-  
-// //   /* Sidebar visual tweak (optional) */
-// //   app-mainscreen-sidebar {
-// //     box-shadow: none; /* Remove floating shadow when docked */
-// //     border-right: 1px solid var(--border-subtle);
-// //   }
-// // }
-
-// // /* --- MOBILE STATE --- */
-// // .layout-root.is-mobile {
-  
-// //   /* Sidebar covers header on mobile */
-// //   app-mainscreen-sidebar {
-// //     top: 0; 
-// //     z-index: 2000; /* Maximum height for mobile menu */
-// //   }
-
-// //   /* Never push content on mobile */
-// //   &.is-pinned .main-content {
-// //     margin-left: 0 !important;
-// //   }
-// // }
-
-// // /* Backdrop */
-// // .mobile-backdrop {
-// //   position: fixed;
-// //   inset: 0;
-// //   background: rgba(0, 0, 0, 0.5);
-// //   backdrop-filter: blur(2px);
-// //   z-index: 1500; /* Behind sidebar (2000), Above header (500) */
-// // }

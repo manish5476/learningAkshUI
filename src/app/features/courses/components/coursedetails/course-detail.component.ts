@@ -129,11 +129,9 @@ export class CourseDetailComponent implements OnInit {
         const responseData = res?.data || res;
         const courseData = responseData.course || responseData.data || responseData;
         this.course.set(courseData);
-
         this.isEnrolled.set(responseData.isEnrolled || false);
         this.isOwner.set(responseData.isOwner || false);
         this.userProgress.set(responseData.userProgress || 0);
-
         const sectionsWithUI = (responseData.sections || []).map((section: any, index: number) => ({
           ...section,
           expanded: index === 0,
@@ -211,7 +209,6 @@ export class CourseDetailComponent implements OnInit {
   // --- ENROLLMENT / CHECKOUT LOGIC ---
   openCheckout(): void {
     this.checkoutForm.reset();
-
     if (this.course()?.isFree) {
       this.checkoutForm.clearValidators();
       Object.keys(this.checkoutForm.controls).forEach(key => {
@@ -223,33 +220,76 @@ export class CourseDetailComponent implements OnInit {
     this.showCheckoutModal.set(true);
   }
 
+  // processEnrollment(): void {
+  //   if (!this.course()?.isFree && this.checkoutForm.invalid) {
+  //     this.checkoutForm.markAllAsTouched();
+  //     return;
+  //   }
+
+  //   this.isProcessingPayment.set(true);
+  //   const courseId = this.course()?._id;
+  //   if (!courseId) return;
+
+  //   // Simulate payment processing
+  //   setTimeout(() => {
+  //     this.isProcessingPayment.set(false);
+  //     this.showCheckoutModal.set(false);
+  //     this.isEnrolled.set(true);
+
+  //     this.messageService.add({
+  //       severity: 'success',
+  //       summary: 'Success!',
+  //       detail: 'Enrollment complete. Taking you to the classroom...'
+  //     });
+
+  //     setTimeout(() => {
+  //       this.router.navigate(['/courses/learn', this.course()?.slug || courseId]);
+  //     }, 1500);
+  //   }, 2000);
+  // }
+
   processEnrollment(): void {
+    // 1. Validate the form for paid courses
     if (!this.course()?.isFree && this.checkoutForm.invalid) {
       this.checkoutForm.markAllAsTouched();
       return;
     }
 
     this.isProcessingPayment.set(true);
-
     const courseId = this.course()?._id;
     if (!courseId) return;
 
-    // Simulate payment processing
-    setTimeout(() => {
-      this.isProcessingPayment.set(false);
-      this.showCheckoutModal.set(false);
-      this.isEnrolled.set(true);
+    // 2. Call the real backend API
+    this.enrollmentService.enrollInCourse(courseId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: any) => {
+          this.isProcessingPayment.set(false);
+          this.showCheckoutModal.set(false);
 
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Success!',
-        detail: 'Enrollment complete. Taking you to the classroom...'
+          // Instantly update the UI state
+          this.isEnrolled.set(true);
+
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success!',
+            detail: 'Enrollment complete. Taking you to the classroom...'
+          });
+
+          // 3. Navigate to the player (Aligning with your goToLearning route)
+          setTimeout(() => {
+            this.router.navigate(['/courses/learn', this.course()?.slug || courseId]);
+          }, 1500);
+        },
+        error: (err: any) => {
+          this.isProcessingPayment.set(false);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Enrollment Failed',
+            detail: err?.error?.message || 'Could not complete enrollment.'
+          });
+        }
       });
-
-      setTimeout(() => {
-        this.router.navigate(['/learning', this.course()?.slug || courseId]);
-      }, 1500);
-    }, 2000);
   }
 
   closeCheckout(): void {
@@ -339,7 +379,7 @@ export class CourseDetailComponent implements OnInit {
   goToLearning(): void {
     const course = this.course();
     if (course) {
-      this.router.navigate(['/learning', course.slug || course._id]);
+            this.router.navigate(['/courses/learn', this.course()?.slug || course._id]);
     }
   }
 }

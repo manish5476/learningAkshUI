@@ -1,0 +1,105 @@
+<div class="player-wrapper" #playerWrapper>
+
+  @if (isYouTube()) {
+  <div class="iframe-container">
+    <iframe [src]="safeYouTubeUrl()" 
+      sandbox="allow-scripts allow-same-origin allow-presentation"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+    </iframe>
+    
+    <div class="yt-shield top-shield"></div>
+    <div class="yt-shield bottom-right-shield"></div>
+  </div>
+  }
+
+  @else {
+  <div class="video-container" (click)="togglePlay()">
+    <video #videoElement [src]="secureMediaStream()" (timeupdate)="onTimeUpdate($event)"
+      (loadedmetadata)="onLoadedMetadata($event)" (ended)="isPlaying.set(false)" oncontextmenu="return false;"
+      class="video-element">
+    </video>
+
+    <div class="controls-overlay" (click)="$event.stopPropagation()">
+
+      <div class="progress-container" (click)="seek($event)">
+        <div class="progress-track">
+          <div class="progress-fill" [style.width.%]="progressPercentage()"></div>
+        </div>
+      </div>
+
+      <div class="controls-row">
+        <div class="left-controls">
+          <button class="btn-control" (click)="togglePlay()">
+            @if (isPlaying()) {
+            <span class="icon">⏸️</span>
+            } @else {
+            <span class="icon">▶️</span>
+            }
+          </button>
+
+          <div class="time-display">
+            {{ currentTime() | number:'1.0-0' }}s / {{ duration() | number:'1.0-0' }}s
+          </div>
+        </div>
+
+        <div class="right-controls">
+          <select class="speed-select" (change)="changeSpeed($event)">
+            <option value="0.5">0.5x</option>
+            <option value="1" selected>1x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+            <option value="2">2x</option>
+          </select>
+          
+          <button class="btn-control" (click)="toggleFullscreen()">
+            <span class="icon">⛶</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+</div>
+<!-- <div class="player-wrapper">
+
+  @if (isYouTube()) {
+  <div class="iframe-container">
+    <iframe [src]="safeYouTubeUrl()" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+    </iframe>
+  </div>
+  }
+
+  @else {
+  <div class="video-container" (click)="togglePlay()">
+    <video #videoElement [src]="secureMediaStream()" (timeupdate)="onTimeUpdate($event)"
+      (loadedmetadata)="onLoadedMetadata($event)" (ended)="isPlaying.set(false)" oncontextmenu="return false;"
+      class="video-element">
+    </video>
+
+    <div class="controls-overlay" (click)="$event.stopPropagation()">
+
+      <div class="progress-container" (click)="seek($event)">
+        <div class="progress-track">
+          <div class="progress-fill" [style.width.%]="progressPercentage()"></div>
+        </div>
+      </div>
+
+      <div class="controls-row">
+        <button class="btn-control" (click)="togglePlay()">
+          @if (isPlaying()) {
+          <span class="icon">⏸️</span>
+          } @else {
+          <span class="icon">▶️</span>
+          }
+        </button>
+
+        <div class="time-display">
+          {{ currentTime() | number:'1.0-0' }}s / {{ duration() | number:'1.0-0' }}s
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+</div> -->
