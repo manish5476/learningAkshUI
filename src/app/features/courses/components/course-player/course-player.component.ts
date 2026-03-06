@@ -21,7 +21,7 @@ import { EnrollmentService } from '../../../../core/services/enrollment.service'
 import { LessonService } from '../../../../core/services/lesson.service';
 import { LessonProgressTrackerComponent } from "../../../lesson/components/lesson-progress-tracker/lesson-progress-tracker.component";
 import { LessonQuizTakerComponent } from "../../../Test/lesson-quiz-taker/lesson-quiz-taker.component";
-import { mediaPlayerComponent } from "../../../../shared/components/media-player/course-player.component";
+
 
 @Component({
   selector: 'app-course-player',
@@ -39,8 +39,7 @@ import { mediaPlayerComponent } from "../../../../shared/components/media-player
     DurationPipe,
     TitleCasePipe,
     LessonProgressTrackerComponent,
-    LessonQuizTakerComponent,
-    mediaPlayerComponent
+    LessonQuizTakerComponent
 ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './course-player.component.html',
