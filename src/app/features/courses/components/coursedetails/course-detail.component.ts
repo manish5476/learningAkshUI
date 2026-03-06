@@ -21,6 +21,7 @@ import { Course, Section, Lesson } from '../../../../core/models/course.model';
 import { CourseService } from '../../../../core/services/course.service';
 import { EnrollmentService } from '../../../../core/services/enrollment.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { CourseDiscussionComponent } from "../course-discussion/course-discussion.component";
 
 interface SectionWithUI extends Section {
   expanded?: boolean;
@@ -45,7 +46,8 @@ interface SectionWithUI extends Section {
     TooltipModule,
     AccordionModule,
     DividerModule,
-    SkeletonModule
+    SkeletonModule,
+    CourseDiscussionComponent
   ],
   providers: [MessageService],
   templateUrl: './course-detail.component.html',
@@ -59,7 +61,11 @@ export class CourseDetailComponent implements OnInit {
   private enrollmentService = inject(EnrollmentService);
   private messageService = inject(MessageService);
   private destroyRef = inject(DestroyRef);
-  private authService = inject(AuthService); // <-- INJECT AUTH SERVICE
+  private authService = inject(AuthService);
+  // Add these properties to your component
+  showVideoModal = signal<boolean>(false);
+  videoType = signal<'youtube' | 'vimeo' | 'direct' | null>(null);
+  videoId = signal<string>('');
   // Core State
   course = signal<Course | undefined>(undefined);
   sections = signal<SectionWithUI[]>([]);
@@ -379,7 +385,110 @@ export class CourseDetailComponent implements OnInit {
   goToLearning(): void {
     const course = this.course();
     if (course) {
-            this.router.navigate(['/courses/learn', this.course()?.slug || course._id]);
+      this.router.navigate(['/courses/learn', this.course()?.slug || course._id]);
     }
+  }
+
+
+  /**
+ * Plays the course preview video
+ * Opens a modal or navigates to the preview player
+ */
+  playPreview(): void {
+    const course = this.course();
+
+    if (!course?.previewVideo) {
+      return;
+    }
+
+    // If it's a YouTube/Vimeo URL, extract ID
+    if (this.isYouTubeUrl(course.previewVideo)) {
+      const videoId = this.extractYouTubeId(course.previewVideo);
+      this.openVideoModal('youtube', videoId);
+    }
+    else if (this.isVimeoUrl(course.previewVideo)) {
+      const videoId = this.extractVimeoId(course.previewVideo);
+      this.openVideoModal('vimeo', videoId);
+    }
+    else {
+      // Assume it's a direct video file or local path
+      this.openVideoModal('direct', course.previewVideo);
+    }
+  }
+
+  /**
+   * Checks if URL is a YouTube link
+   */
+  private isYouTubeUrl(url: string): boolean {
+    return url.includes('youtube.com') || url.includes('youtu.be');
+  }
+
+  /**
+   * Checks if URL is a Vimeo link
+   */
+  private isVimeoUrl(url: string): boolean {
+    return url.includes('vimeo.com');
+  }
+
+  /**
+   * Extracts YouTube video ID from various URL formats
+   */
+  private extractYouTubeId(url: string): string {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : url;
+  }
+
+  /**
+   * Extracts Vimeo video ID from URL
+   */
+  private extractVimeoId(url: string): string {
+    const regExp = /^.*(vimeo\.com\/)((channels\/[A-z]+\/)|(groups\/[A-z]+\/videos\/))?([0-9]+)/;
+    const match = url.match(regExp);
+    return match ? match[5] : url;
+  }
+
+  /**
+   * Opens video in modal or new tab
+   */
+  private openVideoModal(type: 'youtube' | 'vimeo' | 'direct', id: string): void {
+    // Option 1: Open in a modal dialog
+    this.showVideoModal.set(true)// = true;
+    this.videoType.set(type) //= type;
+    this.videoId.set(id)// = id;
+
+    // Option 2: Or open in new tab for external videos
+    if (type === 'youtube') {
+      window.open(`https://www.youtube.com/embed/${id}`, '_blank');
+    } else if (type === 'vimeo') {
+      window.open(`https://player.vimeo.com/video/${id}`, '_blank');
+    } else {
+      // For direct video files, you might want to open in a video player
+      window.open(id, '_blank');
+    }
+  }
+
+  /**
+   * Alternative: Using a service to handle video playback
+   */
+  playPreviewWithService(): void {
+    const course = this.course();
+
+    if (!course?.previewVideo) {
+      return;
+    }
+
+    // If you have a video player service/component
+    // this.videoPlayerService.playPreview({
+    //   url: course.previewVideo,
+    //   title: course.title,
+    //   thumbnail: course.thumbnail
+    // });
+  }
+
+  closeVideoModal(): void {
+    this.showVideoModal.set(false);
+    this.videoType.set(null);
+    this.videoId.set('');
   }
 }
