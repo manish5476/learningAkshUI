@@ -1,5 +1,6 @@
 export const environment = {
   production: false,
+//  apiUrl: 'https://4000-firebase-learningakshgit-1772528161754.cluster-edb2jv34dnhjisxuq5m7l37ccy.cloudworkstations.dev/api/v1',
 //  apiUrl: 'http://localhost:3000/api/v1',
    apiUrl: 'https://learningaksh.onrender.com/api/v1',
   socketUrl: 'https://learningaksh.onrender.com',
