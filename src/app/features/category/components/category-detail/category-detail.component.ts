@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 // PrimeNG Imports
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
+import { CardModule } from 'primeng/card'; // <-- Added CardModule
 
 import { CategoryService } from '../../../../core/services/category.service';
 
@@ -13,37 +14,37 @@ import { CategoryService } from '../../../../core/services/category.service';
   selector: 'app-category-detail',
   standalone: true,
   imports: [
-    DatePipe, 
-    
+    DatePipe,
+    NgClass,
     ButtonModule,
-    TagModule
+    TagModule,
+    CardModule // <-- Added to imports
   ],
   templateUrl: './category-detail.component.html',
   styleUrls: ['./category-detail.component.scss']
 })
 export class CategoryDetailComponent implements OnInit {
-  // Modern Signal Inputs & Outputs
   categoryInput = input<any>(null, { alias: 'category' });
   edit = output<void>();
   close = output<void>();
-
-  // Injectors
+  
   private categoryService = inject(CategoryService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
-
-  // Reactive State
+  
   fullCategory = signal<any>(null);
   isLoading = signal<boolean>(false);
   isRouted = signal<boolean>(false);
 
   constructor() {
-    // Automatically react to input changes when used inside a modal
     effect(() => {
       const cat = this.categoryInput();
       if (cat?._id && !this.isRouted()) {
         this.loadFullDetails(cat._id);
+      } else if (cat) {
+        // Fallback to directly set data if API load isn't needed
+        this.fullCategory.set(cat);
       }
     }, { allowSignalWrites: true });
   }
@@ -62,31 +63,32 @@ export class CategoryDetailComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
+          // Adjust based on your API response structure (res.data.data)
           const payload = res?.data?.data || res?.data || this.categoryInput();
           this.fullCategory.set(payload);
           this.isLoading.set(false);
         },
         error: (error: any) => {
           console.error('Failed to load category details', error);
-          this.fullCategory.set(this.categoryInput()); // Fallback to input
+          this.fullCategory.set(this.categoryInput());
           this.isLoading.set(false);
         }
       });
   }
 
   onEdit(): void {
-    if (this.isRouted()) {
+    if (this.isRouted()) { 
       this.router.navigate(['/categories/admin', this.fullCategory()._id, 'edit']);
-    } else {
+    } else { 
       this.edit.emit();
     }
   }
 
   onClose(): void {
-    if (this.isRouted()) {
-      this.goBack();
-    } else {
-      this.close.emit();
+    if (this.isRouted()) { 
+      this.goBack(); 
+    } else { 
+      this.close.emit(); 
     }
   }
 
@@ -95,39 +97,41 @@ export class CategoryDetailComponent implements OnInit {
   }
 }
 
-
 // import { Component, OnInit, inject, DestroyRef, signal, effect, input, output } from '@angular/core';
 // import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 // import { DatePipe, NgClass } from '@angular/common';
 // import { ActivatedRoute, Router } from '@angular/router';
+
+// // PrimeNG Imports
+// import { ButtonModule } from 'primeng/button';
+// import { TagModule } from 'primeng/tag';
+
 // import { CategoryService } from '../../../../core/services/category.service';
 
 // @Component({
 //   selector: 'app-category-detail',
 //   standalone: true,
-//   imports: [DatePipe, NgClass],
+//   imports: [
+//     DatePipe,
+
+//     ButtonModule,
+//     TagModule
+//   ],
 //   templateUrl: './category-detail.component.html',
 //   styleUrls: ['./category-detail.component.scss']
 // })
 // export class CategoryDetailComponent implements OnInit {
-//   // Modern Signal Inputs & Outputs
 //   categoryInput = input<any>(null, { alias: 'category' });
 //   edit = output<void>();
 //   close = output<void>();
-
-//   // Injectors
 //   private categoryService = inject(CategoryService);
 //   private route = inject(ActivatedRoute);
 //   private router = inject(Router);
 //   private destroyRef = inject(DestroyRef);
-
-//   // Reactive State
 //   fullCategory = signal<any>(null);
 //   isLoading = signal<boolean>(false);
 //   isRouted = signal<boolean>(false);
-
 //   constructor() {
-//     // Automatically react to input changes when used inside a modal
 //     effect(() => {
 //       const cat = this.categoryInput();
 //       if (cat?._id && !this.isRouted()) {
@@ -150,33 +154,26 @@ export class CategoryDetailComponent implements OnInit {
 //       .pipe(takeUntilDestroyed(this.destroyRef))
 //       .subscribe({
 //         next: (res: any) => {
-//           // Extracts data based on the provided JSON structure (data.data)
 //           const payload = res?.data?.data || res?.data || this.categoryInput();
 //           this.fullCategory.set(payload);
 //           this.isLoading.set(false);
 //         },
 //         error: (error: any) => {
 //           console.error('Failed to load category details', error);
-//           this.fullCategory.set(this.categoryInput()); // Fallback to input
+//           this.fullCategory.set(this.categoryInput());
 //           this.isLoading.set(false);
 //         }
 //       });
 //   }
 
 //   onEdit(): void {
-//     if (this.isRouted()) {
-//       this.router.navigate(['/categories/admin', this.fullCategory()._id, 'edit']);
-//     } else {
-//       this.edit.emit();
-//     }
+//     if (this.isRouted()) { this.router.navigate(['/categories/admin', this.fullCategory()._id, 'edit']) }
+//     else { this.edit.emit() }
 //   }
 
 //   onClose(): void {
-//     if (this.isRouted()) {
-//       this.goBack();
-//     } else {
-//       this.close.emit();
-//     }
+//     if (this.isRouted()) { this.goBack(); }
+//     else { this.close.emit(); }
 //   }
 
 //   goBack(): void {
