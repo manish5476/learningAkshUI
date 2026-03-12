@@ -58,7 +58,7 @@ export class EnrollmentService {
   }
 
   getCourseAnalytics(courseId: string): Observable<ApiResponse<any>> {
-    return this.baseApi.get(`${this.endpoint}/analytics/${courseId}`, { showLoader: true });
+    return this.baseApi.get(`enrollments/analytics/${courseId}`, { showLoader: true });
   }
 
   exportCourseEnrollments(courseId: string, format: 'csv' | 'excel' = 'csv'): Observable<Blob> {

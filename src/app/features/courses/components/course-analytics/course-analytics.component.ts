@@ -68,16 +68,12 @@ export class CourseAnalyticsComponent implements OnInit {
     this.isLoading.set(true);
 
     // Fetch the course details to get the title and basic stats
-    this.courseService.getCoursesById(id)
+    this.courseService.getCourseAnalytics(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
           const course = res.data?.data || res.data;
           this.courseTitle.set(course?.title || 'Course Analytics');
-          
-          // NOTE: In a real production app, you would call a dedicated analytics endpoint here.
-          // e.g., this.courseService.getCourseAnalytics(id)
-          // For now, we calculate from the base course object and generate beautiful mock data for the UI
           
           const enrollments = course?.totalEnrollments || Math.floor(Math.random() * 500) + 50;
           const price = course?.discountPrice || course?.price || 49.99;

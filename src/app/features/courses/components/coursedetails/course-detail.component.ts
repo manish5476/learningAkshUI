@@ -50,7 +50,7 @@ interface SectionWithUI extends Section {
     SkeletonModule,
     CourseDiscussionComponent,
     Card,
-],
+  ],
   providers: [MessageService],
   templateUrl: './course-detail.component.html',
   styleUrls: ['./course-detail.component.scss']
@@ -110,6 +110,7 @@ export class CourseDetailComponent implements OnInit {
     expiry: ['', [Validators.required, Validators.pattern('^(0[1-9]|1[0-2])\/([0-9]{2})$')]],
     cvv: ['', [Validators.required, Validators.pattern('^[0-9]{3,4}$')]]
   });
+  id: any;
 
   ngOnInit(): void {
     // 1. Track the logged-in user
@@ -137,7 +138,8 @@ export class CourseDetailComponent implements OnInit {
         const responseData = res?.data || res;
         const courseData = responseData.course || responseData.data || responseData;
         this.course.set(courseData);
-        this.isEnrolled.set(responseData.isEnrolled || false);
+        this.id=courseData._id||courseData.id 
+                this.isEnrolled.set(responseData.isEnrolled || false);
         this.isOwner.set(responseData.isOwner || false);
         this.userProgress.set(responseData.userProgress || 0);
         const sectionsWithUI = (responseData.sections || []).map((section: any, index: number) => ({
@@ -314,14 +316,9 @@ export class CourseDetailComponent implements OnInit {
   getCourseStatus(): { label: string; severity: string; icon: string } {
     const c = this.course();
     if (!c) return { label: '', severity: '', icon: '' };
-
-    if (c.isPublished && c.isApproved) {
-      return { label: 'Published', severity: 'success', icon: 'pi pi-check-circle' };
-    } else if (c.isPublished) {
-      return { label: 'Pending Approval', severity: 'warning', icon: 'pi pi-clock' };
-    } else {
-      return { label: 'Draft', severity: 'info', icon: 'pi pi-pencil' };
-    }
+    if (c.isPublished && c.isApproved) {return { label: 'Published', severity: 'success', icon: 'pi pi-check-circle' };} 
+    else if (c.isPublished) {return { label: 'Pending Approval', severity: 'warning', icon: 'pi pi-clock' };} 
+    else {return { label: 'Draft', severity: 'info', icon: 'pi pi-pencil' };}
   }
 
   getCategoryName(): string {
@@ -352,7 +349,6 @@ export class CourseDetailComponent implements OnInit {
     return icons[type] || 'pi pi-file';
   }
 
-  // Navigation
   editCourse(): void {
     const courseId = this.course()?._id;
     if (courseId) {
@@ -363,7 +359,6 @@ export class CourseDetailComponent implements OnInit {
   editPricing(): void {
     const courseId = this.course()?._id;
     if (courseId) {
-      // Corrected path: /instructor/courses/:id/edit#pricing
       this.router.navigate(['/instructor/courses', courseId, 'edit'], {
         fragment: 'pricing'
       });
@@ -386,6 +381,13 @@ export class CourseDetailComponent implements OnInit {
     const course = this.course();
     if (course) {
       this.router.navigate(['/courses/learn', this.course()?.slug || course._id]);
+    }
+  }
+
+  goAnalytics(): void {
+    const course = this.course();
+    if (course) {
+      this.router.navigate(['/courses/analytics', this.id]);
     }
   }
 

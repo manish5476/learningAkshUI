@@ -17,6 +17,12 @@ export const COURSE_ROUTES: Routes = [
         title: 'Classroom'
       },
       {
+        path: 'analytics/:id', // The 100dvh Native Theater Player shell
+        canActivate: [AuthGuard],
+        loadComponent: () => import('./../../features/courses/components/course-analytics/course-analytics.component').then(m => m.CourseAnalyticsComponent),
+        title: 'Classroom'
+      },
+      {
         path: ':id', // Course Sales page with the Premium Checkout modal
         loadComponent: () => import('./../../features/courses/components/coursedetails/course-detail.component').then(m => m.CourseDetailComponent),
         title: 'Course Details'

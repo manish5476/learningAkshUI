@@ -31,7 +31,7 @@
 
   <!-- ===== COURSE CONTENT ===== -->
   @else if (course(); as course) {
-  
+
   <!-- Navigation Bar -->
   <div class="nav-bar">
     <div class="nav-left">
@@ -50,11 +50,17 @@
         {{ getCourseStatus().label }}
       </span>
 
+      <button class="action-btn success focus-ring" (click)="goAnalytics()">
+        <i class="pi pi-play-circle"></i>
+        goAnalytics
+      </button>
+
       @if (!course.isPublished) {
       <button class="publish-btn focus-ring" (click)="publishCourse()">
         <i class="pi pi-rocket"></i>
         Publish Course
       </button>
+
       } @else {
       <button class="unpublish-btn focus-ring" (click)="unpublishCourse()">
         <i class="pi pi-eye-slash"></i>
@@ -67,10 +73,10 @@
 
   <!-- Main Content Grid -->
   <div class="content-grid">
-    
+
     <!-- LEFT COLUMN - Main Content -->
     <div class="main-content">
-      
+
       <!-- Course Header Card -->
       <p-card class="course-content-card">
         <ng-template pTemplate="content">
@@ -189,7 +195,8 @@
                       <h3>{{ section.title }}</h3>
                     </div>
                     <div class="header-right">
-                      <span>{{ section.lessons?.length || 0 }} lesson{{ (section.lessons?.length || 0) !== 1 ? 's' : '' }}</span>
+                      <span>{{ section.lessons?.length || 0 }} lesson{{ (section.lessons?.length || 0) !== 1 ? 's' : ''
+                        }}</span>
                       <span class="duration">{{ formatDuration(section.totalDuration || 0) }}</span>
                     </div>
                   </div>
@@ -274,7 +281,8 @@
           <div class="action-card">
             <!-- Course Image -->
             <div class="card-image">
-              <img [src]="course.thumbnail || 'assets/images/course-placeholder.jpg'" [alt]="course.title">
+              <img [src]="course.thumbnail || course.previewVideo || 'assets/images/course-placeholder.jpg'"
+                [alt]="course.title">
               @if (!canManageCourse() && course.previewVideo) {
               <div class="play-overlay" (click)="playPreview()">
                 <i class="pi pi-play-circle"></i>
@@ -288,15 +296,15 @@
                 @if (course.isFree) {
                 <span class="free-price">Free</span>
                 } @else {
-                  @if (course.discountPrice) {
-                  <div class="discount-price">
-                    <span class="current">{{ course.discountPrice | currency:course.currency }}</span>
-                    <span class="original">{{ course.price | currency:course.currency }}</span>
-                    <span class="discount-badge">-{{ calculateDiscount() }}%</span>
-                  </div>
-                  } @else {
-                  <span class="regular-price">{{ course.price | currency:course.currency }}</span>
-                  }
+                @if (course.discountPrice) {
+                <div class="discount-price">
+                  <span class="current">{{ course.discountPrice | currency:course.currency }}</span>
+                  <span class="original">{{ course.price | currency:course.currency }}</span>
+                  <span class="discount-badge">-{{ calculateDiscount() }}%</span>
+                </div>
+                } @else {
+                <span class="regular-price">{{ course.price | currency:course.currency }}</span>
+                }
                 }
               </div>
 
@@ -324,27 +332,28 @@
                 </button>
 
                 } @else {
-                  @if (isEnrolled()) {
-                  <button class="action-btn success focus-ring" (click)="goToLearning()">
-                    <i class="pi pi-play-circle"></i>
-                    Continue Learning
-                  </button>
-                  <div class="progress-indicator">
-                    <div class="progress-bar">
-                      <div class="progress-fill" [style.width.%]="userProgress()"></div>
-                    </div>
-                    <span class="progress-text">{{ userProgress() }}% Complete</span>
+                @if (isEnrolled()) {
+                <button class="action-btn success focus-ring" (click)="goToLearning()">
+                  <i class="pi pi-play-circle"></i>
+                  Continue Learning
+                </button>
+
+                <div class="progress-indicator">
+                  <div class="progress-bar">
+                    <div class="progress-fill" [style.width.%]="userProgress()"></div>
                   </div>
-                  } @else {
-                  <button class="action-btn focus-ring" (click)="openCheckout()">
-                    <i class="pi pi-bolt"></i> 
-                    {{ course.isFree ? 'Enroll for Free' : 'Enroll Now' }}
-                  </button>
-                  <p class="guarantee">
-                    <i class="pi pi-shield"></i>
-                    30-Day Money-Back Guarantee
-                  </p>
-                  }
+                  <span class="progress-text">{{ userProgress() }}% Complete</span>
+                </div>
+                } @else {
+                <button class="action-btn focus-ring" (click)="openCheckout()">
+                  <i class="pi pi-bolt"></i>
+                  {{ course.isFree ? 'Enroll for Free' : 'Enroll Now' }}
+                </button>
+                <p class="guarantee">
+                  <i class="pi pi-shield"></i>
+                  30-Day Money-Back Guarantee
+                </p>
+                }
                 }
               </div>
 
@@ -393,15 +402,8 @@
 </div>
 
 <!-- ===== CHECKOUT MODAL ===== -->
-<p-dialog 
-  [(visible)]="showCheckoutModal" 
-  [modal]="true" 
-  [draggable]="false" 
-  [resizable]="false"
-  styleClass="checkout-dialog" 
-  [dismissableMask]="true" 
-  (onHide)="closeCheckout()"
-  [closeOnEscape]="true"
+<p-dialog [(visible)]="showCheckoutModal" [modal]="true" [draggable]="false" [resizable]="false"
+  styleClass="checkout-dialog" [dismissableMask]="true" (onHide)="closeCheckout()" [closeOnEscape]="true"
   [showHeader]="false">
 
   <div class="checkout-modal">
@@ -410,7 +412,7 @@
     </button>
 
     <div class="modal-grid">
-      
+
       <!-- Left Column - Course Info -->
       <div class="modal-course-info">
         <div class="modal-image">
@@ -431,14 +433,14 @@
               Free Access
             </span>
             } @else {
-              @if (course()?.discountPrice) {
-              <div>
-                <span class="current">{{ course()?.discountPrice | currency:course()?.currency }}</span>
-                <span class="original">{{ course()?.price | currency:course()?.currency }}</span>
-              </div>
-              } @else {
-              <span class="current">{{ course()?.price | currency:course()?.currency }}</span>
-              }
+            @if (course()?.discountPrice) {
+            <div>
+              <span class="current">{{ course()?.discountPrice | currency:course()?.currency }}</span>
+              <span class="original">{{ course()?.price | currency:course()?.currency }}</span>
+            </div>
+            } @else {
+            <span class="current">{{ course()?.price | currency:course()?.currency }}</span>
+            }
             }
           </div>
 
@@ -460,14 +462,10 @@
 
         @if (!course()?.isFree) {
         <form [formGroup]="checkoutForm" class="payment-form" (ngSubmit)="processEnrollment()">
-          
+
           <div class="form-group">
             <label>Cardholder Name</label>
-            <input 
-              type="text" 
-              pInputText 
-              formControlName="cardName" 
-              placeholder="John Doe"
+            <input type="text" pInputText formControlName="cardName" placeholder="John Doe"
               [class.error]="checkoutForm.get('cardName')?.invalid && checkoutForm.get('cardName')?.touched"
               class="focus-ring">
             @if (checkoutForm.get('cardName')?.invalid && checkoutForm.get('cardName')?.touched) {
@@ -480,12 +478,7 @@
 
           <div class="form-group">
             <label>Card Number</label>
-            <input 
-              type="text" 
-              pInputText 
-              formControlName="cardNumber" 
-              placeholder="1234 5678 9012 3456" 
-              maxlength="16"
+            <input type="text" pInputText formControlName="cardNumber" placeholder="1234 5678 9012 3456" maxlength="16"
               [class.error]="checkoutForm.get('cardNumber')?.invalid && checkoutForm.get('cardNumber')?.touched"
               class="focus-ring">
             @if (checkoutForm.get('cardNumber')?.invalid && checkoutForm.get('cardNumber')?.touched) {
@@ -499,31 +492,21 @@
           <div class="form-row">
             <div class="form-group">
               <label>Expiry Date</label>
-              <input 
-                type="text" 
-                pInputText 
-                formControlName="expiry" 
-                placeholder="MM/YY" 
-                maxlength="5"
+              <input type="text" pInputText formControlName="expiry" placeholder="MM/YY" maxlength="5"
                 [class.error]="checkoutForm.get('expiry')?.invalid && checkoutForm.get('expiry')?.touched"
                 class="focus-ring">
             </div>
 
             <div class="form-group">
               <label>CVV</label>
-              <input 
-                type="password" 
-                pInputText 
-                formControlName="cvv" 
-                placeholder="123" 
-                maxlength="4"
-                [class.error]="checkoutForm.get('cvv')?.invalid && checkoutForm.get('cvv')?.touched"
-                class="focus-ring">
+              <input type="password" pInputText formControlName="cvv" placeholder="123" maxlength="4"
+                [class.error]="checkoutForm.get('cvv')?.invalid && checkoutForm.get('cvv')?.touched" class="focus-ring">
             </div>
           </div>
 
           @if (checkoutForm.get('expiry')?.invalid && checkoutForm.get('expiry')?.touched) {
-          <small class="error-text" style="display: block; margin-top: -var(--spacing-sm); margin-bottom: var(--spacing-md);">
+          <small class="error-text"
+            style="display: block; margin-top: -var(--spacing-sm); margin-bottom: var(--spacing-md);">
             <i class="pi pi-exclamation-circle"></i>
             Valid expiry required (MM/YY)
           </small>
@@ -537,11 +520,9 @@
         </div>
         }
 
-        <button 
-          class="checkout-btn focus-ring" 
-          (click)="processEnrollment()"
+        <button class="checkout-btn focus-ring" (click)="processEnrollment()"
           [disabled]="isProcessingPayment() || (!course()?.isFree && checkoutForm.invalid)">
-          
+
           @if (isProcessingPayment()) {
           <i class="pi pi-spin pi-spinner"></i>
           Processing...
@@ -570,628 +551,32 @@
 </p-dialog>
 
 <!-- Video Modal -->
-<p-dialog 
-  [(visible)]="showVideoModal" 
-  [modal]="true" 
-  [draggable]="false" 
-  [resizable]="false"
-  styleClass="video-dialog" 
-  [dismissableMask]="true" 
-  (onHide)="closeVideoModal()"
-  [closeOnEscape]="true"
-  [showHeader]="false">
+<p-dialog [(visible)]="showVideoModal" [modal]="true" [draggable]="false" [resizable]="false" styleClass="video-dialog"
+  [dismissableMask]="true" (onHide)="closeVideoModal()" [closeOnEscape]="true" [showHeader]="false">
 
   <div class="video-modal">
     <button class="close-btn focus-ring" (click)="closeVideoModal()" aria-label="Close">
       <i class="pi pi-times"></i>
     </button>
-    
+
     <div class="video-container">
       @if (videoType() === 'youtube') {
-        <iframe 
-          [src]="'https://www.youtube.com/embed/' + videoId() + '?autoplay=1'" 
-          frameborder="0" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-          allowfullscreen>
-        </iframe>
+      <iframe [src]="'https://www.youtube.com/embed/' + videoId() + '?autoplay=1'" frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+      </iframe>
       }
       @else if (videoType() === 'vimeo') {
-        <iframe 
-          [src]="'https://player.vimeo.com/video/' + videoId() + '?autoplay=1'" 
-          frameborder="0" 
-          allow="autoplay; fullscreen; picture-in-picture" 
-          allowfullscreen>
-        </iframe>
+      <iframe [src]="'https://player.vimeo.com/video/' + videoId() + '?autoplay=1'" frameborder="0"
+        allow="autoplay; fullscreen; picture-in-picture" allowfullscreen>
+      </iframe>
       }
       @else if (videoType() === 'direct') {
-        <video controls autoplay>
-          <source [src]="videoId()" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
+      <video controls autoplay>
+        <source [src]="videoId()" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
       }
     </div>
   </div>
 </p-dialog>
-
-<!-- <div class="course-detail-container">
-  <p-toast position="top-right"></p-toast>
-
-  ===== LOADING STATE =====
-  @if (isLoading()) {
-  <div class="loading-state">
-    <div class="loader-ring"></div>
-    <div class="loading-skeleton">
-      <div class="skeleton-header"></div>
-      <div class="skeleton-content">
-        <div class="skeleton-row"></div>
-        <div class="skeleton-row"></div>
-        <div class="skeleton-row"></div>
-      </div>
-    </div>
-  </div>
-  }
-
-  ===== ERROR STATE =====
-  @else if (error()) {
-  <div class="error-state">
-    <div class="error-icon">⚠️</div>
-    <h2>Oops! Something went wrong</h2>
-    <p>{{ error() }}</p>
-    <button class="retry-btn focus-ring" (click)="retry()">
-      <i class="pi pi-refresh"></i>
-      Try Again
-    </button>
-  </div>
-  }
-
-  ===== COURSE CONTENT =====
-  @else if (course(); as course) {
-  
-  Navigation Bar
-  <div class="nav-bar">
-    <div class="nav-left">
-      <a [routerLink]="canManageCourse() ? '/instructor/courses' : '/courses'" class="back-link focus-ring">
-        <i class="pi pi-arrow-left"></i>
-        <span>{{ canManageCourse() ? 'My Courses' : 'All Courses' }}</span>
-      </a>
-      <span class="separator">/</span>
-      <span class="category">{{ getCategoryName() }}</span>
-    </div>
-
-    @if (canManageCourse()) {
-    <div class="nav-right">
-      <span class="status-badge" [ngClass]="getCourseStatus().severity">
-        <i [class]="getCourseStatus().icon"></i>
-        {{ getCourseStatus().label }}
-      </span>
-
-      @if (!course.isPublished) {
-      <button class="publish-btn focus-ring" (click)="publishCourse()">
-        <i class="pi pi-rocket"></i>
-        Publish Course
-      </button>
-      } @else {
-      <button class="unpublish-btn focus-ring" (click)="unpublishCourse()">
-        <i class="pi pi-eye-slash"></i>
-        Unpublish Course
-      </button>
-      }
-    </div>
-    }
-  </div>
-
-  Main Content Grid
-  <div class="content-grid">
-    
-    LEFT COLUMN - Main Content
-    <div class="main-content">
-      
-      Course Header
-      <div class="course-header">
-        <h1 class="course-title text-gradient">{{ course.title }}</h1>
-        <p class="course-subtitle">{{ course.subtitle || (course.description | slice:0:200) }}{{
-          (course.description.length || 0) > 200 ? '...' : '' }}</p>
-
-        <div class="meta-stats glass-effect">
-          <div class="stat">
-            <i class="pi pi-signal"></i>
-            <span>{{ course.level | titlecase }}</span>
-          </div>
-          <div class="stat">
-            <i class="pi pi-users"></i>
-            <span>{{ course.totalEnrollments }} enrolled</span>
-          </div>
-          <div class="stat">
-            <i class="pi pi-clock"></i>
-            <span>{{ formatDuration(actualTotalDuration()) }}</span>
-          </div>
-          <div class="stat">
-            <i class="pi pi-book"></i>
-            <span>{{ actualTotalLessons() }} lessons</span>
-          </div>
-          <div class="stat">
-            <i class="pi pi-globe"></i>
-            <span>{{ course.language }}</span>
-          </div>
-        </div>
-
-        <div class="instructor-card">
-          <div class="instructor-avatar">
-            @if (course.instructor.profilePicture) {
-            <img [src]="course.instructor.profilePicture" [alt]="course.instructor.firstName">
-            } @else {
-            <div class="avatar-placeholder">
-              {{ course.instructor.firstName.charAt(0) }}{{ course.instructor.lastName.charAt(0) }}
-            </div>
-            }
-          </div>
-          <div class="instructor-info">
-            <span class="label">Created by</span>
-            <span class="name">{{ course.instructor.firstName }} {{ course.instructor.lastName }}</span>
-          </div>
-        </div>
-      </div>
-
-      About This Course
-      @if (course.description) {
-      <section class="content-section">
-        <h2 class="section-title">About This Course</h2>
-        <div class="description scrollable" [innerHTML]="course.description"></div>
-      </section>
-      }
-
-      What You'll Learn
-      @if (course.whatYouWillLearn.length) {
-      <section class="content-section">
-        <h2 class="section-title">What You'll Learn</h2>
-        <div class="learn-grid">
-          @for (item of course.whatYouWillLearn; track item) {
-          <div class="learn-item">
-            <i class="pi pi-check-circle"></i>
-            <span>{{ item }}</span>
-          </div>
-          }
-        </div>
-      </section>
-      }
-
-      Course Curriculum
-      <section class="content-section">
-        <div class="section-header">
-          <h2 class="section-title">Course Curriculum</h2>
-          @if (canManageCourse()) {
-          <button class="edit-btn focus-ring" (click)="editCurriculum()">
-            <i class="pi pi-pencil"></i>
-            Manage Curriculum
-          </button>
-          }
-        </div>
-
-        <div class="curriculum-stats">
-          <span>{{ sections().length }} sections</span>
-          <span class="dot">•</span>
-          <span>{{ actualTotalLessons() }} lessons</span>
-          <span class="dot">•</span>
-          <span>{{ formatDuration(actualTotalDuration()) }} total length</span>
-        </div>
-
-        <div class="curriculum-list">
-          @for (section of sections(); track section._id; let i = $index) {
-          <div class="curriculum-item" [class.expanded]="section.expanded">
-            <div class="item-header" (click)="toggleSection(i)">
-              <div class="header-left">
-                <i class="pi" [ngClass]="section.expanded ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
-                <h3>{{ section.title }}</h3>
-              </div>
-              <div class="header-right">
-                <span>{{ section.lessons?.length || 0 }} lesson{{ (section.lessons?.length || 0) !== 1 ? 's' : '' }}</span>
-                <span class="duration">{{ formatDuration(section.totalDuration || 0) }}</span>
-              </div>
-            </div>
-
-            @if (section.expanded) {
-            <div class="item-content">
-              @if (section.description) {
-              <p class="section-description">{{ section.description }}</p>
-              }
-
-              <div class="lessons-list">
-                @for (lesson of section.lessons; track lesson._id) {
-                <div class="lesson-item">
-                  <div class="lesson-info">
-                    <i [class]="getLessonIcon(lesson.type)"></i>
-                    <span class="lesson-title">{{ lesson.title }}</span>
-                  </div>
-                  <div class="lesson-meta">
-                    @if (lesson.isFree) {
-                    <span class="free-badge">Free Preview</span>
-                    }
-                    <span class="duration">{{ formatDuration(lesson.duration) }}</span>
-                  </div>
-                </div>
-                }
-              </div>
-            </div>
-            }
-          </div>
-          }
-        </div>
-      </section>
-
-      Requirements & Target Audience Grid
-      <div class="info-grid">
-        @if (course.requirements.length) {
-        <section class="info-card">
-          <h3>
-            <i class="pi pi-check-circle" style="color: var(--color-primary); margin-right: var(--spacing-sm);"></i>
-            Requirements
-          </h3>
-          <ul>
-            @for (req of course.requirements; track req) {
-            <li>{{ req }}</li>
-            }
-          </ul>
-        </section>
-        }
-
-        @if (course.targetAudience.length) {
-        <section class="info-card">
-          <h3>
-            <i class="pi pi-users" style="color: var(--color-primary); margin-right: var(--spacing-sm);"></i>
-            Who this course is for
-          </h3>
-          <ul>
-            @for (audience of course.targetAudience; track audience) {
-            <li>{{ audience }}</li>
-            }
-          </ul>
-        </section>
-        }
-      </div>
-
-      Course Discussion
-      <div class="info-grid">
-        <app-course-discussion [courseId]="course._id"></app-course-discussion>
-      </div>
-    </div>
-
-    RIGHT COLUMN - Sidebar
-    <div class="sidebar">
-      <div class="action-card glass-effect">
-        
-        Course Image
-        <div class="card-image">
-          <img [src]="course.thumbnail || 'assets/images/course-placeholder.jpg'" [alt]="course.title">
-          @if (!canManageCourse() && course.previewVideo) {
-          <div class="play-overlay" (click)="playPreview()">
-            <i class="pi pi-play-circle"></i>
-          </div>
-          }
-        </div>
-
-        Pricing
-        <div class="card-price">
-          @if (course.isFree) {
-          <span class="free-price">Free</span>
-          } @else {
-          @if (course.discountPrice) {
-          <div class="discount-price">
-            <span class="current">{{ course.discountPrice | currency:course.currency }}</span>
-            <span class="original">{{ course.price | currency:course.currency }}</span>
-            <span class="discount-badge">-{{ calculateDiscount() }}%</span>
-          </div>
-          } @else {
-          <span class="regular-price">{{ course.price | currency:course.currency }}</span>
-          }
-          }
-        </div>
-
-        Action Buttons
-        <div class="card-actions">
-          @if (canManageCourse()) {
-          <button class="action-btn focus-ring" (click)="editCourse()">
-            <i class="pi pi-pencil"></i>
-            Edit Course Details
-          </button>
-
-          <button class="action-btn secondary focus-ring" (click)="editCurriculum()">
-            <i class="pi pi-list"></i>
-            Manage Curriculum
-          </button>
-
-          <button class="action-btn secondary focus-ring" (click)="editPricing()">
-            <i class="pi pi-dollar"></i>
-            Manage Pricing
-          </button>
-
-          <button class="action-btn outline focus-ring" (click)="previewCourse()">
-            <i class="pi pi-eye"></i>
-            Preview as Student
-          </button>
-
-          } @else {
-            @if (isEnrolled()) {
-            <button class="action-btn success focus-ring" (click)="goToLearning()">
-              <i class="pi pi-play-circle"></i>
-              Continue Learning
-            </button>
-            <div class="progress-indicator">
-              <div class="progress-bar">
-                <div class="progress-fill" [style.width.%]="userProgress()"></div>
-              </div>
-              <span class="progress-text">{{ userProgress() }}% Complete</span>
-            </div>
-            } @else {
-            <button class="action-btn focus-ring" (click)="openCheckout()">
-              <i class="pi pi-bolt"></i> 
-              {{ course.isFree ? 'Enroll for Free' : 'Enroll Now' }}
-            </button>
-            <p class="guarantee">
-              <i class="pi pi-shield"></i>
-              30-Day Money-Back Guarantee
-            </p>
-            }
-          }
-        </div>
-
-        Course Includes
-        <div class="course-includes">
-          <h4>This course includes:</h4>
-          <ul>
-            <li>
-              <i class="pi pi-video"></i>
-              <span>{{ formatDuration(actualTotalDuration()) }} on-demand video</span>
-            </li>
-            <li>
-              <i class="pi pi-file"></i>
-              <span>{{ actualTotalLessons() }} lessons</span>
-            </li>
-            <li>
-              <i class="pi pi-mobile"></i>
-              <span>Access on mobile and TV</span>
-            </li>
-            <li>
-              <i class="pi pi-trophy"></i>
-              <span>Certificate of completion</span>
-            </li>
-            <li>
-              <i class="pi pi-infinity"></i>
-              <span>Full lifetime access</span>
-            </li>
-          </ul>
-        </div>
-
-        Tags
-        @if (course.tags.length) {
-        <div class="course-tags">
-          @for (tag of course.tags; track tag) {
-          <span class="tag">#{{ tag }}</span>
-          }
-        </div>
-        }
-      </div>
-    </div>
-  </div>
-  }
-</div>
-
-===== CHECKOUT MODAL =====
-<p-dialog 
-  [(visible)]="showCheckoutModal" 
-  [modal]="true" 
-  [draggable]="false" 
-  [resizable]="false"
-  styleClass="checkout-dialog" 
-  [dismissableMask]="true" 
-  (onHide)="closeCheckout()"
-  [closeOnEscape]="true"
-  [showHeader]="false">
-
-  <div class="checkout-modal">
-    <button class="close-btn focus-ring" (click)="closeCheckout()" aria-label="Close">
-      <i class="pi pi-times"></i>
-    </button>
-
-    <div class="modal-grid">
-      
-      Left Column - Course Info
-      <div class="modal-course-info">
-        <div class="modal-image">
-          <img [src]="course()?.thumbnail || 'assets/images/course-placeholder.jpg'" [alt]="course()?.title">
-        </div>
-
-        <div class="modal-course-details">
-          <h2 class="text-gradient">{{ course()?.title }}</h2>
-          <p class="instructor">
-            <i class="pi pi-user" style="margin-right: var(--spacing-xs);"></i>
-            with {{ course()?.instructor?.firstName }} {{ course()?.instructor?.lastName }}
-          </p>
-
-          <div class="modal-price">
-            @if (course()?.isFree) {
-            <span class="free">
-              <i class="pi pi-gift" style="margin-right: var(--spacing-xs);"></i>
-              Free Access
-            </span>
-            } @else {
-              @if (course()?.discountPrice) {
-              <div>
-                <span class="current">{{ course()?.discountPrice | currency:course()?.currency }}</span>
-                <span class="original">{{ course()?.price | currency:course()?.currency }}</span>
-              </div>
-              } @else {
-              <span class="current">{{ course()?.price | currency:course()?.currency }}</span>
-              }
-            }
-          </div>
-
-          <div class="modal-includes">
-            <h4>This course includes:</h4>
-            <ul>
-              <li><i class="pi pi-check-circle"></i> Full lifetime access</li>
-              <li><i class="pi pi-check-circle"></i> Certificate of completion</li>
-              <li><i class="pi pi-check-circle"></i> 30-day money-back guarantee</li>
-              <li><i class="pi pi-check-circle"></i> Access on all devices</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      Right Column - Payment Form
-      <div class="modal-payment">
-        <h3>Complete Your Enrollment</h3>
-
-        @if (!course()?.isFree) {
-        <form [formGroup]="checkoutForm" class="payment-form" (ngSubmit)="processEnrollment()">
-          
-          <div class="form-group">
-            <label>Cardholder Name</label>
-            <input 
-              type="text" 
-              pInputText 
-              formControlName="cardName" 
-              placeholder="John Doe"
-              [class.error]="checkoutForm.get('cardName')?.invalid && checkoutForm.get('cardName')?.touched"
-              class="focus-ring">
-            @if (checkoutForm.get('cardName')?.invalid && checkoutForm.get('cardName')?.touched) {
-            <small class="error-text">
-              <i class="pi pi-exclamation-circle"></i>
-              Name is required
-            </small>
-            }
-          </div>
-
-          <div class="form-group">
-            <label>Card Number</label>
-            <input 
-              type="text" 
-              pInputText 
-              formControlName="cardNumber" 
-              placeholder="1234 5678 9012 3456" 
-              maxlength="16"
-              [class.error]="checkoutForm.get('cardNumber')?.invalid && checkoutForm.get('cardNumber')?.touched"
-              class="focus-ring">
-            @if (checkoutForm.get('cardNumber')?.invalid && checkoutForm.get('cardNumber')?.touched) {
-            <small class="error-text">
-              <i class="pi pi-exclamation-circle"></i>
-              Valid 16-digit card number required
-            </small>
-            }
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>Expiry Date</label>
-              <input 
-                type="text" 
-                pInputText 
-                formControlName="expiry" 
-                placeholder="MM/YY" 
-                maxlength="5"
-                [class.error]="checkoutForm.get('expiry')?.invalid && checkoutForm.get('expiry')?.touched"
-                class="focus-ring">
-            </div>
-
-            <div class="form-group">
-              <label>CVV</label>
-              <input 
-                type="password" 
-                pInputText 
-                formControlName="cvv" 
-                placeholder="123" 
-                maxlength="4"
-                [class.error]="checkoutForm.get('cvv')?.invalid && checkoutForm.get('cvv')?.touched"
-                class="focus-ring">
-            </div>
-          </div>
-
-          @if (checkoutForm.get('expiry')?.invalid && checkoutForm.get('expiry')?.touched) {
-          <small class="error-text" style="display: block; margin-top: -var(--spacing-sm); margin-bottom: var(--spacing-md);">
-            <i class="pi pi-exclamation-circle"></i>
-            Valid expiry required (MM/YY)
-          </small>
-          }
-        </form>
-        } @else {
-        <div class="free-message">
-          <i class="pi pi-gift"></i>
-          <h4>You're getting this course for free!</h4>
-          <p>No payment required. Click below to start learning instantly.</p>
-        </div>
-        }
-
-        <button 
-          class="checkout-btn focus-ring" 
-          (click)="processEnrollment()"
-          [disabled]="isProcessingPayment() || (!course()?.isFree && checkoutForm.invalid)">
-          
-          @if (isProcessingPayment()) {
-          <i class="pi pi-spin pi-spinner"></i>
-          Processing...
-          } @else {
-          <i class="pi" [ngClass]="course()?.isFree ? 'pi-gift' : 'pi-lock'"></i>
-          {{ course()?.isFree ? 'Enroll for Free' : 'Complete Purchase' }}
-          }
-        </button>
-
-        <p class="secure-badge">
-          <i class="pi pi-shield"></i>
-          <span>Secure SSL encrypted payment</span>
-          <i class="pi pi-verified" style="margin-left: auto; color: var(--color-info);"></i>
-        </p>
-
-        Trust Badges
-        <div style="display: flex; justify-content: center; gap: var(--spacing-md); margin-top: var(--spacing-lg);">
-          <i class="pi pi-cc-visa" style="font-size: var(--font-size-2xl); color: var(--text-tertiary);"></i>
-          <i class="pi pi-cc-mastercard" style="font-size: var(--font-size-2xl); color: var(--text-tertiary);"></i>
-          <i class="pi pi-cc-amex" style="font-size: var(--font-size-2xl); color: var(--text-tertiary);"></i>
-          <i class="pi pi-cc-paypal" style="font-size: var(--font-size-2xl); color: var(--text-tertiary);"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-</p-dialog>
-
-Add this after your checkout modal or at the end of the component
-<p-dialog 
-  [(visible)]="showVideoModal" 
-  [modal]="true" 
-  [draggable]="false" 
-  [resizable]="false"
-  styleClass="video-dialog" 
-  [dismissableMask]="true" 
-  (onHide)="closeVideoModal()"
-  [closeOnEscape]="true"
-  [showHeader]="false">
-
-  <div class="video-modal">
-    <button class="close-btn focus-ring" (click)="closeVideoModal()" aria-label="Close">
-      <i class="pi pi-times"></i>
-    </button>
-    
-    <div class="video-container">
-      @if (videoType() === 'youtube') {
-        <iframe 
-          [src]="'https://www.youtube.com/embed/' + videoId() + '?autoplay=1'" 
-          frameborder="0" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-          allowfullscreen>
-        </iframe>
-      }
-      @else if (videoType() === 'vimeo') {
-        <iframe 
-          [src]="'https://player.vimeo.com/video/' + videoId() + '?autoplay=1'" 
-          frameborder="0" 
-          allow="autoplay; fullscreen; picture-in-picture" 
-          allowfullscreen>
-        </iframe>
-      }
-      @else if (videoType() === 'direct') {
-        <video controls autoplay>
-          <source [src]="videoId()" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-      }
-    </div>
-  </div>
-</p-dialog> -->
