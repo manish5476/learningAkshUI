@@ -15,10 +15,9 @@ import { CategoryService } from '../../../../core/services/category.service';
   standalone: true,
   imports: [
     DatePipe,
-    NgClass,
     ButtonModule,
     TagModule,
-    CardModule // <-- Added to imports
+    CardModule
   ],
   templateUrl: './category-detail.component.html',
   styleUrls: ['./category-detail.component.scss']

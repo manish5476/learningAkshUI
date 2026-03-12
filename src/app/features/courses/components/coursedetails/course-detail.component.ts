@@ -22,6 +22,8 @@ import { CourseService } from '../../../../core/services/course.service';
 import { EnrollmentService } from '../../../../core/services/enrollment.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CourseDiscussionComponent } from "../course-discussion/course-discussion.component";
+import { Card } from "primeng/card";
+import { ConfirmDialog } from "primeng/confirmdialog";
 
 interface SectionWithUI extends Section {
   expanded?: boolean;
@@ -36,7 +38,6 @@ interface SectionWithUI extends Section {
     RouterModule,
     ReactiveFormsModule,
     CurrencyPipe,
-    TitleCasePipe,
     NgClass,
     DialogModule,
     InputTextModule,
@@ -47,8 +48,9 @@ interface SectionWithUI extends Section {
     AccordionModule,
     DividerModule,
     SkeletonModule,
-    CourseDiscussionComponent
-  ],
+    CourseDiscussionComponent,
+    Card,
+],
   providers: [MessageService],
   templateUrl: './course-detail.component.html',
   styleUrls: ['./course-detail.component.scss']
