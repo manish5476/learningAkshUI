@@ -55,6 +55,4 @@ export class MockTestService {
   delete(id: string): Observable<ApiResponse<null>> {
     return this.baseApi.delete<null>(`${this.endpoint}/${id}`, { showLoader: true });
   }
-
-
 }

@@ -354,7 +354,6 @@ export class CourseDetailComponent implements OnInit {
   editCourse(): void {
     const courseId = this.course()?._id;
     if (courseId) {
-      // Corrected path: /instructor/courses/:id/edit
       this.router.navigate(['/instructor/courses', courseId, 'edit']);
     }
   }
@@ -372,7 +371,6 @@ export class CourseDetailComponent implements OnInit {
   editCurriculum(): void {
     const courseId = this.course()?._id;
     if (courseId) {
-      // Corrected path: /instructor/courses/:id/curriculum
       this.router.navigate(['/instructor/courses', courseId, 'curriculum']);
     }
   }
@@ -389,11 +387,6 @@ export class CourseDetailComponent implements OnInit {
     }
   }
 
-
-  /**
- * Plays the course preview video
- * Opens a modal or navigates to the preview player
- */
   playPreview(): void {
     const course = this.course();
 
@@ -401,7 +394,6 @@ export class CourseDetailComponent implements OnInit {
       return;
     }
 
-    // If it's a YouTube/Vimeo URL, extract ID
     if (this.isYouTubeUrl(course.previewVideo)) {
       const videoId = this.extractYouTubeId(course.previewVideo);
       this.openVideoModal('youtube', videoId);
@@ -411,14 +403,10 @@ export class CourseDetailComponent implements OnInit {
       this.openVideoModal('vimeo', videoId);
     }
     else {
-      // Assume it's a direct video file or local path
       this.openVideoModal('direct', course.previewVideo);
     }
   }
 
-  /**
-   * Checks if URL is a YouTube link
-   */
   private isYouTubeUrl(url: string): boolean {
     return url.includes('youtube.com') || url.includes('youtu.be');
   }

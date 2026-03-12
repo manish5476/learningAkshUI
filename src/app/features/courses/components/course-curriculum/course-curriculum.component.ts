@@ -93,9 +93,7 @@ export class CourseCurriculumComponent implements OnInit {
 
  loadData(): void {
     this.loading.set(true);
-    
-    // 🔥 CHANGED THIS LINE to use the instructor-specific fetch method
-    this.courseService.getInstructorCourseById(this.courseId()).subscribe({
+        this.courseService.getInstructorCourseById(this.courseId()).subscribe({
       next: (res: any) => {
         const courseData = res.data?.data || res.data?.course || res.data; 
         this.course.set(courseData);

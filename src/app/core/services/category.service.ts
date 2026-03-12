@@ -64,15 +64,5 @@ export class CategoryService {
   deleteCategory(id: string): Observable<ApiResponse<null>> {
     return this.baseApi.delete<null>(`${this.endpoint}/${id}`, { showLoader: true });
   }
-
-  // remaining
-  // // 
-  // restoreCategory(id: string): Observable<ApiResponse<Category>> {
-  //   return this.baseApi.patch<Category>(`${this.endpoint}/${id}/restore`, {}, { showLoader: true });
-  // }
-
-  // bulkUpdateCategory(updates: Array<{ id: string; order?: number; parentCategory?: string | null }>): Observable<ApiResponse<any>> {
-  //   return this.baseApi.patch(`${this.endpoint}/bulk-update`, { ids: updates.map(u => u.id), updates }, { showLoader: true });
-  // }
 }
 
