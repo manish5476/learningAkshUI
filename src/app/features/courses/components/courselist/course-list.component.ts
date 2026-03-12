@@ -133,7 +133,7 @@ export class CourseListComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response: any) => {
-          this.courses.set(response?.data?.data || []);
+          this.courses.set(response?.data || []);
           this.pagination.set(response?.pagination);
           this.loading.set(false);
         },
