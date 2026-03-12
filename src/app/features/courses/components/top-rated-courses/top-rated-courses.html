@@ -1,0 +1,88 @@
+<section class="top-rated-section">
+
+  <!-- Section Header -->
+  @if (showHeader) {
+  <div class="section-header">
+    <div class="header-content">
+      <h2 class="section-title gradient-text">{{ title }}</h2>
+      @if (subtitle) {
+      <p class="section-subtitle">{{ subtitle }}</p>
+      }
+    </div>
+
+    @if (hasCourses()) {
+    <a [routerLink]="viewAllLink" class="view-all-link" pTooltip="View all courses">
+      <span>View All</span>
+      <i class="pi pi-arrow-right"></i>
+    </a>
+    }
+  </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+  <div class="error-container">
+    <div class="error-content">
+      <i class="pi pi-exclamation-circle error-icon"></i>
+      <p class="error-message">{{ error() }}</p>
+      <button class="retry-btn" (click)="retry()">
+        <i class="pi pi-refresh"></i>
+        Try Again
+      </button>
+    </div>
+  </div>
+  }
+
+  <!-- Loading State with Skeletons -->
+  @else if (isLoading()) {
+  <div class="courses-grid" [ngClass]="gridClass()">
+    @for (item of skeletonArray; track $index) {
+    <div class="course-skeleton">
+      <p-skeleton height="180px" styleClass="skeleton-thumbnail"></p-skeleton>
+      <div class="skeleton-content">
+        <p-skeleton height="24px" width="80%" styleClass="skeleton-title"></p-skeleton>
+        <p-skeleton height="20px" width="60%" styleClass="skeleton-subtitle"></p-skeleton>
+        <div class="skeleton-footer">
+          <p-skeleton height="30px" width="100px" styleClass="skeleton-price"></p-skeleton>
+          <p-skeleton height="30px" width="100px" styleClass="skeleton-button"></p-skeleton>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+  }
+
+  <!-- Empty State -->
+  @else if (!hasCourses()) {
+  <div class="empty-container">
+    <div class="empty-content">
+      <i class="pi pi-book empty-icon"></i>
+      <h3>No Top Rated Courses Available</h3>
+      <p class="text-secondary">Check back later for top-rated courses</p>
+    </div>
+  </div>
+  }
+
+  <!-- Courses Grid -->
+  @else {
+  <!-- Desktop/Tablet Grid View -->
+  <div class="courses-grid" [ngClass]="gridClass()">
+    @for (course of courses(); track trackByCourseId($index, course)) {
+    <app-top-rated-course-card [course]="course" class="course-card-item">
+    </app-top-rated-course-card>
+    }
+  </div>
+
+  <!-- Mobile Carousel View (visible only on small screens) -->
+  <div class="mobile-carousel">
+    <p-carousel [value]="courses()" [numVisible]="1" [numScroll]="1" [responsiveOptions]="carouselResponsiveOptions"
+      [autoplayInterval]="5000" [circular]="true" [showIndicators]="true" [showNavigators]="true">
+      <ng-template let-course pTemplate="item">
+        <div class="carousel-item">
+          <app-top-rated-course-card [course]="course"></app-top-rated-course-card>
+        </div>
+      </ng-template>
+    </p-carousel>
+  </div>
+  }
+</section>

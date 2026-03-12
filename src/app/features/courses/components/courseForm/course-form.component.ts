@@ -19,11 +19,12 @@ import { CategoryService } from '../../../../core/services/category.service';
 import { CourseService } from '../../../../core/services/course.service';
 import { SectionService } from '../../../../core/services/section.service';
 import { LessonService } from '../../../../core/services/lesson.service';
+import { Card } from "primeng/card";
 
 @Component({
   selector: 'app-course-form',
   standalone: true,
-  imports: [FormsModule, CommonModule, ReactiveFormsModule, SelectModule, InputTextModule, InputNumberModule, TextareaModule, CheckboxModule, ButtonModule, TooltipModule],
+  imports: [FormsModule, CommonModule, ReactiveFormsModule, SelectModule, InputTextModule, InputNumberModule, TextareaModule, CheckboxModule, ButtonModule, TooltipModule, Card],
   templateUrl: './course-form.component.html',
   styleUrls: ['./course-form.component.scss']
 })
@@ -579,79 +580,30 @@ export class CourseFormComponent implements OnInit {
     lessons.removeAt(lIndex);
     lessons.controls.forEach((c, i) => c.get('order')?.setValue(i));
   }
+
+  // Add these signals at the top with your other signals
+thumbnailMode = signal<'upload' | 'url'>('upload');
+thumbnailUrlPreview = signal<string | null>(null);
+
+// Add these methods
+setThumbnailMode(mode: 'upload' | 'url'): void {
+  this.thumbnailMode.set(mode);
+  if (mode === 'url') {
+    // Clear file input preview when switching to URL mode
+    this.thumbnailPreview.set(null);
+  } else {
+    // Clear URL preview when switching to upload mode
+    this.thumbnailUrlPreview.set(null);
+    this.courseForm.patchValue({ thumbnail: '' });
+  }
 }
-// // ==========================================
-// // SECTION DELETION
-// // ==========================================
-// removeSection(index: number): void {
-//   const sectionGroup = this.sections.at(index) as FormGroup;
-//   const sectionId = sectionGroup.get('_id')?.value;
-//   const courseId = this.route.snapshot.paramMap.get('id') || this.courseId();
 
-//   if (sectionId && courseId) {
-//     if (confirm('Are you sure you want to permanently delete this section and all its lessons?')) {
-//       this.isLoading.set(true);
-
-//       this.sectionService.deleteSection(courseId, sectionId)
-//         .pipe(takeUntilDestroyed(this.destroyRef))
-//         .subscribe({
-//           next: () => {
-//             this.executeLocalSectionRemoval(index);
-//             this.loadCourse(this.routeId);
-//             this.isLoading.set(false);
-//           },
-//           error: (err: any) => {
-//             if (err.status === 404 || err.status === 200 || err.error?.message === 'Section not found' || err.message.includes('Http failure')) {
-//               this.executeLocalSectionRemoval(index);
-//             } else {
-//               console.error('Failed to delete section', err);
-//             }
-//             this.isLoading.set(false);
-//           }
-//         });
-//     }
-//   } else {
-//     // It was only created locally, just remove it from UI
-//     this.executeLocalSectionRemoval(index);
-//   }
-// }
-
-
-// // ==========================================
-// // LESSON DELETION
-// // ==========================================
-// removeLesson(sIndex: number, lIndex: number): void {
-//   const lessons = this.getLessons(sIndex);
-//   const lessonGroup = lessons.at(lIndex) as FormGroup;
-
-//   const lessonId = lessonGroup.get('_id')?.value;
-//   const sectionId = this.sections.at(sIndex).get('_id')?.value;
-//   const courseId = this.route.snapshot.paramMap.get('id') || this.courseId();
-
-//   if (lessonId && sectionId && courseId) {
-//     if (confirm('Permanently delete this lesson?')) {
-//       this.isLoading.set(true);
-
-//       this.lessonService.delete(courseId, sectionId, lessonId)
-//         .pipe(takeUntilDestroyed(this.destroyRef))
-//         .subscribe({
-//           next: () => {
-//             this.executeLocalLessonRemoval(lessons, lIndex);
-//             this.loadCourse(this.routeId);
-//             this.isLoading.set(false);
-//           },
-//           error: (err: any) => {
-//             // Handle ghost errors for lessons too
-//             if (err.status === 404 || err.error?.message?.includes('not found') || err.message.includes('Http failure')) {
-//               this.executeLocalLessonRemoval(lessons, lIndex);
-//             } else {
-//               console.error('Failed to delete lesson', err);
-//             }
-//             this.isLoading.set(false);
-//           }
-//         });
-//     }
-//   } else {
-//     this.executeLocalLessonRemoval(lessons, lIndex);
-//   }
-// }
+onThumbnailUrlChange(event: Event): void {
+  const url = (event.target as HTMLInputElement).value;
+  if (url && url.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+    this.thumbnailUrlPreview.set(url);
+  } else {
+    this.thumbnailUrlPreview.set(null);
+  }
+}
+}

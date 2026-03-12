@@ -8,119 +8,119 @@
 // ==========================================================================
 // PRIME NG OVERRIDES & HOST
 // ==========================================================================
-:host ::ng-deep {
-  .p-button { 
-    border-radius: var(--ui-border-radius-lg); 
-    font-family: var(--font-heading); 
-    font-weight: var(--font-weight-semibold); 
-    transition: var(--transition-base);
+// :host ::ng-deep {
+//   .p-button { 
+//     border-radius: var(--ui-border-radius-lg); 
+//     font-family: var(--font-heading); 
+//     font-weight: var(--font-weight-semibold); 
+//     transition: var(--transition-base);
     
-    // Responsive padding
-    padding: var(--spacing-sm) var(--spacing-lg);
+//     // Responsive padding
+//     padding: var(--spacing-sm) var(--spacing-lg);
     
-    @include md { 
-      padding: var(--spacing-md) var(--spacing-xl); 
-    }
+//     @include md { 
+//       padding: var(--spacing-md) var(--spacing-xl); 
+//     }
     
-    &.p-button-lg { 
-      padding: var(--spacing-md) var(--spacing-xl); 
-      font-size: var(--font-size-base);
+//     &.p-button-lg { 
+//       padding: var(--spacing-md) var(--spacing-xl); 
+//       font-size: var(--font-size-base);
       
-      @include md { 
-        padding: var(--spacing-lg) var(--spacing-3xl); 
-        font-size: var(--font-size-lg); 
-      }
-    }
+//       @include md { 
+//         padding: var(--spacing-lg) var(--spacing-3xl); 
+//         font-size: var(--font-size-lg); 
+//       }
+//     }
     
-    &.p-button-rounded {
-      border-radius: 9999px;
-    }
-  }
+//     &.p-button-rounded {
+//       border-radius: 9999px;
+//     }
+//   }
   
-  // Forms - Mobile optimized
-  .p-inputtext, .p-textarea, .p-inputnumber-input, .p-select {
-    background: var(--bg-primary);
-    border: var(--ui-border-width-lg) solid var(--border-primary);
-    border-radius: var(--ui-border-radius-lg);
-    color: var(--text-primary);
-    font-family: var(--font-body);
-    font-size: var(--font-size-base); // Larger on mobile
-    padding: var(--spacing-md) var(--spacing-lg);
-    transition: var(--transition-base);
-    width: 100%;
+//   // Forms - Mobile optimized
+//   .p-inputtext, .p-textarea, .p-inputnumber-input, .p-select {
+//     background: var(--bg-primary);
+//     border: var(--ui-border-width-lg) solid var(--border-primary);
+//     border-radius: var(--ui-border-radius-lg);
+//     color: var(--text-primary);
+//     font-family: var(--font-body);
+//     font-size: var(--font-size-base); // Larger on mobile
+//     padding: var(--spacing-md) var(--spacing-lg);
+//     transition: var(--transition-base);
+//     width: 100%;
 
-    @include md { 
-      font-size: var(--font-size-md); 
-      padding: var(--spacing-lg) var(--spacing-xl);
-    }
+//     @include md { 
+//       font-size: var(--font-size-md); 
+//       padding: var(--spacing-lg) var(--spacing-xl);
+//     }
 
-    &:enabled:hover { border-color: var(--border-secondary); }
-    &:enabled:focus, &.p-focus { 
-      border-color: var(--color-primary); 
-      box-shadow: 0 0 0 3px var(--color-primary-bg); 
-      outline: none; 
-    }
-  }
+//     &:enabled:hover { border-color: var(--border-secondary); }
+//     &:enabled:focus, &.p-focus { 
+//       border-color: var(--color-primary); 
+//       box-shadow: 0 0 0 3px var(--color-primary-bg); 
+//       outline: none; 
+//     }
+//   }
   
-  // Textarea specific
-  .p-textarea {
-    resize: vertical;
-    min-height: 120px;
+//   // Textarea specific
+//   .p-textarea {
+//     resize: vertical;
+//     min-height: 120px;
     
-    @include md {
-      min-height: 160px;
-    }
-  }
+//     @include md {
+//       min-height: 160px;
+//     }
+//   }
 
-  .error-border, .ng-invalid.ng-touched {
-    border-color: var(--color-error) !important;
-    &:focus { 
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-error) 20%, transparent) !important; 
-    }
-  }
+//   .error-border, .ng-invalid.ng-touched {
+//     border-color: var(--color-error) !important;
+//     &:focus { 
+//       box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-error) 20%, transparent) !important; 
+//     }
+//   }
 
-  .p-checkbox-box {
-    border: var(--ui-border-width-lg) solid var(--border-secondary);
-    background: var(--bg-primary);
-    width: 24px; 
-    height: 24px;
+//   .p-checkbox-box {
+//     border: var(--ui-border-width-lg) solid var(--border-secondary);
+//     background: var(--bg-primary);
+//     width: 24px; 
+//     height: 24px;
     
-    @include md {
-      width: 28px;
-      height: 28px;
-    }
+//     @include md {
+//       width: 28px;
+//       height: 28px;
+//     }
     
-    &.p-highlight { 
-      border-color: var(--color-primary); 
-      background: var(--color-primary); 
-    }
-  }
+//     &.p-highlight { 
+//       border-color: var(--color-primary); 
+//       background: var(--color-primary); 
+//     }
+//   }
   
-  .p-select {
-    .p-select-label {
-      padding: var(--spacing-md) var(--spacing-lg);
+//   .p-select {
+//     .p-select-label {
+//       padding: var(--spacing-md) var(--spacing-lg);
       
-      @include md {
-        padding: var(--spacing-lg) var(--spacing-xl);
-      }
-    }
-  }
+//       @include md {
+//         padding: var(--spacing-lg) var(--spacing-xl);
+//       }
+//     }
+//   }
   
-  .p-inputnumber {
-    width: 100%;
+//   .p-inputnumber {
+//     width: 100%;
     
-    .p-inputnumber-input {
-      width: 100%;
-    }
-  }
+//     .p-inputnumber-input {
+//       width: 100%;
+//     }
+//   }
 
-  // File Upload Overlay
-  .upload-preview:hover .overlay-actions { 
-    @include lg {
-      opacity: 1; 
-    }
-  }
-}
+//   // File Upload Overlay
+//   .upload-preview:hover .overlay-actions { 
+//     @include lg {
+//       opacity: 1; 
+//     }
+//   }
+// }
 
 // ==========================================================================
 // UTILITY CLASSES (Enhanced)
@@ -602,19 +602,19 @@
     .bg-warning-bg { background-color: var(--color-warning-bg); }
 
     // Strip out PrimeNG's default borders for inner inputs
-    ::ng-deep .p-inputtext.border-transparent {
-      border-color: transparent !important;
-      box-shadow: none !important;
-      &:enabled:focus {
-        border-color: transparent !important;
-      }
-    }
+    // ::ng-deep .p-inputtext.border-transparent {
+    //   border-color: transparent !important;
+    //   box-shadow: none !important;
+    //   &:enabled:focus {
+    //     border-color: transparent !important;
+    //   }
+    // }
     
-    ::ng-deep .p-select.border-transparent {
-      border-color: transparent !important;
-      box-shadow: none !important;
-      .p-select-label { padding: 0.5rem; }
-    }
+    // ::ng-deep .p-select.border-transparent {
+    //   border-color: transparent !important;
+    //   box-shadow: none !important;
+    //   .p-select-label { padding: 0.5rem; }
+    // }
   }
 
   .group-hover-scale {
@@ -825,23 +825,23 @@
     }
 
     // Strip PrimeNG borders for inner inputs to keep it flat
-    ::ng-deep .p-inputtext.border-transparent {
-      border-color: transparent !important;
-      box-shadow: none !important;
-      &:enabled:focus { border-color: transparent !important; }
-    }
+    // ::ng-deep .p-inputtext.border-transparent {
+    //   border-color: transparent !important;
+    //   box-shadow: none !important;
+    //   &:enabled:focus { border-color: transparent !important; }
+    // }
     
     // Make the PrimeNG dropdown sleek and short
-    ::ng-deep .p-select.border-transparent {
-      border-color: transparent !important;
-      box-shadow: none !important;
-      background: transparent !important;
-      .p-select-label { 
-        padding: 0.25rem 0.5rem; 
-        font-weight: var(--font-weight-medium); 
-      }
-      &:hover { background: var(--bg-ternary) !important; }
-    }
+    // ::ng-deep .p-select.border-transparent {
+    //   border-color: transparent !important;
+    //   box-shadow: none !important;
+    //   background: transparent !important;
+    //   .p-select-label { 
+    //     padding: 0.25rem 0.5rem; 
+    //     font-weight: var(--font-weight-medium); 
+    //   }
+    //   &:hover { background: var(--bg-ternary) !important; }
+    // }
 
     // Custom pure HTML/CSS Duration Input
     .duration-input {
@@ -933,22 +933,22 @@
     }
 
     // Strip PrimeNG borders so inputs feel integrated into the row
-    ::ng-deep .p-inputtext.border-transparent {
-      border-color: transparent !important;
-      box-shadow: none !important;
-      &:enabled:focus { border-color: transparent !important; }
-    }
+    // ::ng-deep .p-inputtext.border-transparent {
+    //   border-color: transparent !important;
+    //   box-shadow: none !important;
+    //   &:enabled:focus { border-color: transparent !important; }
+    // }
     
-    ::ng-deep .p-select.border-transparent {
-      border-color: transparent !important;
-      box-shadow: none !important;
-      background: transparent !important;
-      .p-select-label { 
-        padding: 0.35rem 0.5rem; 
-        font-weight: var(--font-weight-medium); 
-      }
-      &:hover { background: var(--bg-ternary) !important; }
-    }
+    // ::ng-deep .p-select.border-transparent {
+    //   border-color: transparent !important;
+    //   box-shadow: none !important;
+    //   background: transparent !important;
+    //   .p-select-label { 
+    //     padding: 0.35rem 0.5rem; 
+    //     font-weight: var(--font-weight-medium); 
+    //   }
+    //   &:hover { background: var(--bg-ternary) !important; }
+    // }
 
     // Custom Duration Input
     .duration-input {
@@ -1047,18 +1047,174 @@
         height: 100%;
 
         // Reduce checkbox size slightly so it fits the row better
-        ::ng-deep .p-checkbox {
-          width: 20px;
-          height: 20px;
-          .p-checkbox-box {
-            width: 20px;
-            height: 20px;
-            border-radius: var(--ui-border-radius-sm);
-          }
-        }
+        // ::ng-deep .p-checkbox {
+        //   width: 20px;
+        //   height: 20px;
+        //   .p-checkbox-box {
+        //     width: 20px;
+        //     height: 20px;
+        //     border-radius: var(--ui-border-radius-sm);
+        //   }
+        // }
 
         label {
           padding-top: 1px; // Optical vertical alignment
         }
       }
     }
+// ==========================================================================
+// STEP CARD (p-card customization)
+// ==========================================================================
+// ::ng-deep {
+//   .step-card {
+//     margin-bottom: var(--spacing-2xl);
+    
+//     @include md {
+//       margin-bottom: var(--spacing-4xl);
+//     }
+    
+//     .p-card {
+//       background: var(--glass-bg-c);
+//       backdrop-filter: blur(var(--glass-blur-c));
+//       -webkit-backdrop-filter: blur(var(--glass-blur-c));
+//       border: var(--ui-border-width) solid var(--glass-border-c);
+//       border-radius: var(--ui-border-radius-xl);
+//       box-shadow: var(--shadow-md);
+      
+//       .p-card-title {
+//         padding: var(--spacing-xl) var(--spacing-xl) 0;
+        
+//         @include md {
+//           padding: var(--spacing-2xl) var(--spacing-2xl) 0;
+//         }
+//       }
+      
+//       .p-card-content {
+//         padding: var(--spacing-xl);
+        
+//         @include md {
+//           padding: var(--spacing-2xl);
+//         }
+        
+//         @include lg {
+//           padding: var(--spacing-4xl);
+//         }
+//       }
+//     }
+//   }
+// }
+
+// ==========================================================================
+// THUMBNAIL TOGGLE SWITCH
+// ==========================================================================
+.toggle-switch {
+  background: var(--bg-ternary);
+  border: var(--ui-border-width) solid var(--border-primary);
+  
+  .toggle-option {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    
+    &:hover {
+      color: var(--text-primary);
+      background: var(--bg-hover);
+    }
+    
+    &.active {
+      background: var(--color-primary);
+      color: white;
+      box-shadow: var(--shadow-sm);
+      
+      i {
+        color: white;
+      }
+    }
+    
+    i {
+      font-size: var(--font-size-sm);
+    }
+  }
+}
+
+// ==========================================================================
+// URL INPUT WITH PREVIEW
+// ==========================================================================
+.url-input-wrapper {
+  .url-preview-thumbnail {
+    border: var(--ui-border-width) solid var(--border-primary);
+    background: var(--bg-ternary);
+    transition: var(--transition-base);
+    
+    &:hover {
+      border-color: var(--color-primary);
+      transform: scale(1.02);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    img {
+      border-radius: inherit;
+    }
+  }
+}
+
+// ==========================================================================
+// UPLOAD AREA (Enhanced)
+// ==========================================================================
+.upload-area {
+  min-height: 200px;
+  padding: var(--spacing-xl);
+  transition: var(--transition-base);
+  position: relative;
+  background: var(--bg-ternary);
+  border: 2px dashed var(--border-primary);
+  
+  @include md {
+    min-height: 250px;
+    padding: var(--spacing-2xl);
+  }
+  
+  &:hover {
+    border-color: var(--color-primary);
+    background: color-mix(in srgb, var(--color-primary) 5%, transparent);
+  }
+  
+  i {
+    font-size: var(--font-size-3xl);
+    
+    @include md {
+      font-size: var(--font-size-4xl);
+    }
+  }
+  
+  .upload-preview {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    
+    &:hover img {
+      transform: scale(1.02);
+    }
+    
+    .overlay-actions {
+      background: rgba(0, 0, 0, 0.6);
+      transition: var(--transition-base);
+      
+      @include lg {
+        opacity: 0;
+      }
+      
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+}

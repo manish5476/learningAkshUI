@@ -1,0 +1,1923 @@
+@use '../../../../../styles/mixins' as *;
+
+/* ==========================================================================
+   TOP RATED COURSES SECTION
+   ========================================================================== */
+.top-rated-section {
+  width: 100%;
+  padding: var(--spacing-4xl) 0;
+  
+  @include md-down {
+    padding: var(--spacing-2xl) 0;
+  }
+}
+
+/* ==========================================================================
+   SECTION HEADER
+   ========================================================================== */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: var(--spacing-3xl);
+  
+  @include md-down {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-lg);
+  }
+  
+  .header-content {
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: var(--font-size-4xl);
+      font-weight: var(--font-weight-bold);
+      margin: 0 0 var(--spacing-xs) 0;
+      line-height: var(--line-height-tight);
+      
+      @include lg-down {
+        font-size: var(--font-size-3xl);
+      }
+      
+      @include sm-down {
+        font-size: var(--font-size-2xl);
+      }
+    }
+    
+    .gradient-text {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .section-subtitle {
+      font-size: var(--font-size-lg);
+      color: var(--text-secondary);
+      margin: 0;
+      
+      @include md-down {
+        font-size: var(--font-size-base);
+      }
+      
+      @include sm-down {
+        font-size: var(--font-size-sm);
+      }
+    }
+  }
+  
+  .view-all-link {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: var(--glass-bg-c);
+    backdrop-filter: blur(var(--glass-blur-c));
+    -webkit-backdrop-filter: blur(var(--glass-blur-c));
+    border: var(--ui-border-width) solid var(--glass-border-c);
+    border-radius: var(--ui-border-radius-lg);
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    transition: var(--transition-base);
+    
+    i {
+      font-size: var(--font-size-sm);
+      transition: transform var(--transition-fast);
+    }
+    
+    &:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-secondary);
+      
+      i {
+        transform: translateX(4px);
+      }
+    }
+    
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+    }
+    
+    @include sm-down {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+/* ==========================================================================
+   COURSES GRID
+   ========================================================================== */
+.courses-grid {
+  display: grid;
+  gap: var(--spacing-2xl);
+  
+  // Grid column variations
+  &.grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+    
+    // Use lg-down instead of xl-down (lg-down is max-width: xl - 0.02px)
+    @include lg-down {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    
+    @include md-down {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    @include sm-down {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  &.grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+    
+    @include md-down {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    @include sm-down {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  &.grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+    
+    @include sm-down {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  &.grid-1 {
+    grid-template-columns: 1fr;
+  }
+  
+  // Gap adjustments - use available mixins
+  @include lg-down {
+    gap: var(--spacing-xl);
+  }
+  
+  @include md-down {
+    gap: var(--spacing-lg);
+  }
+  
+  @include sm-down {
+    gap: var(--spacing-md);
+  }
+}
+
+.course-card-item {
+  display: block;
+  height: 100%;
+  animation: fadeIn 0.6s ease-out;
+  animation-fill-mode: both;
+  
+  @for $i from 1 through 8 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.1}s;
+    }
+  }
+}
+
+/* ==========================================================================
+   SKELETON LOADING
+   ========================================================================== */
+.course-skeleton {
+  background: var(--glass-bg-c);
+  backdrop-filter: blur(var(--glass-blur-c));
+  -webkit-backdrop-filter: blur(var(--glass-blur-c));
+  border: var(--ui-border-width) solid var(--glass-border-c);
+  border-radius: var(--ui-border-radius-xl);
+  overflow: hidden;
+  
+  .skeleton-thumbnail {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 0;
+  }
+  
+  .skeleton-content {
+    padding: var(--spacing-lg);
+    
+    @include md-down {
+      padding: var(--spacing-md);
+    }
+    
+    @include sm-down {
+      padding: var(--spacing-sm);
+    }
+    
+    .skeleton-title {
+      margin-bottom: var(--spacing-md);
+      
+      @include sm-down {
+        margin-bottom: var(--spacing-sm);
+      }
+    }
+    
+    .skeleton-subtitle {
+      margin-bottom: var(--spacing-lg);
+      
+      @include md-down {
+        margin-bottom: var(--spacing-md);
+      }
+      
+      @include sm-down {
+        margin-bottom: var(--spacing-sm);
+      }
+    }
+    
+    .skeleton-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+}
+
+::ng-deep {
+  .p-skeleton {
+    background: var(--bg-ternary);
+    
+    &:after {
+      background: linear-gradient(90deg, transparent, var(--bg-hover), transparent);
+    }
+  }
+}
+
+/* ==========================================================================
+   ERROR STATE
+   ========================================================================== */
+.error-container {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  @include sm-down {
+    min-height: 200px;
+  }
+  
+  .error-content {
+    text-align: center;
+    
+    .error-icon {
+      font-size: var(--font-size-5xl);
+      color: var(--color-error);
+      margin-bottom: var(--spacing-lg);
+      
+      @include lg-down {
+        font-size: var(--font-size-4xl);
+      }
+      
+      @include sm-down {
+        font-size: var(--font-size-3xl);
+        margin-bottom: var(--spacing-md);
+      }
+    }
+    
+    .error-message {
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-lg);
+      font-size: var(--font-size-md);
+      
+      @include sm-down {
+        font-size: var(--font-size-sm);
+        margin-bottom: var(--spacing-md);
+      }
+    }
+    
+    .retry-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-xl);
+      background: var(--glass-bg-c);
+      backdrop-filter: blur(var(--glass-blur-c));
+      -webkit-backdrop-filter: blur(var(--glass-blur-c));
+      border: var(--ui-border-width) solid var(--glass-border-c);
+      border-radius: var(--ui-border-radius-lg);
+      color: var(--text-primary);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      cursor: pointer;
+      transition: var(--transition-base);
+      
+      @include sm-down {
+        padding: var(--spacing-xs) var(--spacing-lg);
+        font-size: var(--font-size-xs);
+      }
+      
+      &:hover {
+        background: var(--bg-hover);
+        border-color: var(--border-secondary);
+      }
+      
+      &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+      }
+    }
+  }
+}
+
+/* ==========================================================================
+   EMPTY STATE
+   ========================================================================== */
+.empty-container {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  @include sm-down {
+    min-height: 200px;
+  }
+  
+  .empty-content {
+    text-align: center;
+    
+    .empty-icon {
+      font-size: var(--font-size-5xl);
+      color: var(--text-tertiary);
+      margin-bottom: var(--spacing-lg);
+      
+      @include lg-down {
+        font-size: var(--font-size-4xl);
+      }
+      
+      @include sm-down {
+        font-size: var(--font-size-3xl);
+        margin-bottom: var(--spacing-md);
+      }
+    }
+    
+    h3 {
+      font-family: var(--font-heading);
+      font-size: var(--font-size-xl);
+      color: var(--text-primary);
+      margin: 0 0 var(--spacing-sm) 0;
+      
+      @include lg-down {
+        font-size: var(--font-size-lg);
+      }
+      
+      @include sm-down {
+        font-size: var(--font-size-base);
+      }
+    }
+    
+    .text-secondary {
+      color: var(--text-secondary);
+      font-size: var(--font-size-md);
+      margin: 0;
+      
+      @include sm-down {
+        font-size: var(--font-size-sm);
+      }
+    }
+  }
+}
+
+/* ==========================================================================
+   MOBILE CAROUSEL
+   ========================================================================== */
+.mobile-carousel {
+  display: none;
+  
+  @include sm-down {
+    display: block;
+    
+    .carousel-item {
+      padding: var(--spacing-xs);
+    }
+    
+    ::ng-deep {
+      .p-carousel {
+        .p-carousel-container {
+          padding: var(--spacing-xs) 0;
+        }
+        
+        .p-carousel-items-content {
+          overflow: visible;
+        }
+        
+        .p-carousel-item {
+          padding: var(--spacing-xs);
+        }
+        
+        .p-carousel-indicators {
+          margin-top: var(--spacing-lg);
+          gap: var(--spacing-xs);
+          
+          .p-carousel-indicator {
+            button {
+              background: var(--bg-ternary);
+              border: var(--ui-border-width) solid var(--border-primary);
+              width: 8px;
+              height: 8px;
+              border-radius: 50%;
+              transition: var(--transition-base);
+              padding: 0;
+            }
+            
+            &.p-highlight button {
+              background: var(--color-primary);
+              border-color: var(--color-primary);
+              width: 24px;
+              border-radius: 999px;
+            }
+          }
+        }
+        
+        .p-carousel-prev, .p-carousel-next {
+          background: var(--glass-bg-c);
+          backdrop-filter: blur(var(--glass-blur-c));
+          border: var(--ui-border-width) solid var(--glass-border-c);
+          border-radius: 50%;
+          color: var(--text-primary);
+          width: 36px;
+          height: 36px;
+          transition: var(--transition-base);
+          
+          &:hover {
+            background: var(--bg-hover);
+            border-color: var(--border-secondary);
+          }
+          
+          &:focus {
+            box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+          }
+        }
+      }
+    }
+  }
+}
+
+/* ==========================================================================
+   ANIMATIONS
+   ========================================================================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}// @use '../../../../../styles/mixins' as *;
+
+// /* ==========================================================================
+//    TOP RATED COURSES SECTION
+//    ========================================================================== */
+// .top-rated-section {
+//   width: 100%;
+//   padding: var(--spacing-4xl) 0;
+  
+//   @include md-down {
+//     padding: var(--spacing-2xl) 0;
+//   }
+// }
+
+// /* ==========================================================================
+//    SECTION HEADER
+//    ========================================================================== */
+// .section-header {
+//   display: flex;
+//   justify-content: space-between;
+//   align-items: flex-end;
+//   margin-bottom: var(--spacing-3xl);
+  
+//   @include md-down {
+//     flex-direction: column;
+//     align-items: flex-start;
+//     gap: var(--spacing-lg);
+//   }
+  
+//   .header-content {
+//     .section-title {
+//       font-family: var(--font-heading);
+//       font-size: var(--font-size-4xl);
+//       font-weight: var(--font-weight-bold);
+//       margin: 0 0 var(--spacing-xs) 0;
+//       line-height: var(--line-height-tight);
+      
+//       @include lg-down {
+//         font-size: var(--font-size-3xl);
+//       }
+      
+//       @include sm-down {
+//         font-size: var(--font-size-2xl);
+//       }
+//     }
+    
+//     .gradient-text {
+//       background: var(--accent-gradient);
+//       -webkit-background-clip: text;
+//       -webkit-text-fill-color: transparent;
+//       background-clip: text;
+//     }
+    
+//     .section-subtitle {
+//       font-size: var(--font-size-lg);
+//       color: var(--text-secondary);
+//       margin: 0;
+      
+//       @include md-down {
+//         font-size: var(--font-size-base);
+//       }
+      
+//       @include sm-down {
+//         font-size: var(--font-size-sm);
+//       }
+//     }
+//   }
+  
+//   .view-all-link {
+//     display: flex;
+//     align-items: center;
+//     gap: var(--spacing-xs);
+//     padding: var(--spacing-sm) var(--spacing-lg);
+//     background: var(--glass-bg-c);
+//     backdrop-filter: blur(var(--glass-blur-c));
+//     -webkit-backdrop-filter: blur(var(--glass-blur-c));
+//     border: var(--ui-border-width) solid var(--glass-border-c);
+//     border-radius: var(--ui-border-radius-lg);
+//     color: var(--text-primary);
+//     font-size: var(--font-size-sm);
+//     font-weight: var(--font-weight-medium);
+//     text-decoration: none;
+//     transition: var(--transition-base);
+    
+//     i {
+//       font-size: var(--font-size-sm);
+//       transition: transform var(--transition-fast);
+//     }
+    
+//     &:hover {
+//       background: var(--bg-hover);
+//       border-color: var(--border-secondary);
+      
+//       i {
+//         transform: translateX(4px);
+//       }
+//     }
+    
+//     &:focus-visible {
+//       outline: none;
+//       box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+//     }
+    
+//     @include sm-down {
+//       width: 100%;
+//       justify-content: center;
+//     }
+//   }
+// }
+
+// /* ==========================================================================
+//    COURSES GRID
+//    ========================================================================== */
+// .courses-grid {
+//   display: grid;
+//   grid-template-columns: repeat(4, 1fr);
+//   gap: var(--spacing-2xl);
+  
+//   @include xl-down {
+//     grid-template-columns: repeat(3, 1fr);
+//     gap: var(--spacing-xl);
+//   }
+  
+//   @include lg-down {
+//     grid-template-columns: repeat(2, 1fr);
+//     gap: var(--spacing-lg);
+//   }
+  
+//   @include sm-down {
+//     grid-template-columns: 1fr;
+//     gap: var(--spacing-md);
+//   }
+// }
+
+// .course-card-wrapper {
+//   cursor: pointer;
+//   text-decoration: none;
+//   display: block;
+//   height: 100%;
+// }
+
+// /* ==========================================================================
+//    COURSE CARD
+//    ========================================================================== */
+// ::ng-deep {
+//   .course-card {
+//     height: 100%;
+//     transition: var(--transition-base);
+//     background: var(--glass-bg-c);
+//     backdrop-filter: blur(var(--glass-blur-c));
+//     -webkit-backdrop-filter: blur(var(--glass-blur-c));
+//     border: var(--ui-border-width) solid var(--glass-border-c);
+//     border-radius: var(--ui-border-radius-xl);
+//     overflow: hidden;
+    
+//     &:hover {
+//       transform: translateY(-4px);
+//       box-shadow: var(--shadow-lg);
+//       border-color: var(--border-secondary);
+//     }
+    
+//     .p-card-body {
+//       padding: 0;
+//     }
+    
+//     .p-card-content {
+//       padding: 0;
+//     }
+    
+//     .p-card-footer {
+//       padding: 0;
+//       border-top: var(--ui-border-width) solid var(--border-primary);
+//     }
+//   }
+// }
+
+// /* Card Header & Thumbnail */
+// .card-header {
+//   position: relative;
+// }
+
+// .thumbnail-container {
+//   position: relative;
+//   width: 100%;
+//   aspect-ratio: 16/9;
+//   overflow: hidden;
+//   background: var(--bg-secondary);
+  
+//   .course-thumbnail {
+//     width: 100%;
+//     height: 100%;
+//     object-fit: cover;
+//     transition: transform var(--transition-slow);
+    
+//     .course-card-wrapper:hover & {
+//       transform: scale(1.05);
+//     }
+//   }
+  
+//   .thumbnail-placeholder {
+//     width: 100%;
+//     height: 100%;
+//     display: flex;
+//     flex-direction: column;
+//     align-items: center;
+//     justify-content: center;
+//     background: var(--bg-ternary);
+//     color: var(--text-tertiary);
+    
+//     i {
+//       font-size: var(--font-size-3xl);
+//       margin-bottom: var(--spacing-sm);
+      
+//       @include sm-down {
+//         font-size: var(--font-size-2xl);
+//       }
+//     }
+    
+//     span {
+//       font-size: var(--font-size-xs);
+//     }
+//   }
+  
+//   .level-badge {
+//     position: absolute;
+//     top: var(--spacing-md);
+//     left: var(--spacing-md);
+//     z-index: 2;
+    
+//     @include sm-down {
+//       top: var(--spacing-sm);
+//       left: var(--spacing-sm);
+//     }
+//   }
+  
+//   .discount-badge {
+//     position: absolute;
+//     top: var(--spacing-md);
+//     right: var(--spacing-md);
+//     background: var(--color-warning);
+//     color: white;
+//     padding: var(--spacing-xs) var(--spacing-sm);
+//     border-radius: var(--ui-border-radius-sm);
+//     font-size: var(--font-size-xs);
+//     font-weight: var(--font-weight-bold);
+//     z-index: 2;
+//     box-shadow: var(--shadow-md);
+    
+//     @include sm-down {
+//       top: var(--spacing-sm);
+//       right: var(--spacing-sm);
+//       padding: 2px var(--spacing-xs);
+//       font-size: var(--font-size-2xs);
+//     }
+//   }
+// }
+
+// /* Course Content */
+// .course-content {
+//   padding: var(--spacing-lg);
+  
+//   @include lg-down {
+//     padding: var(--spacing-md);
+//   }
+  
+//   @include sm-down {
+//     padding: var(--spacing-md);
+//   }
+// }
+
+// .instructor-info {
+//   display: flex;
+//   align-items: center;
+//   gap: var(--spacing-sm);
+//   margin-bottom: var(--spacing-md);
+  
+//   @include sm-down {
+//     margin-bottom: var(--spacing-sm);
+//   }
+  
+//   .instructor-avatar {
+//     ::ng-deep .p-avatar {
+//       width: 32px;
+//       height: 32px;
+//       background: var(--color-primary-bg) !important;
+//       color: var(--color-primary) !important;
+//       border: var(--ui-border-width) solid var(--border-primary);
+      
+//       .p-avatar-text {
+//         font-size: var(--font-size-xs);
+//         font-weight: var(--font-weight-semibold);
+//       }
+      
+//       @include sm-down {
+//         width: 28px;
+//         height: 28px;
+        
+//         .p-avatar-text {
+//           font-size: var(--font-size-2xs);
+//         }
+//       }
+//     }
+//   }
+  
+//   .instructor-name {
+//     font-size: var(--font-size-sm);
+//     color: var(--text-secondary);
+//     font-weight: var(--font-weight-medium);
+//     white-space: nowrap;
+//     overflow: hidden;
+//     text-overflow: ellipsis;
+    
+//     @include sm-down {
+//       font-size: var(--font-size-xs);
+//     }
+//   }
+// }
+
+// .course-title {
+//   font-family: var(--font-heading);
+//   font-size: var(--font-size-lg);
+//   font-weight: var(--font-weight-semibold);
+//   color: var(--text-primary);
+//   margin: 0 0 var(--spacing-md) 0;
+//   line-height: var(--line-height-normal);
+//   display: -webkit-box;
+//   -webkit-line-clamp: 2;
+//   -webkit-box-orient: vertical;
+//   overflow: hidden;
+  
+//   @include lg-down {
+//     font-size: var(--font-size-base);
+//     margin-bottom: var(--spacing-sm);
+//   }
+  
+//   @include sm-down {
+//     font-size: var(--font-size-md);
+//     margin-bottom: var(--spacing-xs);
+//   }
+// }
+
+// /* Rating */
+// .rating-container {
+//   display: flex;
+//   align-items: center;
+//   gap: var(--spacing-xs);
+//   margin-bottom: var(--spacing-md);
+  
+//   @include sm-down {
+//     margin-bottom: var(--spacing-sm);
+//   }
+  
+//   .stars {
+//     display: flex;
+//     gap: 2px;
+    
+//     i {
+//       font-size: var(--font-size-sm);
+      
+//       @include sm-down {
+//         font-size: var(--font-size-xs);
+//       }
+      
+//       &.pi-star-fill {
+//         color: var(--color-warning);
+//       }
+      
+//       &.pi-star {
+//         color: var(--text-tertiary);
+//       }
+//     }
+//   }
+  
+//   .rating-value {
+//     font-size: var(--font-size-sm);
+//     font-weight: var(--font-weight-semibold);
+//     color: var(--text-primary);
+    
+//     @include sm-down {
+//       font-size: var(--font-size-xs);
+//     }
+//   }
+  
+//   .rating-count {
+//     font-size: var(--font-size-xs);
+//     color: var(--text-tertiary);
+    
+//     @include sm-down {
+//       font-size: var(--font-size-2xs);
+//     }
+//   }
+// }
+
+// /* Meta Info */
+// .meta-info {
+//   display: flex;
+//   align-items: center;
+//   gap: var(--spacing-lg);
+  
+//   @include sm-down {
+//     gap: var(--spacing-md);
+//   }
+  
+//   .meta-item {
+//     display: flex;
+//     align-items: center;
+//     gap: var(--spacing-xs);
+//     color: var(--text-tertiary);
+//     font-size: var(--font-size-xs);
+    
+//     @include sm-down {
+//       font-size: var(--font-size-2xs);
+//     }
+    
+//     i {
+//       font-size: var(--font-size-xs);
+      
+//       @include sm-down {
+//         font-size: var(--font-size-2xs);
+//       }
+//     }
+    
+//     span {
+//       font-weight: var(--font-weight-medium);
+//     }
+//   }
+// }
+
+// /* Card Footer */
+// .card-footer {
+//   display: flex;
+//   justify-content: space-between;
+//   align-items: center;
+//   padding: var(--spacing-lg);
+  
+//   @include lg-down {
+//     padding: var(--spacing-md);
+//   }
+  
+//   @include sm-down {
+//     padding: var(--spacing-sm);
+//   }
+// }
+
+// .price-container {
+//   .free-price {
+//     font-family: var(--font-heading);
+//     font-size: var(--font-size-lg);
+//     font-weight: var(--font-weight-bold);
+//     color: var(--color-success);
+    
+//     @include lg-down {
+//       font-size: var(--font-size-base);
+//     }
+    
+//     @include sm-down {
+//       font-size: var(--font-size-sm);
+//     }
+//   }
+  
+//   .regular-price {
+//     font-family: var(--font-heading);
+//     font-size: var(--font-size-lg);
+//     font-weight: var(--font-weight-bold);
+//     color: var(--text-primary);
+    
+//     @include lg-down {
+//       font-size: var(--font-size-base);
+//     }
+    
+//     @include sm-down {
+//       font-size: var(--font-size-sm);
+//     }
+//   }
+  
+//   .discount-price {
+//     display: flex;
+//     align-items: center;
+//     gap: var(--spacing-xs);
+    
+//     .current-price {
+//       font-family: var(--font-heading);
+//       font-size: var(--font-size-lg);
+//       font-weight: var(--font-weight-bold);
+//       color: var(--text-primary);
+      
+//       @include lg-down {
+//         font-size: var(--font-size-base);
+//       }
+      
+//       @include sm-down {
+//         font-size: var(--font-size-sm);
+//       }
+//     }
+    
+//     .original-price {
+//       font-size: var(--font-size-sm);
+//       color: var(--text-tertiary);
+//       text-decoration: line-through;
+      
+//       @include lg-down {
+//         font-size: var(--font-size-xs);
+//       }
+      
+//       @include sm-down {
+//         font-size: var(--font-size-2xs);
+//       }
+//     }
+//   }
+// }
+
+// .enroll-btn {
+//   display: flex;
+//   align-items: center;
+//   gap: var(--spacing-xs);
+//   padding: var(--spacing-sm) var(--spacing-lg);
+//   background: var(--color-primary);
+//   color: white;
+//   border: none;
+//   border-radius: var(--ui-border-radius-lg);
+//   font-size: var(--font-size-sm);
+//   font-weight: var(--font-weight-medium);
+//   cursor: pointer;
+//   transition: var(--transition-base);
+  
+//   @include lg-down {
+//     padding: var(--spacing-xs) var(--spacing-md);
+//     font-size: var(--font-size-xs);
+//   }
+  
+//   @include sm-down {
+//     padding: var(--spacing-xs) var(--spacing-sm);
+//     font-size: var(--font-size-2xs);
+//     gap: 2px;
+//   }
+  
+//   i {
+//     font-size: var(--font-size-xs);
+//     transition: transform var(--transition-fast);
+    
+//     @include sm-down {
+//       font-size: var(--font-size-2xs);
+//     }
+//   }
+  
+//   &:hover {
+//     background: var(--color-primary-dark);
+    
+//     i {
+//       transform: translateX(4px);
+//     }
+//   }
+  
+//   &:focus-visible {
+//     outline: none;
+//     box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+//   }
+// }
+
+// /* ==========================================================================
+//    SKELETON LOADING
+//    ========================================================================== */
+// .course-skeleton {
+//   background: var(--glass-bg-c);
+//   backdrop-filter: blur(var(--glass-blur-c));
+//   -webkit-backdrop-filter: blur(var(--glass-blur-c));
+//   border: var(--ui-border-width) solid var(--glass-border-c);
+//   border-radius: var(--ui-border-radius-xl);
+//   overflow: hidden;
+  
+//   .skeleton-thumbnail {
+//     width: 100%;
+//     aspect-ratio: 16/9;
+//     border-radius: 0;
+//   }
+  
+//   .skeleton-content {
+//     padding: var(--spacing-lg);
+    
+//     @include lg-down {
+//       padding: var(--spacing-md);
+//     }
+    
+//     @include sm-down {
+//       padding: var(--spacing-sm);
+//     }
+    
+//     .skeleton-title {
+//       margin-bottom: var(--spacing-md);
+      
+//       @include sm-down {
+//         margin-bottom: var(--spacing-sm);
+//       }
+//     }
+    
+//     .skeleton-subtitle {
+//       margin-bottom: var(--spacing-lg);
+      
+//       @include lg-down {
+//         margin-bottom: var(--spacing-md);
+//       }
+      
+//       @include sm-down {
+//         margin-bottom: var(--spacing-sm);
+//       }
+//     }
+    
+//     .skeleton-footer {
+//       display: flex;
+//       justify-content: space-between;
+//       align-items: center;
+//     }
+//   }
+// }
+
+// ::ng-deep {
+//   .p-skeleton {
+//     background: var(--bg-ternary);
+    
+//     &:after {
+//       background: linear-gradient(90deg, transparent, var(--bg-hover), transparent);
+//     }
+//   }
+// }
+
+// /* ==========================================================================
+//    ERROR STATE
+//    ========================================================================== */
+// .error-container {
+//   min-height: 300px;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+  
+//   @include sm-down {
+//     min-height: 200px;
+//   }
+  
+//   .error-content {
+//     text-align: center;
+    
+//     .error-icon {
+//       font-size: var(--font-size-5xl);
+//       color: var(--color-error);
+//       margin-bottom: var(--spacing-lg);
+      
+//       @include lg-down {
+//         font-size: var(--font-size-4xl);
+//       }
+      
+//       @include sm-down {
+//         font-size: var(--font-size-3xl);
+//         margin-bottom: var(--spacing-md);
+//       }
+//     }
+    
+//     .error-message {
+//       color: var(--text-secondary);
+//       margin-bottom: var(--spacing-lg);
+//       font-size: var(--font-size-md);
+      
+//       @include sm-down {
+//         font-size: var(--font-size-sm);
+//         margin-bottom: var(--spacing-md);
+//       }
+//     }
+    
+//     .retry-btn {
+//       display: inline-flex;
+//       align-items: center;
+//       gap: var(--spacing-sm);
+//       padding: var(--spacing-sm) var(--spacing-xl);
+//       background: var(--glass-bg-c);
+//       backdrop-filter: blur(var(--glass-blur-c));
+//       -webkit-backdrop-filter: blur(var(--glass-blur-c));
+//       border: var(--ui-border-width) solid var(--glass-border-c);
+//       border-radius: var(--ui-border-radius-lg);
+//       color: var(--text-primary);
+//       font-size: var(--font-size-sm);
+//       font-weight: var(--font-weight-medium);
+//       cursor: pointer;
+//       transition: var(--transition-base);
+      
+//       @include sm-down {
+//         padding: var(--spacing-xs) var(--spacing-lg);
+//         font-size: var(--font-size-xs);
+//       }
+      
+//       &:hover {
+//         background: var(--bg-hover);
+//         border-color: var(--border-secondary);
+//       }
+      
+//       &:focus-visible {
+//         outline: none;
+//         box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+//       }
+//     }
+//   }
+// }
+
+// /* ==========================================================================
+//    EMPTY STATE
+//    ========================================================================== */
+// .empty-container {
+//   min-height: 300px;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+  
+//   @include sm-down {
+//     min-height: 200px;
+//   }
+  
+//   .empty-content {
+//     text-align: center;
+    
+//     .empty-icon {
+//       font-size: var(--font-size-5xl);
+//       color: var(--text-tertiary);
+//       margin-bottom: var(--spacing-lg);
+      
+//       @include lg-down {
+//         font-size: var(--font-size-4xl);
+//       }
+      
+//       @include sm-down {
+//         font-size: var(--font-size-3xl);
+//         margin-bottom: var(--spacing-md);
+//       }
+//     }
+    
+//     h3 {
+//       font-family: var(--font-heading);
+//       font-size: var(--font-size-xl);
+//       color: var(--text-primary);
+//       margin: 0 0 var(--spacing-sm) 0;
+      
+//       @include lg-down {
+//         font-size: var(--font-size-lg);
+//       }
+      
+//       @include sm-down {
+//         font-size: var(--font-size-base);
+//       }
+//     }
+    
+//     .text-secondary {
+//       color: var(--text-secondary);
+//       font-size: var(--font-size-md);
+//       margin: 0;
+      
+//       @include sm-down {
+//         font-size: var(--font-size-sm);
+//       }
+//     }
+//   }
+// }
+
+// /* ==========================================================================
+//    ANIMATIONS
+//    ========================================================================== */
+// @keyframes fadeIn {
+//   from {
+//     opacity: 0;
+//     transform: translateY(20px);
+//   }
+//   to {
+//     opacity: 1;
+//     transform: translateY(0);
+//   }
+// }
+
+// .course-card-wrapper {
+//   animation: fadeIn 0.6s ease-out;
+//   animation-fill-mode: both;
+  
+//   @for $i from 1 through 8 {
+//     &:nth-child(#{$i}) {
+//       animation-delay: #{$i * 0.1}s;
+//     }
+//   }
+// }
+
+// /* ==========================================================================
+//    MOBILE CAROUSEL (if enabled)
+//    ========================================================================== */
+// .mobile-carousel {
+//   display: none;
+  
+//   @include sm-down {
+//     display: block;
+    
+//     ::ng-deep {
+//       .p-carousel-container {
+//         padding: var(--spacing-xs) 0;
+//       }
+      
+//       .p-carousel-items-content {
+//         overflow: visible;
+//       }
+      
+//       .p-carousel-item {
+//         padding: var(--spacing-xs);
+//       }
+      
+//       .p-carousel-indicators {
+//         margin-top: var(--spacing-lg);
+        
+//         .p-carousel-indicator {
+//           button {
+//             background: var(--bg-ternary);
+//             border: none;
+//             width: 8px;
+//             height: 8px;
+//             border-radius: 50%;
+//             transition: var(--transition-base);
+//           }
+          
+//           &.p-highlight button {
+//             background: var(--color-primary);
+//             width: 24px;
+//             border-radius: 999px;
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
+
+// /* ==========================================================================
+//    ADDITIONAL UTILITY CLASSES
+//    ========================================================================== */
+// .text-2xs {
+//   font-size: var(--font-size-2xs);
+  
+//   @include sm-down {
+//     font-size: var(--font-size-3xs);
+//   }
+// }
+
+// // /* ==========================================================================
+// //    TOP RATED COURSES SECTION
+// //    ========================================================================== */
+// // .top-rated-section {
+// //   width: 100%;
+// //   padding: var(--spacing-4xl) 0;
+  
+// //   @media (max-width: 768px) {
+// //     padding: var(--spacing-2xl) 0;
+// //   }
+// // }
+
+// // /* ==========================================================================
+// //    SECTION HEADER
+// //    ========================================================================== */
+// // .section-header {
+// //   display: flex;
+// //   justify-content: space-between;
+// //   align-items: flex-end;
+// //   margin-bottom: var(--spacing-3xl);
+  
+// //   @media (max-width: 768px) {
+// //     flex-direction: column;
+// //     align-items: flex-start;
+// //     gap: var(--spacing-lg);
+// //   }
+  
+// //   .header-content {
+// //     .section-title {
+// //       font-family: var(--font-heading);
+// //       font-size: var(--font-size-4xl);
+// //       font-weight: var(--font-weight-bold);
+// //       margin: 0 0 var(--spacing-xs) 0;
+// //       line-height: var(--line-height-tight);
+      
+// //       @media (max-width: 768px) {
+// //         font-size: var(--font-size-3xl);
+// //       }
+// //     }
+    
+// //     .gradient-text {
+// //       background: var(--accent-gradient);
+// //       -webkit-background-clip: text;
+// //       -webkit-text-fill-color: transparent;
+// //       background-clip: text;
+// //     }
+    
+// //     .section-subtitle {
+// //       font-size: var(--font-size-lg);
+// //       color: var(--text-secondary);
+// //       margin: 0;
+      
+// //       @media (max-width: 768px) {
+// //         font-size: var(--font-size-base);
+// //       }
+// //     }
+// //   }
+  
+// //   .view-all-link {
+// //     display: flex;
+// //     align-items: center;
+// //     gap: var(--spacing-xs);
+// //     padding: var(--spacing-sm) var(--spacing-lg);
+// //     background: var(--glass-bg-c);
+// //     backdrop-filter: blur(var(--glass-blur-c));
+// //     -webkit-backdrop-filter: blur(var(--glass-blur-c));
+// //     border: var(--ui-border-width) solid var(--glass-border-c);
+// //     border-radius: var(--ui-border-radius-lg);
+// //     color: var(--text-primary);
+// //     font-size: var(--font-size-sm);
+// //     font-weight: var(--font-weight-medium);
+// //     text-decoration: none;
+// //     transition: var(--transition-base);
+    
+// //     i {
+// //       font-size: var(--font-size-sm);
+// //       transition: transform var(--transition-fast);
+// //     }
+    
+// //     &:hover {
+// //       background: var(--bg-hover);
+// //       border-color: var(--border-secondary);
+      
+// //       i {
+// //         transform: translateX(4px);
+// //       }
+// //     }
+    
+// //     &:focus-visible {
+// //       outline: none;
+// //       box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+// //     }
+// //   }
+// // }
+
+// // /* ==========================================================================
+// //    COURSES GRID
+// //    ========================================================================== */
+// // .courses-grid {
+// //   display: grid;
+// //   grid-template-columns: repeat(4, 1fr);
+// //   gap: var(--spacing-2xl);
+  
+// //   @media (max-width: 1400px) {
+// //     grid-template-columns: repeat(3, 1fr);
+// //   }
+  
+// //   @media (max-width: 992px) {
+// //     grid-template-columns: repeat(2, 1fr);
+// //   }
+  
+// //   @media (max-width: 576px) {
+// //     grid-template-columns: 1fr;
+// //   }
+// // }
+
+// // .course-card-wrapper {
+// //   cursor: pointer;
+// //   text-decoration: none;
+// //   display: block;
+// //   height: 100%;
+// // }
+
+// // /* ==========================================================================
+// //    COURSE CARD
+// //    ========================================================================== */
+// // ::ng-deep {
+// //   .course-card {
+// //     height: 100%;
+// //     transition: var(--transition-base);
+// //     background: var(--glass-bg-c);
+// //     backdrop-filter: blur(var(--glass-blur-c));
+// //     -webkit-backdrop-filter: blur(var(--glass-blur-c));
+// //     border: var(--ui-border-width) solid var(--glass-border-c);
+// //     border-radius: var(--ui-border-radius-xl);
+// //     overflow: hidden;
+    
+// //     &:hover {
+// //       transform: translateY(-4px);
+// //       box-shadow: var(--shadow-lg);
+// //       border-color: var(--border-secondary);
+// //     }
+    
+// //     .p-card-body {
+// //       padding: 0;
+// //     }
+    
+// //     .p-card-content {
+// //       padding: 0;
+// //     }
+    
+// //     .p-card-footer {
+// //       padding: 0;
+// //       border-top: var(--ui-border-width) solid var(--border-primary);
+// //     }
+// //   }
+// // }
+
+// // /* Card Header & Thumbnail */
+// // .card-header {
+// //   position: relative;
+// // }
+
+// // .thumbnail-container {
+// //   position: relative;
+// //   width: 100%;
+// //   aspect-ratio: 16/9;
+// //   overflow: hidden;
+// //   background: var(--bg-secondary);
+  
+// //   .course-thumbnail {
+// //     width: 100%;
+// //     height: 100%;
+// //     object-fit: cover;
+// //     transition: transform var(--transition-slow);
+    
+// //     .course-card-wrapper:hover & {
+// //       transform: scale(1.05);
+// //     }
+// //   }
+  
+// //   .thumbnail-placeholder {
+// //     width: 100%;
+// //     height: 100%;
+// //     display: flex;
+// //     flex-direction: column;
+// //     align-items: center;
+// //     justify-content: center;
+// //     background: var(--bg-ternary);
+// //     color: var(--text-tertiary);
+    
+// //     i {
+// //       font-size: var(--font-size-3xl);
+// //       margin-bottom: var(--spacing-sm);
+// //     }
+    
+// //     span {
+// //       font-size: var(--font-size-xs);
+// //     }
+// //   }
+  
+// //   .level-badge {
+// //     position: absolute;
+// //     top: var(--spacing-md);
+// //     left: var(--spacing-md);
+// //     z-index: 2;
+// //   }
+  
+// //   .discount-badge {
+// //     position: absolute;
+// //     top: var(--spacing-md);
+// //     right: var(--spacing-md);
+// //     background: var(--color-warning);
+// //     color: white;
+// //     padding: var(--spacing-xs) var(--spacing-sm);
+// //     border-radius: var(--ui-border-radius-sm);
+// //     font-size: var(--font-size-xs);
+// //     font-weight: var(--font-weight-bold);
+// //     z-index: 2;
+// //     box-shadow: var(--shadow-md);
+// //   }
+// // }
+
+// // /* Course Content */
+// // .course-content {
+// //   padding: var(--spacing-lg);
+// // }
+
+// // .instructor-info {
+// //   display: flex;
+// //   align-items: center;
+// //   gap: var(--spacing-sm);
+// //   margin-bottom: var(--spacing-md);
+  
+// //   .instructor-avatar {
+// //     ::ng-deep .p-avatar {
+// //       width: 32px;
+// //       height: 32px;
+// //       background: var(--color-primary-bg) !important;
+// //       color: var(--color-primary) !important;
+// //       border: var(--ui-border-width) solid var(--border-primary);
+      
+// //       .p-avatar-text {
+// //         font-size: var(--font-size-xs);
+// //         font-weight: var(--font-weight-semibold);
+// //       }
+// //     }
+// //   }
+  
+// //   .instructor-name {
+// //     font-size: var(--font-size-sm);
+// //     color: var(--text-secondary);
+// //     font-weight: var(--font-weight-medium);
+// //     white-space: nowrap;
+// //     overflow: hidden;
+// //     text-overflow: ellipsis;
+// //   }
+// // }
+
+// // .course-title {
+// //   font-family: var(--font-heading);
+// //   font-size: var(--font-size-lg);
+// //   font-weight: var(--font-weight-semibold);
+// //   color: var(--text-primary);
+// //   margin: 0 0 var(--spacing-md) 0;
+// //   line-height: var(--line-height-normal);
+// //   display: -webkit-box;
+// //   -webkit-line-clamp: 2;
+// //   -webkit-box-orient: vertical;
+// //   overflow: hidden;
+// // }
+
+// // /* Rating */
+// // .rating-container {
+// //   display: flex;
+// //   align-items: center;
+// //   gap: var(--spacing-xs);
+// //   margin-bottom: var(--spacing-md);
+  
+// //   .stars {
+// //     display: flex;
+// //     gap: 2px;
+    
+// //     i {
+// //       font-size: var(--font-size-sm);
+      
+// //       &.pi-star-fill {
+// //         color: var(--color-warning);
+// //       }
+      
+// //       &.pi-star {
+// //         color: var(--text-tertiary);
+// //       }
+// //     }
+// //   }
+  
+// //   .rating-value {
+// //     font-size: var(--font-size-sm);
+// //     font-weight: var(--font-weight-semibold);
+// //     color: var(--text-primary);
+// //   }
+  
+// //   .rating-count {
+// //     font-size: var(--font-size-xs);
+// //     color: var(--text-tertiary);
+// //   }
+// // }
+
+// // /* Meta Info */
+// // .meta-info {
+// //   display: flex;
+// //   align-items: center;
+// //   gap: var(--spacing-lg);
+  
+// //   .meta-item {
+// //     display: flex;
+// //     align-items: center;
+// //     gap: var(--spacing-xs);
+// //     color: var(--text-tertiary);
+// //     font-size: var(--font-size-xs);
+    
+// //     i {
+// //       font-size: var(--font-size-xs);
+// //     }
+    
+// //     span {
+// //       font-weight: var(--font-weight-medium);
+// //     }
+// //   }
+// // }
+
+// // /* Card Footer */
+// // .card-footer {
+// //   display: flex;
+// //   justify-content: space-between;
+// //   align-items: center;
+// //   padding: var(--spacing-lg);
+// // }
+
+// // .price-container {
+// //   .free-price {
+// //     font-family: var(--font-heading);
+// //     font-size: var(--font-size-lg);
+// //     font-weight: var(--font-weight-bold);
+// //     color: var(--color-success);
+// //   }
+  
+// //   .regular-price {
+// //     font-family: var(--font-heading);
+// //     font-size: var(--font-size-lg);
+// //     font-weight: var(--font-weight-bold);
+// //     color: var(--text-primary);
+// //   }
+  
+// //   .discount-price {
+// //     display: flex;
+// //     align-items: center;
+// //     gap: var(--spacing-xs);
+    
+// //     .current-price {
+// //       font-family: var(--font-heading);
+// //       font-size: var(--font-size-lg);
+// //       font-weight: var(--font-weight-bold);
+// //       color: var(--text-primary);
+// //     }
+    
+// //     .original-price {
+// //       font-size: var(--font-size-sm);
+// //       color: var(--text-tertiary);
+// //       text-decoration: line-through;
+// //     }
+// //   }
+// // }
+
+// // .enroll-btn {
+// //   display: flex;
+// //   align-items: center;
+// //   gap: var(--spacing-xs);
+// //   padding: var(--spacing-sm) var(--spacing-lg);
+// //   background: var(--color-primary);
+// //   color: white;
+// //   border: none;
+// //   border-radius: var(--ui-border-radius-lg);
+// //   font-size: var(--font-size-sm);
+// //   font-weight: var(--font-weight-medium);
+// //   cursor: pointer;
+// //   transition: var(--transition-base);
+  
+// //   i {
+// //     font-size: var(--font-size-xs);
+// //     transition: transform var(--transition-fast);
+// //   }
+  
+// //   &:hover {
+// //     background: var(--color-primary-dark);
+    
+// //     i {
+// //       transform: translateX(4px);
+// //     }
+// //   }
+  
+// //   &:focus-visible {
+// //     outline: none;
+// //     box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+// //   }
+// // }
+
+// // /* ==========================================================================
+// //    SKELETON LOADING
+// //    ========================================================================== */
+// // .course-skeleton {
+// //   background: var(--glass-bg-c);
+// //   backdrop-filter: blur(var(--glass-blur-c));
+// //   -webkit-backdrop-filter: blur(var(--glass-blur-c));
+// //   border: var(--ui-border-width) solid var(--glass-border-c);
+// //   border-radius: var(--ui-border-radius-xl);
+// //   overflow: hidden;
+  
+// //   .skeleton-thumbnail {
+// //     width: 100%;
+// //     aspect-ratio: 16/9;
+// //     border-radius: 0;
+// //   }
+  
+// //   .skeleton-content {
+// //     padding: var(--spacing-lg);
+    
+// //     .skeleton-title {
+// //       margin-bottom: var(--spacing-md);
+// //     }
+    
+// //     .skeleton-subtitle {
+// //       margin-bottom: var(--spacing-lg);
+// //     }
+    
+// //     .skeleton-footer {
+// //       display: flex;
+// //       justify-content: space-between;
+// //       align-items: center;
+// //     }
+// //   }
+// // }
+
+// // ::ng-deep {
+// //   .p-skeleton {
+// //     background: var(--bg-ternary);
+    
+// //     &:after {
+// //       background: linear-gradient(90deg, transparent, var(--bg-hover), transparent);
+// //     }
+// //   }
+// // }
+
+// // /* ==========================================================================
+// //    ERROR STATE
+// //    ========================================================================== */
+// // .error-container {
+// //   min-height: 300px;
+// //   display: flex;
+// //   align-items: center;
+// //   justify-content: center;
+  
+// //   .error-content {
+// //     text-align: center;
+    
+// //     .error-icon {
+// //       font-size: var(--font-size-5xl);
+// //       color: var(--color-error);
+// //       margin-bottom: var(--spacing-lg);
+// //     }
+    
+// //     .error-message {
+// //       color: var(--text-secondary);
+// //       margin-bottom: var(--spacing-lg);
+// //       font-size: var(--font-size-md);
+// //     }
+    
+// //     .retry-btn {
+// //       display: inline-flex;
+// //       align-items: center;
+// //       gap: var(--spacing-sm);
+// //       padding: var(--spacing-sm) var(--spacing-xl);
+// //       background: var(--glass-bg-c);
+// //       backdrop-filter: blur(var(--glass-blur-c));
+// //       -webkit-backdrop-filter: blur(var(--glass-blur-c));
+// //       border: var(--ui-border-width) solid var(--glass-border-c);
+// //       border-radius: var(--ui-border-radius-lg);
+// //       color: var(--text-primary);
+// //       font-size: var(--font-size-sm);
+// //       font-weight: var(--font-weight-medium);
+// //       cursor: pointer;
+// //       transition: var(--transition-base);
+      
+// //       &:hover {
+// //         background: var(--bg-hover);
+// //         border-color: var(--border-secondary);
+// //       }
+      
+// //       &:focus-visible {
+// //         outline: none;
+// //         box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+// //       }
+// //     }
+// //   }
+// // }
+
+// // /* ==========================================================================
+// //    EMPTY STATE
+// //    ========================================================================== */
+// // .empty-container {
+// //   min-height: 300px;
+// //   display: flex;
+// //   align-items: center;
+// //   justify-content: center;
+  
+// //   .empty-content {
+// //     text-align: center;
+    
+// //     .empty-icon {
+// //       font-size: var(--font-size-5xl);
+// //       color: var(--text-tertiary);
+// //       margin-bottom: var(--spacing-lg);
+// //     }
+    
+// //     h3 {
+// //       font-family: var(--font-heading);
+// //       font-size: var(--font-size-xl);
+// //       color: var(--text-primary);
+// //       margin: 0 0 var(--spacing-sm) 0;
+// //     }
+    
+// //     .text-secondary {
+// //       color: var(--text-secondary);
+// //       font-size: var(--font-size-md);
+// //       margin: 0;
+// //     }
+// //   }
+// // }
+
+// // /* ==========================================================================
+// //    ANIMATIONS
+// //    ========================================================================== */
+// // @keyframes fadeIn {
+// //   from {
+// //     opacity: 0;
+// //     transform: translateY(20px);
+// //   }
+// //   to {
+// //     opacity: 1;
+// //     transform: translateY(0);
+// //   }
+// // }
+
+// // .course-card-wrapper {
+// //   animation: fadeIn 0.6s ease-out;
+// //   animation-fill-mode: both;
+  
+// //   @for $i from 1 through 8 {
+// //     &:nth-child(#{$i}) {
+// //       animation-delay: #{$i * 0.1}s;
+// //     }
+// //   }
+// // }
+
+// // /* ==========================================================================
+// //    MOBILE CAROUSEL (if enabled)
+// //    ========================================================================== */
+// // .mobile-carousel {
+// //   display: none;
+  
+// //   @media (max-width: 576px) {
+// //     display: block;
+    
+// //     ::ng-deep {
+// //       .p-carousel-container {
+// //         padding: var(--spacing-xs) 0;
+// //       }
+      
+// //       .p-carousel-items-content {
+// //         overflow: visible;
+// //       }
+      
+// //       .p-carousel-item {
+// //         padding: var(--spacing-xs);
+// //       }
+      
+// //       .p-carousel-indicators {
+// //         margin-top: var(--spacing-lg);
+        
+// //         .p-carousel-indicator {
+// //           button {
+// //             background: var(--bg-ternary);
+// //             border: none;
+// //             width: 8px;
+// //             height: 8px;
+// //             border-radius: 50%;
+// //             transition: var(--transition-base);
+// //           }
+          
+// //           &.p-highlight button {
+// //             background: var(--color-primary);
+// //             width: 24px;
+// //             border-radius: 999px;
+// //           }
+// //         }
+// //       }
+// //     }
+// //   }
+// // }

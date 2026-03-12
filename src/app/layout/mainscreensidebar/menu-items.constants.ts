@@ -28,6 +28,11 @@ export const SIDEBAR_MENU: MenuItem[] = [
         routerLink: ['/courses']
       },
       {
+        label: 'Top Courses',
+        icon: 'pi pi-search',
+        routerLink: ['/courses/top-courses']
+      },
+      {
         label: 'Mock Tests',
         icon: 'pi pi-clipboard',
         routerLink: ['/mock-tests']

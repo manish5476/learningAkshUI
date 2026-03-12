@@ -1,1 +1,331 @@
-<p>home-screen works!</p>
+<div class="home-container">
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content max-w-screen">
+            <div class="hero-text">
+                <h1 class="hero-title gradient-text">
+                    Unlock Your Potential with <span class="text-primary">Expert-Led</span> Courses
+                </h1>
+                <p class="hero-subtitle">
+                    Join over 50,000 students learning from industry experts.
+                    Master in-demand skills and advance your career today.
+                </p>
+
+                <!-- Search Bar -->
+                <div class="search-wrapper glass-panel">
+                    <i class="pi pi-search search-icon"></i>
+                    <input type="text" pInputText class="search-input" placeholder="What do you want to learn today?"
+                        [(ngModel)]="searchQuery" (keyup.enter)="onSearch()">
+                    <button pButton pRipple label="Search" icon="pi pi-arrow-right" iconPos="right" class="search-btn"
+                        (click)="onSearch()">
+                    </button>
+                </div>
+
+                <!-- Trust Badges -->
+                <div class="trust-badges">
+                    <div class="trust-item">
+                        <i class="pi pi-shield text-success"></i>
+                        <span>30-Day Money-Back</span>
+                    </div>
+                    <div class="trust-item">
+                        <i class="pi pi-clock text-info"></i>
+                        <span>Lifetime Access</span>
+                    </div>
+                    <div class="trust-item">
+                        <i class="pi pi-certificate text-warning"></i>
+                        <span>Certificate of Completion</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero Image/Illustration -->
+            <div class="hero-visual">
+                <div class="floating-card card-1 glass-panel">
+                    <i class="pi pi-code"></i>
+                    <span>Coding</span>
+                </div>
+                <div class="floating-card card-2 glass-panel">
+                    <i class="pi pi-chart-line"></i>
+                    <span>Data Science</span>
+                </div>
+                <div class="floating-card card-3 glass-panel">
+                    <i class="pi pi-megaphone"></i>
+                    <span>Marketing</span>
+                </div>
+                <div class="floating-card card-4 glass-panel">
+                    <i class="pi pi-pencil"></i>
+                    <span>Design</span>
+                </div>
+                <div class="hero-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1771926623926-a644527a40dc?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        alt="Learning illustration" class="hero-image">
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator" (click)="scrollToSection('featured')">
+            <span class="scroll-text">Scroll to explore</span>
+            <i class="pi pi-arrow-down"></i>
+        </div>
+    </section>
+    <section class="stats-section">
+        <div class="max-w-screen">
+           
+                <app-top-rated-courses></app-top-rated-courses>
+     
+        </div>
+    </section>
+    <section class="stats-section">
+        <div class="max-w-screen">
+           
+                <app-course-list></app-course-list>
+     
+        </div>
+    </section>
+    <!-- Statistics Section -->
+    <section class="stats-section">
+        <div class="max-w-screen">
+            <div class="stats-grid">
+                @for (stat of statistics; track stat.label) {
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon-wrapper">
+                        <i [class]="stat.icon"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-value">{{ stat.value }}</h3>
+                        <p class="stat-label">{{ stat.label }}</p>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Error State -->
+    @if (error()) {
+    <div class="error-container">
+        <div class="error-content glass-panel">
+            <i class="pi pi-exclamation-circle error-icon"></i>
+            <h3>Oops! Something went wrong</h3>
+            <p>{{ error() }}</p>
+            <button pButton pRipple label="Try Again" icon="pi pi-refresh" (click)="retry()"></button>
+        </div>
+    </div>
+    }
+
+    <!-- Loading State -->
+    @else if (isLoading()) {
+    <div class="loading-section">
+        <!-- Featured Courses Skeletons -->
+        <div class="section-header">
+            <div class="skeleton-header"></div>
+        </div>
+        <div class="courses-grid">
+            @for (item of skeletonArray; track $index) {
+            <div class="course-skeleton">
+                <p-skeleton height="180px"></p-skeleton>
+                <div class="skeleton-content">
+                    <p-skeleton height="24px" width="80%"></p-skeleton>
+                    <p-skeleton height="20px" width="60%"></p-skeleton>
+                    <p-skeleton height="30px" width="100px"></p-skeleton>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+    }
+
+    <!-- Main Content -->
+    @else {
+    <!-- Categories Section -->
+    @if (categories().length > 0) {
+    <section class="categories-section" id="categories">
+        <div class="max-w-screen">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Popular Categories</h2>
+                    <p class="section-subtitle">Explore courses by category</p>
+                </div>
+                <a routerLink="/categories" class="view-all-link" pButton pRipple text="true">
+                    View All <i class="pi pi-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="categories-grid">
+                @for (category of categories(); track trackByCategoryId($index, category)) {
+                <a [routerLink]="['/courses']" [queryParams]="{category: category._id}"
+                    class="category-card glass-panel">
+                    <div class="category-icon-wrapper">
+                        <i [class]="getCategoryIcon(category.name)"></i>
+                    </div>
+                    <h3 class="category-name">{{ category.name }}</h3>
+                    <span class="category-count">{{ category.courseCount || 0 }} courses</span>
+                </a>
+                }
+            </div>
+        </div>
+    </section>
+    }
+
+    <!-- Featured Courses -->
+    @if (featuredCourses().length > 0) {
+    <section class="courses-section" id="featured">
+        <div class="max-w-screen">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Featured Courses</h2>
+                    <p class="section-subtitle">Hand-picked courses for you</p>
+                </div>
+                <a routerLink="/courses" class="view-all-link" pButton pRipple text="true">
+                    View All <i class="pi pi-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="courses-grid">
+                @for (course of featuredCourses(); track trackByCourseId($index, course)) {
+                <app-property-course-card [course]="course"></app-property-course-card>
+                }
+            </div>
+        </div>
+    </section>
+    }
+
+    <!-- Top Rated Courses Carousel -->
+    @if (topRatedCourses().length > 0) {
+    <section class="carousel-section">
+        <div class="max-w-screen">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Top Rated Courses</h2>
+                    <p class="section-subtitle">Our students' favorites</p>
+                </div>
+            </div>
+
+            <p-carousel [value]="topRatedCourses()" [numVisible]="4" [numScroll]="1"
+                [responsiveOptions]="carouselResponsiveOptions" [autoplayInterval]="5000" [circular]="true"
+                class="courses-carousel">
+                <ng-template let-course pTemplate="item">
+                    <div class="carousel-item">
+                        <app-property-course-card [course]="course"></app-property-course-card>
+                    </div>
+                </ng-template>
+            </p-carousel>
+        </div>
+    </section>
+    }
+
+    <!-- Why Choose Us -->
+    <section class="features-section">
+        <div class="max-w-screen">
+            <div class="section-header text-center">
+                <h2 class="section-title">Why Choose Us</h2>
+                <p class="section-subtitle">What makes our platform different</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card glass-panel">
+                    <div class="feature-icon expert-icon">
+                        <i class="pi pi-star"></i>
+                    </div>
+                    <h3>Expert Instructors</h3>
+                    <p>Learn from industry professionals with years of real-world experience</p>
+                </div>
+
+                <div class="feature-card glass-panel">
+                    <div class="feature-icon flexible-icon">
+                        <i class="pi pi-clock"></i>
+                    </div>
+                    <h3>Flexible Learning</h3>
+                    <p>Learn at your own pace with lifetime access to all course materials</p>
+                </div>
+
+                <div class="feature-card glass-panel">
+                    <div class="feature-icon community-icon">
+                        <i class="pi pi-users"></i>
+                    </div>
+                    <h3>Community Support</h3>
+                    <p>Join a community of learners and get help when you need it</p>
+                </div>
+
+                <div class="feature-card glass-panel">
+                    <div class="feature-icon certificate-icon">
+                        <i class="pi pi-certificate"></i>
+                    </div>
+                    <h3>Certificates</h3>
+                    <p>Earn verified certificates to showcase your skills</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Courses -->
+    @if (recentCourses().length > 0) {
+    <section class="courses-section">
+        <div class="max-w-screen">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Recently Added</h2>
+                    <p class="section-subtitle">Fresh new content for you</p>
+                </div>
+            </div>
+
+            <div class="courses-grid">
+                @for (course of recentCourses(); track trackByCourseId($index, course)) {
+                <app-property-course-card [course]="course"></app-property-course-card>
+                }
+            </div>
+        </div>
+    </section>
+    }
+
+    <!-- Testimonials -->
+    <section class="testimonials-section">
+        <div class="max-w-screen">
+            <div class="section-header text-center">
+                <h2 class="section-title">What Our Students Say</h2>
+                <p class="section-subtitle">Real stories from real learners</p>
+            </div>
+
+            <div class="testimonials-grid">
+                @for (testimonial of testimonials; track testimonial.id) {
+                <div class="testimonial-card glass-panel">
+                    <div class="testimonial-header">
+                        <p-avatar [image]="testimonial.avatar" shape="circle" size="large"></p-avatar>
+                        <div class="testimonial-info">
+                            <h4>{{ testimonial.name }}</h4>
+                            <p>{{ testimonial.role }}</p>
+                        </div>
+                    </div>
+                    <div class="testimonial-rating">
+                        @for (star of [1,2,3,4,5]; track star) {
+                        <i class="pi" [ngClass]="{
+                    'pi-star-fill': star <= testimonial.rating,
+                    'pi-star': star > testimonial.rating
+                  }"></i>
+                        }
+                    </div>
+                    <p class="testimonial-content">"{{ testimonial.content }}"</p>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="max-w-screen">
+            <div class="cta-content glass-panel">
+                <h2 class="cta-title">Ready to Start Learning?</h2>
+                <p class="cta-subtitle">Join thousands of students already learning on our platform</p>
+                <div class="cta-buttons">
+                    <button pButton pRipple label="Browse All Courses" icon="pi pi-search" class="cta-primary"></button>
+                    <button pButton pRipple label="Become an Instructor" icon="pi pi-user-plus" class="cta-secondary"
+                        text="true"></button>
+                </div>
+            </div>
+        </div>
+    </section>
+    }
+</div>

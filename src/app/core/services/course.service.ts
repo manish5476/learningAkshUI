@@ -66,9 +66,9 @@ getInstructorCourseById(courseId: string) {
   getTopRatedCourses(limit: number = 8): Observable<ApiResponse<any>> {
     return this.baseApi.get<Course[]>(`${this.endpoint}/top-rated`, { params: { limit } });
   }
-  
+
   getCourseAnalytics(courseId: string): Observable<ApiResponse<any>> {
-    return this.baseApi.get(`enrollments/analytics/${courseId}`, { showLoader: true });
+    return this.baseApi.get(`${this.endpoint}/analytics/${courseId}`, { showLoader: true });
   }
   /**
    * Fetch related courses based on the current course's category
