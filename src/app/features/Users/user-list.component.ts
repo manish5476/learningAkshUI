@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ViewChild, inject, signal, DestroyRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ViewChild, inject, signal, DestroyRef, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -25,6 +25,7 @@ import { User } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { UserFormComponent } from "./user-form.component";
 import { UserDetailComponent } from "./user-detail.component";
+import { AppMessageService } from '../../core/utils/message.service';
 
 @Component({
   selector: 'app-user-list',
@@ -76,49 +77,122 @@ import { UserDetailComponent } from "./user-detail.component";
         </div>
       </div>
 
-      <div class="filters-section glass-panel">
-        <div class="search-wrapper">
-          <p-iconField iconPosition="left" class="w-full">
-            <p-inputIcon styleClass="pi pi-search text-tertiary" />
-            <input pInputText 
-                   [ngModel]="searchQuery()" 
-                   (ngModelChange)="onSearchChange($event)"
-                   placeholder="Search by name or email..." 
-                   class="search-input w-full">
-          </p-iconField>
-        </div>
-        
-        <div class="filter-group">
-          <p-select appendTo='body' 
-            [options]="roleOptions" 
-            [ngModel]="selectedRole()" 
-            (ngModelChange)="onRoleChange($event)"
-            placeholder="Filter by Role"
-            optionLabel="label"
-            optionValue="value"
-            styleClass="min-w-12rem"
-            [showClear]="true">
-          </p-select>
+     <div class="filters-section glass-panel">
+  <div class="filters-container">
+    <!-- Search Input with Icon -->
+    <div class="search-wrapper">
+      <span class="p-input-icon-left w-full">
+        <!-- <i class="pi pi-search"></i> -->
+        <input 
+          pInputText 
+          [ngModel]="searchQuery()" 
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="Search by name or email..." 
+          class="search-input">
+      </span>
+    </div>
 
-          <p-select appendTo='body' 
-            [options]="statusOptions" 
-            [ngModel]="selectedStatus()" 
-            (ngModelChange)="onStatusChange($event)"
-            placeholder="Filter by Status"
-            optionLabel="label"
-            optionValue="value"
-            styleClass="min-w-12rem"
-            [showClear]="true">
-          </p-select>
+    <!-- Filter Controls -->
+    <div class="filter-controls">
+      <!-- Role Filter -->
+      <p-select 
+        appendTo="body" 
+        [options]="roleOptions" 
+        [ngModel]="selectedRole()" 
+        (ngModelChange)="onRoleChange($event)"
+        placeholder="All Roles"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="filter-select"
+        [showClear]="true">
+        <ng-template pTemplate="selectedItem">
+          <div class="selected-filter" *ngIf="selectedRole()">
+            <i class="pi pi-users mr-1"></i>
+            <span>{{ getRoleLabel(selectedRole()) }}</span>
+          </div>
+          <span *ngIf="!selectedRole()" class="filter-placeholder">
+            <i class="pi pi-users mr-1"></i>
+            All Roles
+          </span>
+        </ng-template>
+      </p-select>
 
-          <button pButton pRipple icon="pi pi-filter-slash" 
-                  class="p-button-rounded p-button-text p-button-secondary" 
-                  pTooltip="Clear Filters" 
-                  (click)="clearFilters()">
-          </button>
-        </div>
+      <!-- Status Filter -->
+      <p-select 
+        appendTo="body" 
+        [options]="statusOptions" 
+        [ngModel]="selectedStatus()" 
+        (ngModelChange)="onStatusChange($event)"
+        placeholder="All Status"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="filter-select"
+        [showClear]="true">
+        <ng-template pTemplate="selectedItem">
+          <div class="selected-filter" *ngIf="selectedStatus()">
+            <i class="pi" [class.pi-check-circle]="selectedStatus() === 'active'" 
+                         [class.pi-times-circle]="selectedStatus() === 'inactive'"
+                         [class.pi-exclamation-triangle]="selectedStatus() === 'pending'"
+                         [style.color]="getStatusColor(selectedStatus())"></i>
+            <span>{{ getStatusLabel(selectedStatus()) }}</span>
+          </div>
+          <span *ngIf="!selectedStatus()" class="filter-placeholder">
+            <i class="pi pi-filter mr-1"></i>
+            All Status
+          </span>
+        </ng-template>
+      </p-select>
+
+      <!-- Clear Filters Button -->
+      <button 
+        pButton 
+        pRipple 
+        type="button"
+        icon="pi pi-filter-slash" 
+        class="p-button-rounded p-button-text p-button-secondary clear-filters-btn"
+        pTooltip="Clear all filters"
+        tooltipPosition="top"
+        (click)="clearFilters()"
+        [disabled]="!hasActiveFilters()">
+      </button>
+    </div>
+  </div>
+
+  <!-- Active Filters Display -->
+  @if (hasActiveFilters()) {
+    <div class="active-filters">
+      <span class="active-filters-label">Active filters:</span>
+      <div class="filter-chips">
+        @if (selectedRole()) {
+          <span class="filter-chip">
+            <i class="pi pi-users"></i>
+            {{ getRoleLabel(selectedRole()) }}
+            <i class="pi pi-times-circle filter-chip-remove" 
+               (click)="onRoleChange(null)"></i>
+          </span>
+        }
+        @if (selectedStatus()) {
+          <span class="filter-chip">
+            <i class="pi" [class.pi-check-circle]="selectedStatus() === 'active'" 
+                         [class.pi-times-circle]="selectedStatus() === 'inactive'"
+                         [class.pi-exclamation-triangle]="selectedStatus() === 'pending'"></i>
+            {{ getStatusLabel(selectedStatus()) }}
+            <i class="pi pi-times-circle filter-chip-remove" 
+               (click)="onStatusChange(null)"></i>
+          </span>
+        }
+        @if (searchQuery()) {
+          <span class="filter-chip">
+            <i class="pi pi-search"></i>
+            "{{ searchQuery() }}"
+            <i class="pi pi-times-circle filter-chip-remove" 
+               (click)="onSearchChange('')"></i>
+          </span>
+        }
       </div>
-
+    </div>
+  }
+</div>
       <div class="glass-panel table-container shadow-sm border-radius-xl overflow-hidden">
         <p-table 
           #dt
@@ -377,34 +451,34 @@ import { UserDetailComponent } from "./user-detail.component";
     }
 
     /* Table Styling */
-    :host ::ng-deep {
-      .custom-table .p-datatable-thead > tr > th {
-        background: var(--bg-secondary);
-        color: var(--text-secondary);
-        font-weight: var(--font-weight-bold);
-        font-size: var(--font-size-xs);
-        border-bottom: 2px solid var(--border-secondary);
-        padding: var(--spacing-lg) var(--spacing-md);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        white-space: nowrap;
-      }
+    // :host ::ng-deep {
+    //   .custom-table .p-datatable-thead > tr > th {
+    //     background: var(--bg-secondary);
+    //     color: var(--text-secondary);
+    //     font-weight: var(--font-weight-bold);
+    //     font-size: var(--font-size-xs);
+    //     border-bottom: 2px solid var(--border-secondary);
+    //     padding: var(--spacing-lg) var(--spacing-md);
+    //     text-transform: uppercase;
+    //     letter-spacing: 0.05em;
+    //     white-space: nowrap;
+    //   }
 
-      .custom-table .p-datatable-tbody > tr > td {
-        padding: var(--spacing-md);
-        border-bottom: 1px solid var(--component-divider);
-        color: var(--text-primary);
-        font-size: var(--font-size-sm);
-      }
+    //   .custom-table .p-datatable-tbody > tr > td {
+    //     padding: var(--spacing-md);
+    //     border-bottom: 1px solid var(--component-divider);
+    //     color: var(--text-primary);
+    //     font-size: var(--font-size-sm);
+    //   }
       
-      .custom-table .p-paginator {
-        background: var(--bg-secondary);
-        border-top: 1px solid var(--border-secondary);
-        padding: var(--spacing-sm);
-        border-bottom-left-radius: var(--ui-border-radius-xl);
-        border-bottom-right-radius: var(--ui-border-radius-xl);
-      }
-    }
+    //   .custom-table .p-paginator {
+    //     background: var(--bg-secondary);
+    //     border-top: 1px solid var(--border-secondary);
+    //     padding: var(--spacing-sm);
+    //     border-bottom-left-radius: var(--ui-border-radius-xl);
+    //     border-bottom-right-radius: var(--ui-border-radius-xl);
+    //   }
+    // }
 
     .table-row-hover:hover {
       background: var(--bg-hover) !important;
@@ -473,12 +547,12 @@ import { UserDetailComponent } from "./user-detail.component";
     .fade-in { animation: fadeIn var(--transition-base); }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-    :host ::ng-deep .custom-dialog .p-dialog-header {
-      background: var(--component-surface-raised); border-bottom: 1px solid var(--border-secondary); padding: var(--spacing-lg) var(--spacing-xl);
-    }
-    :host ::ng-deep .custom-dialog .p-dialog-content {
-      background: var(--bg-primary); padding: var(--spacing-xl);
-    }
+    // :host ::ng-deep .custom-dialog .p-dialog-header {
+    //   background: var(--component-surface-raised); border-bottom: 1px solid var(--border-secondary); padding: var(--spacing-lg) var(--spacing-xl);
+    // }
+    // :host ::ng-deep .custom-dialog .p-dialog-content {
+    //   background: var(--bg-primary); padding: var(--spacing-xl);
+    // }
 
     /* Responsive adjustments */
     @media (max-width: 992px) {
@@ -491,12 +565,373 @@ import { UserDetailComponent } from "./user-detail.component";
       .search-wrapper { max-width: 100%; }
       .table-container { min-height: 600px; /* Fallback for mobile */ }
     }
+
+    .filters-section {
+  background: var(--bg-primary);
+  border-radius: var(--ui-border-radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-secondary);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+
+  &.glass-panel {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+}
+
+.filters-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+
+  @media (min-width: 1024px) {
+    flex-wrap: nowrap;
+  }
+}
+
+/* Search Wrapper */
+.search-wrapper {
+  flex: 2;
+  min-width: 250px;
+
+  .p-input-icon-left {
+    width: 100%;
+    position: relative;
+
+    i {
+      color: var(--text-tertiary);
+      font-size: var(--font-size-base);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) calc(var(--spacing-xl) + 0.5rem);
+      border: 1px solid var(--border-secondary);
+      border-radius: var(--ui-border-radius);
+      font-size: var(--font-size-base);
+      transition: all 0.2s ease;
+      background: var(--bg-primary);
+
+      &:hover {
+        border-color: var(--accent-secondary);
+      }
+
+      &:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px var(--focus-ring-color);
+      }
+
+      // &::placeholder {
+      //   color: var(--text-tertiary);
+      //   opacity: 0.8;
+      // }
+    }
+  }
+}
+
+/* Filter Controls */
+.filter-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex: 3;
+  justify-content: flex-end;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+// /* Filter Select Styling */
+// :host ::ng-deep {
+//   .filter-select {
+//     min-width: 160px;
+
+//     .p-select-label {
+//       display: flex;
+//       align-items: center;
+//       gap: var(--spacing-xs);
+//       padding: var(--spacing-sm) var(--spacing-md);
+//     }
+
+//     .p-select-trigger {
+//       width: 2.5rem;
+//     }
+
+//     &:hover {
+//       border-color: var(--accent-secondary);
+//     }
+
+//     &.p-focus {
+//       border-color: var(--accent-primary);
+//       box-shadow: 0 0 0 3px var(--focus-ring-color);
+//     }
+//   }
+
+//   .p-select-dropdown {
+//     .selected-filter {
+//       display: flex;
+//       align-items: center;
+//       gap: var(--spacing-xs);
+//       color: var(--text-primary);
+
+//       i {
+//         font-size: var(--font-size-sm);
+//       }
+//     }
+
+//     .filter-placeholder {
+//       display: flex;
+//       align-items: center;
+//       gap: var(--spacing-xs);
+//       color: var(--text-tertiary);
+
+//       i {
+//         font-size: var(--font-size-sm);
+//       }
+//     }
+//   }
+
+//   /* Dropdown Panel Styling */
+//   .p-select-panel {
+//     border-radius: var(--ui-border-radius);
+//     box-shadow: var(--shadow-lg);
+//     border: 1px solid var(--border-secondary);
+//     background: var(--bg-primary);
+//     padding: var(--spacing-xs) 0;
+//     max-height: 300px;
+
+//     .p-select-option {
+//       padding: var(--spacing-sm) var(--spacing-md);
+//       transition: all 0.2s ease;
+//       display: flex;
+//       align-items: center;
+//       gap: var(--spacing-sm);
+
+//       &:hover {
+//         background: var(--bg-secondary);
+//       }
+
+//       &.p-select-option-selected {
+//         background: var(--accent-focus);
+//         color: var(--accent-primary);
+//       }
+
+//       i {
+//         font-size: var(--font-size-sm);
+//         width: 16px;
+//       }
+//     }
+//   }
+// }
+
+/* Clear Filters Button */
+.clear-filters-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  margin-left: var(--spacing-xs);
+
+  &:hover:not(:disabled) {
+    background: var(--accent-focus);
+    color: var(--accent-primary);
+    transform: rotate(15deg);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+/* Active Filters Section */
+.active-filters {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-secondary);
+  flex-wrap: wrap;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+}
+
+.active-filters-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  flex: 1;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 20px;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+
+  i:not(.filter-chip-remove) {
+    color: var(--accent-primary);
+    font-size: var(--font-size-xs);
+  }
+
+  .filter-chip-remove {
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: var(--spacing-xs);
+    padding: 2px;
+
+    &:hover {
+      color: var(--color-error);
+      transform: scale(1.1);
+    }
+  }
+
+  &:hover {
+    background: var(--bg-primary);
+    border-color: var(--accent-secondary);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .filters-section.glass-panel {
+    background: rgba(30, 30, 30, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .search-input {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .filter-chip {
+    background: var(--bg-tertiary);
+    border-color: var(--border-secondary);
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .filters-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-wrapper {
+    width: 100%;
+  }
+
+  .filter-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  :host ::ng-deep .filter-select {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .filters-section {
+    padding: var(--spacing-md);
+  }
+
+  .filter-controls {
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+
+    :host ::ng-deep .filter-select {
+      width: calc(50% - 30px);
+      min-width: 120px;
+    }
+  }
+
+  .clear-filters-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+
+  .filter-chips {
+    width: 100%;
+  }
+}
+
+/* Animation for filter chips */
+.filter-chip {
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading state for filters */
+.filters-section.loading {
+  opacity: 0.7;
+  pointer-events: none;
+
+  .search-input,
+  .filter-select {
+    background: linear-gradient(90deg, 
+      var(--bg-secondary) 25%, 
+      var(--bg-tertiary) 50%, 
+      var(--bg-secondary) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+  }
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
   `]
 })
 export class UserListComponent implements OnInit {
   private userService = inject(UserService);
   private confirmationService = inject(ConfirmationService);
-  private messageService = inject(MessageService);
+  private messageService = inject(AppMessageService);
   private destroyRef = inject(DestroyRef);
 
   @ViewChild('dt') table: any;
@@ -509,8 +944,8 @@ export class UserListComponent implements OnInit {
   rowsPerPage = signal<number>(10);
 
   searchQuery = signal<string>('');
-  selectedRole = signal<string | null>(null);
-  selectedStatus = signal<boolean | null>(null);
+  selectedRole = signal<any>(null);
+  selectedStatus = signal<any>(null);
 
   showFormDialog = signal<boolean>(false);
   showDetailDialog = signal<boolean>(false);
@@ -529,7 +964,37 @@ export class UserListComponent implements OnInit {
     { label: 'Active', value: true },
     { label: 'Inactive', value: false }
   ];
+// Helper methods for the filter UI
+getRoleLabel(role: string): string {
+  const roleMap: Record<string, string> = {
+    'admin': 'Admin',
+    'instructor': 'Instructor',
+    'student': 'Student'
+  };
+  return roleMap[role] || role;
+}
 
+getStatusLabel(status: string): string {
+  const statusMap: Record<string, string> = {
+    'active': 'Active',
+    'inactive': 'Inactive',
+    'pending': 'Pending'
+  };
+  return statusMap[status] || status;
+}
+
+getStatusColor(status: string): string {
+  const colorMap: Record<string, string> = {
+    'active': 'var(--color-success)',
+    'inactive': 'var(--color-warning)',
+    'pending': 'var(--color-info)'
+  };
+  return colorMap[status] || 'var(--text-secondary)';
+}
+
+hasActiveFilters = computed(() => {
+  return !!(this.selectedRole() || this.selectedStatus() || this.searchQuery());
+});
   ngOnInit(): void {
     this.searchSubject.pipe(
       debounceTime(400),
@@ -611,7 +1076,7 @@ export class UserListComponent implements OnInit {
   }
 
   private showToast(severity: string, summary: string, detail: string): void {
-    this.messageService.add({ severity, summary, detail, life: 3000 });
+    this.messageService.showWarn( detail);
   }
 
   openNewUserDialog(): void {

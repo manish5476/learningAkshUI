@@ -142,15 +142,12 @@ interface User {
             <ng-template pTemplate="header">
               <div class="profile-cover">
   <img 
-    src="https://images.unsplash.com/photo-1730449819838-a5018d63e79e?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+    src="https://images.unsplash.com/photo-1751517298236-b9150faa3dfd?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
     alt="Profile Cover"
     class="cover-image"
     loading="lazy">
   <div class="cover-overlay"></div>
 </div>
-              <!-- <div class="profile-cover" [style.background]="coverGradient()">
-                <div class="cover-overlay"></div>
-              </div> -->
             </ng-template>
 
             <div class="profile-header">
