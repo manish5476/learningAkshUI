@@ -187,7 +187,7 @@ export class LessonListComponent implements OnInit {
       header: 'Confirm Delete',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.lessonService.delete(this.courseId(),this.sectionId(),lesson._id)
+        this.lessonService.deleteLesson(this.courseId(),this.sectionId(),lesson._id)
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
             next: () => {

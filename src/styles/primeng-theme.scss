@@ -200,51 +200,51 @@
 }
 
 /* Checkbox */
-.p-checkbox {
-  display: inline-flex;
-  vertical-align: bottom;
-  align-items: center;
-  width: 1.25rem;
-  height: 1.25rem;
+// .p-checkbox {
+//   display: inline-flex;
+//   vertical-align: bottom;
+//   align-items: center;
+//   width: 1.25rem;
+//   height: 1.25rem;
 
-  .p-checkbox-box {
-    border: var(--ui-border-width) solid var(--border-primary);
-    background: var(--bg-primary);
-    width: 1.25rem;
-    height: 1.25rem;
-    border-radius: var(--ui-border-radius-sm);
-    transition: var(--transition-fast);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+//   .p-checkbox-box {
+//     border: var(--ui-border-width) solid var(--border-primary);
+//     background: var(--bg-primary);
+//     width: 1.25rem;
+//     height: 1.25rem;
+//     border-radius: var(--ui-border-radius-sm);
+//     transition: var(--transition-fast);
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
 
-    &:not(.p-disabled):not(.p-highlight):hover {
-      border-color: var(--accent-primary);
-    }
+//     &:not(.p-disabled):not(.p-highlight):hover {
+//       border-color: var(--accent-primary);
+//     }
 
-    &.p-highlight {
-      border-color: var(--accent-primary);
-      background: var(--accent-primary);
+//     &.p-highlight {
+//       border-color: var(--accent-primary);
+//       background: var(--accent-primary);
       
-      .p-checkbox-icon {
-        color: #ffffff; // Always white on accent
-      }
-    }
+//       .p-checkbox-icon {
+//         color: #ffffff; // Always white on accent
+//       }
+//     }
 
-    &.p-focus {
-      box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
-    }
+//     &.p-focus {
+//       box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+//     }
     
-    &.p-invalid {
-      border-color: var(--color-error);
-    }
-  }
+//     &.p-invalid {
+//       border-color: var(--color-error);
+//     }
+//   }
 
-  .p-checkbox-icon {
-    font-size: var(--font-size-sm);
-    transition: var(--transition-fast);
-  }
-}
+//   .p-checkbox-icon {
+//     font-size: var(--font-size-sm);
+//     transition: var(--transition-fast);
+//   }
+// }
 
 /* RadioButton */
 .p-radiobutton {

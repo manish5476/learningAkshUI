@@ -41,7 +41,7 @@ import { Card } from "primeng/card";
     LessonListComponent,
     DurationPipe,
     Card
-],
+  ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './course-curriculum.component.html',
   styleUrl: './course-curriculum.component.scss'
@@ -56,32 +56,31 @@ export class CourseCurriculumComponent implements OnInit {
 
   // Signals
   courseId = signal<string>('');
-  course = signal<any>(null); 
-  sections = signal<any[]>([]); 
+  course = signal<any>(null);
+  sections = signal<any[]>([]);
   loading = signal<boolean>(true);
-  
+
   // Dialog State
   showSectionDialog = signal<boolean>(false);
   editingSectionId = signal<string | null>(null);
-  
+
   // Drag & Drop State
   draggedSectionIndex = signal<number | null>(null);
 
   // Form
-  sectionForm: FormGroup = this.fb.group({
-    title: ['', Validators.required],
-    description: [''],
-    isPublished: [true]
-  });
-
+sectionForm: FormGroup = this.fb.group({
+  title: ['', Validators.required],
+  description: [''],
+  isPublished: [true]
+});
   // Computed Properties (Derived State)
   sectionDialogTitle = computed(() => this.editingSectionId() ? 'Edit Section' : 'Add New Section');
-  
+
   totalSections = computed(() => this.sections().length);
-  totalLessons = computed(() => 
+  totalLessons = computed(() =>
     this.sections().reduce((acc, curr) => acc + (curr.totalLessons || 0), 0)
   );
-  totalDuration = computed(() => 
+  totalDuration = computed(() =>
     this.sections().reduce((acc, curr) => acc + (curr.totalDuration || 0), 0)
   );
 
@@ -93,11 +92,11 @@ export class CourseCurriculumComponent implements OnInit {
     }
   }
 
- loadData(): void {
+  loadData(): void {
     this.loading.set(true);
-        this.courseService.getInstructorCourseById(this.courseId()).subscribe({
+    this.courseService.getInstructorCourseById(this.courseId()).subscribe({
       next: (res: any) => {
-        const courseData = res.data?.data || res.data?.course || res.data; 
+        const courseData = res.data?.data || res.data?.course || res.data;
         this.course.set(courseData);
       },
       error: (err) => this.showError('Failed to load course details')
@@ -105,7 +104,7 @@ export class CourseCurriculumComponent implements OnInit {
 
     this.loadSections();
   }
-  
+
   loadSections(): void {
     this.sectionService.getSectionsByCourse(this.courseId()).subscribe({
       next: (res: any) => {
@@ -143,9 +142,12 @@ export class CourseCurriculumComponent implements OnInit {
 
   closeSectionDialog(): void {
     this.showSectionDialog.set(false);
-    this.sectionForm.reset();
+    this.sectionForm.reset({
+      title: '',
+      description: '',
+      isPublished: true
+    });
   }
-
   saveSection(): void {
     if (this.sectionForm.invalid) {
       this.sectionForm.markAllAsTouched();
@@ -154,26 +156,26 @@ export class CourseCurriculumComponent implements OnInit {
 
     const formData = {
       ...this.sectionForm.value,
-      course: this.courseId() 
+      course: this.courseId()
     };
 
     const editId = this.editingSectionId();
 
     if (editId) {
-      this.sectionService.updateSection(this.courseId(),editId, formData).subscribe({
+      this.sectionService.updateSection(this.courseId(), editId, formData).subscribe({
         next: () => {
           this.showSuccess('Section updated successfully');
           this.closeSectionDialog();
-          this.loadSections(); 
+          this.loadSections();
         },
         error: () => this.showError('Failed to update section')
       });
     } else {
-      this.sectionService.createSection(this.courseId(),formData).subscribe({
+      this.sectionService.createSection(this.courseId(), formData).subscribe({
         next: () => {
           this.showSuccess('Section created successfully');
           this.closeSectionDialog();
-          this.loadSections(); 
+          this.loadSections();
         },
         error: () => this.showError('Failed to create section')
       });
@@ -187,7 +189,7 @@ export class CourseCurriculumComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
-        this.sectionService.deleteSection(this.courseId(),section._id).subscribe({
+        this.sectionService.deleteSection(this.courseId(), section._id).subscribe({
           next: () => {
             this.showSuccess('Section deleted');
             this.loadSections();
@@ -201,8 +203,8 @@ export class CourseCurriculumComponent implements OnInit {
   // --- UI Interactions ---
 
   toggleSection(sectionId: string): void {
-    this.sections.update(sections => 
-      sections.map(s => 
+    this.sections.update(sections =>
+      sections.map(s =>
         s._id === sectionId ? { ...s, expanded: !s.expanded } : s
       )
     );
@@ -224,14 +226,14 @@ export class CourseCurriculumComponent implements OnInit {
 
     const target = event.target.closest('.section-card');
     if (!target) return;
-    
+
     const toIndex = parseInt(target.getAttribute('data-index'), 10);
     if (isNaN(toIndex) || fromIndex === toIndex) return;
 
     const updatedSections = [...this.sections()];
     const [movedSection] = updatedSections.splice(fromIndex, 1);
     updatedSections.splice(toIndex, 0, movedSection);
-    
+
     this.sections.set(updatedSections);
 
     const reorderPayload = updatedSections.map((sec, index) => ({
@@ -243,7 +245,7 @@ export class CourseCurriculumComponent implements OnInit {
       next: () => this.showSuccess('Sections reordered'),
       error: () => {
         this.showError('Failed to save new order');
-        this.loadSections(); 
+        this.loadSections();
       }
     });
   }
@@ -251,16 +253,16 @@ export class CourseCurriculumComponent implements OnInit {
   // --- Child Component Event Handlers ---
 
   onLessonCountChange(count: number, sectionId: string): void {
-    this.sections.update(sections => 
-      sections.map(s => 
+    this.sections.update(sections =>
+      sections.map(s =>
         s._id === sectionId ? { ...s, totalLessons: count } : s
       )
     );
   }
 
   onDurationChange(duration: number, sectionId: string): void {
-    this.sections.update(sections => 
-      sections.map(s => 
+    this.sections.update(sections =>
+      sections.map(s =>
         s._id === sectionId ? { ...s, totalDuration: duration } : s
       )
     );
