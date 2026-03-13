@@ -64,35 +64,48 @@
       @if (currentLesson()) {
       <div class="lesson-stage-inner flex-col max-w-screen mx-auto p-lg md:p-3xl w-full">
 
-        <div class="media-container bg-ternary border-radius-xl overflow-hidden border-secondary relative aspect-ratio-16-9 shadow-glow w-full">
-              @if (currentLesson().type === 'video' && safeVideoUrl()) {
-                <iframe [src]="safeVideoUrl()" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen class="w-full h-full absolute inset-0"></iframe>
-              } @else if (currentLesson().type === 'video' && currentLesson().content?.video?.provider === 'local') {
-                <video controls [src]="currentLesson().content.video.url" class="w-full h-full absolute inset-0 object-contain bg-black"></video>
-              } 
-              
-              
-              
-              @else if (currentLesson().type === 'article') {
-        <!-- <div
+        <div
           class="media-container bg-ternary border-radius-xl overflow-hidden border-secondary relative aspect-ratio-16-9 shadow-glow w-full">
+          @if (currentLesson().type === 'video' && safeVideoUrl()) {
+          <iframe [src]="safeVideoUrl()" frameborder="0" allow="autoplay; fullscreen; picture-in-picture"
+            allowfullscreen class="w-full h-full absolute inset-0"></iframe>
+          } @else if (currentLesson().type === 'video' && currentLesson().content?.video?.provider === 'local') {
+          <video controls [src]="currentLesson().content.video.url"
+            class="w-full h-full absolute inset-0 object-contain bg-black"></video>
+          }
 
-          @if (currentLesson().type === 'video') {
-          <app-media-player [mediaToken]="videoToken()"
-            [isYouTube]="currentLesson().content?.video?.provider === 'youtube'"
-            class="w-full h-full absolute inset-0 block">
-          </app-media-player>
-          } @else if (currentLesson().type === 'article') { -->
+
+
+          @else if (currentLesson().type === 'article') {
+
           <div class="article-wrapper custom-scrollbar absolute inset-0 p-2xl md:p-4xl bg-secondary overflow-y-auto">
             <div class="article-content typography-body text-primary line-height-relaxed"
               [innerHTML]="currentLesson().content?.article?.body || 'No content provided.'"></div>
           </div>
-          } @else if (currentLesson().type === 'quiz') {
+          }
+          @else if (currentLesson().type === 'quiz') {
+          <div class="absolute inset-0 bg-secondary overflow-y-auto custom-scrollbar d-flex flex-center">
+            <div class="text-center p-3xl">
+              <i class="pi pi-question-circle text-5xl text-primary mb-xl"></i>
+              <h3 class="font-heading text-2xl text-primary font-bold m-0 mb-md">Ready to test your knowledge?</h3>
+              <p class="text-secondary mb-2xl max-w-prose mx-auto">This lesson contains a quiz to reinforce your
+                learning.</p>
+              <p-button label="Start Quiz" icon="pi pi-play" (onClick)="openQuizDialog(currentLesson().content.quiz)"
+                styleClass="p-button-lg"></p-button>
+            </div>
+          </div>
+          }
+
+          <!-- Add this after the media-container div, before closing lesson-stage-inner -->
+
+          <!-- @else if (currentLesson().type === 'quiz') {
           <div class="absolute inset-0 bg-secondary overflow-y-auto custom-scrollbar">
             <app-lesson-quiz-taker [quizId]="currentLesson().content.quiz"
               (quizCompleted)="onProgressUpdatedFromTracker($event)"></app-lesson-quiz-taker>
           </div>
-          } @else {
+          }  -->
+
+          @else {
           <div class="processing-wrapper absolute inset-0 flex-col flex-center bg-secondary text-center">
             <i class="pi pi-spin pi-spinner text-primary text-5xl mb-md"></i>
             <p class="text-secondary font-heading font-bold uppercase tracking-widest text-sm m-0">Loading content...
@@ -236,3 +249,12 @@
   </div>
   }
 </div>
+
+<p-dialog [(visible)]="showQuizDialog" [modal]="true" [style]="{ width: '90%', maxWidth: '800px' }" [maximizable]="true"
+  [draggable]="false" [resizable]="false" header="Quiz" styleClass="quiz-dialog">
+
+  @if (selectedQuizId()) {
+  <app-lesson-quiz-taker [quizId]="selectedQuizId()" (quizCompleted)="handleQuizCompleted($event)">
+  </app-lesson-quiz-taker>
+  }
+</p-dialog>

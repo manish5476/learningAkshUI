@@ -51,6 +51,39 @@
       </span>
 
       <button class="action-btn success focus-ring" (click)="goAnalytics()">
+        <i class="pi pi-chart-bar"></i>
+        Analytics
+      </button>
+
+      <!-- Quiz Builder Button -->
+      <button class="action-btn quiz-btn focus-ring" (click)="openQuizBuilder()">
+        <i class="pi pi-question-circle"></i>
+        Manage Quiz
+      </button>
+
+      @if (!course.isPublished) {
+      <button class="publish-btn focus-ring" (click)="publishCourse()">
+        <i class="pi pi-rocket"></i>
+        Publish Course
+      </button>
+
+      } @else {
+      <button class="unpublish-btn focus-ring" (click)="unpublishCourse()">
+        <i class="pi pi-eye-slash"></i>
+        Unpublish Course
+      </button>
+      }
+    </div>
+}
+
+    <!-- @if (canManageCourse()) {
+    <div class="nav-right">
+      <span class="status-badge" [ngClass]="getCourseStatus().severity">
+        <i [class]="getCourseStatus().icon"></i>
+        {{ getCourseStatus().label }}
+      </span>
+
+      <button class="action-btn success focus-ring" (click)="goAnalytics()">
         <i class="pi pi-play-circle"></i>
         goAnalytics
       </button>
@@ -68,7 +101,7 @@
       </button>
       }
     </div>
-    }
+    } -->
   </div>
 
   <!-- Main Content Grid -->

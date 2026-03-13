@@ -19,7 +19,6 @@ export interface Instructor {
   email: string;
   profilePicture?: string;
 }
-
 export interface Course {
   expanded: boolean;
   _id: string;
@@ -59,7 +58,56 @@ export interface Course {
   deletedAt?: string;
   createdAt: string;
   updatedAt: string;
+  
+  // Add quiz properties
+  quiz?: {
+    _id: string;
+    title: string;
+    // Add other quiz properties as needed
+  };
+  quizId?: string; // Or just a direct reference to quiz ID
 }
+
+// export interface Course {
+//   expanded: boolean;
+//   _id: string;
+//   title: string;
+//   subtitle?: string;
+//   slug: string;
+//   description: string;
+//   category: Category;
+//   instructor: Instructor;
+//   level: 'beginner' | 'intermediate' | 'advanced' | 'all-levels';
+//   language: string;
+//   thumbnail?: string;
+//   previewVideo?: string;
+//   price: number;
+//   discountPrice?: number;
+//   discountStartDate?: string;
+//   discountEndDate?: string;
+//   isFree: boolean;
+//   currency: string;
+//   totalDuration: number;
+//   totalLessons: number;
+//   totalSections: number;
+//   rating: number;
+//   totalRatings: number;
+//   totalEnrollments: number;
+//   totalReviews: number;
+//   requirements: string[];
+//   whatYouWillLearn: string[];
+//   targetAudience: string[];
+//   tags: string[];
+//   isPublished: boolean;
+//   isApproved: boolean;
+//   approvedBy?: string | Instructor;
+//   approvedAt?: string;
+//   publishedAt?: string;
+//   isDeleted: boolean;
+//   deletedAt?: string;
+//   createdAt: string;
+//   updatedAt: string;
+// }
 
 export interface CourseFormData {
   title: string;

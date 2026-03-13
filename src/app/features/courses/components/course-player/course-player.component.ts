@@ -21,6 +21,7 @@ import { EnrollmentService } from '../../../../core/services/enrollment.service'
 import { LessonService } from '../../../../core/services/lesson.service';
 import { LessonProgressTrackerComponent } from "../../../lesson/components/lesson-progress-tracker/lesson-progress-tracker.component";
 import { LessonQuizTakerComponent } from "../../../Test/lesson-quiz-taker/lesson-quiz-taker.component";
+import { Dialog } from "primeng/dialog";
 
 
 @Component({
@@ -39,7 +40,8 @@ import { LessonQuizTakerComponent } from "../../../Test/lesson-quiz-taker/lesson
     DurationPipe,
     TitleCasePipe,
     LessonProgressTrackerComponent,
-    LessonQuizTakerComponent
+    LessonQuizTakerComponent,
+    Dialog
 ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './course-player.component.html',
@@ -269,33 +271,6 @@ export class CoursePlayerComponent implements OnInit {
     }
   }
   
-  // selectLesson(lesson: any): void {
-  //   this.currentLesson.set(lesson);
-  //   this.expandSectionForLesson(lesson._id);
-  //   if (!lesson.content) {
-  //     this.lessonService.getLessonWithAccess(this.courseId(), lesson.section, lesson._id)
-  //       .pipe(takeUntilDestroyed(this.destroyRef))
-  //       .subscribe({
-  //         next: (res: any) => {
-  //           if (this.currentLesson()?._id === lesson._id) {
-  //             this.currentLesson.set(res.data?.lesson || res.data);
-  //           }
-  //         },
-  //         error: (err) => {
-  //           if (err.status === 403) {
-  //             this.error.set('This is a premium lesson. Please enroll in the course to unlock it.');
-  //           } else {
-  //             this.error.set('Could not load lesson content.');
-  //           }
-  //         }
-  //       });
-  //   }
-
-  //   if (window.innerWidth <= 1024) {
-  //     this.sidebarVisible.set(false);
-  //   }
-  // }
-
   private expandSectionForLesson(lessonId: string): void {
     const secs = this.sections();
     for (let i = 0; i < secs.length; i++) {
@@ -348,4 +323,36 @@ export class CoursePlayerComponent implements OnInit {
     const match = url.match(/^.*(vimeo\.com\/)((channels\/[A-z]+\/)|(groups\/[A-z]+\/videos\/))?([0-9]+)/);
     return match ? match[5] : url;
   }
+
+
+
+
+  // In your component class, add:
+showQuizDialog = signal<boolean>(false);
+selectedQuizId = signal<string>('');
+
+// Add this method
+openQuizDialog(quizId: string): void {
+  this.selectedQuizId.set(quizId);
+  this.showQuizDialog.set(true);
+}
+
+handleQuizCompleted(result: { score: number, passed: boolean }): void {
+  this.showQuizDialog.set(false);
+  
+  // Update progress if needed
+  if (this.currentLesson()) {
+    this.onProgressUpdatedFromTracker({
+      lessonId: this.currentLesson()._id,
+      completed: result.passed,
+      score: result.score
+    });
+  }
+  
+  this.messageService.add({
+    severity: result.passed ? 'success' : 'info',
+    summary: result.passed ? 'Quiz Passed!' : 'Quiz Completed',
+    detail: `You scored ${result.score}% - ${result.passed ? 'Great job!' : 'Keep practicing!'}`
+  });
+}
 }

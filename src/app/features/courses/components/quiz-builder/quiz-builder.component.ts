@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, Abs
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { switchMap, finalize, catchError } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
+import { combineLatest } from 'rxjs';
 
 // PrimeNG
 import { ButtonModule } from 'primeng/button';
@@ -109,27 +110,117 @@ export class QuizBuilderComponent implements OnInit {
   }
 
   private setupRouteSubscriptions(): void {
-    // Get course ID from query params
-    this.route.queryParams.pipe(
+    // Combine both params and queryParams to handle all cases
+    combineLatest([
+      this.route.params,
+      this.route.queryParams
+    ]).pipe(
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(params => {
+    ).subscribe(([params, queryParams]) => {
+
+      // Priority 1: Get courseId from route params (your main route structure)
       if (params['courseId']) {
         this.courseId.set(params['courseId']);
       }
-    });
+      // Priority 2: Get courseId from query params (fallback)
+      else if (queryParams['courseId']) {
+        this.courseId.set(queryParams['courseId']);
+      }
 
-    // Handle quiz ID param
-    this.route.params.pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(params => {
+      // Handle quiz ID
       if (params['id'] && params['id'] !== 'new') {
+        // Edit existing quiz
         this.quizId.set(params['id']);
         this.loadQuiz(params['id']);
-      } else {
-        this.addQuestion(); // Start with one empty question
+      } else if (params['id'] === 'new') {
+        // Create new quiz - verify we have courseId
+        if (!this.courseId()) {
+          console.error('Course ID is required to create a quiz');
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Course ID is missing. Cannot create quiz.'
+          });
+
+          // Redirect back to courses
+          setTimeout(() => {
+            this.router.navigate(['/instructor/courses']);
+          }, 2000);
+          return;
+        }
+
+        // Add initial question if this is a new quiz
+        if (this.questions.length === 0) {
+          this.addQuestion();
+        }
       }
     });
   }
+  // private setupRouteSubscriptions(): void {
+  //   // Get course ID from route parameters FIRST (this is your main issue)
+  //   this.route.params.pipe(
+  //     takeUntilDestroyed(this.destroyRef)
+  //   ).subscribe(params => {
+  //     // Check for courseId in route params (from your route structure: /courses/:courseId/quiz/:id)
+  //     if (params['courseId']) {
+  //       console.log('Found courseId in route params:', params['courseId']);
+  //       this.courseId.set(params['courseId']);
+  //     }
+
+  //     // Handle quiz ID param
+  //     if (params['id'] && params['id'] !== 'new') {
+  //       this.quizId.set(params['id']);
+  //       this.loadQuiz(params['id']);
+  //     } else if (params['id'] === 'new') {
+  //       // For new quiz, make sure we have courseId before adding question
+  //       if (this.courseId()) {
+  //         this.addQuestion(); // Start with one empty question
+  //       } else {
+  //         // If no courseId yet, wait for query params or show error
+  //         console.warn('No courseId found in params yet');
+  //       }
+  //     }
+  //   });
+
+  //   // Also check query params as fallback (for backward compatibility)
+  //   this.route.queryParams.pipe(
+  //     takeUntilDestroyed(this.destroyRef)
+  //   ).subscribe(params => {
+  //     if (params['courseId'] && !this.courseId()) {
+  //       console.log('Found courseId in query params:', params['courseId']);
+  //       this.courseId.set(params['courseId']);
+
+  //       // If this is a new quiz and we just got the courseId, add the question
+  //       const currentId = this.route.snapshot.params['id'];
+  //       if (currentId === 'new' && this.questions.length === 0) {
+  //         this.addQuestion();
+  //       }
+  //     }
+  //   });
+  // }
+
+  // private setupRouteSubscriptions(): void {
+  //   // Get course ID from query params
+  //   this.route.queryParams.pipe(
+  //     takeUntilDestroyed(this.destroyRef)
+  //   ).subscribe(params => {
+  //     if (params['courseId']) {
+  //       this.courseId.set(params['courseId']);
+  //     }
+  //   });
+
+  //   // Handle quiz ID param
+  //   this.route.params.pipe(
+  //     takeUntilDestroyed(this.destroyRef)
+  //   ).subscribe(params => {
+  //     if (params['id'] && params['id'] !== 'new') {
+  //       this.quizId.set(params['id']);
+  //       this.loadQuiz(params['id']);
+  //     } else {
+  //       this.addQuestion(); // Start with one empty question
+  //     }
+  //   });
+  // }
 
   // ==========================================================================
   // FORM ACCESSORS
