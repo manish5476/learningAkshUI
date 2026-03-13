@@ -144,7 +144,8 @@
     </div>
     }
   </div>
-  <p-dialog appendTo="body" [(visible)]="showSectionDialog" [header]="sectionDialogTitle()" [modal]="true"
+
+  <p-dialog appendTo="body" [(visible)]="showSectionDialog" [header]="sectionDialogTitle()" [modal]="true"  [style]="{width: '75%', maxWidth: '95vw'}" 
     [draggable]="false" [resizable]="false" styleClass="glass-dialog">
 
     <form [formGroup]="sectionForm" (ngSubmit)="saveSection()" class="section-form flex-col gap-lg mt-md">
