@@ -1,0 +1,140 @@
+<div class="dashboard-wrapper">
+  
+  <div class="welcome-banner surface-raised">
+    <div>
+      <h1 class="font-heading text-3xl font-bold text-primary m-0 mb-xs">
+        Welcome back, <span class="text-gradient">{{ currentUser()?.firstName || 'Student' }}</span>!
+      </h1>
+      <p class="text-secondary m-0">Ready to learn something new today?</p>
+    </div>
+    <p-button label="Explore Catalog" icon="pi pi-search" routerLink="/courses" styleClass="p-button-outlined focus-ring"></p-button>
+  </div>
+
+  <div class="dashboard-grid">
+    
+    <div class="main-column">
+      
+      <section class="dashboard-section">
+        <div class="section-header flex-between align-items-center mb-lg">
+          <h2 class="font-heading text-xl font-bold text-primary m-0">Continue Learning</h2>
+          <a routerLink="/my-learning" class="text-sm font-bold text-primary hover-text-primary transition-colors">View All</a>
+        </div>
+
+        @if (isLoadingEnrollments()) {
+          <div class="course-grid">
+            @for (i of placeholderArray; track i) {
+              <div class="skeleton-card bg-secondary border-radius-lg p-md border-secondary">
+                <p-skeleton width="100%" height="150px" borderRadius="8px" styleClass="mb-md"></p-skeleton>
+                <p-skeleton width="80%" height="1.5rem" styleClass="mb-sm"></p-skeleton>
+                <p-skeleton width="40%" height="1rem"></p-skeleton>
+              </div>
+            }
+          </div>
+        } @else if (enrollments().length === 0) {
+          <div class="empty-box bg-secondary border-dashed border-secondary border-radius-lg flex-col flex-center p-4xl text-center">
+            <i class="pi pi-book text-4xl text-tertiary mb-md"></i>
+            <h3 class="font-bold text-primary m-0 mb-xs">No active courses</h3>
+            <p class="text-sm text-secondary m-0">You haven't enrolled in any courses yet.</p>
+          </div>
+        } @else {
+          <div class="course-grid">
+            @for (enrollment of enrollments(); track enrollment._id) {
+              <div class="progress-card bg-primary border-primary border-radius-lg transition-base cursor-pointer overflow-hidden group" (click)="continueCourse(enrollment)">
+                <div class="card-image bg-ternary relative h-10rem overflow-hidden">
+                  <img [src]="enrollment.course.thumbnail || 'assets/images/course-placeholder.jpg'" [alt]="enrollment.course.title" class="w-full h-full object-cover transition-slow group-hover-scale">
+                  <div class="play-overlay absolute inset-0 flex-center opacity-0 group-hover-opacity-100 transition-base">
+                    <i class="pi pi-play-circle text-4xl text-white"></i>
+                  </div>
+                </div>
+                <div class="card-body p-md flex-col">
+                  <span class="text-xs font-bold text-tertiary mb-xs uppercase letter-spacing-sm">Started {{ enrollment.enrolledAt | date:'MMM d' }}</span>
+                  <h4 class="font-heading font-bold text-primary text-base m-0 mb-lg truncate-2">{{ enrollment.course.title }}</h4>
+                  
+                  <div class="mt-auto">
+                    <div class="flex-between align-items-center mb-xs">
+                      <span class="text-xs font-bold text-secondary">Progress</span>
+                      <span class="text-xs font-bold text-primary">{{ enrollment.progress || 0 }}%</span>
+                    </div>
+                    <p-progressBar [value]="enrollment.progress || 0" [showValue]="false" styleClass="h-xs"></p-progressBar>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="dashboard-section mt-4xl">
+        <div class="section-header mb-lg">
+          <h2 class="font-heading text-xl font-bold text-primary m-0">Recommended for You</h2>
+          <p class="text-sm text-secondary m-0 mt-xs">Based on your interests and activity</p>
+        </div>
+
+        @if (isLoadingRecommendations()) {
+          <div class="course-grid">
+            @for (i of placeholderArray; track i) {
+              <div class="skeleton-card bg-secondary border-radius-lg p-md border-secondary h-20rem">
+                <p-skeleton width="100%" height="100%"></p-skeleton>
+              </div>
+            }
+          </div>
+        } @else if (recommendations().length > 0) {
+          <div class="course-grid">
+            @for (course of recommendations(); track course._id) {
+              <app-property-course-card [course]="course"></app-property-course-card>
+            }
+          </div>
+        }
+      </section>
+
+    </div>
+
+    <div class="sidebar-column">
+      <div class="timeline-widget bg-secondary border-primary border-radius-xl p-xl h-full sticky top-lg shadow-xs">
+        <h3 class="font-heading text-lg font-bold text-primary m-0 mb-xl flex align-items-center gap-sm">
+          <i class="pi pi-history text-primary"></i> Learning Activity
+        </h3>
+
+        @if (isLoadingTimeline()) {
+          <div class="flex-col gap-lg">
+            @for (i of placeholderArray; track i) {
+              <div class="flex gap-md">
+                <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
+                <div class="flex-col gap-sm flex-grow-1">
+                  <p-skeleton width="60%" height="1rem"></p-skeleton>
+                  <p-skeleton width="40%" height="0.5rem"></p-skeleton>
+                </div>
+              </div>
+            }
+          </div>
+        } @else if (timeline().length === 0) {
+          <div class="text-center py-3xl">
+            <p class="text-sm text-tertiary m-0">No recent activity.</p>
+          </div>
+        } @else {
+          <div class="timeline-container">
+            @for (event of timeline(); track event.date; let last = $last) {
+              <div class="timeline-item flex gap-md relative" [class.pb-xl]="!last">
+                @if (!last) { <div class="timeline-line absolute"></div> }
+                
+                <div class="timeline-icon flex-shrink-0 z-10 flex-center border-radius-full" [style.background]="getTimelineColor(event.type) + '20'" [style.color]="getTimelineColor(event.type)">
+                  <i [class]="getTimelineIcon(event.type) + ' text-sm'"></i>
+                </div>
+                
+                <div class="timeline-content pt-xs">
+                  <p class="text-sm text-primary font-medium m-0 mb-xs line-height-tight">
+                    @if (event.type === 'enrollment') { Enrolled in }
+                    @if (event.type === 'completion') { Completed }
+                    <span class="font-bold">{{ event.course }}</span>
+                  </p>
+                  <span class="text-xs text-tertiary">{{ event.date | date:'MMM d, h:mm a' }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>

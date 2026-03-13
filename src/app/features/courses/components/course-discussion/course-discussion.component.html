@@ -1,4 +1,192 @@
+
 <div class="discussion-module-wrapper">
+  
+  @if (!selectedDiscussion()) {
+    <div class="glass-panel surface-raised border-radius-xl overflow-hidden flex-col h-full shadow-sm">
+      
+      <div class="p-xl border-bottom-subtle bg-secondary flex-between gap-md flex-wrap">
+        <div>
+          <h3 class="font-heading text-xl text-primary m-0 mb-xs flex align-items-center gap-sm">
+            <i class="pi pi-comments text-primary"></i> Course Q&A
+          </h3>
+          <p class="text-sm text-secondary m-0">Ask questions, share code, and help your peers.</p>
+        </div>
+        <p-button label="Ask a Question" icon="pi pi-plus" (onClick)="openNewDiscussion()" styleClass="shadow-xs focus-ring" [rounded]="true"></p-button>
+      </div>
+
+      <div class="discussion-feed p-lg md:p-xl flex-col gap-md bg-ternary flex-grow-1 overflow-y-auto">
+        
+        @if (isLoading() && discussions().length === 0) {
+          <div class="flex-center py-5xl text-tertiary"><i class="pi pi-spinner pi-spin text-4xl"></i></div>
+        } @else if (discussions().length === 0) {
+          <div class="empty-state flex-col flex-center text-center p-5xl border-dashed border-secondary border-radius-xl bg-primary">
+            <div class="icon-circle w-5rem h-5rem border-radius-full bg-ternary flex-center mb-md border-primary shadow-xs">
+              <i class="pi pi-question-circle text-3xl text-tertiary"></i>
+            </div>
+            <h4 class="text-primary font-heading font-bold text-lg m-0 mb-xs">No questions yet</h4>
+            <p class="text-sm text-secondary m-0 mb-lg max-w-20rem">Stuck on a concept? Be the first to start a conversation!</p>
+            <p-button label="Start a Discussion" [text]="true" icon="pi pi-plus" (onClick)="openNewDiscussion()"></p-button>
+          </div>
+        } @else {
+          
+          @for (disc of discussions(); track disc._id) {
+            <div class="discussion-card group bg-primary border-radius-lg border-primary p-lg cursor-pointer transition-base hover-border-primary shadow-xs hover-shadow-md flex gap-lg" (click)="viewThread(disc)">
+              
+              <div class="flex-shrink-0">
+                @if (disc.user.profilePicture) {
+                  <p-avatar [image]="disc.user.profilePicture" shape="circle" size="large" styleClass="border-secondary"></p-avatar>
+                } @else {
+                  <p-avatar [label]="getInitials(disc.user.firstName, disc.user.lastName)" shape="circle" size="large" styleClass="bg-primary-bg text-primary font-bold border-primary"></p-avatar>
+                }
+              </div>
+
+              <div class="flex-grow-1 overflow-hidden flex-col">
+                <div class="flex-between align-items-start gap-md mb-xs">
+                  <h4 class="text-primary font-bold m-0 text-lg truncate-1 line-height-tight">{{ disc.title }}</h4>
+                  <div class="flex align-items-center gap-xs flex-shrink-0">
+                    @if (disc.isPinned) { <span class="custom-badge info"><i class="pi pi-thumbtack"></i> Pinned</span> }
+                    @if (disc.isResolved) { <span class="custom-badge success"><i class="pi pi-check-circle"></i> Resolved</span> }
+                  </div>
+                </div>
+
+                <div class="flex align-items-center gap-sm mb-md text-xs font-medium">
+                  <span class="text-primary font-bold">{{ disc.user.firstName }} {{ disc.user.lastName }}</span>
+                  <span class="text-tertiary">•</span>
+                  <span class="text-tertiary">{{ disc.createdAt | date:'MMM d, y' }}</span>
+                </div>
+
+                <p class="text-sm text-secondary m-0 mb-lg line-height-relaxed truncate-2">{{ disc.content }}</p>
+
+                <div class="flex-between align-items-center mt-auto">
+                  <div class="flex align-items-center gap-lg">
+                    <span class="stat-item flex align-items-center gap-xs text-sm font-bold text-secondary">
+                      <i class="pi pi-comment text-tertiary"></i> {{ disc.totalReplies || 0 }} <span class="hidden-mobile">Replies</span>
+                    </span>
+                    <button type="button" aria-label="Like" class="stat-item like-btn p-link flex align-items-center gap-xs text-sm font-bold transition-colors" [class.active-like]="hasUserLiked(disc)" (click)="toggleLike($event, disc, 'discussion')">
+                      <i class="pi transition-transform" [ngClass]="hasUserLiked(disc) ? 'pi-heart-fill' : 'pi-heart'"></i>
+                      <span>{{ disc.likes.length || 'Like' }}</span>
+                    </button>
+                  </div>
+                  
+                  @if (canModerate() || disc.user._id === currentUserId()) {
+                    <button aria-label="Delete" class="delete-btn-feed p-link text-tertiary hover-text-error transition-colors opacity-0 group-hover-opacity-100" pTooltip="Delete Discussion" (click)="deleteDiscussion($event, disc._id)">
+                      <i class="pi pi-trash text-lg"></i>
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  }
+
+  @if (selectedDiscussion()) {
+    <div class="glass-panel surface-raised border-radius-xl p-0 overflow-hidden flex-col h-full fade-in shadow-md">
+      
+      <div class="p-sm md:p-md border-bottom-subtle bg-secondary flex align-items-center gap-md z-10 shadow-xs">
+        <button class="p-link flex align-items-center gap-xs text-secondary font-bold hover-text-primary transition-colors p-sm border-radius-sm" (click)="backToList()">
+          <i class="pi pi-arrow-left"></i> <span class="hidden-mobile">Back</span>
+        </button>
+        
+        <div class="flex-grow-1 flex justify-content-end gap-sm">
+          @if (canModerate() || selectedDiscussion()?.user._id === currentUserId()) {
+            <p-button [icon]="selectedDiscussion()?.isPinned ? 'pi pi-thumbtack' : 'pi pi-thumbtack'" [severity]="selectedDiscussion()?.isPinned ? 'info' : 'secondary'" [text]="!selectedDiscussion()?.isPinned" size="small" pTooltip="Pin Thread" (onClick)="togglePin(selectedDiscussion()!)"></p-button>
+            <p-button [icon]="selectedDiscussion()?.isResolved ? 'pi pi-check-circle' : 'pi pi-check'" [severity]="selectedDiscussion()?.isResolved ? 'success' : 'secondary'" [text]="!selectedDiscussion()?.isResolved" size="small" pTooltip="Mark Resolved" (onClick)="toggleResolve(selectedDiscussion()!)"></p-button>
+            <p-button icon="pi pi-trash" severity="danger" [text]="true" size="small" pTooltip="Delete Thread" (onClick)="deleteDiscussion($event, selectedDiscussion()!._id)"></p-button>
+          }
+        </div>
+      </div>
+
+      <div #chatScrollContainer class="chat-scroll-window p-lg md:p-xl flex-col bg-primary flex-grow-1 overflow-y-auto">
+        
+        <div class="chat-message op-message flex gap-md mb-xl pb-xl border-bottom-subtle">
+          <div class="flex-shrink-0">
+            <p-avatar [image]="selectedDiscussion()!.user.profilePicture" [label]="!selectedDiscussion()!.user.profilePicture ? getInitials(selectedDiscussion()!.user.firstName, selectedDiscussion()!.user.lastName) : ''" shape="circle" size="large" styleClass="bg-primary-bg text-primary font-bold shadow-xs"></p-avatar>
+          </div>
+          <div class="message-content flex-grow-1">
+            <div class="flex align-items-center gap-sm mb-xs">
+              <span class="font-bold text-base text-primary">{{ selectedDiscussion()!.user.firstName }} {{ selectedDiscussion()!.user.lastName }}</span>
+              <span class="role-badge author">Author</span>
+              <span class="text-xs text-tertiary ml-sm">{{ selectedDiscussion()!.createdAt | date:'MMM d, h:mm a' }}</span>
+            </div>
+            <h2 class="text-primary font-bold text-xl m-0 mb-sm">{{ selectedDiscussion()!.title }}</h2>
+            <div class="text-base text-secondary line-height-relaxed whitespace-pre-wrap">{{ selectedDiscussion()!.content }}</div>
+            
+            <div class="message-actions mt-sm flex gap-md">
+              <button aria-label="Like" class="like-btn p-link flex align-items-center gap-xs text-xs font-bold" [class.active-like]="hasUserLiked(selectedDiscussion())" (click)="toggleLike($event, selectedDiscussion(), 'discussion')">
+                <i class="pi" [ngClass]="hasUserLiked(selectedDiscussion()) ? 'pi-heart-fill' : 'pi-heart'"></i> {{ selectedDiscussion()!.likes.length || 'Like' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        @for (reply of selectedDiscussion()?.replies; track reply._id) {
+          <div class="chat-message group flex gap-md mb-lg relative">
+            <div class="flex-shrink-0">
+              <p-avatar [image]="reply.user.profilePicture" [label]="!reply.user.profilePicture ? getInitials(reply.user.firstName, reply.user.lastName) : ''" shape="circle" styleClass="bg-secondary text-secondary font-bold text-xs border-secondary"></p-avatar>
+            </div>
+            
+            <div class="message-content flex-grow-1">
+              <div class="flex align-items-center gap-sm mb-xs">
+                <span class="font-bold text-sm text-primary">{{ reply.user.firstName }} {{ reply.user.lastName }}</span>
+                @if (reply.user.role === 'instructor' || reply.user.role === 'admin') {
+                  <span class="role-badge instructor"><i class="pi pi-verified"></i> Instructor</span>
+                } @else if (reply.user._id === selectedDiscussion()!.user._id) {
+                  <span class="role-badge author">Author</span>
+                }
+                <span class="text-xs text-tertiary ml-sm">{{ reply.createdAt | date:'h:mm a' }}</span>
+              </div>
+              
+              <p class="text-sm text-secondary m-0 line-height-relaxed whitespace-pre-wrap">{{ reply.content }}</p>
+              
+              <div class="message-actions mt-xs flex align-items-center gap-md opacity-0 group-hover-opacity-100 transition-base">
+                <button aria-label="Like" class="like-btn p-link flex align-items-center gap-xs text-xs font-bold" [class.active-like]="hasUserLiked(reply)" (click)="toggleLike($event, reply, 'reply')">
+                  <i class="pi" [ngClass]="hasUserLiked(reply) ? 'pi-heart-fill' : 'pi-heart'"></i> {{ reply.likes.length || 'Like' }}
+                </button>
+                
+                @if (canModerate() || reply.user._id === currentUserId()) {
+                  <button class="p-link text-xs font-bold text-tertiary hover-text-error transition-colors" (click)="deleteReply(reply._id)">
+                    Delete
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="reply-composer-wrapper p-md bg-primary border-top-subtle z-10">
+        <form [formGroup]="replyForm" (ngSubmit)="submitReply()" class="unified-composer bg-secondary border-primary border-radius-lg overflow-hidden transition-base focus-within-border-primary">
+          <textarea pTextarea formControlName="content" placeholder="Reply to thread..." [autoResize]="true" rows="1" class="w-full border-none outline-none text-sm p-md pb-xs shadow-none bg-transparent text-primary" (keydown.enter)="$event.preventDefault(); submitReply()"></textarea>
+          <div class="composer-footer flex justify-content-between align-items-center px-md py-sm">
+            <span class="text-xs text-tertiary"><i class="pi pi-info-circle"></i> Press Enter to send</span>
+            <p-button label="Send" icon="pi pi-send" size="small" type="submit" [disabled]="replyForm.invalid || isReplying()" styleClass="border-radius-md px-md py-xs" [loading]="isReplying()"></p-button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>
+
+<p-dialog [(visible)]="showNewDiscussionDialog" header="Ask a Question" [modal]="true" [style]="{width: '550px'}" styleClass="border-radius-xl shadow-xl discussion-dialog" [draggable]="false" [dismissableMask]="true">
+  <form [formGroup]="newDiscussionForm" (ngSubmit)="submitNewDiscussion()" class="flex-col gap-xl pt-md">
+    <div class="form-group flex-col gap-xs">
+      <label for="input-title" class="font-bold text-sm text-primary">Question Title <span class="text-error">*</span></label>
+      <input id="input-title" type="text" pInputText formControlName="title" placeholder="e.g., How does Express routing work here?" class="w-full focus-ring">
+    </div>
+    <div class="form-group flex-col gap-xs">
+      <label for="input-content" class="font-bold text-sm text-primary">Details <span class="text-error">*</span></label>
+      <textarea id="input-content" pTextarea formControlName="content" rows="6" placeholder="Provide context, what you've tried, or share code snippets..." class="w-full line-height-relaxed focus-ring"></textarea>
+    </div>
+    <div class="flex justify-content-end gap-md mt-sm pt-md border-top-subtle">
+      <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="showNewDiscussionDialog.set(false)"></p-button>
+      <p-button label="Post Question" icon="pi pi-check" type="submit" [disabled]="newDiscussionForm.invalid || isLoading()" [loading]="isLoading()"></p-button>
+    </div>
+  </form>
+</p-dialog>
+<!-- <div class="discussion-module-wrapper">
   
   @if (!selectedDiscussion()) {
     <div class="glass-panel surface-raised border-radius-xl overflow-hidden flex-col h-full shadow-sm">
@@ -90,9 +278,9 @@
         </button>
         
         <div class="flex-grow-1 flex justify-content-end gap-sm">
-          @if (canModerate() || selectedDiscussion()?.user?._id === currentUserId()) {
-            <p-button [icon]="selectedDiscussion()?.isPinned ? 'pi pi-thumbtack' : 'pi pi-thumbtack'" [severity]="selectedDiscussion()?.isPinned ? 'info' : 'secondary'" [text]="!selectedDiscussion()?.isPinned" size="small" pTooltip="Pin Thread" (onClick)="togglePin(selectedDiscussion()!)"></p-button>
-            <p-button [icon]="selectedDiscussion()?.isResolved ? 'pi pi-check-circle' : 'pi pi-check'" [severity]="selectedDiscussion()?.isResolved ? 'success' : 'secondary'" [text]="!selectedDiscussion()?.isResolved" size="small" pTooltip="Mark Resolved" (onClick)="toggleResolve(selectedDiscussion()!)"></p-button>
+          @if (canModerate() || selectedDiscussion().user._id === currentUserId()) {
+            <p-button [icon]="selectedDiscussion().isPinned ? 'pi pi-thumbtack' : 'pi pi-thumbtack'" [severity]="selectedDiscussion().isPinned ? 'info' : 'secondary'" [text]="!selectedDiscussion().isPinned" size="small" pTooltip="Pin Thread" (onClick)="togglePin(selectedDiscussion()!)"></p-button>
+            <p-button [icon]="selectedDiscussion().isResolved ? 'pi pi-check-circle' : 'pi pi-check'" [severity]="selectedDiscussion().isResolved ? 'success' : 'secondary'" [text]="!selectedDiscussion().isResolved" size="small" pTooltip="Mark Resolved" (onClick)="toggleResolve(selectedDiscussion()!)"></p-button>
             <p-button icon="pi pi-trash" severity="danger" [text]="true" size="small" pTooltip="Delete Thread" (onClick)="deleteDiscussion($event, selectedDiscussion()!._id)"></p-button>
           }
         </div>
@@ -121,7 +309,7 @@
           </div>
         </div>
 
-        @for (reply of selectedDiscussion()?.replies; track reply._id) {
+        @for (reply of selectedDiscussion().replies; track reply._id) {
           <div class="chat-message group flex gap-md mb-lg relative">
             <div class="flex-shrink-0">
               <p-avatar [image]="reply.user.profilePicture" [label]="!reply.user.profilePicture ? getInitials(reply.user.firstName, reply.user.lastName) : ''" shape="circle" styleClass="bg-secondary text-secondary font-bold text-xs border-secondary"></p-avatar>
@@ -182,428 +370,6 @@
     <div class="flex justify-content-end gap-md mt-sm pt-md border-top-subtle">
       <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="showNewDiscussionDialog.set(false)"></p-button>
       <p-button label="Post Question" icon="pi pi-check" type="submit" [disabled]="newDiscussionForm.invalid || isLoading()" [loading]="isLoading()"></p-button>
-    </div>
-  </form>
-</p-dialog>
-
-<!-- <div class="discussion-module-wrapper">
-  
-  ===== FEED VIEW (List of Discussions) =====
-  @if (!selectedDiscussion()) {
-    <div class="glass-panel surface-raised border-radius-xl overflow-hidden flex-col h-full shadow-sm">
-      
-      Header
-      <div class="p-xl border-bottom-subtle bg-secondary flex-between gap-md flex-wrap">
-        <div>
-          <h3 class="font-heading text-xl text-primary m-0 mb-xs flex align-items-center gap-sm">
-            <i class="pi pi-comments text-primary"></i> 
-            Course Q&A
-          </h3>
-          <p class="text-sm text-secondary m-0">Ask questions, share code, and help your peers.</p>
-        </div>
-        <p-button 
-          label="Ask a Question" 
-          icon="pi pi-plus" 
-          (onClick)="openNewDiscussion()" 
-          styleClass="shadow-xs focus-ring"
-          [rounded]="true">
-        </p-button>
-      </div>
-
-      Discussion Feed
-      <div class="discussion-feed p-lg md:p-xl flex-col gap-md bg-ternary flex-grow-1 overflow-y-auto scrollable">
-        
-        @if (isLoading()) {
-          <div class="flex-center py-5xl text-tertiary">
-            <i class="pi pi-spinner pi-spin text-4xl"></i>
-          </div>
-        } 
-        
-        @else if (discussions().length === 0) {
-          <div class="empty-state flex-col flex-center text-center p-5xl border-dashed border-secondary border-radius-xl bg-primary">
-            <div class="icon-circle w-5rem h-5rem border-radius-full bg-ternary flex-center mb-md border-primary shadow-xs">
-              <i class="pi pi-question-circle text-3xl text-tertiary"></i>
-            </div>
-            <h4 class="text-primary font-heading font-bold text-lg m-0 mb-xs">No questions yet</h4>
-            <p class="text-sm text-secondary m-0 mb-lg max-w-20rem">
-              Stuck on a concept? Be the first to start a conversation in this course!
-            </p>
-            <p-button 
-              label="Start a Discussion" 
-              [text]="true" 
-              icon="pi pi-plus" 
-              (onClick)="openNewDiscussion()"
-              styleClass="focus-ring">
-            </p-button>
-          </div>
-        } 
-        
-        @else {
-          @for (disc of discussions(); track disc._id) {
-            <div class="discussion-card bg-primary border-radius-lg border-primary p-lg cursor-pointer transition-base hover-border-primary shadow-xs hover-shadow-md flex gap-lg" 
-                 (click)="viewThread(disc)">
-              
-              Avatar
-              <div class="flex-shrink-0 pt-xs">
-                @if (disc.user.profilePicture) {
-                  <p-avatar 
-                    [image]="disc.user.profilePicture" 
-                    shape="circle" 
-                    size="large" 
-                    styleClass="border-secondary shadow-xs">
-                  </p-avatar>
-                } @else {
-                  <p-avatar 
-                    [label]="getInitials(disc.user.firstName, disc.user.lastName)" 
-                    shape="circle" 
-                    size="large" 
-                    styleClass="bg-primary-bg text-primary font-bold border-primary shadow-xs">
-                  </p-avatar>
-                }
-              </div>
-
-              Content
-              <div class="flex-grow-1 overflow-hidden flex-col">
-                
-                Title & Badges
-                <div class="flex-between align-items-start gap-md mb-xs">
-                  <h4 class="text-primary font-bold m-0 text-lg truncate-1 line-height-tight">
-                    {{ disc.title }}
-                  </h4>
-                  <div class="flex align-items-center gap-xs flex-shrink-0">
-                    @if (disc.isPinned) { 
-                      <span class="custom-badge info">
-                        <i class="pi pi-thumbtack"></i> Pinned
-                      </span> 
-                    }
-                    @if (disc.isResolved) { 
-                      <span class="custom-badge success">
-                        <i class="pi pi-check-circle"></i> Resolved
-                      </span> 
-                    }
-                  </div>
-                </div>
-
-                Meta Info
-                <div class="flex align-items-center gap-sm mb-md text-xs font-medium">
-                  <span class="text-secondary">{{ disc.user.firstName }} {{ disc.user.lastName }}</span>
-                  <span class="text-tertiary">•</span>
-                  <span class="text-tertiary">{{ disc.createdAt | date:'MMM d, y' }}</span>
-                  @if (disc.user.role === 'instructor') {
-                    <span class="role-badge instructor ml-sm">
-                      <i class="pi pi-verified"></i> Instructor
-                    </span>
-                  }
-                </div>
-
-                Content Preview
-                <p class="text-sm text-secondary m-0 mb-lg line-height-relaxed truncate-2">
-                  {{ disc.content }}
-                </p>
-
-                Footer Stats
-                <div class="flex-between align-items-center mt-auto border-top-subtle pt-md">
-                  <div class="flex align-items-center gap-lg">
-                    <span class="stat-item flex align-items-center gap-xs text-sm font-bold text-secondary">
-                      <i class="pi pi-comment text-tertiary"></i> 
-                      {{ disc.totalReplies }} 
-                      <span class="hidden-mobile">Reply{{ disc.totalReplies !== 1 ? 's' : '' }}</span>
-                    </span>
-                    
-                    <button type="button" 
-                            class="stat-item like-btn p-link flex align-items-center gap-xs text-sm font-bold transition-colors focus-ring" 
-                            [class.active-like]="hasUserLiked(disc)" 
-                            (click)="toggleLike($event, disc, 'discussion')">
-                      <i class="pi transition-transform" 
-                         [ngClass]="hasUserLiked(disc) ? 'pi-heart-fill' : 'pi-heart'"></i>
-                      <span>{{ disc.likes?.length || 0 }}</span>
-                    </button>
-                  </div>
-                  
-                  @if (disc.lesson) {
-                    <span class="lesson-tag text-xs text-tertiary bg-ternary px-sm py-xs border-radius-sm border-secondary font-medium">
-                      <i class="pi pi-video text-xs mr-xs"></i> 
-                      Lesson Specific
-                    </span>
-                  }
-                </div>
-
-              </div>
-            </div>
-          }
-        }
-      </div>
-    </div>
-  }
-
-  ===== THREAD VIEW (Single Discussion with Replies) =====
-  @if (selectedDiscussion()) {
-    <div class="glass-panel surface-raised border-radius-xl overflow-hidden flex-col h-full fade-in shadow-md">
-      
-      Thread Header
-      <div class="p-md md:p-lg border-bottom-subtle bg-secondary flex align-items-center gap-md">
-        <button class="back-btn p-link flex align-items-center gap-xs text-secondary font-bold hover-text-primary transition-colors p-sm border-radius-sm focus-ring" 
-                (click)="backToList()">
-          <i class="pi pi-arrow-left"></i> 
-          <span class="hidden-mobile">Back to Discussions</span>
-        </button>
-        
-        Moderation Actions
-        <div class="flex-grow-1 flex justify-content-end gap-sm">
-          @if (canModerate() || selectedDiscussion()?.user?._id === currentUserId()) {
-            <p-button 
-              [icon]="selectedDiscussion()?.isPinned ? 'pi pi-thumbtack' : 'pi pi-thumbtack'" 
-              [severity]="selectedDiscussion()?.isPinned ? 'info' : 'secondary'" 
-              [text]="!selectedDiscussion()?.isPinned" 
-              size="small" 
-              pTooltip="Pin to top" 
-              tooltipPosition="top"
-              (onClick)="togglePin(selectedDiscussion()!)"
-              styleClass="focus-ring">
-            </p-button>
-            
-            <p-button 
-              [icon]="selectedDiscussion()?.isResolved ? 'pi pi-check-circle' : 'pi pi-check'" 
-              [severity]="selectedDiscussion()?.isResolved ? 'success' : 'secondary'" 
-              [text]="!selectedDiscussion()?.isResolved" 
-              size="small" 
-              pTooltip="Mark as resolved" 
-              tooltipPosition="top"
-              (onClick)="toggleResolve(selectedDiscussion()!)"
-              styleClass="focus-ring">
-            </p-button>
-          }
-        </div>
-      </div>
-
-      Thread Content
-      <div class="thread-scroll p-lg md:p-3xl flex-col bg-primary flex-grow-1 overflow-y-auto relative">
-        
-        Original Post
-        <div class="original-post mb-4xl">
-          
-          Author Info
-          <div class="flex align-items-center gap-md mb-lg">
-            @if (selectedDiscussion()?.user?.profilePicture) {
-              <p-avatar 
-                [image]="selectedDiscussion()!.user.profilePicture" 
-                shape="circle" 
-                size="xlarge" 
-                styleClass="border-secondary shadow-md">
-              </p-avatar>
-            } @else {
-              <p-avatar 
-                [label]="getInitials(selectedDiscussion()!.user.firstName, selectedDiscussion()!.user.lastName)" 
-                shape="circle" 
-                size="xlarge" 
-                styleClass="bg-primary-bg text-primary font-bold border-primary shadow-md">
-              </p-avatar>
-            }
-            
-            <div class="flex-col">
-              <div class="flex align-items-center gap-sm">
-                <span class="font-bold text-base text-primary">
-                  {{ selectedDiscussion()!.user.firstName }} {{ selectedDiscussion()!.user.lastName }}
-                </span>
-                @if (selectedDiscussion()!.user._id === currentUserId()) { 
-                  <span class="role-badge author">
-                    <i class="pi pi-user"></i> Author
-                  </span>
-                }
-                @if (selectedDiscussion()!.user.role === 'instructor') {
-                  <span class="role-badge instructor">
-                    <i class="pi pi-verified"></i> Instructor
-                  </span>
-                }
-              </div>
-              <span class="text-xs text-tertiary font-medium">
-                {{ selectedDiscussion()!.createdAt | date:'MMM d, y • h:mm a' }}
-              </span>
-            </div>
-          </div>
-          
-          Post Title & Content
-          <h2 class="text-primary font-heading font-bold text-2xl m-0 mb-md line-height-tight">
-            {{ selectedDiscussion()!.title }}
-          </h2>
-          
-          <div class="op-content text-base text-secondary line-height-relaxed whitespace-pre-wrap p-md bg-ternary border-radius-lg border-secondary">
-            {{ selectedDiscussion()!.content }}
-          </div>
-        </div>
-
-        Replies Section
-        <div class="replies-header flex align-items-center gap-md mb-xl">
-          <h4 class="m-0 text-primary font-bold">
-            {{ selectedDiscussion()?.replies?.length || 0 }} 
-            Reply{{ (selectedDiscussion()?.replies?.length || 0) !== 1 ? 's' : '' }}
-          </h4>
-          <div class="flex-grow-1 border-bottom-subtle"></div>
-        </div>
-
-        Replies List
-        <div class="replies-container flex-col gap-xl relative pl-md md:pl-xl">
-          
-          Connecting Line
-          <div class="thread-line absolute top-0 bottom-0 left-0 ml-md md:ml-xl mt-4xl mb-4xl border-left-subtle"></div>
-
-          @for (reply of selectedDiscussion()?.replies; track reply._id) {
-            <div class="reply-row flex gap-md relative">
-              
-              Reply Avatar
-              <div class="flex-shrink-0">
-                @if (reply.user.profilePicture) {
-                  <p-avatar 
-                    [image]="reply.user.profilePicture" 
-                    shape="circle" 
-                    styleClass="border-secondary bg-primary shadow-sm">
-                  </p-avatar>
-                } @else {
-                  <p-avatar 
-                    [label]="getInitials(reply.user.firstName, reply.user.lastName)" 
-                    shape="circle" 
-                    styleClass="bg-secondary text-secondary font-bold text-xs border-secondary shadow-sm">
-                  </p-avatar>
-                }
-              </div>
-              
-              Reply Content
-              <div class="reply-bubble flex-grow-1">
-                <div class="flex align-items-center flex-wrap gap-xs mb-xs">
-                  <span class="font-bold text-sm text-primary">
-                    {{ reply.user.firstName }} {{ reply.user.lastName }}
-                  </span>
-                  
-                  @if (reply.user.role === 'instructor' || reply.user.role === 'admin') {
-                    <span class="role-badge instructor">
-                      <i class="pi pi-verified"></i> Instructor
-                    </span>
-                  } @else if (reply.user._id === selectedDiscussion()!.user._id) {
-                    <span class="role-badge author">
-                      <i class="pi pi-user"></i> Author
-                    </span>
-                  }
-                  
-                  <span class="text-xs text-tertiary ml-sm">
-                    {{ reply.createdAt | date:'MMM d, h:mm a' }}
-                  </span>
-                </div>
-                
-                <p class="text-sm text-secondary m-0 line-height-relaxed whitespace-pre-wrap mb-sm">
-                  {{ reply.content }}
-                </p>
-                
-                Reply Actions
-                <button type="button" 
-                        class="like-btn p-link flex align-items-center gap-xs text-xs font-bold transition-colors w-fit focus-ring" 
-                        [class.active-like]="hasUserLiked(reply)" 
-                        (click)="toggleLike($event, reply, 'reply')">
-                  <i class="pi" [ngClass]="hasUserLiked(reply) ? 'pi-heart-fill' : 'pi-heart'"></i>
-                  <span>{{ reply.likes?.length || 0 }}</span>
-                </button>
-              </div>
-            </div>
-          }
-        </div>
-
-      </div>
-
-      Reply Composer
-      <div class="reply-composer-wrapper p-md md:p-xl bg-ternary border-top-subtle relative">
-        <form [formGroup]="replyForm" (ngSubmit)="submitReply()" class="unified-composer bg-primary border-primary border-radius-lg overflow-hidden shadow-xs transition-base focus-within-border-primary">
-          <textarea 
-            pTextarea 
-            formControlName="content" 
-            placeholder="Write your reply... Share your thoughts, code, or helpful resources." 
-            [autoResize]="true" 
-            rows="2" 
-            class="w-full border-none outline-none text-sm p-md shadow-none">
-          </textarea>
-          
-          <div class="composer-footer flex justify-content-end p-sm bg-primary">
-            <p-button 
-              label="Post Reply" 
-              icon="pi pi-send" 
-              size="small" 
-              type="submit" 
-              [disabled]="replyForm.invalid || isReplying()" 
-              styleClass="border-radius-md px-md py-xs focus-ring"
-              [loading]="isReplying()">
-            </p-button>
-          </div>
-        </form>
-      </div>
-    </div>
-  }
-
-</div>
-
-===== NEW DISCUSSION DIALOG =====
-<p-dialog 
-  [(visible)]="showNewDiscussionDialog" 
-  header="Ask a Question" 
-  [modal]="true" 
-  [style]="{width: '550px'}" 
-  styleClass="border-radius-xl shadow-xl discussion-dialog" 
-  [draggable]="false" 
-  [dismissableMask]="true"
-  [closeOnEscape]="true">
-
-  <form [formGroup]="newDiscussionForm" (ngSubmit)="submitNewDiscussion()" class="flex-col gap-xl pt-md">
-    
-    <div class="form-group flex-col gap-xs">
-      <label class="font-bold text-sm text-primary">
-        Question Title <span class="text-error">*</span>
-      </label>
-      <input 
-        type="text" 
-        pInputText 
-        formControlName="title" 
-        placeholder="e.g., How does this concept work in practice?" 
-        class="w-full focus-ring">
-      @if (newDiscussionForm.get('title')?.invalid && newDiscussionForm.get('title')?.touched) {
-        <small class="error-text">
-          <i class="pi pi-exclamation-circle"></i>
-          Title is required (minimum 5 characters)
-        </small>
-      }
-    </div>
-
-    <div class="form-group flex-col gap-xs">
-      <label class="font-bold text-sm text-primary">
-        Details <span class="text-error">*</span>
-      </label>
-      <textarea 
-        pTextarea 
-        formControlName="content" 
-        rows="6" 
-        placeholder="Provide context, what you've tried, or share code snippets..." 
-        class="w-full line-height-relaxed focus-ring">
-      </textarea>
-      @if (newDiscussionForm.get('content')?.invalid && newDiscussionForm.get('content')?.touched) {
-        <small class="error-text">
-          <i class="pi pi-exclamation-circle"></i>
-          Description is required (minimum 10 characters)
-        </small>
-      }
-    </div>
-
-    <div class="flex justify-content-end gap-md mt-sm pt-md border-top-subtle">
-      <p-button 
-        label="Cancel" 
-        severity="secondary" 
-        [text]="true" 
-        (onClick)="showNewDiscussionDialog.set(false)"
-        styleClass="focus-ring">
-      </p-button>
-      <p-button 
-        label="Post Question" 
-        icon="pi pi-check" 
-        type="submit" 
-        [disabled]="newDiscussionForm.invalid || isLoading()"
-        [loading]="isLoading()"
-        styleClass="focus-ring">
-      </p-button>
     </div>
   </form>
 </p-dialog> -->

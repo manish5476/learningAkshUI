@@ -166,6 +166,16 @@ export const SIDEBAR_MENU: MenuItem[] = [
         routerLink: ['/my-profile']
       },
       { 
+        label: 'My Enrollments', 
+        icon: 'pi pi-user-edit', 
+        routerLink: ['/my-enrollments']
+      },
+      { 
+        label: 'My Dashboard', 
+        icon: 'pi pi-user-edit', 
+        routerLink: ['/my-dashboard']
+      },
+      { 
         label: 'Sign Out', 
         icon: 'pi pi-sign-out', 
         routerLink: ['/auth/login'] 

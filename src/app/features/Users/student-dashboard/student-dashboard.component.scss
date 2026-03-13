@@ -1,0 +1,110 @@
+@use '../../../../styles/mixins' as *;
+
+.dashboard-wrapper {
+  padding: var(--spacing-xl);
+  max-width: 1400px;
+  margin: 0 auto;
+  
+  @include sm-down {
+    padding: var(--spacing-md);
+  }
+
+  .welcome-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-2xl);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--ui-border-radius-xl);
+    margin-bottom: var(--spacing-2xl);
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: var(--spacing-2xl);
+    align-items: start;
+
+    @include lg-down {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+  }
+
+  // Progress Card Styling
+  .progress-card {
+    border-width: 1px;
+    border-style: solid;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-primary);
+    }
+
+    .play-overlay {
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(2px);
+    }
+    
+    .group-hover-scale {
+      transform: scale(1);
+    }
+    
+    &:hover .group-hover-scale {
+      transform: scale(1.05);
+    }
+
+    ::ng-deep .p-progressbar {
+      height: 6px;
+      border-radius: var(--ui-border-radius-full);
+      background: var(--bg-ternary);
+      
+      .p-progressbar-value {
+        background: var(--color-primary);
+        border-radius: var(--ui-border-radius-full);
+      }
+    }
+  }
+
+  // Timeline Styling
+  .timeline-widget {
+    .timeline-container {
+      position: relative;
+    }
+
+    .timeline-item {
+      .timeline-icon {
+        width: 2.25rem;
+        height: 2.25rem;
+      }
+
+      .timeline-line {
+        left: 1.125rem;
+        top: 2.25rem;
+        bottom: -0.5rem;
+        width: 2px;
+        background: var(--border-secondary);
+        transform: translateX(-50%);
+      }
+    }
+  }
+
+  // Utilities
+  .sticky { position: sticky; }
+  .top-lg { top: var(--spacing-lg); }
+  .inset-0 { top: 0; bottom: 0; left: 0; right: 0; }
+  .letter-spacing-sm { letter-spacing: 0.05em; }
+  .transition-slow { transition: transform 0.5s ease; }
+}

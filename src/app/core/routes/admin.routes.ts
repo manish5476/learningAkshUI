@@ -44,5 +44,15 @@ export const ADMIN_ROUTES: Routes = [
     path: 'my-profile',
     loadComponent: () => import('../../features/Users/user-form.component').then(m => m.UserFormComponent),
     title: 'Edit My Profile'
+  },
+  {
+    path: 'my-enrollments',
+    loadComponent: () => import('../../features/Users/my-learning/my-learning.component').then(m => m.MyLearningComponent),
+    title: 'Edit My Profile'
+  },
+  {
+    path: 'my-dashboard',
+    loadComponent: () => import('../../features/Users/student-dashboard/student-dashboard.component').then(m => m.StudentDashboardComponent),
+    title: 'Edit My Profile'
   }
 ];

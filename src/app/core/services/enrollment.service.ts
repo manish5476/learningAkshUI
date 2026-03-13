@@ -10,6 +10,11 @@ export class EnrollmentService {
   private readonly endpoint = 'enrollments';
   private baseApi = inject(BaseApiService);
 
+  checkEnrollment(courseId: string): Observable<ApiResponse<{ isEnrolled: boolean; enrollment?: Enrollment }>> {
+    return this.baseApi.get<{ isEnrolled: boolean; enrollment?: Enrollment }>(`${this.endpoint}/check/${courseId}`);
+  }
+
+  
   // ==========================
   // STUDENT METHODS
   // ==========================
@@ -29,10 +34,6 @@ export class EnrollmentService {
   // enrollInCourse(courseId: string): Observable<ApiResponse<any>> {
   //   return this.baseApi.post<any>(`${this.endpoint}`, { courseId }, { showLoader: true });
   // }
-
-  checkEnrollment(courseId: string): Observable<ApiResponse<{ isEnrolled: boolean; enrollment?: Enrollment }>> {
-    return this.baseApi.get<{ isEnrolled: boolean; enrollment?: Enrollment }>(`${this.endpoint}/check/${courseId}`);
-  }
 
   updateLessonProgress(courseId: string, lessonId: string, completed: boolean, timeSpent?: number): Observable<ApiResponse<{ progress: EnrollmentProgress }>> {
     return this.baseApi.patch<{ progress: EnrollmentProgress }>(`${this.endpoint}/progress/${courseId}`, { 

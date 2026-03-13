@@ -1,0 +1,213 @@
+<div class="my-learning-wrapper">
+  
+  <div class="header-section">
+    <h1 class="page-title text-gradient">My Learning</h1>
+    <p class="page-subtitle text-secondary">Pick up right where you left off and achieve your goals.</p>
+  </div>
+
+  @if (isLoading()) {
+    <div class="course-grid">
+      @for (i of placeholderArray; track i) {
+        <div class="property-card skeleton-card">
+          <p-skeleton width="100%" height="14rem" borderRadius="8px" styleClass="mb-md"></p-skeleton>
+          <div class="content-wrapper p-md">
+            <p-skeleton width="85%" height="1.5rem" styleClass="mb-sm"></p-skeleton>
+            <p-skeleton width="60%" height="1rem" styleClass="mb-lg"></p-skeleton>
+            <p-skeleton width="100%" height="0.5rem" styleClass="mb-xs"></p-skeleton>
+            <p-skeleton width="100%" height="0.5rem"></p-skeleton>
+          </div>
+        </div>
+      }
+    </div>
+  } 
+  
+  @else if (enrollments().length === 0) {
+    <div class="empty-state surface-raised">
+      <div class="icon-circle shadow-md">
+        <i class="pi pi-compass text-primary"></i>
+      </div>
+      <h2 class="font-heading text-2xl font-bold text-primary mt-md mb-xs">No courses found</h2>
+      <p class="text-secondary mb-xl">You haven't enrolled in any courses yet. Explore our catalog to start your journey.</p>
+      <p-button label="Browse Courses" icon="pi pi-search" routerLink="/courses" styleClass="px-xl py-md border-radius-lg focus-ring"></p-button>
+    </div>
+  } 
+  
+  @else {
+    <div class="course-grid">
+      @for (enrollment of enrollments(); track enrollment._id) {
+        <div class="card-wrapper">
+          <a class="property-card cursor-pointer" tabindex="0" (click)="continueCourse(enrollment, $event)" (keydown.enter)="continueCourse(enrollment, $event)">
+            
+            <div class="image-wrapper bg-ternary">
+              <img [src]="enrollment.course.thumbnail || 'assets/images/course-placeholder.jpg'" 
+                   [alt]="enrollment.course.title" 
+                   class="property-image">
+              
+              <div class="badge-container">
+                @if (enrollment.progress === 100) {
+                  <span class="badge success-badge">COMPLETED</span>
+                } @else if (enrollment.progress > 0) {
+                  <span class="badge active-badge">IN PROGRESS</span>
+                } @else {
+                  <span class="badge new-badge">NEW</span>
+                }
+              </div>
+
+              <div class="play-overlay">
+                <i class="pi pi-play-circle"></i>
+              </div>
+            </div>
+
+            <div class="content-wrapper">
+              
+              <div class="meta-row">
+                <span class="category-tag">{{ enrollment.course.category?.name || 'Uncategorized' }}</span>
+                <div class="rating-group text-tertiary">
+                  <i class="pi pi-calendar star-icon" aria-hidden="true"></i>
+                  <span class="rating-value">{{ enrollment.enrolledAt | date:'MMM d, y' }}</span>
+                </div>
+              </div>
+
+              <dl>
+                <div class="title-block">
+                  <dt class="sr-only">Title</dt>
+                  <dd class="title-text">{{ enrollment.course.title || 'Untitled Course' }}</dd>
+                </div>
+
+                <div class="progress-block">
+                  <dt class="sr-only">Progress</dt>
+                  <dd>
+                    <div class="flex-between align-items-center mb-xs">
+                      <span class="text-xs font-bold text-secondary">Overall Progress</span>
+                      <span class="text-xs font-bold text-primary">{{ enrollment.progress || 0 }}%</span>
+                    </div>
+                    <p-progressBar [value]="enrollment.progress || 0" [showValue]="false" styleClass="learning-progress"></p-progressBar>
+                  </dd>
+                </div>
+              </dl>
+
+              <div class="stats-footer">
+                <div class="stat-item">
+                  <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div class="stat-text-group">
+                    <p class="stat-label">Duration</p>
+                    <p class="stat-value">{{ formatDuration(enrollment.course.totalDuration) }}</p>
+                  </div>
+                </div>
+
+                <div class="stat-item">
+                  <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                  <div class="stat-text-group">
+                    <p class="stat-label">Content</p>
+                    <p class="stat-value">{{ enrollment.course.totalLessons || 0 }} Lessons</p>
+                  </div>
+                </div>
+
+                <div class="stat-item" style="margin-left: auto;">
+                   <p-button label="Continue" icon="pi pi-arrow-right" iconPos="right" [text]="true" size="small"></p-button>
+                </div>
+              </div>
+              
+            </div>
+          </a>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+
+<!-- <div class="my-learning-wrapper">
+  
+  <div class="header-section">
+    <h1 class="page-title text-gradient">My Learning</h1>
+    <p class="page-subtitle text-secondary">Pick up right where you left off and achieve your goals.</p>
+  </div>
+
+  @if (isLoading()) {
+    <div class="course-grid">
+      @for (i of placeholderArray; track i) {
+        <p-card styleClass="learning-card skeleton-card">
+          <ng-template pTemplate="header">
+            <p-skeleton width="100%" height="180px"></p-skeleton>
+          </ng-template>
+          <ng-template pTemplate="content">
+            <div class="p-md">
+              <p-skeleton width="85%" height="1.5rem" styleClass="mb-sm"></p-skeleton>
+              <p-skeleton width="60%" height="1rem" styleClass="mb-lg"></p-skeleton>
+              <p-skeleton width="100%" height="0.5rem" styleClass="mb-xs"></p-skeleton>
+              <p-skeleton width="100%" height="0.5rem"></p-skeleton>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="footer">
+             <p-skeleton width="100%" height="2.5rem" borderRadius="8px"></p-skeleton>
+          </ng-template>
+        </p-card>
+      }
+    </div>
+  } 
+  
+  @else if (enrollments().length === 0) {
+    <div class="empty-state surface-raised">
+      <div class="icon-circle shadow-md">
+        <i class="pi pi-compass text-primary"></i>
+      </div>
+      <h2 class="font-heading text-2xl font-bold text-primary mt-md mb-xs">No courses found</h2>
+      <p class="text-secondary mb-xl">You haven't enrolled in any courses yet. Explore our catalog to start your journey.</p>
+      <p-button label="Browse Courses" icon="pi pi-search" routerLink="/courses" styleClass="px-xl py-md border-radius-lg focus-ring"></p-button>
+    </div>
+  } 
+  
+  @else {
+    <div class="course-grid">
+      @for (enrollment of enrollments(); track enrollment._id) {
+        <p-card styleClass="learning-card group">
+          
+          <ng-template pTemplate="header">
+            <div class="image-wrapper cursor-pointer" (click)="continueCourse(enrollment)">
+              <img [src]="enrollment.course.thumbnail || 'assets/images/course-placeholder.jpg'" [alt]="enrollment.course.title">
+              <div class="play-overlay transition-base">
+                <i class="pi pi-play-circle"></i>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template pTemplate="content">
+            <div class="card-body flex-col h-full">
+              <h3 class="course-title font-heading font-bold text-lg text-primary cursor-pointer hover-text-primary transition-colors truncate-2 line-height-tight m-0 mb-md" (click)="continueCourse(enrollment)">
+                {{ enrollment.course.title }}
+              </h3>
+              
+              <div class="progress-section mt-auto">
+                 <div class="flex-between align-items-center mb-xs text-xs font-bold text-secondary">
+                   <span>Overall Progress</span>
+                   <span>{{ enrollment.progress || 0 }}%</span>
+                 </div>
+                 <p-progressBar [value]="enrollment.progress || 0" [showValue]="false" styleClass="learning-progress"></p-progressBar>
+              </div>
+
+              <div class="enrollment-meta text-xs text-tertiary mt-sm">
+                Enrolled: {{ enrollment.enrolledAt | date:'mediumDate' }}
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template pTemplate="footer">
+            <p-button 
+              label="Continue Learning" 
+              icon="pi pi-arrow-right" 
+              iconPos="right" 
+              styleClass="w-full focus-ring border-radius-md py-sm" 
+              (onClick)="continueCourse(enrollment)">
+            </p-button>
+          </ng-template>
+
+        </p-card>
+      }
+    </div>
+  }
+</div> -->
