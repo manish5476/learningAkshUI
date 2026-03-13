@@ -3,55 +3,55 @@
 // ==========================================================================
 // PRIME NG OVERRIDES & HOST
 // ==========================================================================
-:host ::ng-deep {
-  .p-button { 
-    border-radius: var(--ui-border-radius-lg); 
-    font-family: var(--font-heading); 
-    font-weight: var(--font-weight-semibold); 
-    transition: var(--transition-base);
-  }
-  .p-button-lg { padding: var(--spacing-lg) var(--spacing-3xl); font-size: var(--font-size-lg); }
+// :host ::ng-deep {
+//   .p-button { 
+//     border-radius: var(--ui-border-radius-lg); 
+//     font-family: var(--font-heading); 
+//     font-weight: var(--font-weight-semibold); 
+//     transition: var(--transition-base);
+//   }
+//   .p-button-lg { padding: var(--spacing-lg) var(--spacing-3xl); font-size: var(--font-size-lg); }
 
-  .p-tag {
-    font-family: var(--font-mono);
-    border-radius: var(--ui-border-radius-sm);
-    padding: var(--spacing-xs) var(--spacing-md);
-    text-transform: uppercase;
-    font-weight: var(--font-weight-bold);
-    letter-spacing: 0.05em;
-  }
+//   .p-tag {
+//     font-family: var(--font-mono);
+//     border-radius: var(--ui-border-radius-sm);
+//     padding: var(--spacing-xs) var(--spacing-md);
+//     text-transform: uppercase;
+//     font-weight: var(--font-weight-bold);
+//     letter-spacing: 0.05em;
+//   }
 
-  .premium-input {
-    background: var(--bg-primary);
-    border: var(--ui-border-width-lg) solid var(--border-primary);
-    border-radius: var(--ui-border-radius-md);
-    padding: var(--spacing-md) var(--spacing-lg);
-    color: var(--text-primary);
-    font-family: var(--font-body);
-    font-size: var(--font-size-md);
-    transition: var(--transition-base);
+//   .premium-input {
+//     background: var(--bg-primary);
+//     border: var(--ui-border-width-lg) solid var(--border-primary);
+//     border-radius: var(--ui-border-radius-md);
+//     padding: var(--spacing-md) var(--spacing-lg);
+//     color: var(--text-primary);
+//     font-family: var(--font-body);
+//     font-size: var(--font-size-md);
+//     transition: var(--transition-base);
 
-    &:focus { border-color: var(--color-primary); box-shadow: 0 0 0 var(--focus-ring-width) var(--color-primary-bg); outline: none; }
-    &.input-error { border-color: var(--color-error); }
-  }
+//     &:focus { border-color: var(--color-primary); box-shadow: 0 0 0 var(--focus-ring-width) var(--color-primary-bg); outline: none; }
+//     &.input-error { border-color: var(--color-error); }
+//   }
 
-  .p-checkbox-box {
-    border: var(--ui-border-width-lg) solid var(--border-secondary);
-    background: var(--bg-primary);
-    width: var(--spacing-2xl); height: var(--spacing-2xl);
-    &.p-highlight { border-color: var(--color-primary); background: var(--color-primary); }
-  }
+//   .p-checkbox-box {
+//     border: var(--ui-border-width-lg) solid var(--border-secondary);
+//     background: var(--bg-primary);
+//     width: var(--spacing-2xl); height: var(--spacing-2xl);
+//     &.p-highlight { border-color: var(--color-primary); background: var(--color-primary); }
+//   }
 
-  // Dialog Overrides
-  .glass-dialog { 
-    width: 90vw !important; max-width: 500px !important;
-    background: var(--bg-secondary); border: var(--ui-border-width) solid var(--border-primary); 
-    border-radius: var(--ui-border-radius-xl); overflow: hidden; box-shadow: var(--shadow-2xl); 
-    margin: 0 !important;
-    .p-dialog-header { background: var(--bg-ternary); border-bottom: var(--ui-border-width) solid var(--border-secondary); color: var(--text-primary); }
-    .p-dialog-content { background: transparent; color: var(--text-secondary); padding: var(--spacing-2xl); font-family: var(--font-body); }
-  }
-}
+//   // Dialog Overrides
+//   .glass-dialog { 
+//     width: 90vw !important; max-width: 500px !important;
+//     background: var(--bg-secondary); border: var(--ui-border-width) solid var(--border-primary); 
+//     border-radius: var(--ui-border-radius-xl); overflow: hidden; box-shadow: var(--shadow-2xl); 
+//     margin: 0 !important;
+//     .p-dialog-header { background: var(--bg-ternary); border-bottom: var(--ui-border-width) solid var(--border-secondary); color: var(--text-primary); }
+//     .p-dialog-content { background: transparent; color: var(--text-secondary); padding: var(--spacing-2xl); font-family: var(--font-body); }
+//   }
+// }
 
 // ==========================================================================
 // UTILITY CLASSES
