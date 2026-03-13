@@ -140,17 +140,14 @@ interface User {
           <!-- Profile Card -->
           <p-card class="profile-card" styleClass="shadow-2xl">
             <ng-template pTemplate="header">
-              <div class="profile-cover" [style.background-image]="'url(' + coverImage() + ')'">
-  <div class="cover-overlay" [style.background]="coverGradient()"></div>
-</div>
-              <!-- <div class="profile-cover">
+              <div class="profile-cover">
   <img 
     src="https://images.unsplash.com/photo-1730449819838-a5018d63e79e?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
     alt="Profile Cover"
     class="cover-image"
     loading="lazy">
   <div class="cover-overlay"></div>
-</div> -->
+</div>
               <!-- <div class="profile-cover" [style.background]="coverGradient()">
                 <div class="cover-overlay"></div>
               </div> -->
@@ -1094,7 +1091,7 @@ export class UserDetailComponent implements OnInit {
   @Input() set userId(value: any) {
     this.userIdSignal.set(value);
   }
-  coverImage = signal<string>('https://images.unsplash.com/photo-1730449819838-a5018d63e79e?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+  
   @Output() edit = new EventEmitter<void>();
   @Output() close = new EventEmitter<void>();
 
