@@ -120,7 +120,7 @@ export class CourseListComponent implements OnInit {
       });
   }
 
-  loadCourses(): void {
+loadCourses(): void {
     this.loading.set(true);
     const params: CourseQueryParams = {};
     Object.entries(this.filters).forEach(([key, value]) => {
@@ -133,8 +133,21 @@ export class CourseListComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response: any) => {
-          this.courses.set(response?.data || []);
-          this.pagination.set(response?.pagination);
+          // 1. Safely extract the array (handles variations in backend nesting)
+          const coursesData = response?.data?.data || response?.data?.courses || response?.data || response || [];
+          this.courses.set(Array.isArray(coursesData) ? coursesData : []);
+
+          // 2. THE FIX: Provide a safe fallback so pagination is NEVER undefined
+          const safePagination = response?.pagination || {
+            page: 1,
+            limit: 12,
+            totalResults: this.courses().length || 0,
+            totalPages: 1,
+            hasNextPage: false,
+            hasPrevPage: false
+          };
+          
+          this.pagination.set(safePagination);
           this.loading.set(false);
         },
         error: () => {
@@ -143,7 +156,6 @@ export class CourseListComponent implements OnInit {
         }
       });
   }
-
   onFilterChange(): void {
     this.filters.page = 1;
     this.loadCourses();

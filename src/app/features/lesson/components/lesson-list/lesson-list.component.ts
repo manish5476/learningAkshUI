@@ -97,21 +97,21 @@ export class LessonListComponent implements OnInit {
 
   private loadLessons(sectionId: string): void {
     this.loading.set(true);
-    this.lessonService.getLessonsBySection(this.courseId(),sectionId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res: any) => {
-          // Flatten array and ensure order sorting
-          const data = res.data?.data || res.data || [];
-          const sorted = Array.isArray(data) ? data.sort((a, b) => a.order - b.order) : [];
-          this.lessons.set(sorted);
-          this.loading.set(false);
-        },
-        error: (error: any) => {
-          console.error('Failed to load lessons', error);
-          this.loading.set(false);
-        }
-      });
+    // this.lessonService.getLessonsBySection(this.courseId(),sectionId)
+    //   .pipe(takeUntilDestroyed(this.destroyRef))
+    //   .subscribe({
+    //     next: (res: any) => {
+    //       // Flatten array and ensure order sorting
+    //       const data = res.data?.data || res.data || [];
+    //       const sorted = Array.isArray(data) ? data.sort((a, b) => a.order - b.order) : [];
+    //       this.lessons.set(sorted);
+    //       this.loading.set(false);
+    //     },
+    //     error: (error: any) => {
+    //       console.error('Failed to load lessons', error);
+    //       this.loading.set(false);
+    //     }
+    //   });
   }
 
   // --- Drag and Drop Logic ---
@@ -146,18 +146,18 @@ export class LessonListComponent implements OnInit {
     this.lessons.set(newLessons);
 
     // Persist to backend
-    this.lessonService.reorderLessons(this.courseId(),this.sectionId(), reorderedPayload)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Lessons reordered successfully' });
-        },
-        error: (error: any) => {
-          console.error('Failed to reorder lessons', error);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to reorder lessons' });
-          this.loadLessons(this.sectionId()); // Revert UI on failure
-        }
-      });
+    // this.lessonService.reorderLessons(this.courseId(),this.sectionId(), reorderedPayload)
+    //   .pipe(takeUntilDestroyed(this.destroyRef))
+    //   .subscribe({
+    //     next: () => {
+    //       this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Lessons reordered successfully' });
+    //     },
+    //     error: (error: any) => {
+    //       console.error('Failed to reorder lessons', error);
+    //       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to reorder lessons' });
+    //       this.loadLessons(this.sectionId()); // Revert UI on failure
+    //     }
+    //   });
 
     this.draggingIndex.set(null);
   }
@@ -186,20 +186,20 @@ export class LessonListComponent implements OnInit {
       message: `Are you sure you want to delete "${lesson.title}"?`,
       header: 'Confirm Delete',
       icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.lessonService.deleteLesson(this.courseId(),this.sectionId(),lesson._id)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({
-            next: () => {
-              this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Lesson deleted successfully' });
-              this.lessons.update(arr => arr.filter(l => l._id !== lesson._id));
-            },
-            error: (error: any) => {
-              console.error('Failed to delete lesson', error);
-              this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error?.message || 'Failed to delete lesson' });
-            }
-          });
-      }
+      // accept: () => {
+      //   this.lessonService.deleteLesson(this.courseId(),this.sectionId(),lesson._id)
+      //     .pipe(takeUntilDestroyed(this.destroyRef))
+      //     .subscribe({
+      //       next: () => {
+      //         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Lesson deleted successfully' });
+      //         this.lessons.update(arr => arr.filter(l => l._id !== lesson._id));
+      //       },
+      //       error: (error: any) => {
+      //         console.error('Failed to delete lesson', error);
+      //         this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error?.message || 'Failed to delete lesson' });
+      //       }
+      //     });
+      // }
     });
   }
 

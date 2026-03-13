@@ -5,7 +5,7 @@ export interface MenuItem {
   items?: MenuItem[];
   badge?: string;
   expanded?: boolean;
-  roles?: string[]; 
+  roles?: string[];
 }
 
 export const SIDEBAR_MENU: MenuItem[] = [
@@ -17,10 +17,10 @@ export const SIDEBAR_MENU: MenuItem[] = [
     icon: 'pi pi-compass',
     expanded: true,
     items: [
-      { 
-        label: 'Home Dashboard', 
-        icon: 'pi pi-home', 
-        routerLink: ['/home'] 
+      {
+        label: 'Home Dashboard',
+        icon: 'pi pi-home',
+        routerLink: ['/home']
       },
       {
         label: 'Browse Courses',
@@ -64,19 +64,19 @@ export const SIDEBAR_MENU: MenuItem[] = [
     expanded: false,
     roles: ['instructor', 'admin'],
     items: [
-      { 
-        label: 'Analytics Dashboard', 
-        icon: 'pi pi-chart-bar', 
+      {
+        label: 'Analytics Dashboard',
+        icon: 'pi pi-chart-bar',
         routerLink: ['/instructor/dashboard']
       },
-      { 
-        label: 'My Courses (Manager)', 
-        icon: 'pi pi-video', 
+      {
+        label: 'My Courses (Manager)',
+        icon: 'pi pi-video',
         routerLink: ['/instructor/courses']
       },
-      { 
-        label: 'Draft New Course', 
-        icon: 'pi pi-plus-circle', 
+      {
+        label: 'Draft New Course',
+        icon: 'pi pi-plus-circle',
         routerLink: ['/instructor/courses/new']
       },
       {
@@ -84,9 +84,9 @@ export const SIDEBAR_MENU: MenuItem[] = [
         icon: 'pi pi-question-circle',
         routerLink: ['/instructor/assessments']
       },
-      { 
-        label: 'Draft Mock Test', 
-        icon: 'pi pi-file-edit', 
+      {
+        label: 'Draft Mock Test',
+        icon: 'pi pi-file-edit',
         routerLink: ['/instructor/mock-tests/new']
       },
       {
@@ -97,7 +97,11 @@ export const SIDEBAR_MENU: MenuItem[] = [
       }
     ]
   },
-
+  {
+    label: 'Master',
+    icon: 'pi pi-users',
+    routerLink: ['/master']
+  },
   // ==========================
   // 3. SYSTEM ADMINISTRATION (Admins Only)
   // ==========================
@@ -107,11 +111,12 @@ export const SIDEBAR_MENU: MenuItem[] = [
     expanded: false,
     roles: ['admin'],
     items: [
-      { 
-        label: 'User Directory', 
-        icon: 'pi pi-users', 
+      {
+        label: 'User Directory',
+        icon: 'pi pi-users',
         routerLink: ['/users']
       },
+
       {
         label: 'Category Manager',
         icon: 'pi ' + 'pi-tags',
@@ -160,25 +165,25 @@ export const SIDEBAR_MENU: MenuItem[] = [
     icon: 'pi pi-user',
     expanded: false,
     items: [
-      { 
-        label: 'Profile Settings', 
-        icon: 'pi pi-user-edit', 
+      {
+        label: 'Profile Settings',
+        icon: 'pi pi-user-edit',
         routerLink: ['/my-profile']
       },
-      { 
-        label: 'My Enrollments', 
-        icon: 'pi pi-user-edit', 
+      {
+        label: 'My Enrollments',
+        icon: 'pi pi-user-edit',
         routerLink: ['/my-enrollments']
       },
-      { 
-        label: 'My Dashboard', 
-        icon: 'pi pi-user-edit', 
+      {
+        label: 'My Dashboard',
+        icon: 'pi pi-user-edit',
         routerLink: ['/my-dashboard']
       },
-      { 
-        label: 'Sign Out', 
-        icon: 'pi pi-sign-out', 
-        routerLink: ['/auth/login'] 
+      {
+        label: 'Sign Out',
+        icon: 'pi pi-sign-out',
+        routerLink: ['/auth/login']
       }
     ]
   }
@@ -192,10 +197,10 @@ export const SIDEBAR_MENU: MenuItem[] = [
 //     icon: 'pi pi-home',
 //     expanded: true,
 //     items: [
-//       { 
-//         label: 'Dashboard', 
-//         icon: 'pi pi-th-large', 
-//         routerLink: ['/my-learning'] 
+//       {
+//         label: 'Dashboard',
+//         icon: 'pi pi-th-large',
+//         routerLink: ['/my-learning']
 //       },
 //       {
 //         label: 'Browse Courses',
@@ -239,19 +244,19 @@ export const SIDEBAR_MENU: MenuItem[] = [
 //     expanded: true,
 //     roles: ['instructor', 'admin'],
 //     items: [
-//       { 
-//         label: 'Command Center', 
-//         icon: 'pi pi-chart-line', 
+//       {
+//         label: 'Command Center',
+//         icon: 'pi pi-chart-line',
 //         routerLink: ['/instructor/dashboard']
 //       },
-//       { 
-//         label: 'Course Manager', 
-//         icon: 'pi pi-book', 
+//       {
+//         label: 'Course Manager',
+//         icon: 'pi pi-book',
 //         routerLink: ['/instructor/courses']
 //       },
-//       { 
-//         label: 'Build New Course', 
-//         icon: 'pi pi-plus-circle', 
+//       {
+//         label: 'Build New Course',
+//         icon: 'pi pi-plus-circle',
 //         routerLink: ['/instructor/courses/new']
 //       },
 //       {
@@ -279,9 +284,9 @@ export const SIDEBAR_MENU: MenuItem[] = [
 //         icon: 'pi pi-question-circle',
 //         routerLink: ['/instructor/quiz/:id']
 //       },
-//       { 
-//         label: 'Mock Test Builder', 
-//         icon: 'pi pi-file-edit', 
+//       {
+//         label: 'Mock Test Builder',
+//         icon: 'pi pi-file-edit',
 //         routerLink: ['/instructor/mock-tests/new']
 //       },
 //       {
@@ -306,14 +311,14 @@ export const SIDEBAR_MENU: MenuItem[] = [
 //     icon: 'pi pi-shield',
 //     roles: ['admin'],
 //     items: [
-//       { 
-//         label: 'User Directory', 
-//         icon: 'pi pi-users', 
+//       {
+//         label: 'User Directory',
+//         icon: 'pi pi-users',
 //         routerLink: ['/users']
 //       },
-//       { 
-//         label: 'Instructor Directory', 
-//         icon: 'pi pi-users', 
+//       {
+//         label: 'Instructor Directory',
+//         icon: 'pi pi-users',
 //         routerLink: ['/instructor/dashboard']
 //       },
 //       {
@@ -369,9 +374,9 @@ export const SIDEBAR_MENU: MenuItem[] = [
 //     label: 'Account',
 //     icon: 'pi pi-user',
 //     items: [
-//       { 
-//         label: 'Profile Settings', 
-//         icon: 'pi pi-cog', 
+//       {
+//         label: 'Profile Settings',
+//         icon: 'pi pi-cog',
 //         routerLink: ['/my-profile']
 //       },
 //       {
@@ -379,10 +384,10 @@ export const SIDEBAR_MENU: MenuItem[] = [
 //         icon: 'pi pi-certificate',
 //         routerLink: ['/certificates/my-certificates']
 //       },
-//       { 
-//         label: 'Sign Out', 
-//         icon: 'pi pi-sign-out', 
-//         routerLink: ['/auth/login'] 
+//       {
+//         label: 'Sign Out',
+//         icon: 'pi pi-sign-out',
+//         routerLink: ['/auth/login']
 //       }
 //     ]
 //   }
@@ -395,5 +400,5 @@ export const SIDEBAR_MENU: MenuItem[] = [
 //   items?: MenuItem[];
 //   badge?: string;
 //   expanded?: boolean;
-//   roles?: string[]; 
+//   roles?: string[];
 // }

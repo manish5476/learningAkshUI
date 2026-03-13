@@ -1,19 +1,62 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiOptions, ApiResponse, ApiResponseWithPagination, BaseApiService } from '../http/base-api.service';
+export interface MasterConfig {
+  isHierarchical: boolean;
+  allowMultiple: boolean;
+  hasMetadata: boolean;
+  isTranslatable: boolean;
+}
 
-// --- Optional: Define your interfaces here for strict typing ---
-export interface Master {
-  _id?: string;
-  name: string;
-  // add other master properties...
+export interface MasterStats {
+  totalValues: number;
+  activeValues: number;
+  publishedValues: number;
+  lastValueAdded?: string;
+}
+
+export interface MasterValueMetadata {
+  icon?: string;
+  color?: string;
+  sortOrder?: number;
 }
 
 export interface MasterValue {
   _id?: string;
   value: string;
   label: string;
-  // add other master value properties...
+  description?: string;
+  isActive?: boolean;
+  isPublished?: boolean;
+  isDefault?: boolean;
+  isSystem?: boolean;
+  isDeleted?: boolean;
+  metadata?: MasterValueMetadata;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Master {
+  _id?: string;
+  id?: string;
+  masterName: string;
+  displayName: string;
+  description?: string;
+  category: string;
+  isActive?: boolean;
+  isPublished?: boolean;
+  isLocked?: boolean;
+  isSystem?: boolean;
+  config?: MasterConfig;
+  stats?: MasterStats;
+  values?: MasterValue[];
+  activeValues?: MasterValue[]; // Your backend sends this too
+  hierarchy?: any[];
+  createdAt?: string;
+  updatedAt?: string;
+  
+  // UI-only helper properties
+  _expanded?: boolean; 
 }
 
 @Injectable({

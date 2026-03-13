@@ -79,7 +79,7 @@ export class CourseStudentsComponent implements OnInit {
   }
 
   private fetchCourseDetails(id: string): void {
-    this.courseService.getCoursesById(id)
+    this.courseService.getCourseById(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {

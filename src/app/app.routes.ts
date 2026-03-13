@@ -47,18 +47,25 @@ export const routes: Routes = [
       {
         path: '',
         loadChildren: () => import('./core/routes/admin.routes').then(m => m.ADMIN_ROUTES)
-      }
+      },
+      {
+    path: 'master',
+    // Use loadComponent instead of loadChildren for standalone components
+    loadComponent: () => import('./features/master/components/master-data-grid.component').then(m => m.MasterDataGridComponent)
+  },
+  {
+    path: 'certificates',
+    loadChildren: () => import('./features/certificates/certificate.routes').then(m => m.CERTIFICATE_ROUTES)
+  },
     ]
   },
   // Auth Routes (Login, Signup - outside the MainScreen layout)
   {
     path: 'auth',
     loadChildren: () => import('./core/routes/auth.routes').then(m => m.AUTH_ROUTES)
-  }, 
-  {
-    path: 'certificates',
-    loadChildren: () => import('./features/certificates/certificate.routes').then(m => m.CERTIFICATE_ROUTES)
   },
+  
+  
   // Wildcard fallback
   {
     path: '**',

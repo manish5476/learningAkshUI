@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { BaseApiService, ApiOptions, ApiResponseWithPagination, ApiResponse } from '../http/base-api.service';
+import { BaseApiService,  ApiResponseWithPagination, ApiResponse } from '../http/base-api.service';
 
 // --- Optional: Define your interfaces here for strict typing ---
 export interface Course {
@@ -20,23 +20,23 @@ export class CourseService {
 
   // ==================== PUBLIC ROUTES ====================
 
-  getPublishedCourses(options?: ApiOptions): Observable<ApiResponseWithPagination<Course[]>> {
+  getPublishedCourses(options?: any): Observable<ApiResponseWithPagination<Course[]>> {
     return this.api.getWithPagination<Course[]>(`${this.endpoint}/published`, { ...options, skipAuth: true });
   }
 
-  getCourseMasterData(options?: ApiOptions): Observable<ApiResponse<any>> {
+  getCourseMasterData(options?: any): Observable<ApiResponse<any>> {
     return this.api.get<any>(`${this.endpoint}/master-data`, { ...options, skipAuth: true });
   }
 
-  getCourseStructure(id: string, options?: ApiOptions): Observable<ApiResponse<any>> {
+  getCourseStructure(id: string, options?: any): Observable<ApiResponse<any>> {
     return this.api.get<any>(`${this.endpoint}/${id}/structure`, { ...options, skipAuth: true });
   }
 
-  getCourseById(id: string, options?: ApiOptions): Observable<ApiResponse<Course>> {
+  getCourseById(id: string, options?: any): Observable<ApiResponse<Course>> {
     return this.api.get<Course>(`${this.endpoint}/${id}`, { ...options, skipAuth: true });
   }
 
-  getAllCourses(options?: ApiOptions): Observable<ApiResponseWithPagination<Course[]>> {
+  getAllCourses(options?: any): Observable<ApiResponseWithPagination<Course[]>> {
     return this.api.getWithPagination<Course[]>(this.endpoint, { ...options, skipAuth: true });
   }
 
@@ -44,121 +44,125 @@ export class CourseService {
 
   // --- Instructor's Courses ---
   
-  getMyInstructorCourses(options?: ApiOptions): Observable<ApiResponseWithPagination<Course[]>> {
+  getMyInstructorCourses(options?: any): Observable<ApiResponseWithPagination<Course[]>> {
     return this.api.getWithPagination<Course[]>(`${this.endpoint}/instructor/my-courses`, options);
+  }
+
+    getCoursesBySlug(slug: string): Observable<ApiResponse<any>> {
+    return this.api.get<any>(`${this.endpoint}/slug/${slug}`);
   }
 
   // --- Course CRUD ---
 
-  createCourse(data: Partial<Course>, options?: ApiOptions): Observable<ApiResponse<Course>> {
+  createCourse(data: Partial<Course>, options?: any): Observable<ApiResponse<Course>> {
     return this.api.post<Course>(this.endpoint, data, options);
   }
 
-  updateCourse(id: string, data: Partial<Course>, options?: ApiOptions): Observable<ApiResponse<Course>> {
+  updateCourse(id: string, data: Partial<Course>, options?: any): Observable<ApiResponse<Course>> {
     return this.api.patch<Course>(`${this.endpoint}/${id}`, data, options);
   }
 
   // --- Publish/Unpublish Routes ---
 
-  publishCourse(id: string, options?: ApiOptions): Observable<ApiResponse<Course>> {
+  publishCourse(id: string, options?: any): Observable<ApiResponse<Course>> {
     return this.api.patch<Course>(`${this.endpoint}/${id}/publish`, {}, options);
   }
 
-  unpublishCourse(id: string, options?: ApiOptions): Observable<ApiResponse<Course>> {
+  unpublishCourse(id: string, options?: any): Observable<ApiResponse<Course>> {
     return this.api.patch<Course>(`${this.endpoint}/${id}/unpublish`, {}, options);
   }
 
-  togglePublishStatus(id: string, options?: ApiOptions): Observable<ApiResponse<Course>> {
+  togglePublishStatus(id: string, options?: any): Observable<ApiResponse<Course>> {
     return this.api.patch<Course>(`${this.endpoint}/${id}/toggle-publish`, {}, options);
   }
 
   // --- Bulk Publish/Unpublish Routes ---
 
-  bulkPublishCourses(courseIds: string[], options?: ApiOptions): Observable<ApiResponse<any>> {
+  bulkPublishCourses(courseIds: string[], options?: any): Observable<ApiResponse<any>> {
     return this.api.post<any>(`${this.endpoint}/bulk/publish`, { courseIds }, options);
   }
 
-  bulkUnpublishCourses(courseIds: string[], options?: ApiOptions): Observable<ApiResponse<any>> {
+  bulkUnpublishCourses(courseIds: string[], options?: any): Observable<ApiResponse<any>> {
     return this.api.post<any>(`${this.endpoint}/bulk/unpublish`, { courseIds }, options);
   }
 
   // --- Approval Routes ---
 
-  approveCourse(id: string, options?: ApiOptions): Observable<ApiResponse<Course>> {
+  approveCourse(id: string, options?: any): Observable<ApiResponse<Course>> {
     return this.api.patch<Course>(`${this.endpoint}/${id}/approve`, {}, options);
   }
 
-  rejectCourse(id: string, reason?: string, options?: ApiOptions): Observable<ApiResponse<Course>> {
+  rejectCourse(id: string, reason?: string, options?: any): Observable<ApiResponse<Course>> {
     return this.api.patch<Course>(`${this.endpoint}/${id}/reject`, { reason }, options);
   }
 
   // --- Instructor Management Routes ---
 
-  addInstructor(courseId: string, data: any, options?: ApiOptions): Observable<ApiResponse<any>> {
+  addInstructor(courseId: string, data: any, options?: any): Observable<ApiResponse<any>> {
     return this.api.post<any>(`${this.endpoint}/${courseId}/instructors`, data, options);
   }
 
-  updateInstructorPermissions(courseId: string, instructorId: string, permissions: any, options?: ApiOptions): Observable<ApiResponse<any>> {
+  updateInstructorPermissions(courseId: string, instructorId: string, permissions: any, options?: any): Observable<ApiResponse<any>> {
     return this.api.patch<any>(`${this.endpoint}/${courseId}/instructors/${instructorId}/permissions`, permissions, options);
   }
 
-  removeInstructor(courseId: string, instructorId: string, options?: ApiOptions): Observable<ApiResponse<null>> {
+  removeInstructor(courseId: string, instructorId: string, options?: any): Observable<ApiResponse<null>> {
     return this.api.delete<null>(`${this.endpoint}/${courseId}/instructors/${instructorId}`, options);
   }
 
-  getCourseInstructors(courseId: string, options?: ApiOptions): Observable<ApiResponse<any[]>> {
+  getCourseInstructors(courseId: string, options?: any): Observable<ApiResponse<any[]>> {
     return this.api.get<any[]>(`${this.endpoint}/${courseId}/instructors`, options);
   }
 
   // --- Invitation Routes ---
 
-  createInvitation(courseId: string, data: any, options?: ApiOptions): Observable<ApiResponse<any>> {
+  createInvitation(courseId: string, data: any, options?: any): Observable<ApiResponse<any>> {
     return this.api.post<any>(`${this.endpoint}/${courseId}/invitations`, data, options);
   }
 
-  getCourseInvitations(courseId: string, options?: ApiOptions): Observable<ApiResponse<any[]>> {
+  getCourseInvitations(courseId: string, options?: any): Observable<ApiResponse<any[]>> {
     return this.api.get<any[]>(`${this.endpoint}/${courseId}/invitations`, options);
   }
 
-  acceptInvitation(tokenOrData: any, options?: ApiOptions): Observable<ApiResponse<any>> {
+  acceptInvitation(tokenOrData: any, options?: any): Observable<ApiResponse<any>> {
     return this.api.post<any>(`${this.endpoint}/invitations/accept`, tokenOrData, options);
   }
 
-  revokeInvitation(invitationId: string, options?: ApiOptions): Observable<ApiResponse<any>> {
+  revokeInvitation(invitationId: string, options?: any): Observable<ApiResponse<any>> {
     return this.api.patch<any>(`${this.endpoint}/invitations/${invitationId}/revoke`, {}, options);
   }
 
   // --- Analytics ---
 
-  getCourseAnalytics(id: string, options?: ApiOptions): Observable<ApiResponse<any>> {
+  getCourseAnalytics(id: string, options?: any): Observable<ApiResponse<any>> {
     return this.api.get<any>(`${this.endpoint}/${id}/analytics`, options);
   }
 
   // --- Delete/Restore ---
 
-  deleteCourse(id: string, options?: ApiOptions): Observable<ApiResponse<null>> {
+  deleteCourse(id: string, options?: any): Observable<ApiResponse<null>> {
     return this.api.delete<null>(`${this.endpoint}/${id}`, options);
   }
 
-  restoreCourse(id: string, options?: ApiOptions): Observable<ApiResponse<Course>> {
+  restoreCourse(id: string, options?: any): Observable<ApiResponse<Course>> {
     return this.api.patch<Course>(`${this.endpoint}/${id}/restore`, {}, options);
   }
 
   // --- Bulk Operations ---
 
-  bulkCreateCourses(courses: Partial<Course>[], options?: ApiOptions): Observable<ApiResponse<Course[]>> {
+  bulkCreateCourses(courses: Partial<Course>[], options?: any): Observable<ApiResponse<Course[]>> {
     return this.api.post<Course[]>(`${this.endpoint}/bulk/create`, { courses }, options);
   }
 
-  bulkUpdateCourses(courses: Partial<Course>[], options?: ApiOptions): Observable<ApiResponse<Course[]>> {
+  bulkUpdateCourses(courses: Partial<Course>[], options?: any): Observable<ApiResponse<Course[]>> {
     return this.api.patch<Course[]>(`${this.endpoint}/bulk/update`, { courses }, options);
   }
 
-  bulkDeleteCourses(courseIds: string[], options?: ApiOptions): Observable<ApiResponse<null>> {
+  bulkDeleteCourses(courseIds: string[], options?: any): Observable<ApiResponse<null>> {
     return this.api.delete<null>(`${this.endpoint}/bulk/delete`, { ...options, body: { courseIds } });
   }
 
-  countCourses(options?: ApiOptions): Observable<ApiResponse<{ total: number }>> {
+  countCourses(options?: any): Observable<ApiResponse<{ total: number }>> {
     return this.api.get<{ total: number }>(`${this.endpoint}/count/total`, options);
   }
 }
@@ -186,9 +190,6 @@ export class CourseService {
 //     return this.baseApi.get<Course>(`${this.endpoint}/${id}`);
 //   }
 
-//   getCoursesBySlug(slug: string): Observable<ApiResponse<CourseWithContent>> {
-//     return this.baseApi.get<CourseWithContent>(`${this.endpoint}/slug/${slug}`);
-//   }
 
 //   // ==================== INSTRUCTOR ROUTES ====================
 //   getInstructorCourses(): Observable<ApiResponse<any>> {

@@ -206,7 +206,7 @@ export class InstructorDashboardComponent implements OnInit {
 
   private fetchDashboardData(): void {
     this.isLoading.set(true);
-    this.courseService.getInstructorCourses()
+    this.courseService.getMyInstructorCourses()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
