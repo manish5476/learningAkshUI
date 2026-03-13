@@ -29,7 +29,7 @@ import { Card } from "primeng/card";
   styleUrls: ['./course-form.component.scss']
 })
 export class CourseFormComponent implements OnInit {
-  // Modern Signal Inputs/Outputs
+
   courseId = input<string | undefined>();
   saved = output<Course>();
   cancelled = output<void>();
@@ -42,7 +42,7 @@ export class CourseFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
 
-  // Reactive State Signals
+
   categories = signal<Category[]>([]);
   isLoading = signal<boolean>(false);
   isEditMode = signal<boolean>(false);
@@ -50,7 +50,7 @@ export class CourseFormComponent implements OnInit {
   thumbnailPreview = signal<string | null>(null);
   hasDiscount = signal<boolean>(false);
 
-  // Configuration Constants
+
   difficultyLevels = [
     { name: 'Beginner', value: 'beginner' },
     { name: 'Intermediate', value: 'intermediate' },
@@ -78,11 +78,11 @@ export class CourseFormComponent implements OnInit {
     { name: 'Hindi', value: 'Hindi' }
   ];
 
-  // Initialize Form
+
   courseForm: FormGroup = this.fb.group({
     title: ['', [Validators.required, Validators.maxLength(100)]],
     subtitle: ['', Validators.maxLength(200)],
-    slug: [''], // ✅ Added missing slug control
+    slug: [''],
     description: ['', [Validators.required, Validators.minLength(50)]],
     category: ['', Validators.required],
     level: ['beginner'],
@@ -94,6 +94,8 @@ export class CourseFormComponent implements OnInit {
     discountStartDate: [null],
     discountEndDate: [null],
     isFree: [false],
+    isPublished: [false],
+    isApproved: [false],
     currency: ['USD'],
     requirements: this.fb.array([]),
     whatYouWillLearn: this.fb.array([]),
@@ -132,7 +134,6 @@ export class CourseFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCategories();
-
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       const routeId = params['id'];
       this.routeId = params['id'];
@@ -145,9 +146,7 @@ export class CourseFormComponent implements OnInit {
     });
   }
 
-  // --- API Calls ---
 
-  
   private loadCategories(): void {
     this.categoryService.getAllCategories({ isActive: true })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -163,11 +162,9 @@ export class CourseFormComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
-          // ✅ FIX 1: Extract both course and sections correctly from the payload
           const payload = res.data || res;
           const course = payload.course || payload.data || payload;
           const sections = payload.sections || course.sections || [];
-
           if (course) {
             this.patchForm(course, sections);
             if (course.thumbnail) this.thumbnailPreview.set(course.thumbnail);
@@ -224,11 +221,11 @@ export class CourseFormComponent implements OnInit {
       course.tags.forEach((tag: string) => this.tags.push(this.fb.control(tag)));
     }
 
-    // ✅ FIX 2: Correctly populate the Sections and Lessons FormArrays
+
     if (sectionsData && sectionsData.length > 0) {
       sectionsData.forEach((section: any, sIndex: number) => {
         const sectionGroup = this.fb.group({
-          _id: [section._id], // Included ID so backend knows to update instead of create
+          _id: [section._id],
           title: [section.title || '', Validators.required],
           description: [section.description || ''],
           order: [section.order ?? sIndex],
@@ -240,7 +237,7 @@ export class CourseFormComponent implements OnInit {
         if (section.lessons && section.lessons.length > 0) {
           section.lessons.forEach((lesson: any, lIndex: number) => {
             lessonsArray.push(this.fb.group({
-              _id: [lesson._id], // Included ID for updates
+              _id: [lesson._id],
               title: [lesson.title || '', Validators.required],
               type: [lesson.type || 'video'],
               duration: [lesson.duration || 0],
@@ -259,7 +256,7 @@ export class CourseFormComponent implements OnInit {
     return new Date(date).toISOString().split('T')[0];
   }
 
-  // --- Form Getters & Helpers ---
+
 
   get sections(): FormArray { return this.courseForm.get('sections') as FormArray; }
   get requirements(): FormArray { return this.courseForm.get('requirements') as FormArray; }
@@ -282,7 +279,7 @@ export class CourseFormComponent implements OnInit {
     return field ? field.invalid && (field.dirty || field.touched) : false;
   }
 
-  // --- Step Navigation ---
+
 
   nextStep(): void {
     if (this.currentStep() < 4) this.currentStep.update(s => s + 1);
@@ -296,38 +293,9 @@ export class CourseFormComponent implements OnInit {
     if (step >= 1 && step <= 4) this.currentStep.set(step);
   }
 
-  // --- Form Array Manipulations ---
-
-  // addSection(): void {
-  //   this.sections.push(this.fb.group({
-  //     title: ['', Validators.required],
-  //     description: [''],
-  //     order: [this.sections.length],
-  //     lessons: this.fb.array([])
-  //   }));
-  // }
-
-
-  // getLessons(sectionIndex: number): FormArray {
-  //   return this.sections.at(sectionIndex).get('lessons') as FormArray;
-  // }
-
-  // addLesson(sectionIndex: number): void {
-  //   this.getLessons(sectionIndex).push(this.fb.group({
-  //     title: ['', Validators.required],
-  //     type: ['video'],
-  //     duration: [0],
-  //     isFree: [false],
-  //     order: [this.getLessons(sectionIndex).length]
-  //   }));
-  // }
-
-
-// --- Form Array Manipulations ---
-
   addSection(): void {
     this.sections.push(this.fb.group({
-      _id: [null], // ✅ ADDED: Prevents silent form structure errors
+      _id: [null],
       title: ['', Validators.required],
       description: [''],
       order: [this.sections.length],
@@ -341,7 +309,7 @@ export class CourseFormComponent implements OnInit {
 
   addLesson(sectionIndex: number): void {
     this.getLessons(sectionIndex).push(this.fb.group({
-      _id: [null], // ✅ ADDED: Prevents silent form structure errors
+      _id: [null],
       title: ['', Validators.required],
       type: ['video'],
       duration: [0],
@@ -349,7 +317,7 @@ export class CourseFormComponent implements OnInit {
       order: [this.getLessons(sectionIndex).length]
     }));
   }
-    addRequirement(): void { this.requirements.push(this.fb.control('')); }
+  addRequirement(): void { this.requirements.push(this.fb.control('')); }
   removeRequirement(index: number): void { this.requirements.removeAt(index); }
   addLearningItem(): void { this.whatYouWillLearn.push(this.fb.control('', Validators.required)); }
   removeLearningItem(index: number): void { this.whatYouWillLearn.removeAt(index); }
@@ -366,7 +334,7 @@ export class CourseFormComponent implements OnInit {
   }
   removeTag(index: number): void { this.tags.removeAt(index); }
 
-  // --- File Upload ---
+
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
@@ -402,7 +370,7 @@ export class CourseFormComponent implements OnInit {
     this.courseForm.patchValue({ thumbnail: '' });
   }
 
-  // --- Pricing Toggles ---
+
 
   onFreeToggle(): void {
     const isFree = this.courseForm.get('isFree')?.value;
@@ -422,43 +390,6 @@ export class CourseFormComponent implements OnInit {
     }
   }
 
-  //   // --- Submission ---
-  // removeSection(index: number): void {
-  //     const sectionGroup = this.sections.at(index) as FormGroup;
-  //     const sectionId = sectionGroup.get('_id')?.value;
-  //     const courseId = this.route.snapshot.paramMap.get('id') || this.courseId();
-
-  //     // SCENARIO 1: Section exists in the Database
-  //     if (sectionId && courseId) {
-  //       // Add a confirmation dialog because this is a permanent database deletion!
-  //       if (confirm('Are you sure you want to permanently delete this section and all its lessons?')) {
-  //         this.isLoading.set(true);
-
-  //         this.sectionService.deleteSection(courseId, sectionId)
-  //           .pipe(takeUntilDestroyed(this.destroyRef))
-  //           .subscribe({
-  //             next: () => {
-  //               // Once successfully deleted from DB, remove from UI
-  //               this.sections.removeAt(index);
-  //               this.recalculateSectionOrders();
-  //               this.isLoading.set(false);
-  //             },
-  //             error: (err: any) => {
-  //               console.error('Failed to delete section from database', err);
-  //               // TIP: You could add a Toast/Message service call here to show the error to the user
-  //               this.isLoading.set(false);
-  //             }
-  //           });
-  //       }
-  //     } 
-  //     // SCENARIO 2: Section is just local (not saved to DB yet)
-  //     else {
-  //       this.sections.removeAt(index);
-  //       this.recalculateSectionOrders();
-  //     }
-  //   }
-
-  // Helper method to keep your orders perfectly synced
   private recalculateSectionOrders(): void {
     this.sections.controls.forEach((c, i) => c.get('order')?.setValue(i));
   }
@@ -500,17 +431,11 @@ export class CourseFormComponent implements OnInit {
     this.router.navigate(['/courses/instructor']);
   }
 
-
-
-
   private executeLocalSectionRemoval(index: number): void {
     this.sections.removeAt(index);
     this.sections.controls.forEach((c, i) => c.get('order')?.setValue(i));
   }
 
-  // ==========================================
-  // SECTION DELETION (Optimistic Update)
-  // ==========================================
   removeSection(index: number): void {
     const sectionGroup = this.sections.at(index) as FormGroup;
     const sectionId = sectionGroup.get('_id')?.value;
@@ -518,22 +443,15 @@ export class CourseFormComponent implements OnInit {
 
     if (sectionId && courseId) {
       if (confirm('Are you sure you want to permanently delete this section and all its lessons?')) {
-
-        // ⚡️ 1. REMOVE FROM UI INSTANTLY (No more this.isLoading.set(true))
         this.executeLocalSectionRemoval(index);
-
-        // ⚡️ 2. CALL BACKEND QUIETLY IN THE BACKGROUND
         this.sectionService.deleteSection(courseId, sectionId)
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
             next: () => {
-              // Success! It's already gone from UI, do nothing. (Maybe show a success toast here)
             },
             error: (err: any) => {
-              // Only react if it actually failed and wasn't a ghost error
               if (err.status !== 404 && err.status !== 200 && !err.message.includes('Http failure')) {
                 console.error('Background delete failed', err);
-                // In a perfect app, you would add the section back to the UI here and show an error toast
               }
             }
           });
@@ -543,9 +461,6 @@ export class CourseFormComponent implements OnInit {
     }
   }
 
-  // ==========================================
-  // LESSON DELETION (Optimistic Update)
-  // ==========================================
   removeLesson(sIndex: number, lIndex: number): void {
     const lessons = this.getLessons(sIndex);
     const lessonGroup = lessons.at(lIndex) as FormGroup;
@@ -557,10 +472,10 @@ export class CourseFormComponent implements OnInit {
     if (lessonId && sectionId && courseId) {
       if (confirm('Permanently delete this lesson?')) {
 
-        // ⚡️ 1. REMOVE FROM UI INSTANTLY
+
         this.executeLocalLessonRemoval(lessons, lIndex);
 
-        // ⚡️ 2. CALL BACKEND IN BACKGROUND
+
         this.lessonService.delete(courseId, sectionId, lessonId)
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
@@ -581,29 +496,25 @@ export class CourseFormComponent implements OnInit {
     lessons.controls.forEach((c, i) => c.get('order')?.setValue(i));
   }
 
-  // Add these signals at the top with your other signals
-thumbnailMode = signal<'upload' | 'url'>('upload');
-thumbnailUrlPreview = signal<string | null>(null);
+  thumbnailMode = signal<'upload' | 'url'>('upload');
+  thumbnailUrlPreview = signal<string | null>(null);
 
-// Add these methods
-setThumbnailMode(mode: 'upload' | 'url'): void {
-  this.thumbnailMode.set(mode);
-  if (mode === 'url') {
-    // Clear file input preview when switching to URL mode
-    this.thumbnailPreview.set(null);
-  } else {
-    // Clear URL preview when switching to upload mode
-    this.thumbnailUrlPreview.set(null);
-    this.courseForm.patchValue({ thumbnail: '' });
+  setThumbnailMode(mode: 'upload' | 'url'): void {
+    this.thumbnailMode.set(mode);
+    if (mode === 'url') {
+      this.thumbnailPreview.set(null);
+    } else {
+      this.thumbnailUrlPreview.set(null);
+      this.courseForm.patchValue({ thumbnail: '' });
+    }
   }
-}
 
-onThumbnailUrlChange(event: Event): void {
-  const url = (event.target as HTMLInputElement).value;
-  if (url && url.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
-    this.thumbnailUrlPreview.set(url);
-  } else {
-    this.thumbnailUrlPreview.set(null);
+  onThumbnailUrlChange(event: Event): void {
+    const url = (event.target as HTMLInputElement).value;
+    if (url && url.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+      this.thumbnailUrlPreview.set(url);
+    } else {
+      this.thumbnailUrlPreview.set(null);
+    }
   }
-}
 }
