@@ -1,7 +1,7 @@
+
 <div class="course-detail-container">
   <p-toast position="top-right"></p-toast>
 
-  <!-- ===== LOADING STATE ===== -->
   @if (isLoading()) {
   <div class="loading-state">
     <div class="loader-ring"></div>
@@ -16,31 +16,29 @@
   </div>
   }
 
-  <!-- ===== ERROR STATE ===== -->
   @else if (error()) {
   <div class="error-state">
     <div class="error-icon">⚠️</div>
     <h2>Oops! Something went wrong</h2>
     <p>{{ error() }}</p>
     <button class="retry-btn focus-ring" (click)="retry()">
-      <i class="pi pi-refresh"></i>
-      Try Again
+      <i class="pi pi-refresh"></i> Try Again
     </button>
   </div>
   }
 
-  <!-- ===== COURSE CONTENT ===== -->
   @else if (course(); as course) {
 
-  <!-- Navigation Bar -->
-  <div class="nav-bar">
+ <div class="nav-bar">
     <div class="nav-left">
       <a [routerLink]="canManageCourse() ? '/instructor/courses' : '/courses'" class="back-link focus-ring">
         <i class="pi pi-arrow-left"></i>
         <span>{{ canManageCourse() ? 'My Courses' : 'All Courses' }}</span>
       </a>
       <span class="separator">/</span>
-      <span class="category">{{ getCategoryName() }}</span>
+      
+      <span class="category">{{ getCategoryName()?.name }}</span>
+      
     </div>
 
     @if (canManageCourse()) {
@@ -55,7 +53,6 @@
         Analytics
       </button>
 
-      <!-- Quiz Builder Button -->
       <button class="action-btn quiz-btn focus-ring" (click)="openQuizBuilder()">
         <i class="pi pi-question-circle"></i>
         Manage Quiz
@@ -63,60 +60,26 @@
 
       @if (!course.isPublished) {
       <button class="publish-btn focus-ring" (click)="publishCourse()">
-        <i class="pi pi-rocket"></i>
-        Publish Course
+        <i class="pi pi-rocket"></i> Publish Course
       </button>
-
       } @else {
       <button class="unpublish-btn focus-ring" (click)="unpublishCourse()">
-        <i class="pi pi-eye-slash"></i>
-        Unpublish Course
+        <i class="pi pi-eye-slash"></i> Unpublish Course
       </button>
       }
     </div>
     }
-
-    <!-- @if (canManageCourse()) {
-    <div class="nav-right">
-      <span class="status-badge" [ngClass]="getCourseStatus().severity">
-        <i [class]="getCourseStatus().icon"></i>
-        {{ getCourseStatus().label }}
-      </span>
-
-      <button class="action-btn success focus-ring" (click)="goAnalytics()">
-        <i class="pi pi-play-circle"></i>
-        goAnalytics
-      </button>
-
-      @if (!course.isPublished) {
-      <button class="publish-btn focus-ring" (click)="publishCourse()">
-        <i class="pi pi-rocket"></i>
-        Publish Course
-      </button>
-
-      } @else {
-      <button class="unpublish-btn focus-ring" (click)="unpublishCourse()">
-        <i class="pi pi-eye-slash"></i>
-        Unpublish Course
-      </button>
-      }
-    </div>
-    } -->
   </div>
 
-  <!-- Main Content Grid -->
   <div class="content-grid">
 
-    <!-- LEFT COLUMN - Main Content -->
     <div class="main-content">
 
-      <!-- Course Header Card -->
       <p-card class="course-content-card">
         <ng-template pTemplate="content">
           <div class="course-header">
             <h1 class="course-title text-gradient">{{ course.title }}</h1>
-            <p class="course-subtitle">{{ course.subtitle || (course.description | slice:0:200) }}{{
-              (course.description.length || 0) > 200 ? '...' : '' }}</p>
+            <p class="course-subtitle">{{ course.subtitle || (course.description | slice:0:200) }}...</p>
 
             <div class="meta-stats">
               <div class="stat">
@@ -140,51 +103,30 @@
                 <span>{{ course.language }}</span>
               </div>
             </div>
-            <!-- In the instructor-p-card section, update the instructor display -->
+            
             <p-card class="instructor-p-card">
               <ng-template pTemplate="content">
                 <div class="instructor-card">
                   <div class="instructor-avatar">
-                    @if (course.instructor?.profilePicture) {
-                    <img [src]="course.instructor.profilePicture" [alt]="course.instructor.firstName">
+                    @if (course.primaryInstructor?.profilePicture) {
+                      <img [src]="course.primaryInstructor.profilePicture" [alt]="course.primaryInstructor.firstName">
                     } @else {
-                    <div class="avatar-placeholder">
-                      {{ getInstructorInitials(course.instructor) }}
-                    </div>
+                      <div class="avatar-placeholder">
+                        {{ getInstructorInitials(course.primaryInstructor) }}
+                      </div>
                     }
                   </div>
                   <div class="instructor-info">
                     <span class="label">Created by</span>
-                    <span class="name">{{ getInstructorName(course.instructor) }}</span>
+                    <span class="name">{{ course.primaryInstructor?.firstName }} {{ course.primaryInstructor?.lastName }}</span>
                   </div>
                 </div>
               </ng-template>
             </p-card>
-
-            <!-- <p-card class="instructor-p-card">
-              <ng-template pTemplate="content">
-                <div class="instructor-card">
-                  <div class="instructor-avatar">
-                    @if (course.instructor.profilePicture) {
-                    <img [src]="course.instructor.profilePicture" [alt]="course.instructor.firstName">
-                    } @else {
-                    <div class="avatar-placeholder">
-                      {{ course.instructor.firstName.charAt(0) }}{{ course.instructor.lastName.charAt(0) }}
-                    </div>
-                    }
-                  </div>
-                  <div class="instructor-info">
-                    <span class="label">Created by</span>
-                    <span class="name">{{ course.instructor.firstName }} {{ course.instructor.lastName }}</span>
-                  </div>
-                </div>
-              </ng-template>
-            </p-card> -->
           </div>
         </ng-template>
       </p-card>
 
-      <!-- About This Course Card -->
       @if (course.description) {
       <p-card class="course-content-card">
         <ng-template pTemplate="title">
@@ -196,8 +138,7 @@
       </p-card>
       }
 
-      <!-- What You'll Learn Card -->
-      @if (course.whatYouWillLearn.length) {
+      @if (course.whatYouWillLearn?.length) {
       <p-card class="course-content-card">
         <ng-template pTemplate="title">
           <h2 class="section-title">What You'll Learn</h2>
@@ -215,22 +156,20 @@
       </p-card>
       }
 
-      <!-- Course Curriculum Card -->
       <p-card class="course-content-card">
         <ng-template pTemplate="title">
-          <div class="section-header">
+          <div class="section-header flex justify-content-between align-items-center">
             <h2 class="section-title">Course Curriculum</h2>
             @if (canManageCourse()) {
-            <button class="edit-btn focus-ring" (click)="editCurriculum()">
-              <i class="pi pi-pencil"></i>
-              Manage Curriculum
+            <button class="action-btn outline focus-ring" (click)="editCurriculum()">
+              <i class="pi pi-pencil"></i> Manage Curriculum
             </button>
             }
           </div>
         </ng-template>
         <ng-template pTemplate="content">
           <div class="curriculum-stats">
-            <span>{{ sections().length }} sections</span>
+            <span>{{ (sections().length || 0) }} sections</span>
             <span class="dot">•</span>
             <span>{{ actualTotalLessons() }} lessons</span>
             <span class="dot">•</span>
@@ -248,8 +187,7 @@
                       <h3>{{ section.title }}</h3>
                     </div>
                     <div class="header-right">
-                      <span>{{ section.lessons?.length || 0 }} lesson{{ (section.lessons?.length || 0) !== 1 ? 's' : ''
-                        }}</span>
+                      <span>{{ section.lessons?.length || 0 }} lessons</span>
                       <span class="duration">{{ formatDuration(section.totalDuration || 0) }}</span>
                     </div>
                   </div>
@@ -257,7 +195,7 @@
                   @if (section.expanded) {
                   <div class="item-content">
                     @if (section.description) {
-                    <p class="section-description">{{ section.description }}</p>
+                      <p class="section-description">{{ section.description }}</p>
                     }
 
                     <div class="lessons-list">
@@ -269,7 +207,7 @@
                         </div>
                         <div class="lesson-meta">
                           @if (lesson.isFree) {
-                          <span class="free-badge">Free Preview</span>
+                            <span class="free-badge">Free Preview</span>
                           }
                           <span class="duration">{{ formatDuration(lesson.duration) }}</span>
                         </div>
@@ -286,56 +224,46 @@
         </ng-template>
       </p-card>
 
-      <!-- Requirements & Target Audience Grid -->
       <div class="info-grid">
-        @if (course.requirements.length) {
+        @if (course.requirements?.length) {
         <p-card class="info-p-card">
           <ng-template pTemplate="title">
-            <i class="pi pi-check-circle" style="color: var(--color-primary);"></i>
-            Requirements
+            <i class="pi pi-check-circle" style="color: var(--color-primary);"></i> Requirements
           </ng-template>
           <ng-template pTemplate="content">
             <ul>
-              @for (req of course.requirements; track req) {
-              <li>{{ req }}</li>
-              }
+              @for (req of course.requirements; track req) { <li>{{ req }}</li> }
             </ul>
           </ng-template>
         </p-card>
         }
 
-        @if (course.targetAudience.length) {
+        @if (course.targetAudience?.length) {
         <p-card class="info-p-card">
           <ng-template pTemplate="title">
-            <i class="pi pi-users" style="color: var(--color-primary);"></i>
-            Who this course is for
+            <i class="pi pi-users" style="color: var(--color-primary);"></i> Who this is for
           </ng-template>
           <ng-template pTemplate="content">
             <ul>
-              @for (audience of course.targetAudience; track audience) {
-              <li>{{ audience }}</li>
-              }
+              @for (audience of course.targetAudience; track audience) { <li>{{ audience }}</li> }
             </ul>
           </ng-template>
         </p-card>
         }
       </div>
 
-      <!-- Course Discussion -->
-      <div class="info-grid">
+      <div class="info-grid mt-4">
         <app-course-discussion [courseId]="course._id"></app-course-discussion>
       </div>
     </div>
 
-    <!-- RIGHT COLUMN - Sidebar -->
     <div class="sidebar">
       <p-card class="sidebar-p-card">
         <ng-template pTemplate="content">
           <div class="action-card">
-            <!-- Course Image -->
+            
             <div class="card-image">
-              <img [src]="course.thumbnail || course.previewVideo || 'assets/images/course-placeholder.jpg'"
-                [alt]="course.title">
+              <img [src]="course.thumbnail || 'assets/images/placeholder.jpg'" [alt]="course.title">
               @if (!canManageCourse() && course.previewVideo) {
               <div class="play-overlay" (click)="playPreview()">
                 <i class="pi pi-play-circle"></i>
@@ -344,105 +272,69 @@
             </div>
 
             <div class="card-content">
-              <!-- Pricing -->
               <div class="card-price">
                 @if (course.isFree) {
-                <span class="free-price">Free</span>
+                  <span class="free-price">Free</span>
                 } @else {
-                @if (course.discountPrice) {
-                <div class="discount-price">
-                  <span class="current">{{ course.discountPrice | currency:course.currency }}</span>
-                  <span class="original">{{ course.price | currency:course.currency }}</span>
-                  <span class="discount-badge">-{{ calculateDiscount() }}%</span>
-                </div>
-                } @else {
-                <span class="regular-price">{{ course.price | currency:course.currency }}</span>
-                }
+                  @if (course.discountPrice) {
+                  <div class="discount-price">
+                    <span class="current">{{ course.discountPrice | currency:course.currency }}</span>
+                    <span class="original">{{ course.price | currency:course.currency }}</span>
+                    <span class="discount-badge">-{{ calculateDiscount() }}%</span>
+                  </div>
+                  } @else {
+                    <span class="regular-price">{{ course.price | currency:course.currency }}</span>
+                  }
                 }
               </div>
 
-              <!-- Action Buttons -->
               <div class="card-actions">
                 @if (canManageCourse()) {
-                <button class="action-btn focus-ring" (click)="editCourse()">
-                  <i class="pi pi-pencil"></i>
-                  Edit Course Details
-                </button>
+                  <button class="action-btn focus-ring" (click)="editCourse()">
+                    <i class="pi pi-pencil"></i> Edit Details
+                  </button>
 
-                <button class="action-btn secondary focus-ring" (click)="editCurriculum()">
-                  <i class="pi pi-list"></i>
-                  Manage Curriculum
-                </button>
+                  <button class="action-btn secondary focus-ring" (click)="editPricing()">
+                    <i class="pi pi-dollar"></i> Manage Pricing
+                  </button>
 
-                <button class="action-btn secondary focus-ring" (click)="editPricing()">
-                  <i class="pi pi-dollar"></i>
-                  Manage Pricing
-                </button>
-
-                <button class="action-btn outline focus-ring" (click)="previewCourse()">
-                  <i class="pi pi-eye"></i>
-                  Preview as Student
-                </button>
+                  <button class="action-btn outline focus-ring" (click)="previewCourse()">
+                    <i class="pi pi-eye"></i> Preview as Student
+                  </button>
 
                 } @else {
-                @if (isEnrolled()) {
-                <button class="action-btn success focus-ring" (click)="goToLearning()">
-                  <i class="pi pi-play-circle"></i>
-                  Continue Learning
-                </button>
-
-                <div class="progress-indicator">
-                  <div class="progress-bar">
-                    <div class="progress-fill" [style.width.%]="userProgress()"></div>
-                  </div>
-                  <span class="progress-text">{{ userProgress() }}% Complete</span>
-                </div>
-                } @else {
-                <button class="action-btn focus-ring" (click)="openCheckout()">
-                  <i class="pi pi-bolt"></i>
-                  {{ course.isFree ? 'Enroll for Free' : 'Enroll Now' }}
-                </button>
-                <p class="guarantee">
-                  <i class="pi pi-shield"></i>
-                  30-Day Money-Back Guarantee
-                </p>
-                }
+                  @if (isEnrolled()) {
+                    <button class="action-btn success focus-ring" (click)="goToLearning()">
+                      <i class="pi pi-play-circle"></i> Continue Learning
+                    </button>
+                    <div class="progress-indicator mt-3">
+                      <div class="progress-bar">
+                        <div class="progress-fill" [style.width.%]="userProgress()"></div>
+                      </div>
+                      <span class="progress-text">{{ userProgress() }}% Complete</span>
+                    </div>
+                  } @else {
+                    <button class="action-btn focus-ring" (click)="openCheckout()">
+                      <i class="pi pi-bolt"></i> {{ course.isFree ? 'Enroll for Free' : 'Enroll Now' }}
+                    </button>
+                    <p class="guarantee"><i class="pi pi-shield"></i> 30-Day Money-Back Guarantee</p>
+                  }
                 }
               </div>
 
-              <!-- Course Includes -->
               <div class="course-includes">
                 <h4>This course includes:</h4>
                 <ul>
-                  <li>
-                    <i class="pi pi-video"></i>
-                    <span>{{ formatDuration(actualTotalDuration()) }} on-demand video</span>
-                  </li>
-                  <li>
-                    <i class="pi pi-file"></i>
-                    <span>{{ actualTotalLessons() }} lessons</span>
-                  </li>
-                  <li>
-                    <i class="pi pi-mobile"></i>
-                    <span>Access on mobile and TV</span>
-                  </li>
-                  <li>
-                    <i class="pi pi-trophy"></i>
-                    <span>Certificate of completion</span>
-                  </li>
-                  <li>
-                    <i class="pi pi-infinity"></i>
-                    <span>Full lifetime access</span>
-                  </li>
+                  <li><i class="pi pi-video"></i> {{ formatDuration(actualTotalDuration()) }} Video</li>
+                  <li><i class="pi pi-file"></i> {{ actualTotalLessons() }} lessons</li>
+                  <li><i class="pi pi-mobile"></i> Access on mobile and TV</li>
+                  <li><i class="pi pi-trophy"></i> Certificate of completion</li>
                 </ul>
               </div>
 
-              <!-- Tags -->
-              @if (course.tags.length) {
+              @if (course.tags?.length) {
               <div class="course-tags">
-                @for (tag of course.tags; track tag) {
-                <span class="tag">#{{ tag }}</span>
-                }
+                @for (tag of course.tags; track tag) { <span class="tag">#{{ tag }}</span> }
               </div>
               }
             </div>
@@ -453,8 +345,6 @@
   </div>
   }
 </div>
-
-<!-- ===== CHECKOUT MODAL ===== -->
 <p-dialog [(visible)]="showCheckoutModal" [modal]="true" [draggable]="false" [resizable]="false"
   styleClass="checkout-dialog" [dismissableMask]="true" (onHide)="closeCheckout()" [closeOnEscape]="true"
   [showHeader]="false">
@@ -466,7 +356,7 @@
 
     <div class="modal-grid">
 
-      <!-- Left Column - Course Info -->
+      
       <div class="modal-course-info">
         <div class="modal-image">
           <img [src]="course()?.thumbnail || 'assets/images/course-placeholder.jpg'" [alt]="course()?.title">
@@ -509,7 +399,7 @@
         </div>
       </div>
 
-      <!-- Right Column - Payment Form -->
+      
       <div class="modal-payment">
         <h3>Complete Your Enrollment</h3>
 
@@ -591,7 +481,7 @@
           <i class="pi pi-verified" style="margin-left: auto; color: var(--color-info);"></i>
         </p>
 
-        <!-- Trust Badges -->
+        
         <div style="display: flex; justify-content: center; gap: var(--spacing-md); margin-top: var(--spacing-lg);">
           <i class="pi pi-cc-visa" style="font-size: var(--font-size-2xl); color: var(--text-tertiary);"></i>
           <i class="pi pi-cc-mastercard" style="font-size: var(--font-size-2xl); color: var(--text-tertiary);"></i>
@@ -603,7 +493,7 @@
   </div>
 </p-dialog>
 
-<!-- Video Modal -->
+
 <p-dialog [(visible)]="showVideoModal" [modal]="true" [draggable]="false" [resizable]="false" styleClass="video-dialog"
   [dismissableMask]="true" (onHide)="closeVideoModal()" [closeOnEscape]="true" [showHeader]="false">
 

@@ -26,7 +26,7 @@ import { LessonService } from '../../../../core/services/lesson.service';
 // import { LessonProgressTrackerComponent } from "../../../lesson/components/lesson-progress-tracker/lesson-progress-tracker.component";
 import { LessonQuizTakerComponent } from "../../../Test/lesson-quiz-taker/lesson-quiz-taker.component";
 import { LessonProgressTrackerComponent } from '../../../lesson/components/lesson-progress-tracker/lesson-progress-tracker.component';
-import { MasterApiService, MasterValue } from '../../../../core/services/master-list.service';
+import { MasterApiService } from '../../../../core/services/master-list.service';
 
 interface LessonWithExtras {
   _id: string;
@@ -212,19 +212,19 @@ export class CoursePlayerComponent implements OnInit {
    * Load lesson types from master data
    */
   private loadLessonTypes(): void {
-    this.masterApi.getPublicMasterValues('LESSON_TYPE', { 
-      params: { includeMetadata: true } 
-    }).pipe(
-      takeUntilDestroyed(this.destroyRef),
-      catchError(() => of({ data: [] }))
-    ).subscribe({
-      next: (response) => {
-        const types = response.data as MasterValue[] || [];
-        const typeMap = new Map();
-        types.forEach(type => typeMap.set(type.value, type));
-        this.lessonTypes.set(typeMap);
-      }
-    });
+    // this.masterApi.getPublicMasterValues('LESSON_TYPE', { 
+    //   params: { includeMetadata: true } 
+    // }).pipe(
+    //   takeUntilDestroyed(this.destroyRef),
+    //   catchError(() => of({ data: [] }))
+    // ).subscribe({
+    //   next: (response) => {
+    //     const types = response.data as MasterValue[] || [];
+    //     const typeMap = new Map();
+    //     types.forEach(type => typeMap.set(type.value, type));
+    //     this.lessonTypes.set(typeMap);
+    //   }
+    // });
   }
 
   /**

@@ -33,12 +33,6 @@ export const routes: Routes = [
         path: '',
         loadChildren: () => import('./core/routes/mock-test.routes').then(m => m.MOCK_TEST_ROUTES)
       },
-      // 4. Categories
-      {
-        path: '',
-        loadChildren: () => import('./core/routes/category.routes').then(m => m.CATEGORY_ROUTES)
-      },
-      // 5. Lessons
       {
         path: '',
         loadChildren: () => import('./features/lesson/lesson.routes').then(m => m.LESSON_ROUTES)
@@ -56,7 +50,7 @@ export const routes: Routes = [
       {
         path: 'master',
         // Use loadComponent instead of loadChildren for standalone components
-        loadComponent: () => import('./features/master/components/master-container/master-container.component').then(m => m.MasterContainerComponent)
+        loadComponent: () => import('./features/master/components/master-container/master-management.component.').then(m => m.MasterManagementComponent)
       },
       {
         path: 'certificates',

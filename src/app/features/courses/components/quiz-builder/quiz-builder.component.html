@@ -14,7 +14,6 @@
   } @else {
   <form [formGroup]="quizForm" (ngSubmit)="saveQuiz()" class="quiz-form">
 
-    <!-- Header Section -->
     <header class="page-header glass-panel">
       <div class="header-content">
         <div class="header-left">
@@ -35,8 +34,12 @@
         </div>
 
         <div class="header-actions">
+          <p-button label="Start Fresh" icon="pi pi-refresh" severity="info" [text]="true" (onClick)="startFresh()"
+            class="hide-mobile" pTooltip="Reset everything and start over"></p-button>
+
           <p-button label="Cancel" severity="secondary" [text]="true" routerLink="/instructor/courses"
             class="hide-mobile"></p-button>
+
           <p-button [label]="isSaving() ? 'Saving...' : 'Save & Publish'"
             [icon]="isSaving() ? 'pi pi-spinner pi-spin' : 'pi pi-save'" type="submit"
             [disabled]="isSaving() || quizForm.invalid" severity="primary"></p-button>
@@ -44,10 +47,8 @@
       </div>
     </header>
 
-    <!-- Main Grid -->
     <div class="builder-grid">
 
-      <!-- Settings Sidebar -->
       <aside class="settings-column">
         <p-card class="settings-card glass-panel sticky-settings">
           <ng-template pTemplate="header">
@@ -59,7 +60,23 @@
 
           <ng-template pTemplate="content">
             <div class="settings-form">
-              <!-- Title -->
+
+              <div class="form-field">
+                <label class="field-label required">Target Course</label>
+
+                <p-select formControlName="courseId" [options]="courseOptions()" optionLabel="label" optionValue="value"
+                  placeholder="Select the course for this quiz" [filter]="true" filterBy="label" styleClass="w-full"
+                  [class.invalid]="isFieldInvalid('courseId')">
+                </p-select>
+
+                @if (isFieldInvalid('courseId')) {
+                <small class="error-message">
+                  <i class="pi pi-exclamation-circle"></i>
+                  Course selection is required
+                </small>
+                }
+              </div>
+
               <div class="form-field">
                 <label class="field-label required">Quiz Title</label>
                 <input pInputText formControlName="title" placeholder="e.g., Module 1 Mastery Check"
@@ -72,14 +89,12 @@
                 }
               </div>
 
-              <!-- Description -->
               <div class="form-field">
                 <label class="field-label">Description</label>
                 <textarea pTextarea formControlName="description" placeholder="Instructions for students..."
                   [rows]="3"></textarea>
               </div>
 
-              <!-- Score & Time -->
               <div class="form-row">
                 <div class="form-field">
                   <label class="field-label required">Pass Score</label>
@@ -93,7 +108,6 @@
                 </div>
               </div>
 
-              <!-- Max Attempts -->
               <div class="form-field">
                 <label class="field-label">Max Attempts</label>
                 <p-inputNumber formControlName="maxAttempts" [min]="1"></p-inputNumber>
@@ -104,7 +118,6 @@
         </p-card>
       </aside>
 
-      <!-- Questions Column -->
       <main class="questions-column" formArrayName="questions">
         @for (question of questions.controls; track question; let i = $index) {
         <p-card class="question-card glass-panel" [formGroupName]="i">
@@ -121,7 +134,6 @@
           </ng-template>
 
           <ng-template pTemplate="content">
-            <!-- Question Type & Points -->
             <div class="question-meta">
               <div class="form-field">
                 <label class="field-label required">Question Type</label>
@@ -142,17 +154,14 @@
               </div>
             </div>
 
-            <!-- Question Text -->
             <div class="form-field">
               <label class="field-label required">Question</label>
               <textarea pTextarea formControlName="question" placeholder="Enter your question here..." [rows]="3"
                 [class.invalid]="question.get('question')?.invalid && question.get('question')?.touched"></textarea>
             </div>
 
-            <!-- Answer Section based on type -->
             <div class="answer-section" [attr.data-type]="question.get('type')?.value">
 
-              <!-- Multiple Choice -->
               @if (question.get('type')?.value === 'multiple-choice') {
               <div class="options-container" formArrayName="options">
                 <div class="section-header">
@@ -183,7 +192,6 @@
               </div>
               }
 
-              <!-- True/False -->
               @if (question.get('type')?.value === 'true-false') {
               <div class="true-false-container">
                 <h4 class="section-title">
@@ -206,7 +214,6 @@
               </div>
               }
 
-              <!-- Short Answer -->
               @if (question.get('type')?.value === 'short-answer') {
               <div class="short-answer-container">
                 <h4 class="section-title">
@@ -219,7 +226,6 @@
               </div>
               }
 
-              <!-- Essay -->
               @if (question.get('type')?.value === 'essay') {
               <div class="essay-container">
                 <h4 class="section-title">
@@ -234,7 +240,6 @@
               }
             </div>
 
-            <!-- Explanation -->
             <div class="explanation-section">
               <h4 class="section-title">
                 <i class="pi pi-info-circle"></i>
@@ -248,7 +253,6 @@
         </p-card>
         }
 
-        <!-- Add Question Button -->
         <div class="add-question-section">
           <p-button label="Add New Question" icon="pi pi-plus-circle" styleClass="p-button-outlined add-question-btn"
             (onClick)="addQuestion()" [disabled]="questions.length >= 50"></p-button>
@@ -256,7 +260,6 @@
       </main>
     </div>
 
-    <!-- Mobile Bottom Bar -->
     <div class="mobile-bottom-bar glass-panel">
       <p-button label="Cancel" severity="secondary" [text]="true" routerLink="/instructor/courses"
         styleClass="mobile-cancel"></p-button>
@@ -269,241 +272,272 @@
 </div>
 
 
-<!-- <div class="builder-wrapper">
+<!-- <div class="builder-container">
   <p-toast position="top-right"></p-toast>
 
   @if (isLoading()) {
-  <div class="fullscreen-state cinematic-bg">
-    <div class="loader-ring mb-lg"></div>
-    <h2 class="text-primary font-heading">Loading Quiz Data</h2>
-    <p class="text-secondary uppercase tracking-widest text-sm font-bold">Preparing builder environment...</p>
+  <div class="loading-state">
+    <p-card class="glass-panel">
+      <div class="loading-content">
+        <div class="loader-ring"></div>
+        <h3 class="text-primary">Loading Quiz Data</h3>
+        <p class="text-secondary">Preparing builder environment...</p>
+      </div>
+    </p-card>
   </div>
   } @else {
+  <form [formGroup]="quizForm" (ngSubmit)="saveQuiz()" class="quiz-form">
 
-  <form [formGroup]="quizForm" (ngSubmit)="saveQuiz()" class="app-shell-layout">
-
-    <header class="builder-topbar glass-panel border-bottom-subtle">
-      <div class="topbar-content max-w-screen flex-between">
-        <div class="header-left flex align-items-center gap-md">
+    Header Section
+    <header class="page-header glass-panel">
+      <div class="header-content">
+        <div class="header-left">
           <p-button icon="pi pi-arrow-left" severity="secondary" [text]="true" [rounded]="true"
-            routerLink="/instructor/courses" pTooltip="Back to Course"></p-button>
-          <div class="title-wrapper">
-            <h1 class="title font-heading text-xl md:text-2xl text-primary m-0">{{ quizId() ? 'Edit Quiz Assessment' :
-              'Create New Quiz' }}</h1>
+            routerLink="/instructor/courses" pTooltip="Back to Courses" tooltipPosition="bottom"></p-button>
+
+          <div class="title-section">
+            <h1 class="page-title">
+              {{ quizId() ? 'Edit Quiz Assessment' : 'Create New Quiz' }}
+            </h1>
             @if (quizId()) {
-            <div class="id-badge mt-xs" (click)="copyQuizId()" pTooltip="Copy ID for Lesson Form"
-              tooltipPosition="bottom">
-              <i class="pi pi-copy text-tertiary"></i> <span class="text-secondary font-mono text-xs">ID: {{ quizId()
-                }}</span>
+            <div class="quiz-id" (click)="copyQuizId()" pTooltip="Copy Quiz ID">
+              <i class="pi pi-copy"></i>
+              <span class="id-text">ID: {{ quizId() }}</span>
             </div>
             }
           </div>
         </div>
 
-        <div class="header-right hidden-mobile flex gap-md">
-          <p-button label="Cancel" severity="secondary" [text]="true" routerLink="/instructor/courses"></p-button>
+        <div class="header-actions">
+          <p-button label="Cancel" severity="secondary" [text]="true" routerLink="/instructor/courses"
+            class="hide-mobile"></p-button>
           <p-button [label]="isSaving() ? 'Saving...' : 'Save & Publish'"
             [icon]="isSaving() ? 'pi pi-spinner pi-spin' : 'pi pi-save'" type="submit"
-            [disabled]="isSaving()"></p-button>
+            [disabled]="isSaving() || quizForm.invalid" severity="primary"></p-button>
         </div>
       </div>
     </header>
 
-    <div class="builder-workspace-scroll-area">
-      <div class="builder-grid max-w-screen">
+    Main Grid
+    <div class="builder-grid">
 
-        <aside class="settings-col">
-          <div class="glass-panel sticky-settings surface-raised">
-            <div class="panel-header flex align-items-center gap-sm mb-2xl pb-md border-bottom-subtle">
-              <i class="pi pi-cog text-primary text-xl"></i>
-              <h3 class="m-0 font-heading text-lg text-primary">Quiz Settings</h3>
+      Settings Sidebar
+      <aside class="settings-column">
+        <p-card class="settings-card glass-panel sticky-settings">
+          <ng-template pTemplate="header">
+            <div class="settings-header">
+              <i class="pi pi-cog"></i>
+              <h3>Quiz Settings</h3>
             </div>
+          </ng-template>
 
-            <div class="form-group flex-col gap-xs mb-xl">
-              <label class="input-label text-secondary font-bold text-sm">Quiz Title <span
-                  class="text-error">*</span></label>
-              <input type="text" pInputText formControlName="title" placeholder="e.g., Module 1 Mastery Check"
-                class="w-full">
-            </div>
-
-            <div class="form-group flex-col gap-xs mb-xl">
-              <label class="input-label text-secondary font-bold text-sm">Description</label>
-              <textarea pTextarea formControlName="description" placeholder="Instructions for students..." [rows]="4"
-                class="w-full line-height-relaxed"></textarea>
-            </div>
-
-            <div class="grid-2-col gap-lg mb-xl">
-              <div class="form-group flex-col gap-xs">
-                <label class="input-label text-secondary font-bold text-sm">Pass Score <span
-                    class="text-error">*</span></label>
-                <p-inputNumber formControlName="passingScore" [min]="1" [max]="100" suffix="%"
-                  styleClass="w-full"></p-inputNumber>
+          <ng-template pTemplate="content">
+            <div class="settings-form">
+              Title
+              <div class="form-field">
+                <label class="field-label required">Quiz Title</label>
+                <input pInputText formControlName="title" placeholder="e.g., Module 1 Mastery Check"
+                  [class.invalid]="isFieldInvalid('title')">
+                @if (isFieldInvalid('title')) {
+                <small class="error-message">
+                  <i class="pi pi-exclamation-circle"></i>
+                  Title is required
+                </small>
+                }
               </div>
-              <div class="form-group flex-col gap-xs">
-                <label class="input-label text-secondary font-bold text-sm">Time Limit</label>
-                <p-inputNumber formControlName="timeLimit" [min]="0" suffix=" min" styleClass="w-full"
-                  pTooltip="0 = unlimited"></p-inputNumber>
+
+              Description
+              <div class="form-field">
+                <label class="field-label">Description</label>
+                <textarea pTextarea formControlName="description" placeholder="Instructions for students..."
+                  [rows]="3"></textarea>
+              </div>
+
+              Score & Time
+              <div class="form-row">
+                <div class="form-field">
+                  <label class="field-label required">Pass Score</label>
+                  <p-inputNumber formControlName="passingScore" [min]="1" [max]="100" suffix="%"
+                    [class.invalid]="isFieldInvalid('passingScore')"></p-inputNumber>
+                </div>
+                <div class="form-field">
+                  <label class="field-label">Time Limit</label>
+                  <p-inputNumber formControlName="timeLimit" [min]="0" suffix=" min"
+                    pTooltip="0 = unlimited"></p-inputNumber>
+                </div>
+              </div>
+
+              Max Attempts
+              <div class="form-field">
+                <label class="field-label">Max Attempts</label>
+                <p-inputNumber formControlName="maxAttempts" [min]="1"></p-inputNumber>
+                <small class="field-hint">Number of retakes allowed</small>
               </div>
             </div>
+          </ng-template>
+        </p-card>
+      </aside>
 
-            <div class="form-group flex-col gap-xs mb-0 pt-lg border-top-subtle">
-              <label class="input-label text-secondary font-bold text-sm">Max Attempts</label>
-              <p-inputNumber formControlName="maxAttempts" [min]="1" styleClass="w-full"></p-inputNumber>
-              <small class="text-tertiary text-xs mt-xs">How many retakes are allowed?</small>
-            </div>
-          </div>
-        </aside>
-
-        <main class="questions-col flex-col gap-2xl" formArrayName="questions">
-
-          @for (question of questions.controls; track i; let i = $index) {
-          <div class="question-card glass-panel surface-raised" [formGroupName]="i">
-
-            <div class="question-header flex-between mb-xl pb-lg border-bottom-subtle">
-              <div
-                class="q-number-badge flex align-items-center gap-sm bg-ternary border-radius-full px-md py-xs border-primary">
-                <span
-                  class="num bg-primary text-white flex-center font-bold text-sm border-radius-full w-2rem aspect-ratio-1">{{
-                  i + 1 }}</span>
-                <span class="label font-heading font-bold text-sm text-secondary">Question</span>
+      Questions Column
+      <main class="questions-column" formArrayName="questions">
+        @for (question of questions.controls; track question; let i = $index) {
+        <p-card class="question-card glass-panel" [formGroupName]="i">
+          <ng-template pTemplate="header">
+            <div class="question-header">
+              <div class="question-badge">
+                <span class="question-number">{{ i + 1 }}</span>
+                <span class="question-label">Question</span>
               </div>
+
               <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
-                (onClick)="removeQuestion(i)" pTooltip="Delete Question" [disabled]="questions.length === 1"></p-button>
+                (onClick)="removeQuestion(i)" [disabled]="questions.length === 1" pTooltip="Delete Question"></p-button>
             </div>
+          </ng-template>
 
-            <div class="grid-2-col gap-lg mb-xl">
-              <div class="form-group flex-col gap-xs">
-                <label class="input-label text-secondary font-bold text-sm">Question Type <span
-                    class="text-error">*</span></label>
-                <p-select appendTo='body' formControlName="type" [options]="questionTypes" optionLabel="label" optionValue="value"
-                  styleClass="w-full" (onChange)="onQuestionTypeChange(i, $event.value)">
+          <ng-template pTemplate="content">
+            Question Type & Points
+            <div class="question-meta">
+              <div class="form-field">
+                <label class="field-label required">Question Type</label>
+                <p-select formControlName="type" [options]="questionTypes" optionLabel="label" optionValue="value"
+                  (onChange)="onQuestionTypeChange(i, $event.value)">
                   <ng-template let-item pTemplate="item">
-                    <div class="flex align-items-center gap-sm">
-                      <i [class]="item.icon" class="text-primary"></i> <span class="font-medium">{{ item.label }}</span>
+                    <div class="select-option">
+                      <i [class]="item.icon" [style.color]="getTypeColor(item.value)"></i>
+                      <span>{{ item.label }}</span>
                     </div>
                   </ng-template>
                 </p-select>
               </div>
-              <div class="form-group flex-col gap-xs">
-                <label class="input-label text-secondary font-bold text-sm">Points Value</label>
-                <p-inputNumber formControlName="points" [min]="1" styleClass="w-full"></p-inputNumber>
+
+              <div class="form-field">
+                <label class="field-label required">Points</label>
+                <p-inputNumber formControlName="points" [min]="1" [max]="100"></p-inputNumber>
               </div>
             </div>
 
-            <div class="form-group flex-col gap-xs mb-2xl">
-              <label class="input-label text-secondary font-bold text-sm">Question Prompt <span
-                  class="text-error">*</span></label>
-              <textarea pTextarea formControlName="question" placeholder="Enter your question here..." [rows]="2"
-                class="w-full font-heading font-bold text-lg prompt-textarea line-height-relaxed"></textarea>
+            Question Text
+            <div class="form-field">
+              <label class="field-label required">Question</label>
+              <textarea pTextarea formControlName="question" placeholder="Enter your question here..." [rows]="3"
+                [class.invalid]="question.get('question')?.invalid && question.get('question')?.touched"></textarea>
             </div>
 
-            <div class="answer-configuration glass-inset" [ngClass]="'type-' + question.get('type')?.value">
+            Answer Section based on type
+            <div class="answer-section" [attr.data-type]="question.get('type')?.value">
 
+              Multiple Choice
               @if (question.get('type')?.value === 'multiple-choice') {
-              <div class="options-container flex-col gap-md" formArrayName="options">
-                <div class="mb-sm">
-                  <label class="input-label text-primary font-bold flex align-items-center gap-xs"><i
-                      class="pi pi-list"></i> Multiple Choice Options</label>
-                  <small class="text-tertiary text-xs block mt-xs">Check the box next to the correct answer.</small>
-                </div>
-
-                @for (option of getOptions(i).controls; track j; let j = $index) {
-                <div
-                  class="option-row flex align-items-center gap-md p-sm border-radius-lg border-transparent transition-base"
-                  [formGroupName]="j" [class.is-correct-row]="option.get('isCorrect')?.value">
-                  <p-checkbox formControlName="isCorrect" [binary]="true"
-                    (onChange)="onCorrectAnswerChange(i, j, $event.checked)"></p-checkbox>
-                  <input pInputText formControlName="text" placeholder="Option text..." class="w-full flex-grow-1">
-                  <p-button icon="pi pi-times" severity="secondary" [text]="true" [rounded]="true"
-                    (onClick)="removeOption(i, j)" [disabled]="getOptions(i).length <= 2"></p-button>
-                </div>
-                }
-                <p-button label="Add Option" icon="pi pi-plus" [text]="true" size="small" (onClick)="addOption(i)"
-                  styleClass="align-self-start mt-sm"></p-button>
-              </div>
-              }
-
-              @else if (question.get('type')?.value === 'true-false') {
-              <div class="options-container">
-                <div class="mb-lg">
-                  <label class="input-label text-info font-bold flex align-items-center gap-xs"><i
-                      class="pi pi-check-circle"></i> True / False Answer</label>
-                  <small class="text-tertiary text-xs block mt-xs">Select which statement is correct.</small>
-                </div>
-
-                <div class="tf-toggle-group flex gap-md">
-                  <div
-                    class="tf-option flex-grow-1 flex-center gap-sm bg-primary border-primary border-radius-lg p-lg cursor-pointer transition-base"
-                    [class.selected]="question.get('correctAnswer')?.value === 'true'">
-                    <p-radioButton formControlName="correctAnswer" value="true" inputId="tf-t-{{i}}"></p-radioButton>
-                    <label [for]="'tf-t-'+i" class="font-bold cursor-pointer text-primary">True</label>
+              <div class="options-container" formArrayName="options">
+                <div class="section-header">
+                  <div>
+                    <h4 class="section-title">
+                      <i class="pi pi-list"></i>
+                      Answer Options
+                    </h4>
+                    <p class="section-hint">Select the correct answer</p>
                   </div>
-                  <div
-                    class="tf-option flex-grow-1 flex-center gap-sm bg-primary border-primary border-radius-lg p-lg cursor-pointer transition-base"
-                    [class.selected]="question.get('correctAnswer')?.value === 'false'">
-                    <p-radioButton formControlName="correctAnswer" value="false" inputId="tf-f-{{i}}"></p-radioButton>
-                    <label [for]="'tf-f-'+i" class="font-bold cursor-pointer text-primary">False</label>
+                  <p-button icon="pi pi-plus" label="Add Option" severity="secondary" [text]="true" size="small"
+                    (onClick)="addOption(i)" [disabled]="getOptions(i).length >= 6"></p-button>
+                </div>
+
+                <div class="options-list">
+                  @for (option of getOptions(i).controls; track option; let j = $index) {
+                  <div class="option-row" [formGroupName]="j" [class.correct]="option.get('isCorrect')?.value">
+                    <p-checkbox formControlName="isCorrect" [binary]="true"
+                      (onChange)="onCorrectAnswerChange(i, j, $event.checked)"></p-checkbox>
+                    <input pInputText formControlName="text" [placeholder]="'Option ' + (j + 1)" class="option-input">
+                    @if (getOptions(i).length > 2) {
+                    <p-button icon="pi pi-times" severity="secondary" [text]="true" [rounded]="true"
+                      (onClick)="removeOption(i, j)" pTooltip="Remove option"></p-button>
+                    }
                   </div>
+                  }
                 </div>
               </div>
               }
 
-              @else if (question.get('type')?.value === 'short-answer') {
-              <div class="options-container flex-col gap-xs">
-                <label class="input-label text-success font-bold flex align-items-center gap-xs"><i
-                    class="pi pi-window-minimize"></i> Exact Correct Answer</label>
-                <small class="text-tertiary text-xs block mb-md">Students must type this exactly (case-insensitive) to
-                  receive points.</small>
+              True/False
+              @if (question.get('type')?.value === 'true-false') {
+              <div class="true-false-container">
+                <h4 class="section-title">
+                  <i class="pi pi-check-circle"></i>
+                  Select Correct Answer
+                </h4>
+                <div class="tf-options">
+                  <div class="tf-option" [class.selected]="question.get('correctAnswer')?.value === 'true'"
+                    (click)="question.get('correctAnswer')?.setValue('true')">
+                    <p-radioButton formControlName="correctAnswer" value="true" [inputId]="'true-' + i"></p-radioButton>
+                    <label [for]="'true-' + i">True</label>
+                  </div>
+                  <div class="tf-option" [class.selected]="question.get('correctAnswer')?.value === 'false'"
+                    (click)="question.get('correctAnswer')?.setValue('false')">
+                    <p-radioButton formControlName="correctAnswer" value="false"
+                      [inputId]="'false-' + i"></p-radioButton>
+                    <label [for]="'false-' + i">False</label>
+                  </div>
+                </div>
+              </div>
+              }
+
+              Short Answer
+              @if (question.get('type')?.value === 'short-answer') {
+              <div class="short-answer-container">
+                <h4 class="section-title">
+                  <i class="pi pi-window-minimize"></i>
+                  Correct Answer
+                </h4>
+                <p class="section-hint">Students must type this exactly (case-insensitive)</p>
                 <input pInputText formControlName="correctAnswer" placeholder="e.g., Photosynthesis"
-                  class="w-full success-border border-width-lg">
+                  class="answer-input">
               </div>
               }
 
-              @else if (question.get('type')?.value === 'essay') {
-              <div class="options-container flex-col gap-xs">
-                <label class="input-label text-warning font-bold flex align-items-center gap-xs"><i
-                    class="pi pi-align-left"></i> Grading Rubric / Answer Key</label>
-                <small class="text-tertiary text-xs block mb-md">Essays require manual grading. Place notes for the
-                  grader here.</small>
+              Essay
+              @if (question.get('type')?.value === 'essay') {
+              <div class="essay-container">
+                <h4 class="section-title">
+                  <i class="pi pi-align-left"></i>
+                  Grading Rubric
+                </h4>
+                <p class="section-hint">Notes for manual grading</p>
                 <textarea pTextarea formControlName="correctAnswer"
-                  placeholder="e.g., Must mention the core concepts and include 3 examples..." [rows]="3"
-                  class="w-full warning-border border-width-lg line-height-relaxed"></textarea>
+                  placeholder="e.g., Must mention core concepts and include examples..." [rows]="3"
+                  class="answer-textarea"></textarea>
               </div>
               }
             </div>
 
-            <div class="form-group flex-col gap-xs mt-2xl pt-xl border-top-subtle">
-              <label class="input-label text-secondary font-bold text-sm flex align-items-center gap-xs">
-                <i class="pi pi-info-circle text-info"></i> Answer Explanation
-              </label>
-              <small class="text-tertiary text-xs mb-sm">Shown to student after completion.</small>
+            Explanation
+            <div class="explanation-section">
+              <h4 class="section-title">
+                <i class="pi pi-info-circle"></i>
+                Answer Explanation (Optional)
+              </h4>
+              <p class="section-hint">Shown to students after completion</p>
               <textarea pTextarea formControlName="explanation"
-                placeholder="Provide context on why this is the correct answer to help them learn..." [rows]="2"
-                class="w-full line-height-relaxed"></textarea>
+                placeholder="Provide context on why this is the correct answer..." [rows]="2"></textarea>
             </div>
+          </ng-template>
+        </p-card>
+        }
 
-          </div>
-          }
-
-          <div class="add-question-wrapper mt-xl">
-            <button type="button" class="btn-dashed-massive w-full flex-center flex-col gap-sm" (click)="addQuestion()">
-              <i class="pi pi-plus-circle text-3xl"></i>
-              <span class="font-heading font-bold text-lg">Add New Question</span>
-            </button>
-          </div>
-
-        </main>
-      </div>
+        Add Question Button
+        <div class="add-question-section">
+          <p-button label="Add New Question" icon="pi pi-plus-circle" styleClass="p-button-outlined add-question-btn"
+            (onClick)="addQuestion()" [disabled]="questions.length >= 50"></p-button>
+        </div>
+      </main>
     </div>
-mobile-bottom-bar
-    <div class=" flex gap-md glass-panel border-top-subtle lg-hidden">
-      <p-button label="Cancel" severity="secondary" [text]="true" class="flex-grow-1" styleClass="w-full"
-        routerLink="/instructor/courses"></p-button>
+
+    Mobile Bottom Bar
+    <div class="mobile-bottom-bar glass-panel">
+      <p-button label="Cancel" severity="secondary" [text]="true" routerLink="/instructor/courses"
+        styleClass="mobile-cancel"></p-button>
       <p-button [label]="isSaving() ? 'Saving...' : 'Save Quiz'"
-        [icon]="isSaving() ? 'pi pi-spinner pi-spin' : 'pi pi-save'" type="submit" severity="primary"
-        class="flex-grow-1" styleClass="w-full" [disabled]="isSaving()"></p-button>
+        [icon]="isSaving() ? 'pi pi-spinner pi-spin' : 'pi pi-save'" type="submit"
+        [disabled]="isSaving() || quizForm.invalid" severity="primary" styleClass="mobile-save"></p-button>
     </div>
-
   </form>
   }
 </div> -->

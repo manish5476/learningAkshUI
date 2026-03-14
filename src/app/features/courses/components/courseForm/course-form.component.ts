@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormControl, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin } from 'rxjs'; // <-- Added for parallel API calls
 
 // PrimeNG 
 import { SelectModule } from 'primeng/select';
@@ -12,17 +13,17 @@ import { TextareaModule } from 'primeng/textarea';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import { CardModule } from "primeng/card"; // <-- Fixed PrimeNG import
+import { CardModule } from "primeng/card"; 
 
 // Models
-import { Course, Category } from '../../../../core/models/course.model';
+import { Course } from '../../../../core/models/course.model';
 
 // Services
-import { CategoryService } from '../../../../core/services/category.service';
 import { ApiResponse } from '../../../../core/http/base-api.service';
 import { CourseService } from '../../../../core/services/course.service';
 import { LessonService } from '../../../../core/services/lesson.service';
 import { SectionService } from '../../../../core/services/section.service';
+import { Master, MasterApiService } from '../../../../core/services/master-list.service';
 
 @Component({
   selector: 'app-course-form',
@@ -37,61 +38,39 @@ export class CourseFormComponent implements OnInit {
   saved = output<Course>();
   cancelled = output<void>();
   
-  // Injectors updated to use the new API Services
+  // Injectors
   private sectionApiService = inject(SectionService);
   private lessonApiService = inject(LessonService);
   private courseApiService = inject(CourseService);
+  private masterApiService = inject(MasterApiService); 
   private fb = inject(FormBuilder);
-  private categoryService = inject(CategoryService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
 
-
-  categories = signal<Category[]>([]);
+  // State Signals
   isLoading = signal<boolean>(false);
   isEditMode = signal<boolean>(false);
   currentStep = signal<number>(1);
   thumbnailPreview = signal<string | null>(null);
   hasDiscount = signal<boolean>(false);
 
+  // Master Data Signals (Replaces hardcoded arrays)
+  categories = signal<Master[]>([]);
+  difficultyLevels = signal<Master[]>([]);
+  lessonTypes = signal<Master[]>([]);
+  currencies = signal<Master[]>([]);
+  languages = signal<Master[]>([]);
 
-  difficultyLevels = [
-    { name: 'Beginner', value: 'beginner' },
-    { name: 'Intermediate', value: 'intermediate' },
-    { name: 'Advanced', value: 'advanced' },
-    { name: 'All Levels', value: 'all-levels' }
-  ];
-  lessonTypes = [
-    { name: 'Video', value: 'video' },
-    { name: 'Article', value: 'article' },
-    { name: 'Quiz', value: 'quiz' }
-  ];
-  currencies = [
-    { name: 'USD - US Dollar', value: 'USD' },
-    { name: 'EUR - Euro', value: 'EUR' },
-    { name: 'GBP - British Pound', value: 'GBP' },
-    { name: 'INR - Indian Rupee', value: 'INR' }
-  ];
-  languages = [
-    { name: 'English', value: 'English' },
-    { name: 'Spanish', value: 'Spanish' },
-    { name: 'French', value: 'French' },
-    { name: 'German', value: 'German' },
-    { name: 'Chinese', value: 'Chinese' },
-    { name: 'Arabic', value: 'Arabic' },
-    { name: 'Hindi', value: 'Hindi' }
-  ];
-
-
+  // Default values updated to match Master codes (Uppercase)
   courseForm: FormGroup = this.fb.group({
     title: ['', [Validators.required, Validators.maxLength(100)]],
     subtitle: ['', Validators.maxLength(200)],
     slug: [''],
     description: ['', [Validators.required, Validators.minLength(50)]],
     category: ['', Validators.required],
-    level: ['beginner'],
-    language: ['English'],
+    level: ['BEGINNER'], // Matches master CODE
+    language: ['EN'],    // Matches master CODE
     thumbnail: [''],
     previewVideo: [''],
     price: [0, [Validators.min(0)]],
@@ -101,7 +80,7 @@ export class CourseFormComponent implements OnInit {
     isFree: [false],
     isPublished: [false],
     isApproved: [false],
-    currency: ['USD'],
+    currency: ['USD'],   // Matches master CODE
     requirements: this.fb.array([]),
     whatYouWillLearn: this.fb.array([]),
     targetAudience: this.fb.array([]),
@@ -138,10 +117,46 @@ export class CourseFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadCategories();
+    this.isLoading.set(true);
+    
+    forkJoin({
+      categories: this.masterApiService.getPublicValues('course_category'),
+      levels: this.masterApiService.getPublicValues('course_level'),
+      languages: this.masterApiService.getPublicValues('language'),
+      currencies: this.masterApiService.getPublicValues('currency'),
+      lessonTypes: this.masterApiService.getPublicValues('lesson_type')
+    }).pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          // 2. Set the dropdown signals
+          this.categories.set(res.categories.data || []);
+          this.difficultyLevels.set(res.levels.data || []);
+          this.languages.set(res.languages.data || []);
+          this.currencies.set(res.currencies.data || []);
+          this.lessonTypes.set(res.lessonTypes.data || []);
+
+          // 3. NOW that dropdowns are ready, load the Course!
+          this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+            const routeId = params['id'];
+            this.routeId = routeId;
+            if (routeId && !this.courseId()) {
+              this.isEditMode.set(true);
+              this.loadCourse(routeId); // Safe to load and patch now!
+            } else if (!routeId && !this.courseId()) {
+              this.addLearningItem();
+              this.isLoading.set(false);
+            }
+          });
+        },
+        error: (err) => {
+          console.error('Failed to load master dropdowns', err);
+          this.isLoading.set(false);
+        }
+      });
+      
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       const routeId = params['id'];
-      this.routeId = params['id'];
+      this.routeId = routeId;
       if (routeId && !this.courseId()) {
         this.isEditMode.set(true);
         this.loadCourse(routeId);
@@ -151,29 +166,43 @@ export class CourseFormComponent implements OnInit {
     });
   }
 
-
-  private loadCategories(): void {
-    this.categoryService.getAllCategories({ isActive: true })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+  // --- NEW: Load all master data in parallel ---
+  private loadMasterData(): void {
+    forkJoin({
+      categories: this.masterApiService.getPublicValues('course_category'),
+      levels: this.masterApiService.getPublicValues('course_level'),
+      languages: this.masterApiService.getPublicValues('language'),
+      currencies: this.masterApiService.getPublicValues('currency'),
+      lessonTypes: this.masterApiService.getPublicValues('lesson_type')
+    }).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res: any) => this.categories.set(res.data?.data || res.data || []),
-        error: (error: any) => console.error('Failed to load categories', error)
+        next: (res) => {
+          this.categories.set(res.categories.data || []);
+          this.difficultyLevels.set(res.levels.data || []);
+          this.languages.set(res.languages.data || []);
+          this.currencies.set(res.currencies.data || []);
+          this.lessonTypes.set(res.lessonTypes.data || []);
+        },
+        error: (err) => console.error('Failed to load master dropdowns', err)
       });
   }
 
   private loadCourse(id: string): void {
     this.isLoading.set(true);
-    // <-- Updated to use courseApiService
     this.courseApiService.getCourseById(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: ApiResponse<any>) => {
-          // Standardized unwrapping
           const payload = res.data;
           const course = payload?.course || payload;
           const sections = payload?.sections || course?.sections || [];
           
           if (course) {
+            // Standardize saved strings to uppercase to match dropdown Codes if necessary
+            if (course.level) course.level = course.level.toUpperCase();
+            if (course.language) course.language = course.language.toUpperCase();
+            if (course.currency) course.currency = course.currency.toUpperCase();
+            
             this.patchForm(course, sections);
             if (course.thumbnail) this.thumbnailPreview.set(course.thumbnail);
             if (course.discountPrice) this.hasDiscount.set(true);
@@ -198,7 +227,7 @@ export class CourseFormComponent implements OnInit {
       subtitle: course.subtitle,
       slug: course.slug,
       description: course.description,
-      category: course.category?._id || course.category,
+      category: course.category?._id || course.category, // Uses _id to match MongoDB ObjectId
       level: course.level,
       language: course.language,
       thumbnail: course.thumbnail,
@@ -229,7 +258,6 @@ export class CourseFormComponent implements OnInit {
       course.tags.forEach((tag: string) => this.tags.push(this.fb.control(tag)));
     }
 
-
     if (sectionsData && sectionsData.length > 0) {
       sectionsData.forEach((section: any, sIndex: number) => {
         const sectionGroup = this.fb.group({
@@ -247,7 +275,7 @@ export class CourseFormComponent implements OnInit {
             lessonsArray.push(this.fb.group({
               _id: [lesson._id],
               title: [lesson.title || '', Validators.required],
-              type: [lesson.type || 'video'],
+              type: [lesson.type?.toUpperCase() || 'VIDEO'], // Default to uppercase code
               duration: [lesson.duration || 0],
               isFree: [lesson.isFree || false],
               order: [lesson.order ?? lIndex]
@@ -315,7 +343,7 @@ export class CourseFormComponent implements OnInit {
     this.getLessons(sectionIndex).push(this.fb.group({
       _id: [null],
       title: ['', Validators.required],
-      type: ['video'],
+      type: ['VIDEO'], // Default to uppercase Master code
       duration: [0],
       isFree: [false],
       order: [this.getLessons(sectionIndex).length]
@@ -392,10 +420,6 @@ export class CourseFormComponent implements OnInit {
     }
   }
 
-  private recalculateSectionOrders(): void {
-    this.sections.controls.forEach((c, i) => c.get('order')?.setValue(i));
-  }
-
   onSubmit(): void {
     if (this.courseForm.invalid) {
       this.courseForm.markAllAsTouched();
@@ -411,7 +435,6 @@ export class CourseFormComponent implements OnInit {
     const formData = this.courseForm.getRawValue();
     const activeId = this.route.snapshot.paramMap.get('id') || this.courseId();
 
-    // <-- Updated to use courseApiService methods
     const request$ = (this.isEditMode() && activeId
       ? this.courseApiService.updateCourse(activeId, formData)
       : this.courseApiService.createCourse(formData)) as import('rxjs').Observable<ApiResponse<any>>;
@@ -420,7 +443,6 @@ export class CourseFormComponent implements OnInit {
       next: (res: ApiResponse<any>) => {
         this.isLoading.set(false);
         this.router.navigate(['/courses/instructor']);
-        // Standardized unwrapping
         this.saved.emit(res?.data?.course || res?.data);
       },
       error: (error: any) => {
@@ -443,18 +465,15 @@ export class CourseFormComponent implements OnInit {
   removeSection(index: number): void {
     const sectionGroup = this.sections.at(index) as FormGroup;
     const sectionId = sectionGroup.get('_id')?.value;
-    // Don't need courseId for deleting sections anymore based on section-api.service
     
     if (sectionId) {
       if (confirm('Are you sure you want to permanently delete this section and all its lessons?')) {
         this.executeLocalSectionRemoval(index);
         
-        // <-- Updated to use sectionApiService
         this.sectionApiService.deleteSection(sectionId)
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
-            next: () => {
-            },
+            next: () => {},
             error: (err: any) => {
               if (err.status !== 404 && err.status !== 200 && !err.message.includes('Http failure')) {
                 console.error('Background delete failed', err);
@@ -478,11 +497,10 @@ export class CourseFormComponent implements OnInit {
 
         this.executeLocalLessonRemoval(lessons, lIndex);
 
-        // <-- Updated to use lessonApiService
         this.lessonApiService.deleteLesson(lessonId)
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
-            next: () => { /* Background success */ },
+            next: () => {},
             error: (err: any) => {
               if (err.status !== 404 && err.status !== 200 && !err.message?.includes('Http failure')) {
                 console.error('Background lesson delete failed', err);
@@ -537,19 +555,22 @@ export class CourseFormComponent implements OnInit {
 // import { CheckboxModule } from 'primeng/checkbox';
 // import { ButtonModule } from 'primeng/button';
 // import { TooltipModule } from 'primeng/tooltip';
+// import { CardModule } from "primeng/card"; // <-- Fixed PrimeNG import
 
-// // Models & Services
+// // Models
 // import { Course, Category } from '../../../../core/models/course.model';
+
+// // Services
 // import { CategoryService } from '../../../../core/services/category.service';
+// import { ApiResponse } from '../../../../core/http/base-api.service';
 // import { CourseService } from '../../../../core/services/course.service';
-// import { SectionService } from '../../../../core/services/section.service';
 // import { LessonService } from '../../../../core/services/lesson.service';
-// import { Card } from "primeng/card";
+// import { SectionService } from '../../../../core/services/section.service';
 
 // @Component({
 //   selector: 'app-course-form',
 //   standalone: true,
-//   imports: [FormsModule, CommonModule, ReactiveFormsModule, SelectModule, InputTextModule, InputNumberModule, TextareaModule, CheckboxModule, ButtonModule, TooltipModule, Card],
+//   imports: [FormsModule, CommonModule, ReactiveFormsModule, SelectModule, InputTextModule, InputNumberModule, TextareaModule, CheckboxModule, ButtonModule, TooltipModule, CardModule],
 //   templateUrl: './course-form.component.html',
 //   styleUrls: ['./course-form.component.scss']
 // })
@@ -558,10 +579,12 @@ export class CourseFormComponent implements OnInit {
 //   courseId = input<string | undefined>();
 //   saved = output<Course>();
 //   cancelled = output<void>();
-//   private sectionService = inject(SectionService);
-//   private lessonService = inject(LessonService);
+  
+//   // Injectors updated to use the new API Services
+//   private sectionApiService = inject(SectionService);
+//   private lessonApiService = inject(LessonService);
+//   private courseApiService = inject(CourseService);
 //   private fb = inject(FormBuilder);
-//   private courseService = inject(CourseService);
 //   private categoryService = inject(CategoryService);
 //   private router = inject(Router);
 //   private route = inject(ActivatedRoute);
@@ -683,13 +706,16 @@ export class CourseFormComponent implements OnInit {
 
 //   private loadCourse(id: string): void {
 //     this.isLoading.set(true);
-//     this.courseService.getCoursesById(id)
+//     // <-- Updated to use courseApiService
+//     this.courseApiService.getCourseById(id)
 //       .pipe(takeUntilDestroyed(this.destroyRef))
 //       .subscribe({
-//         next: (res: any) => {
-//           const payload = res.data || res;
-//           const course = payload.course || payload.data || payload;
-//           const sections = payload.sections || course.sections || [];
+//         next: (res: ApiResponse<any>) => {
+//           // Standardized unwrapping
+//           const payload = res.data;
+//           const course = payload?.course || payload;
+//           const sections = payload?.sections || course?.sections || [];
+          
 //           if (course) {
 //             this.patchForm(course, sections);
 //             if (course.thumbnail) this.thumbnailPreview.set(course.thumbnail);
@@ -781,8 +807,6 @@ export class CourseFormComponent implements OnInit {
 //     return new Date(date).toISOString().split('T')[0];
 //   }
 
-
-
 //   get sections(): FormArray { return this.courseForm.get('sections') as FormArray; }
 //   get requirements(): FormArray { return this.courseForm.get('requirements') as FormArray; }
 //   get whatYouWillLearn(): FormArray { return this.courseForm.get('whatYouWillLearn') as FormArray; }
@@ -803,8 +827,6 @@ export class CourseFormComponent implements OnInit {
 //     const field = this.courseForm.get(fieldName);
 //     return field ? field.invalid && (field.dirty || field.touched) : false;
 //   }
-
-
 
 //   nextStep(): void {
 //     if (this.currentStep() < 4) this.currentStep.update(s => s + 1);
@@ -842,6 +864,7 @@ export class CourseFormComponent implements OnInit {
 //       order: [this.getLessons(sectionIndex).length]
 //     }));
 //   }
+  
 //   addRequirement(): void { this.requirements.push(this.fb.control('')); }
 //   removeRequirement(index: number): void { this.requirements.removeAt(index); }
 //   addLearningItem(): void { this.whatYouWillLearn.push(this.fb.control('', Validators.required)); }
@@ -857,9 +880,8 @@ export class CourseFormComponent implements OnInit {
 //       event.target.value = '';
 //     }
 //   }
+  
 //   removeTag(index: number): void { this.tags.removeAt(index); }
-
-
 
 //   onDragOver(event: DragEvent): void {
 //     event.preventDefault();
@@ -894,8 +916,6 @@ export class CourseFormComponent implements OnInit {
 //     this.thumbnailPreview.set(null);
 //     this.courseForm.patchValue({ thumbnail: '' });
 //   }
-
-
 
 //   onFreeToggle(): void {
 //     const isFree = this.courseForm.get('isFree')?.value;
@@ -934,14 +954,16 @@ export class CourseFormComponent implements OnInit {
 //     const formData = this.courseForm.getRawValue();
 //     const activeId = this.route.snapshot.paramMap.get('id') || this.courseId();
 
+//     // <-- Updated to use courseApiService methods
 //     const request$ = (this.isEditMode() && activeId
-//       ? this.courseService.updateCourses(activeId, formData)
-//       : this.courseService.createCourses(formData)) as import('rxjs').Observable<any>;
+//       ? this.courseApiService.updateCourse(activeId, formData)
+//       : this.courseApiService.createCourse(formData)) as import('rxjs').Observable<ApiResponse<any>>;
 
 //     request$.subscribe({
-//       next: (res: any) => {
+//       next: (res: ApiResponse<any>) => {
 //         this.isLoading.set(false);
 //         this.router.navigate(['/courses/instructor']);
+//         // Standardized unwrapping
 //         this.saved.emit(res?.data?.course || res?.data);
 //       },
 //       error: (error: any) => {
@@ -964,12 +986,14 @@ export class CourseFormComponent implements OnInit {
 //   removeSection(index: number): void {
 //     const sectionGroup = this.sections.at(index) as FormGroup;
 //     const sectionId = sectionGroup.get('_id')?.value;
-//     const courseId = this.route.snapshot.paramMap.get('id') || this.courseId();
-
-//     if (sectionId && courseId) {
+//     // Don't need courseId for deleting sections anymore based on section-api.service
+    
+//     if (sectionId) {
 //       if (confirm('Are you sure you want to permanently delete this section and all its lessons?')) {
 //         this.executeLocalSectionRemoval(index);
-//         this.sectionService.deleteSection(courseId, sectionId)
+        
+//         // <-- Updated to use sectionApiService
+//         this.sectionApiService.deleteSection(sectionId)
 //           .pipe(takeUntilDestroyed(this.destroyRef))
 //           .subscribe({
 //             next: () => {
@@ -991,17 +1015,14 @@ export class CourseFormComponent implements OnInit {
 //     const lessonGroup = lessons.at(lIndex) as FormGroup;
 
 //     const lessonId = lessonGroup.get('_id')?.value;
-//     const sectionId = this.sections.at(sIndex).get('_id')?.value;
-//     const courseId = this.route.snapshot.paramMap.get('id') || this.courseId();
 
-//     if (lessonId && sectionId && courseId) {
+//     if (lessonId) {
 //       if (confirm('Permanently delete this lesson?')) {
-
 
 //         this.executeLocalLessonRemoval(lessons, lIndex);
 
-
-//         this.lessonService.delete(courseId, sectionId, lessonId)
+//         // <-- Updated to use lessonApiService
+//         this.lessonApiService.deleteLesson(lessonId)
 //           .pipe(takeUntilDestroyed(this.destroyRef))
 //           .subscribe({
 //             next: () => { /* Background success */ },
@@ -1016,6 +1037,7 @@ export class CourseFormComponent implements OnInit {
 //       this.executeLocalLessonRemoval(lessons, lIndex);
 //     }
 //   }
+  
 //   private executeLocalLessonRemoval(lessons: FormArray, lIndex: number): void {
 //     lessons.removeAt(lIndex);
 //     lessons.controls.forEach((c, i) => c.get('order')?.setValue(i));
