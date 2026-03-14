@@ -132,3 +132,58 @@
 :host ::ng-deep .glass-dialog .p-dialog-header {
   background: var(--bg-primary); border: none;
 }
+
+
+/* Additional styles for badges */
+.badge-success {
+  background: color-mix(in srgb, var(--color-success) 20%, transparent);
+  color: var(--color-success);
+  border-color: color-mix(in srgb, var(--color-success) 50%, transparent);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid transparent;
+}
+
+/* Meta item enhancements */
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-tertiary);
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  background: rgba(255,255,255,0.03);
+  padding: 2px 8px;
+  border-radius: 4px;
+  
+  i {
+    font-size: 0.65rem;
+  }
+}
+
+/* Hover effect for lesson items */
+.lesson-item {
+  &:hover {
+    .lesson-meta .meta-item {
+      background: rgba(255,255,255,0.08);
+    }
+  }
+}
+
+/* Responsive adjustments for meta */
+@media (max-width: 768px) {
+  .lesson-meta {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  
+  .meta-item {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+}

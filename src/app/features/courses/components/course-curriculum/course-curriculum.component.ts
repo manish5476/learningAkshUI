@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 // PrimeNG Imports
 import { ToastModule } from 'primeng/toast';
@@ -14,8 +14,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { CardModule } from "primeng/card"; // <-- Fixed PrimeNG import
-
+import { CardModule } from "primeng/card";
 
 import { LessonListComponent } from "../../../lesson/components/lesson-list/lesson-list.component";
 import { DurationPipe } from "../../../../core/pipes/duration.pipe";
@@ -48,9 +47,10 @@ import { CourseService } from '../../../../core/services/course.service';
 })
 export class CourseCurriculumComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private fb = inject(FormBuilder);
-  private sectionApiService = inject(SectionService); // <-- Updated Injection
-  private courseApiService = inject(CourseService); // <-- Updated Injection
+  private sectionApiService = inject(SectionService);
+  private courseApiService = inject(CourseService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
 
@@ -74,7 +74,7 @@ export class CourseCurriculumComponent implements OnInit {
     isPublished: [true]
   });
 
-  // Computed Properties (Derived State)
+  // Computed Properties
   sectionDialogTitle = computed(() => this.editingSectionId() ? 'Edit Section' : 'Add New Section');
 
   totalSections = computed(() => this.sections().length);
@@ -95,43 +95,56 @@ export class CourseCurriculumComponent implements OnInit {
 
   loadData(): void {
     this.loading.set(true);
-    // Assuming you want the course by ID (you previously had getInstructorCourseById, 
-    // but the new CourseApiService just uses getCourseById for a specific fetch)
+    
+    // Load course details
     this.courseApiService.getCourseById(this.courseId()).subscribe({
       next: (res: any) => {
-        // Standardized unwrapping
-        const courseData = res.data?.course || res.data;
+        const courseData = res?.data?.course || res?.data || res;
         this.course.set(courseData);
       },
-      error: (err) => this.showError('Failed to load course details')
+      error: (err) => {
+        console.error('Failed to load course details:', err);
+        this.showError('Failed to load course details');
+      }
     });
 
+    // Load sections
     this.loadSections();
   }
 
   loadSections(): void {
-    // <-- Updated to use sectionApiService
     this.sectionApiService.getCourseSections(this.courseId()).subscribe({
       next: (res: any) => {
-        // Standardized unwrapping
-        const payloadData = res.data || [];
-        const sectionsData = Array.isArray(payloadData) ? payloadData.map((s: any) => ({
-          ...s,
-          expanded: false
-        })) : [];
+        let sectionsData = [];
         
-        this.sections.set(sectionsData);
+        if (res?.data && Array.isArray(res.data)) {
+          sectionsData = res.data;
+        } else if (res?.data?.sections && Array.isArray(res.data.sections)) {
+          sectionsData = res.data.sections;
+        } else if (Array.isArray(res)) {
+          sectionsData = res;
+        }
+
+        const processedSections = sectionsData.map((s: any) => ({
+          ...s,
+          expanded: false,
+          totalLessons: s.lessons?.length || s.totalLessons || s.lessonCount || 0,
+          totalDuration: s.totalDuration || 0,
+          freeLessonCount: s.freeLessonCount || 0
+        }));
+        
+        this.sections.set(processedSections);
         this.loading.set(false);
       },
       error: (err) => {
+        console.error('Failed to load sections:', err);
         this.showError('Failed to load sections');
         this.loading.set(false);
       }
     });
   }
 
-  // --- Dialog & Form Management ---
-
+  // --- Section Dialog Management ---
   openAddSectionDialog(): void {
     this.editingSectionId.set(null);
     this.sectionForm.reset({ isPublished: true });
@@ -150,11 +163,7 @@ export class CourseCurriculumComponent implements OnInit {
 
   closeSectionDialog(): void {
     this.showSectionDialog.set(false);
-    this.sectionForm.reset({
-      title: '',
-      description: '',
-      isPublished: true
-    });
+    this.sectionForm.reset({ title: '', description: '', isPublished: true });
   }
   
   saveSection(): void {
@@ -164,14 +173,15 @@ export class CourseCurriculumComponent implements OnInit {
     }
 
     const formData = {
-      ...this.sectionForm.value,
-      courseId: this.courseId() // Formatted to match new backend expectations
+      title: this.sectionForm.value.title,
+      description: this.sectionForm.value.description,
+      isPublished: this.sectionForm.value.isPublished,
+      course: this.courseId()
     };
 
     const editId = this.editingSectionId();
 
     if (editId) {
-      // <-- Updated to use new service
       this.sectionApiService.updateSection(editId, formData).subscribe({
         next: () => {
           this.showSuccess('Section updated successfully');
@@ -181,7 +191,6 @@ export class CourseCurriculumComponent implements OnInit {
         error: () => this.showError('Failed to update section')
       });
     } else {
-      // <-- Updated to use new service
       this.sectionApiService.createSection(formData).subscribe({
         next: () => {
           this.showSuccess('Section created successfully');
@@ -200,7 +209,6 @@ export class CourseCurriculumComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
-        // <-- Updated to use new service (no longer requires passing courseId)
         this.sectionApiService.deleteSection(section._id).subscribe({
           next: () => {
             this.showSuccess('Section deleted');
@@ -213,17 +221,13 @@ export class CourseCurriculumComponent implements OnInit {
   }
 
   // --- UI Interactions ---
-
   toggleSection(sectionId: string): void {
     this.sections.update(sections =>
-      sections.map(s =>
-        s._id === sectionId ? { ...s, expanded: !s.expanded } : s
-      )
+      sections.map(s => s._id === sectionId ? { ...s, expanded: !s.expanded } : s)
     );
   }
 
   // --- Drag & Drop Reordering ---
-
   onSectionDragStart(index: number): void {
     this.draggedSectionIndex.set(index);
   }
@@ -248,11 +252,10 @@ export class CourseCurriculumComponent implements OnInit {
 
     this.sections.set(updatedSections);
 
-    // <-- Updated: Backend expects an array of strings (IDs in new order)
     const orderedIds = updatedSections.map(sec => sec._id);
 
     this.sectionApiService.reorderSections(this.courseId(), orderedIds).subscribe({
-      next: () => this.showSuccess('Sections reordered'),
+      next: () => this.showSuccess('Sections reordered successfully'),
       error: () => {
         this.showError('Failed to save new order');
         this.loadSections();
@@ -261,37 +264,36 @@ export class CourseCurriculumComponent implements OnInit {
   }
 
   // --- Child Component Event Handlers ---
-
   onLessonCountChange(count: number, sectionId: string): void {
     this.sections.update(sections =>
-      sections.map(s =>
-        s._id === sectionId ? { ...s, totalLessons: count } : s
-      )
+      sections.map(s => s._id === sectionId ? { ...s, totalLessons: count } : s)
     );
   }
 
   onDurationChange(duration: number, sectionId: string): void {
     this.sections.update(sections =>
-      sections.map(s =>
-        s._id === sectionId ? { ...s, totalDuration: duration } : s
-      )
+      sections.map(s => s._id === sectionId ? { ...s, totalDuration: duration } : s)
     );
   }
 
   // --- Helpers ---
+  getCourseSlug(): string {
+    const courseData = this.course();
+    return courseData?.slug || this.courseId();
+  }
 
   private showSuccess(detail: string): void {
-    this.messageService.add({ severity: 'success', summary: 'Success', detail });
+    this.messageService.add({ severity: 'success', summary: 'Success', detail, life: 3000 });
   }
 
   private showError(detail: string): void {
-    this.messageService.add({ severity: 'error', summary: 'Error', detail });
+    this.messageService.add({ severity: 'error', summary: 'Error', detail, life: 5000 });
   }
 }
 // import { Component, OnInit, inject, signal, computed } from '@angular/core';
 // import { CommonModule } from '@angular/common';
 // import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-// import { ActivatedRoute, RouterModule } from '@angular/router';
+// import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 // // PrimeNG Imports
 // import { ToastModule } from 'primeng/toast';
@@ -304,13 +306,12 @@ export class CourseCurriculumComponent implements OnInit {
 // import { ButtonModule } from 'primeng/button';
 // import { TagModule } from 'primeng/tag';
 // import { MessageService, ConfirmationService } from 'primeng/api';
+// import { CardModule } from "primeng/card";
 
-// // Internal Services & Components
-// import { CourseService } from '../../../../core/services/course.service';
-// import { SectionService } from '../../../../core/services/section.service';
 // import { LessonListComponent } from "../../../lesson/components/lesson-list/lesson-list.component";
 // import { DurationPipe } from "../../../../core/pipes/duration.pipe";
-// import { Card } from "primeng/card";
+// import { SectionService } from '../../../../core/services/section.service';
+// import { CourseService } from '../../../../core/services/course.service';
 
 // @Component({
 //   selector: 'app-course-curriculum',
@@ -330,7 +331,7 @@ export class CourseCurriculumComponent implements OnInit {
 //     TagModule,
 //     LessonListComponent,
 //     DurationPipe,
-//     Card
+//     CardModule
 //   ],
 //   providers: [MessageService, ConfirmationService],
 //   templateUrl: './course-curriculum.component.html',
@@ -339,8 +340,8 @@ export class CourseCurriculumComponent implements OnInit {
 // export class CourseCurriculumComponent implements OnInit {
 //   private route = inject(ActivatedRoute);
 //   private fb = inject(FormBuilder);
-//   private sectionService = inject(SectionService);
-//   private courseService = inject(CourseService);
+//   private sectionApiService = inject(SectionService);
+//   private courseApiService = inject(CourseService);
 //   private messageService = inject(MessageService);
 //   private confirmationService = inject(ConfirmationService);
 
@@ -349,6 +350,7 @@ export class CourseCurriculumComponent implements OnInit {
 //   course = signal<any>(null);
 //   sections = signal<any[]>([]);
 //   loading = signal<boolean>(true);
+//   private router = inject(Router);
 
 //   // Dialog State
 //   showSectionDialog = signal<boolean>(false);
@@ -358,12 +360,13 @@ export class CourseCurriculumComponent implements OnInit {
 //   draggedSectionIndex = signal<number | null>(null);
 
 //   // Form
-// sectionForm: FormGroup = this.fb.group({
-//   title: ['', Validators.required],
-//   description: [''],
-//   isPublished: [true]
-// });
-//   // Computed Properties (Derived State)
+//   sectionForm: FormGroup = this.fb.group({
+//     title: ['', Validators.required],
+//     description: [''],
+//     isPublished: [true]
+//   });
+
+//   // Computed Properties
 //   sectionDialogTitle = computed(() => this.editingSectionId() ? 'Edit Section' : 'Add New Section');
 
 //   totalSections = computed(() => this.sections().length);
@@ -384,28 +387,54 @@ export class CourseCurriculumComponent implements OnInit {
 
 //   loadData(): void {
 //     this.loading.set(true);
-//     this.courseService.getInstructorCourseById(this.courseId()).subscribe({
+    
+//     // Load course details
+//     this.courseApiService.getCourseById(this.courseId()).subscribe({
 //       next: (res: any) => {
-//         const courseData = res.data?.data || res.data?.course || res.data;
+//         // Handle response format: { status: 'success', data: { course: {...} } }
+//         const courseData = res?.data?.course || res?.data || res;
 //         this.course.set(courseData);
 //       },
-//       error: (err) => this.showError('Failed to load course details')
+//       error: (err) => {
+//         console.error('Failed to load course details:', err);
+//         this.showError('Failed to load course details');
+//       }
 //     });
 
+//     // Load sections
 //     this.loadSections();
 //   }
 
 //   loadSections(): void {
-//     this.sectionService.getSectionsByCourse(this.courseId()).subscribe({
+//     this.sectionApiService.getCourseSections(this.courseId()).subscribe({
 //       next: (res: any) => {
-//         const sectionsData = (res.data?.data || res.data || []).map((s: any) => ({
+//         // Handle response format: { status: 'success', results: 2, data: [...] }
+//         let sectionsData = [];
+        
+//         if (res?.data && Array.isArray(res.data)) {
+//           // Format: { status: 'success', data: [...] }
+//           sectionsData = res.data;
+//         } else if (res?.data?.sections && Array.isArray(res.data.sections)) {
+//           // Format: { status: 'success', data: { sections: [...] } }
+//           sectionsData = res.data.sections;
+//         } else if (Array.isArray(res)) {
+//           // Format: direct array
+//           sectionsData = res;
+//         }
+
+//         const processedSections = sectionsData.map((s: any) => ({
 //           ...s,
-//           expanded: false
+//           expanded: false,
+//           // Ensure these fields exist
+//           totalLessons: s.totalLessons || s.lessonCount || 0,
+//           totalDuration: s.totalDuration || 0
 //         }));
-//         this.sections.set(sectionsData);
+        
+//         this.sections.set(processedSections);
 //         this.loading.set(false);
 //       },
 //       error: (err) => {
+//         console.error('Failed to load sections:', err);
 //         this.showError('Failed to load sections');
 //         this.loading.set(false);
 //       }
@@ -438,6 +467,7 @@ export class CourseCurriculumComponent implements OnInit {
 //       isPublished: true
 //     });
 //   }
+  
 //   saveSection(): void {
 //     if (this.sectionForm.invalid) {
 //       this.sectionForm.markAllAsTouched();
@@ -445,29 +475,37 @@ export class CourseCurriculumComponent implements OnInit {
 //     }
 
 //     const formData = {
-//       ...this.sectionForm.value,
-//       course: this.courseId()
+//       title: this.sectionForm.value.title,
+//       description: this.sectionForm.value.description,
+//       isPublished: this.sectionForm.value.isPublished,
+//       course: this.courseId() // Backend expects 'course' field, not 'courseId'
 //     };
 
 //     const editId = this.editingSectionId();
 
 //     if (editId) {
-//       this.sectionService.updateSection(this.courseId(), editId, formData).subscribe({
-//         next: () => {
+//       this.sectionApiService.updateSection(editId, formData).subscribe({
+//         next: (res: any) => {
 //           this.showSuccess('Section updated successfully');
 //           this.closeSectionDialog();
 //           this.loadSections();
 //         },
-//         error: () => this.showError('Failed to update section')
+//         error: (err) => {
+//           console.error('Failed to update section:', err);
+//           this.showError('Failed to update section');
+//         }
 //       });
 //     } else {
-//       this.sectionService.createSection(this.courseId(), formData).subscribe({
-//         next: () => {
+//       this.sectionApiService.createSection(formData).subscribe({
+//         next: (res: any) => {
 //           this.showSuccess('Section created successfully');
 //           this.closeSectionDialog();
 //           this.loadSections();
 //         },
-//         error: () => this.showError('Failed to create section')
+//         error: (err) => {
+//           console.error('Failed to create section:', err);
+//           this.showError('Failed to create section');
+//         }
 //       });
 //     }
 //   }
@@ -479,12 +517,15 @@ export class CourseCurriculumComponent implements OnInit {
 //       icon: 'pi pi-exclamation-triangle',
 //       acceptButtonStyleClass: 'p-button-danger',
 //       accept: () => {
-//         this.sectionService.deleteSection(this.courseId(), section._id).subscribe({
-//           next: () => {
+//         this.sectionApiService.deleteSection(section._id).subscribe({
+//           next: (res: any) => {
 //             this.showSuccess('Section deleted');
 //             this.loadSections();
 //           },
-//           error: () => this.showError('Failed to delete section')
+//           error: (err) => {
+//             console.error('Failed to delete section:', err);
+//             this.showError('Failed to delete section');
+//           }
 //         });
 //       }
 //     });
@@ -526,16 +567,17 @@ export class CourseCurriculumComponent implements OnInit {
 
 //     this.sections.set(updatedSections);
 
-//     const reorderPayload = updatedSections.map((sec, index) => ({
-//       id: sec._id,
-//       order: index
-//     }));
+//     // Send ordered IDs to backend
+//     const orderedIds = updatedSections.map(sec => sec._id);
 
-//     this.sectionService.reorderSections(this.courseId(), reorderPayload).subscribe({
-//       next: () => this.showSuccess('Sections reordered'),
-//       error: () => {
+//     this.sectionApiService.reorderSections(this.courseId(), orderedIds).subscribe({
+//       next: (res: any) => {
+//         this.showSuccess('Sections reordered successfully');
+//       },
+//       error: (err) => {
+//         console.error('Failed to reorder sections:', err);
 //         this.showError('Failed to save new order');
-//         this.loadSections();
+//         this.loadSections(); // Reload to revert to server state
 //       }
 //     });
 //   }
@@ -559,12 +601,326 @@ export class CourseCurriculumComponent implements OnInit {
 //   }
 
 //   // --- Helpers ---
+// // Add this method to handle adding a lesson
+// addLesson(sectionId: string): void {
+//   // Navigate to lesson creation or open dialog
+//   // You can implement this based on your routing structure
+//   this.router.navigate(['/instructor/courses', this.courseId(), 'sections', sectionId, 'lessons', 'new']);
+// }
 
 //   private showSuccess(detail: string): void {
-//     this.messageService.add({ severity: 'success', summary: 'Success', detail });
+//     this.messageService.add({ 
+//       severity: 'success', 
+//       summary: 'Success', 
+//       detail,
+//       life: 3000 
+//     });
 //   }
 
 //   private showError(detail: string): void {
-//     this.messageService.add({ severity: 'error', summary: 'Error', detail });
+//     this.messageService.add({ 
+//       severity: 'error', 
+//       summary: 'Error', 
+//       detail,
+//       life: 5000 
+//     });
+//   }
+
+//   // Utility method to get course slug for preview
+//   getCourseSlug(): string {
+//     const courseData = this.course();
+//     return courseData?.slug || this.courseId();
 //   }
 // }
+
+
+// // import { Component, OnInit, inject, signal, computed } from '@angular/core';
+// // import { CommonModule } from '@angular/common';
+// // import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+// // import { ActivatedRoute, RouterModule } from '@angular/router';
+
+// // // PrimeNG Imports
+// // import { ToastModule } from 'primeng/toast';
+// // import { ConfirmDialogModule } from 'primeng/confirmdialog';
+// // import { DialogModule } from 'primeng/dialog';
+// // import { InputTextModule } from 'primeng/inputtext';
+// // import { CheckboxModule } from 'primeng/checkbox';
+// // import { DragDropModule } from 'primeng/dragdrop';
+// // import { TooltipModule } from 'primeng/tooltip';
+// // import { ButtonModule } from 'primeng/button';
+// // import { TagModule } from 'primeng/tag';
+// // import { MessageService, ConfirmationService } from 'primeng/api';
+// // import { CardModule } from "primeng/card"; // <-- Fixed PrimeNG import
+
+
+// // import { LessonListComponent } from "../../../lesson/components/lesson-list/lesson-list.component";
+// // import { DurationPipe } from "../../../../core/pipes/duration.pipe";
+// // import { SectionService } from '../../../../core/services/section.service';
+// // import { CourseService } from '../../../../core/services/course.service';
+
+// // @Component({
+// //   selector: 'app-course-curriculum',
+// //   standalone: true,
+// //   imports: [
+// //     CommonModule,
+// //     ReactiveFormsModule,
+// //     RouterModule,
+// //     ToastModule,
+// //     ConfirmDialogModule,
+// //     DialogModule,
+// //     InputTextModule,
+// //     CheckboxModule,
+// //     DragDropModule,
+// //     TooltipModule,
+// //     ButtonModule,
+// //     TagModule,
+// //     LessonListComponent,
+// //     DurationPipe,
+// //     CardModule
+// //   ],
+// //   providers: [MessageService, ConfirmationService],
+// //   templateUrl: './course-curriculum.component.html',
+// //   styleUrl: './course-curriculum.component.scss'
+// // })
+// // export class CourseCurriculumComponent implements OnInit {
+// //   private route = inject(ActivatedRoute);
+// //   private fb = inject(FormBuilder);
+// //   private sectionApiService = inject(SectionService); // <-- Updated Injection
+// //   private courseApiService = inject(CourseService); // <-- Updated Injection
+// //   private messageService = inject(MessageService);
+// //   private confirmationService = inject(ConfirmationService);
+
+// //   // Signals
+// //   courseId = signal<string>('');
+// //   course = signal<any>(null);
+// //   sections = signal<any[]>([]);
+// //   loading = signal<boolean>(true);
+
+// //   // Dialog State
+// //   showSectionDialog = signal<boolean>(false);
+// //   editingSectionId = signal<string | null>(null);
+
+// //   // Drag & Drop State
+// //   draggedSectionIndex = signal<number | null>(null);
+
+// //   // Form
+// //   sectionForm: FormGroup = this.fb.group({
+// //     title: ['', Validators.required],
+// //     description: [''],
+// //     isPublished: [true]
+// //   });
+
+// //   // Computed Properties (Derived State)
+// //   sectionDialogTitle = computed(() => this.editingSectionId() ? 'Edit Section' : 'Add New Section');
+
+// //   totalSections = computed(() => this.sections().length);
+// //   totalLessons = computed(() =>
+// //     this.sections().reduce((acc, curr) => acc + (curr.totalLessons || 0), 0)
+// //   );
+// //   totalDuration = computed(() =>
+// //     this.sections().reduce((acc, curr) => acc + (curr.totalDuration || 0), 0)
+// //   );
+
+// //   ngOnInit(): void {
+// //     const id = this.route.snapshot.paramMap.get('id');
+// //     if (id) {
+// //       this.courseId.set(id);
+// //       this.loadData();
+// //     }
+// //   }
+
+// //   loadData(): void {
+// //     this.loading.set(true);
+// //     // Assuming you want the course by ID (you previously had getInstructorCourseById, 
+// //     // but the new CourseApiService just uses getCourseById for a specific fetch)
+// //     this.courseApiService.getCourseById(this.courseId()).subscribe({
+// //       next: (res: any) => {
+// //         // Standardized unwrapping
+// //         const courseData = res.data?.course || res.data;
+// //         this.course.set(courseData);
+// //       },
+// //       error: (err) => this.showError('Failed to load course details')
+// //     });
+
+// //     this.loadSections();
+// //   }
+
+// //   loadSections(): void {
+// //     // <-- Updated to use sectionApiService
+// //     this.sectionApiService.getCourseSections(this.courseId()).subscribe({
+// //       next: (res: any) => {
+// //         // Standardized unwrapping
+// //         const payloadData = res.data || [];
+// //         const sectionsData = Array.isArray(payloadData) ? payloadData.map((s: any) => ({
+// //           ...s,
+// //           expanded: false
+// //         })) : [];
+        
+// //         this.sections.set(sectionsData);
+// //         this.loading.set(false);
+// //       },
+// //       error: (err) => {
+// //         this.showError('Failed to load sections');
+// //         this.loading.set(false);
+// //       }
+// //     });
+// //   }
+
+// //   // --- Dialog & Form Management ---
+
+// //   openAddSectionDialog(): void {
+// //     this.editingSectionId.set(null);
+// //     this.sectionForm.reset({ isPublished: true });
+// //     this.showSectionDialog.set(true);
+// //   }
+
+// //   editSection(section: any): void {
+// //     this.editingSectionId.set(section._id);
+// //     this.sectionForm.patchValue({
+// //       title: section.title,
+// //       description: section.description,
+// //       isPublished: section.isPublished
+// //     });
+// //     this.showSectionDialog.set(true);
+// //   }
+
+// //   closeSectionDialog(): void {
+// //     this.showSectionDialog.set(false);
+// //     this.sectionForm.reset({
+// //       title: '',
+// //       description: '',
+// //       isPublished: true
+// //     });
+// //   }
+  
+// //   saveSection(): void {
+// //     if (this.sectionForm.invalid) {
+// //       this.sectionForm.markAllAsTouched();
+// //       return;
+// //     }
+
+// //     const formData = {
+// //       ...this.sectionForm.value,
+// //       courseId: this.courseId() // Formatted to match new backend expectations
+// //     };
+
+// //     const editId = this.editingSectionId();
+
+// //     if (editId) {
+// //       // <-- Updated to use new service
+// //       this.sectionApiService.updateSection(editId, formData).subscribe({
+// //         next: () => {
+// //           this.showSuccess('Section updated successfully');
+// //           this.closeSectionDialog();
+// //           this.loadSections();
+// //         },
+// //         error: () => this.showError('Failed to update section')
+// //       });
+// //     } else {
+// //       // <-- Updated to use new service
+// //       this.sectionApiService.createSection(formData).subscribe({
+// //         next: () => {
+// //           this.showSuccess('Section created successfully');
+// //           this.closeSectionDialog();
+// //           this.loadSections();
+// //         },
+// //         error: () => this.showError('Failed to create section')
+// //       });
+// //     }
+// //   }
+
+// //   deleteSection(section: any): void {
+// //     this.confirmationService.confirm({
+// //       message: `Are you sure you want to delete "${section.title}"? All lessons inside will also be removed.`,
+// //       header: 'Confirm Deletion',
+// //       icon: 'pi pi-exclamation-triangle',
+// //       acceptButtonStyleClass: 'p-button-danger',
+// //       accept: () => {
+// //         // <-- Updated to use new service (no longer requires passing courseId)
+// //         this.sectionApiService.deleteSection(section._id).subscribe({
+// //           next: () => {
+// //             this.showSuccess('Section deleted');
+// //             this.loadSections();
+// //           },
+// //           error: () => this.showError('Failed to delete section')
+// //         });
+// //       }
+// //     });
+// //   }
+
+// //   // --- UI Interactions ---
+
+// //   toggleSection(sectionId: string): void {
+// //     this.sections.update(sections =>
+// //       sections.map(s =>
+// //         s._id === sectionId ? { ...s, expanded: !s.expanded } : s
+// //       )
+// //     );
+// //   }
+
+// //   // --- Drag & Drop Reordering ---
+
+// //   onSectionDragStart(index: number): void {
+// //     this.draggedSectionIndex.set(index);
+// //   }
+
+// //   onSectionDragEnd(): void {
+// //     this.draggedSectionIndex.set(null);
+// //   }
+
+// //   onSectionDrop(event: any): void {
+// //     const fromIndex = this.draggedSectionIndex();
+// //     if (fromIndex === null) return;
+
+// //     const target = event.target.closest('.section-card');
+// //     if (!target) return;
+
+// //     const toIndex = parseInt(target.getAttribute('data-index'), 10);
+// //     if (isNaN(toIndex) || fromIndex === toIndex) return;
+
+// //     const updatedSections = [...this.sections()];
+// //     const [movedSection] = updatedSections.splice(fromIndex, 1);
+// //     updatedSections.splice(toIndex, 0, movedSection);
+
+// //     this.sections.set(updatedSections);
+
+// //     // <-- Updated: Backend expects an array of strings (IDs in new order)
+// //     const orderedIds = updatedSections.map(sec => sec._id);
+
+// //     this.sectionApiService.reorderSections(this.courseId(), orderedIds).subscribe({
+// //       next: () => this.showSuccess('Sections reordered'),
+// //       error: () => {
+// //         this.showError('Failed to save new order');
+// //         this.loadSections();
+// //       }
+// //     });
+// //   }
+
+// //   // --- Child Component Event Handlers ---
+
+// //   onLessonCountChange(count: number, sectionId: string): void {
+// //     this.sections.update(sections =>
+// //       sections.map(s =>
+// //         s._id === sectionId ? { ...s, totalLessons: count } : s
+// //       )
+// //     );
+// //   }
+
+// //   onDurationChange(duration: number, sectionId: string): void {
+// //     this.sections.update(sections =>
+// //       sections.map(s =>
+// //         s._id === sectionId ? { ...s, totalDuration: duration } : s
+// //       )
+// //     );
+// //   }
+
+// //   // --- Helpers ---
+
+// //   private showSuccess(detail: string): void {
+// //     this.messageService.add({ severity: 'success', summary: 'Success', detail });
+// //   }
+
+// //   private showError(detail: string): void {
+// //     this.messageService.add({ severity: 'error', summary: 'Error', detail });
+// //   }
+// // }

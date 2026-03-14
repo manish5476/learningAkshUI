@@ -1,4 +1,271 @@
 <div class="lesson-detail">
+  
+  <!-- Header Section -->
+  <div class="detail-header">
+    <div class="header-icon" [ngClass]="lessonType() + '-icon'">
+      @switch (lessonType()) {
+        @case ('video') { <i class="pi pi-video"></i> }
+        @case ('article') { <i class="pi pi-file"></i> }
+        @case ('quiz') { <i class="pi pi-question-circle"></i> }
+        @case ('assignment') { <i class="pi pi-pencil"></i> }
+        @case ('coding-exercise') { <i class="pi pi-code"></i> }
+        @default { <i class="pi pi-file"></i> }
+      }
+    </div>
+    
+    <div class="header-info">
+      <h2>{{ lesson().title }}</h2>
+      <div class="header-meta">
+        <p-tag 
+          [value]="lessonType() | titlecase" 
+          [severity]="getTypeSeverity(lessonType())" 
+          [rounded]="true">
+        </p-tag>
+        
+        @if (lesson().duration > 0) {
+          <span class="meta-pill">
+            <i class="pi pi-clock"></i>
+            {{ lesson().duration | duration }}
+          </span>
+        }
+        
+        @if (lesson().isFree) {
+          <span class="meta-pill badge-free">
+            <i class="pi pi-lock-open"></i>
+            Free Preview
+          </span>
+        }
+
+        @if (lesson().order !== undefined) {
+          <span class="meta-pill">
+            <i class="pi pi-sort-numeric-up-alt"></i>
+            Lesson {{ lesson().order + 1 }}
+          </span>
+        }
+      </div>
+    </div>
+    
+    <div class="status-indicator">
+      <p-tag 
+        [value]="lesson().isPublished ? 'Published' : 'Draft'" 
+        [severity]="lesson().isPublished ? 'success' : 'warn'"
+        [rounded]="true">
+      </p-tag>
+    </div>
+  </div>
+
+  <!-- Creator/Modified Info -->
+  @if (createdBy() || lastModifiedBy()) {
+    <div class="metadata-bar surface-subtle">
+      @if (createdBy()) {
+        <div class="meta-item">
+          <i class="pi pi-user"></i>
+          <span>Created by: <strong>{{ createdBy().email || 'Instructor' }}</strong></span>
+          <span class="meta-date">{{ formatDate(lesson().createdAt) }}</span>
+        </div>
+      }
+      @if (lastModifiedBy() && lesson().updatedAt !== lesson().createdAt) {
+        <div class="meta-item">
+          <i class="pi pi-pencil"></i>
+          <span>Last modified: <strong>{{ lastModifiedBy().email || 'Instructor' }}</strong></span>
+          <span class="meta-date">{{ formatDate(lesson().updatedAt) }}</span>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Description Section -->
+  @if (lesson().description) {
+    <div class="content-section">
+      <h3 class="section-title">
+        <i class="pi pi-align-left text-primary"></i> Description
+      </h3>
+      <div class="surface-subtle description-box">
+        <p class="description">{{ lesson().description }}</p>
+      </div>
+    </div>
+  }
+
+  <!-- Content Preview Section -->
+  <div class="content-section">
+    <h3 class="section-title">
+      <i class="pi pi-eye text-info"></i> Content Preview
+    </h3>
+
+    <div class="surface-raised preview-box">
+      
+      <!-- Video Content -->
+      @if (lessonType() === 'video') {
+        <div class="video-preview">
+          <!-- Video Thumbnail -->
+           <!-- (click)="openVideo()" -->
+          <div class="video-thumbnail-wrapper"  [class.has-thumbnail]="videoInfo().thumbnail">
+            @if (videoInfo().thumbnail) {
+              <img [src]="videoInfo().thumbnail" [alt]="lesson().title" class="video-thumbnail">
+              <div class="play-overlay"><i class="pi pi-play"></i></div>
+            } @else {
+              <div class="no-thumbnail">
+                <i class="pi pi-video"></i>
+                <span>No Thumbnail</span>
+              </div>
+            }
+          </div>
+
+          <!-- Video Details -->
+          <div class="video-info">
+            <div class="info-row">
+              <span class="info-label">Provider</span>
+              <span class="info-value">
+                <i class="{{ getProviderIcon(videoInfo().provider) }} {{ getProviderColor(videoInfo().provider) }}"></i>
+                {{ videoInfo().provider | titlecase }}
+              </span>
+            </div>
+            
+            @if (videoInfo().url) {
+              <div class="info-row">
+                <span class="info-label">Source URL</span>
+                <a [href]="videoInfo().url" target="_blank" rel="noopener" class="info-value link-text">
+                  {{ videoInfo().url | slice:0:50 }}{{ videoInfo().url?.length > 50 ? '...' : '' }}
+                  <i class="pi pi-external-link text-xs"></i>
+                </a>
+              </div>
+            }
+            
+            @if (videoInfo().duration > 0) {
+              <div class="info-row border-none">
+                <span class="info-label">Duration</span>
+                <span class="info-value font-mono">{{ videoInfo().duration | duration }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Article Content -->
+      @if (lessonType() === 'article') {
+        <div class="article-preview">
+          @if (hasArticleContent()) {
+            <div class="article-content custom-scrollbar" [innerHTML]="articleInfo().body"></div>
+          } @else {
+            <div class="empty-content">
+              <i class="pi pi-file"></i>
+              <p>No article content available</p>
+            </div>
+          }
+
+          <!-- Article Attachments -->
+          @if (articleInfo().attachments?.length > 0) {
+            <div class="attachments-section">
+              <h4 class="attachments-title">Attachments</h4>
+              <div class="attachments-list">
+                @for (attachment of articleInfo().attachments; track attachment.url) {
+                  <a [href]="attachment.url" target="_blank" class="attachment-item">
+                    <i class="pi pi-paperclip"></i>
+                    <span>{{ attachment.name || 'Attachment' }}</span>
+                  </a>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Quiz Content -->
+      @if (lessonType() === 'quiz') {
+        <div class="quiz-preview">
+          <div class="icon-circle">
+            <i class="pi pi-question-circle text-warning"></i>
+          </div>
+          @if (lessonContent().quiz) {
+            <div class="quiz-info">
+              <p><strong>Quiz ID:</strong> <span class="font-mono text-secondary">{{ lessonContent().quiz }}</span></p>
+              <p class="text-xs text-tertiary mt-sm">Quiz questions and settings can be managed in the Quiz Builder</p>
+            </div>
+          } @else {
+            <div class="quiz-info">
+              <p>No quiz linked to this lesson</p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Assignment Content -->
+      @if (lessonType() === 'assignment') {
+        <div class="assignment-preview">
+          <div class="icon-circle">
+            <i class="pi pi-pencil text-success"></i>
+          </div>
+          <div class="assignment-info">
+            <p>Assignment details will be available soon</p>
+          </div>
+        </div>
+      }
+
+      <!-- Coding Exercise Content -->
+      @if (lessonType() === 'coding-exercise') {
+        <div class="coding-preview">
+          <div class="icon-circle">
+            <i class="pi pi-code text-info"></i>
+          </div>
+          <div class="coding-info">
+            <p>Coding exercise environment will be available in the lesson player</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Resources Section -->
+  @if (lessonResources().length > 0) {
+    <div class="content-section">
+      <h3 class="section-title">
+        <i class="pi pi-paperclip text-success"></i> 
+        Resources ({{ lessonResources().length }})
+      </h3>
+      <div class="resources-grid">
+        @for (resource of lessonResources(); track resource.url) {
+          <a [href]="resource.url" target="_blank" rel="noopener" class="resource-card hover-lift">
+            <div class="r-icon" [class]="getResourceColor(resource.type)">
+              <i [class]="getResourceIcon(resource.type)"></i>
+            </div>
+            <div class="r-info">
+              <span class="r-title">{{ resource.title || 'Resource' }}</span>
+              <span class="r-type">{{ resource.type | titlecase }}</span>
+            </div>
+            <i class="pi pi-download r-action"></i>
+          </a>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Additional Metadata (if any) -->
+  @if (lesson().typeInfo) {
+    <div class="content-section">
+      <div class="metadata-chip">
+        <i class="pi pi-info-circle"></i>
+        <span>{{ lesson().typeInfo }}</span>
+      </div>
+    </div>
+  }
+
+  <!-- Action Buttons -->
+  <div class="detail-actions">
+    <button class="btn-secondary" (click)="onClose()">
+      <i class="pi pi-times"></i> Close
+    </button>
+    <button class="btn-primary" (click)="onEdit()">
+      <i class="pi pi-pencil"></i> Edit Lesson
+    </button>
+  </div>
+</div>
+
+
+
+
+
+<!-- <div class="lesson-detail">
+
   <div class="detail-header">
     <div class="header-icon" [ngClass]="lesson().type + '-icon'">
       @switch (lesson().type) {
@@ -141,4 +408,4 @@
       <i class="pi pi-pencil"></i> Edit Lesson
     </button>
   </div>
-</div>
+</div> -->

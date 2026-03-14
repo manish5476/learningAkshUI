@@ -2,6 +2,203 @@
   <p-toast position="top-right"></p-toast>
   <p-confirmDialog styleClass="glass-dialog"></p-confirmDialog>
 
+  <!-- Header - Clean and Compact -->
+  <header class="curriculum-header flex-col md:flex-row flex-between gap-xl mb-4xl pb-2xl border-bottom-subtle">
+    <div class="header-left flex align-items-center gap-md md:gap-xl w-full md:w-auto">
+      <p-button icon="pi pi-arrow-left" severity="secondary" [text]="true" [rounded]="true"
+        [routerLink]="['/instructor/courses']" pTooltip="Back to Courses" styleClass="w-2rem h-2rem"></p-button>
+      <div class="flex-grow-1 overflow-hidden">
+        <h1 class="page-title font-heading text-2xl md:text-3xl text-primary font-bold m-0 mb-xs line-clamp-1">
+          Course Curriculum Builder
+        </h1>
+        <p class="course-title text-secondary font-mono text-sm font-bold m-0 flex align-items-center gap-xs line-clamp-1">
+          <i class="pi pi-book text-tertiary"></i> {{ course()?.title }}
+        </p>
+      </div>
+    </div>
+
+    <div class="header-actions flex gap-md w-full md:w-auto">
+      <p-button label="Preview" icon="pi pi-eye" severity="secondary" [outlined]="true"
+        [routerLink]="['/courses', getCourseSlug()]" pTooltip="Student Preview" tooltipPosition="bottom"
+        class="flex-grow-1 md:flex-grow-0" styleClass="w-full"></p-button>
+      <p-button label="Add Section" icon="pi pi-plus" (onClick)="openAddSectionDialog()"
+        class="flex-grow-1 md:flex-grow-0" styleClass="w-full"></p-button>
+    </div>
+  </header>
+
+  @if (loading()) {
+  <div class="state-overlay cinematic-bg flex-col flex-center text-center py-5xl">
+    <div class="loader-ring mb-lg"></div>
+    <p class="text-secondary font-heading font-bold uppercase tracking-widest text-sm m-0">Loading curriculum data...</p>
+  </div>
+  } @else {
+
+  <!-- Stats Cards -->
+  <div class="curriculum-stats grid mb-4xl">
+    <p-card styleClass="stat-card glass-panel hover-lift">
+      <div class="flex align-items-center gap-lg">
+        <div class="stat-icon bg-primary-light text-primary flex-center border-radius-full">
+          <i class="pi pi-sitemap"></i>
+        </div>
+        <div class="stat-content flex-col gap-xs">
+          <span class="stat-label text-xs uppercase tracking-widest font-bold text-tertiary">Total Sections</span>
+          <span class="stat-value font-heading text-3xl font-bold text-primary m-0 line-height-tight">{{ totalSections() }}</span>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card styleClass="stat-card glass-panel hover-lift">
+      <div class="flex align-items-center gap-lg">
+        <div class="stat-icon bg-success-light text-success flex-center border-radius-full">
+          <i class="pi pi-file-video"></i>
+        </div>
+        <div class="stat-content flex-col gap-xs">
+          <span class="stat-label text-xs uppercase tracking-widest font-bold text-tertiary">Total Lessons</span>
+          <span class="stat-value font-heading text-3xl font-bold text-primary m-0 line-height-tight">{{ totalLessons() }}</span>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card styleClass="stat-card glass-panel hover-lift">
+      <div class="flex align-items-center gap-lg">
+        <div class="stat-icon bg-warning-light text-warning flex-center border-radius-full">
+          <i class="pi pi-clock"></i>
+        </div>
+        <div class="stat-content flex-col gap-xs">
+          <span class="stat-label text-xs uppercase tracking-widest font-bold text-tertiary">Total Duration</span>
+          <span class="stat-value font-heading text-3xl font-bold text-primary m-0 line-height-tight">{{ totalDuration() | duration }}</span>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Sections Container -->
+  <div class="sections-container flex-col gap-2xl" pDroppable="sections" (onDrop)="onSectionDrop($event)">
+
+    @for (section of sections(); track section._id; let i = $index) {
+    <p-card styleClass="section-card border-left-accent transition-base bg-primary overflow-hidden"
+      [attr.data-index]="i" pDraggable="sections" (onDragStart)="onSectionDragStart(i)"
+      (onDragEnd)="onSectionDragEnd()">
+
+      <!-- Section Header -->
+      <ng-template pTemplate="header">
+        <div class="section-header flex-col md:flex-row md:flex-between align-items-start md:align-items-center gap-md p-lg md:p-2xl bg-secondary border-bottom-subtle transition-base select-none"
+          (dblclick)="toggleSection(section._id)">
+
+          <div class="section-info-wrapper flex align-items-center gap-md flex-grow-1 w-full">
+            <div class="section-drag-handle flex-center text-tertiary cursor-grab p-xs hover-text-primary transition-colors"
+              pTooltip="Drag to reorder" tooltipPosition="top">
+              <i class="pi pi-bars text-xl"></i>
+            </div>
+
+            <div class="section-info flex-col gap-xs flex-grow-1">
+              <div class="flex align-items-center gap-sm flex-wrap">
+                <h3 class="section-title font-heading text-lg md:text-xl font-bold text-primary m-0">
+                  Section {{ i + 1 }}: {{ section.title }}
+                </h3>
+                @if (!section.isPublished) {
+                <p-tag value="Draft" severity="warn"></p-tag>
+                }
+              </div>
+              <div class="section-meta flex align-items-center gap-md font-mono text-xs text-tertiary font-bold">
+                <span class="flex align-items-center gap-xs">
+                  <i class="pi pi-file"></i> {{ section.totalLessons || 0 }} lessons
+                </span>
+                <span class="flex align-items-center gap-xs">
+                  <i class="pi pi-clock"></i> {{ (section.totalDuration || 0) | duration }}
+                </span>
+                @if (section.freeLessonCount > 0) {
+                <span class="free-badge flex align-items-center gap-2xs bg-success-light text-success px-sm py-2xs border-radius-sm">
+                  <i class="pi pi-gift text-xs"></i> {{ section.freeLessonCount }} free
+                </span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="section-actions flex align-items-center gap-sm opacity-60 transition-opacity hover-opacity-100 mt-sm md:mt-0 align-self-end md:align-self-center">
+            <p-button icon="pi pi-pencil" severity="info" [text]="true" [rounded]="true"
+              (onClick)="editSection(section)" pTooltip="Edit Section"></p-button>
+            <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+              (onClick)="deleteSection(section)" pTooltip="Delete Section"></p-button>
+            <p-button [icon]="section.expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-left'" severity="secondary"
+              [text]="true" [rounded]="true" (onClick)="toggleSection(section._id)"
+              pTooltip="Toggle Content"></p-button>
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- Section Content - Lessons -->
+      <ng-template pTemplate="content">
+        @if (section.expanded) {
+        <div class="section-content p-lg md:p-3xl bg-primary">
+          <app-lesson-list 
+            [sectionId]="section._id" 
+            [courseId]="courseId()"
+            (lessonCountChange)="onLessonCountChange($event, section._id)"
+            (durationChange)="onDurationChange($event, section._id)">
+          </app-lesson-list>
+        </div>
+        }
+      </ng-template>
+    </p-card>
+    } @empty {
+    <!-- Empty State - No Sections -->
+    <div class="empty-state glass-panel flex-col flex-center text-center py-5xl border-dashed border-primary surface-raised">
+      <div class="empty-icon-wrapper flex-center border-radius-full bg-ternary border-primary mb-2xl">
+        <i class="pi pi-sitemap text-5xl text-tertiary"></i>
+      </div>
+      <h3 class="font-heading text-2xl text-primary font-bold m-0 mb-xs">No Sections Yet</h3>
+      <p class="text-secondary m-0 mb-xl max-w-prose">Start building your course structure by adding your first section.</p>
+      <p-button label="Add First Section" icon="pi pi-plus" size="large" (onClick)="openAddSectionDialog()"></p-button>
+    </div>
+    }
+  </div>
+
+  <!-- Section Dialog -->
+  <p-dialog appendTo="body" [(visible)]="showSectionDialog" [header]="sectionDialogTitle()" [modal]="true"
+    [style]="{width: '500px', maxWidth: '95vw'}" [draggable]="false" [resizable]="false" styleClass="glass-dialog">
+
+    <form [formGroup]="sectionForm" (ngSubmit)="saveSection()" class="section-form flex-col gap-lg mt-md">
+      <div class="form-group flex-col gap-xs">
+        <label class="text-xs font-bold text-secondary uppercase tracking-widest">Section Title <span class="text-error">*</span></label>
+        <input type="text" pInputText formControlName="title" placeholder="e.g., Introduction to the Course"
+          class="w-full premium-input" [class.input-error]="sectionForm.get('title')?.invalid && sectionForm.get('title')?.touched">
+        @if (sectionForm.get('title')?.invalid && sectionForm.get('title')?.touched) {
+        <small class="text-error font-bold mt-xs">Title is required.</small>
+        }
+      </div>
+
+      <div class="form-group flex-col gap-xs">
+        <label class="text-xs font-bold text-secondary uppercase tracking-widest">Description (Optional)</label>
+        <textarea pTextarea formControlName="description"
+          placeholder="Briefly describe what students will learn in this section..." [rows]="4"
+          class="w-full premium-input line-height-relaxed"></textarea>
+      </div>
+
+      <div class="form-group pt-md">
+        <div class="toggle-label surface-subtle flex align-items-center gap-md p-md border-radius-md cursor-pointer transition-base hover-bg-hover">
+          <p-checkbox formControlName="isPublished" [binary]="true" inputId="isPublished"></p-checkbox>
+          <label for="isPublished" class="m-0 font-bold text-primary cursor-pointer flex-grow-1">Publish section immediately</label>
+        </div>
+      </div>
+
+      <div class="dialog-actions flex justify-content-end gap-md mt-xl pt-lg border-top-subtle">
+        <p-button label="Cancel" icon="pi pi-times" severity="secondary" [text]="true"
+          (onClick)="closeSectionDialog()"></p-button>
+        <p-button [label]="editingSectionId() ? 'Update Section' : 'Create Section'" icon="pi pi-check" type="submit"
+          [disabled]="sectionForm.invalid"></p-button>
+      </div>
+    </form>
+  </p-dialog>
+  }
+</div>
+
+
+<!-- <div class="course-curriculum-container fade-in">
+  <p-toast position="top-right"></p-toast>
+  <p-confirmDialog styleClass="glass-dialog"></p-confirmDialog>
+
   <header class="curriculum-header flex-col md:flex-row flex-between gap-xl mb-4xl pb-2xl border-bottom-subtle">
     <div class="header-left flex align-items-center gap-md md:gap-xl w-full md:w-auto">
       <p-button icon="pi pi-arrow-left" severity="secondary" [text]="true" [rounded]="true"
@@ -184,130 +381,5 @@
       </div>
     </form>
   </p-dialog>
-
-  <!-- <p-dialog appendTo="body" 
-      [(visible)]="showSectionDialog" 
-      [header]="sectionDialogTitle()"
-      [modal]="true"
-      [draggable]="false"
-      [resizable]="false"
-      styleClass="glass-dialog">
-      </p-dialog> -->
-  }
-</div>
-
-<!-- <div class="course-curriculum-container fade-in">
-  <p-toast position="top-right"></p-toast>
-  <p-confirmDialog styleClass="glass-dialog"></p-confirmDialog>
-
-  <header class="curriculum-header flex-col md:flex-row flex-between gap-xl mb-4xl pb-2xl border-bottom-subtle">
-    <div class="header-left flex align-items-center gap-md md:gap-xl w-full md:w-auto">
-      <p-button icon="pi pi-arrow-left" severity="secondary" [text]="true" [rounded]="true" [routerLink]="['/courses/instructor', courseId()]" pTooltip="Back to Course"></p-button>
-      <div class="flex-grow-1 overflow-hidden">
-        <h1 class="page-title font-heading text-2xl md:text-3xl text-primary font-bold m-0 mb-xs line-clamp-1">Course Curriculum Builder</h1>
-        <p class="course-title text-secondary font-mono text-sm font-bold m-0 flex align-items-center gap-xs line-clamp-1">
-          <i class="pi pi-book text-tertiary"></i> {{ course()?.title }}
-        </p>
-      </div>
-    </div>
-    
-    <div class="header-actions flex gap-md w-full md:w-auto">
-      <p-button label="Preview" icon="pi pi-eye" severity="secondary" [outlined]="true" [routerLink]="['/courses', course()?.slug || courseId()]" pTooltip="Student Preview" tooltipPosition="bottom" class="flex-grow-1 md:flex-grow-0" styleClass="w-full"></p-button>
-      <p-button label="Add Section" icon="pi pi-plus" (onClick)="openAddSectionDialog()" class="flex-grow-1 md:flex-grow-0" styleClass="w-full"></p-button>
-    </div>
-  </header>
-
-  @if (loading()) {
-    <div class="state-overlay cinematic-bg flex-col flex-center text-center py-5xl">
-      <div class="loader-ring mb-lg"></div>
-      <p class="text-secondary font-heading font-bold uppercase tracking-widest text-sm m-0">Loading curriculum data...</p>
-    </div>
-  } @else {
-    
-    <div class="curriculum-stats grid mb-4xl">
-      <div class="stat-card glass-panel surface-raised flex align-items-center gap-lg hover-lift">
-        <div class="stat-icon bg-primary-light text-primary flex-center border-radius-full"><i class="pi pi-sitemap"></i></div>
-        <div class="stat-content flex-col gap-xs">
-          <span class="stat-label text-xs uppercase tracking-widest font-bold text-tertiary">Total Sections</span>
-          <span class="stat-value font-heading text-3xl font-bold text-primary m-0 line-height-tight">{{ totalSections() }}</span>
-        </div>
-      </div>
-      <div class="stat-card glass-panel surface-raised flex align-items-center gap-lg hover-lift">
-        <div class="stat-icon bg-success-light text-success flex-center border-radius-full"><i class="pi pi-file-video"></i></div>
-        <div class="stat-content flex-col gap-xs">
-          <span class="stat-label text-xs uppercase tracking-widest font-bold text-tertiary">Total Lessons</span>
-          <span class="stat-value font-heading text-3xl font-bold text-primary m-0 line-height-tight">{{ totalLessons() }}</span>
-        </div>
-      </div>
-      <div class="stat-card glass-panel surface-raised flex align-items-center gap-lg hover-lift">
-        <div class="stat-icon bg-warning-light text-warning flex-center border-radius-full"><i class="pi pi-clock"></i></div>
-        <div class="stat-content flex-col gap-xs">
-          <span class="stat-label text-xs uppercase tracking-widest font-bold text-tertiary">Total Duration</span>
-          <span class="stat-value font-heading text-3xl font-bold text-primary m-0 line-height-tight">{{ totalDuration() | duration }}</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="sections-container flex-col gap-2xl" pDroppable="sections" (onDrop)="onSectionDrop($event)">
-      
-      @for (section of sections(); track section._id; let i = $index) {
-        <div class="section-card surface-raised border-left-accent transition-base bg-primary overflow-hidden" 
-             [attr.data-index]="i"
-             pDraggable="sections"
-             (onDragStart)="onSectionDragStart(i)"
-             (onDragEnd)="onSectionDragEnd()">
-          
-          <div class="section-header flex-col md:flex-row md:flex-between align-items-start md:align-items-center gap-md p-lg md:p-2xl bg-secondary border-bottom-subtle transition-base select-none" (dblclick)="toggleSection(section._id)">
-            
-            <div class="section-info-wrapper flex align-items-center gap-md flex-grow-1 w-full">
-              <div class="section-drag-handle flex-center text-tertiary cursor-grab p-xs hover-text-primary transition-colors" pTooltip="Drag to reorder" tooltipPosition="top">
-                <i class="pi pi-bars text-xl"></i>
-              </div>
-              
-              <div class="section-info flex-col gap-xs flex-grow-1">
-                <div class="flex align-items-center gap-sm flex-wrap">
-                  <h3 class="section-title font-heading text-lg md:text-xl font-bold text-primary m-0">Section {{ i + 1 }}: {{ section.title }}</h3>
-                  @if (!section.isPublished) {
-                    <p-tag value="Draft" severity="warn"></p-tag>
-                  }
-                </div>
-                <div class="section-meta flex align-items-center gap-md font-mono text-xs text-tertiary font-bold">
-                  <span class="flex align-items-center gap-xs"><i class="pi pi-file"></i> {{ section.totalLessons || 0 }} lessons</span>
-                  <span class="flex align-items-center gap-xs"><i class="pi pi-clock"></i> {{ (section.totalDuration || 0) | duration }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="section-actions flex align-items-center gap-sm opacity-60 transition-opacity hover-opacity-100 mt-sm md:mt-0 align-self-end md:align-self-center">
-              <p-button icon="pi pi-pencil" severity="info" [text]="true" [rounded]="true" (onClick)="editSection(section)" pTooltip="Edit Section Title"></p-button>
-              <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true" (onClick)="deleteSection(section)" pTooltip="Delete Section"></p-button>
-              <p-button [icon]="section.expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-left'" severity="secondary" [text]="true" [rounded]="true" (onClick)="toggleSection(section._id)" pTooltip="Toggle Content"></p-button>
-            </div>
-          </div>
-
-          @if (section.expanded) {
-            <div class="section-content p-lg md:p-3xl bg-primary">
-              <app-lesson-list 
-                [sectionId]="section._id"
-                [courseId]="courseId()"
-                (lessonCountChange)="onLessonCountChange($event, section._id)"
-                (durationChange)="onDurationChange($event, section._id)">
-              </app-lesson-list>
-            </div>
-          }
-        </div>
-      } @empty {
-        <div class="empty-state glass-panel flex-col flex-center text-center py-5xl border-dashed border-primary">
-          <div class="empty-icon-wrapper flex-center border-radius-full bg-ternary border-primary mb-2xl">
-            <i class="pi pi-sitemap text-5xl text-tertiary"></i>
-          </div>
-          <h3 class="font-heading text-2xl text-primary font-bold m-0 mb-xs">No Sections Yet</h3>
-          <p class="text-secondary m-0 mb-xl max-w-prose">Start building your course structure by adding your first section.</p>
-          <p-button label="Add First Section" icon="pi pi-plus" size="large" (onClick)="openAddSectionDialog()"></p-button>
-        </div>
-      }
-    </div>
-
-   
   }
 </div> -->

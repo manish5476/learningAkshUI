@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, computed } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 
 // PrimeNG
@@ -31,8 +31,111 @@ export class LessonDetailComponent {
   edit = output<void>();
   close = output<void>();
 
-  // Methods
-  // 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' | undefined | null;
+  // Computed properties for easier template access
+  lessonType = computed(() => this.lesson()?.type || '');
+  lessonContent = computed(() => this.lesson()?.content || {});
+  lessonResources = computed(() => this.lesson()?.resources || []);
+  
+  // Get video info safely
+  videoInfo = computed(() => {
+    const content = this.lessonContent();
+    return content?.video || { provider: 'youtube', url: null, duration: 0, thumbnail: null };
+  });
+
+  // Get article info safely
+  articleInfo = computed(() => {
+    const content = this.lessonContent();
+    return content?.article || { body: '', attachments: [] };
+  });
+
+  // Get creator info
+  createdBy = computed(() => {
+    const lesson = this.lesson();
+    return lesson?.createdBy || null;
+  });
+
+  // Get last modified info
+  lastModifiedBy = computed(() => {
+    const lesson = this.lesson();
+    return lesson?.lastModifiedBy || null;
+  });
+
+  // Check if content exists
+  hasVideoContent = computed(() => {
+    const video = this.videoInfo();
+    return video && (video.url || video.thumbnail);
+  });
+
+  hasArticleContent = computed(() => {
+    const article = this.articleInfo();
+    return article && article.body && article.body.trim().length > 0;
+  });
+
+  // Format date
+  formatDate(dateString: string): string {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  // Get provider icon
+  getProviderIcon(provider: string): string {
+    const icons: Record<string, string> = {
+      'youtube': 'pi pi-youtube',
+      'vimeo': 'pi pi-vimeo',
+      'wistia': 'pi pi-video',
+      'local': 'pi pi-server'
+    };
+    return icons[provider?.toLowerCase()] || 'pi pi-video';
+  }
+
+  // Get provider color
+  getProviderColor(provider: string): string {
+    const colors: Record<string, string> = {
+      'youtube': 'text-error',
+      'vimeo': 'text-info',
+      'wistia': 'text-primary',
+      'local': 'text-secondary'
+    };
+    return colors[provider?.toLowerCase()] || 'text-secondary';
+  }
+
+  // Get resource icon based on type
+  getResourceIcon(type: string): string {
+    const icons: Record<string, string> = {
+      'pdf': 'pi pi-file-pdf',
+      'code': 'pi pi-code',
+      'link': 'pi pi-link',
+      'image': 'pi pi-image',
+      'video': 'pi pi-video',
+      'audio': 'pi pi-volume-up',
+      'document': 'pi pi-file-word',
+      'spreadsheet': 'pi pi-file-excel',
+      'presentation': 'pi pi-file-ppt',
+      'archive': 'pi pi-file-zip'
+    };
+    return icons[type?.toLowerCase()] || 'pi pi-file';
+  }
+
+  // Get resource color
+  getResourceColor(type: string): string {
+    const colors: Record<string, string> = {
+      'pdf': 'text-error',
+      'code': 'text-info',
+      'link': 'text-primary',
+      'image': 'text-success',
+      'video': 'text-info',
+      'audio': 'text-warning'
+    };
+    return colors[type?.toLowerCase()] || 'text-secondary';
+  }
+
+  // Type severity for tags
   getTypeSeverity(type: string): any {
     const severities: Record<string, string> = {
       'video': 'info',
@@ -41,7 +144,7 @@ export class LessonDetailComponent {
       'assignment': 'success',
       'coding-exercise': 'secondary'
     };
-    return severities[type] || 'info';
+    return severities[type?.toLowerCase()] || 'info';
   }
 
   onEdit(): void {
@@ -52,6 +155,62 @@ export class LessonDetailComponent {
     this.close.emit();
   }
 }
+
+
+// import { Component, input, output } from '@angular/core';
+// import { CommonModule, TitleCasePipe } from '@angular/common';
+
+// // PrimeNG
+// import { ButtonModule } from 'primeng/button';
+// import { TagModule } from 'primeng/tag';
+// import { DividerModule } from 'primeng/divider';
+// import { ChipModule } from 'primeng/chip';
+
+// // Pipes
+// import { DurationPipe } from '../../../../core/pipes/duration.pipe';
+
+// @Component({
+//   selector: 'app-lesson-detail',
+//   standalone: true,
+//   imports: [
+//     CommonModule, 
+//     ButtonModule, 
+//     TagModule, 
+//     DividerModule, 
+//     ChipModule, 
+//     DurationPipe,
+//     TitleCasePipe
+//   ],
+//   templateUrl: './lesson-detail.component.html',
+//   styleUrls: ['./lesson-detail.component.scss']
+// })
+// export class LessonDetailComponent {
+//   // Modern Signal Inputs/Outputs
+//   lesson = input.required<any>();
+//   edit = output<void>();
+//   close = output<void>();
+
+//   // Methods
+//   // 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' | undefined | null;
+//   getTypeSeverity(type: string): any {
+//     const severities: Record<string, string> = {
+//       'video': 'info',
+//       'article': 'warn',
+//       'quiz': 'danger',
+//       'assignment': 'success',
+//       'coding-exercise': 'secondary'
+//     };
+//     return severities[type] || 'info';
+//   }
+
+//   onEdit(): void {
+//     this.edit.emit();
+//   }
+
+//   onClose(): void {
+//     this.close.emit();
+//   }
+// }
 
 // // lesson-detail.component.ts
 // import { Component, Input, Output, EventEmitter } from '@angular/core';

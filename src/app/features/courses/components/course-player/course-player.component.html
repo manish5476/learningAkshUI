@@ -1,4 +1,4 @@
-<div class="theater-app-shell" [class.sidebar-collapsed]="!sidebarVisible()">
+<!-- <div class="theater-app-shell" [class.sidebar-collapsed]="!sidebarVisible()">
   <p-toast position="top-right"></p-toast>
   <p-confirmDialog styleClass="glass-dialog"></p-confirmDialog>
 
@@ -66,22 +66,22 @@
 
         <div
           class="media-container bg-ternary border-radius-xl overflow-hidden border-secondary relative aspect-ratio-16-9 shadow-glow w-full">
-          @if (currentLesson().type === 'video' && safeVideoUrl()) {
+          @if (currentLesson()?.type === 'video' && safeVideoUrl()) {
           <iframe [src]="safeVideoUrl()" frameborder="0" allow="autoplay; fullscreen; picture-in-picture"
             allowfullscreen class="w-full h-full absolute inset-0"></iframe>
-          } @else if (currentLesson().type === 'video' && currentLesson().content?.video?.provider === 'local') {
-          <video controls [src]="currentLesson().content.video.url"
+          } @else if (currentLesson()?.type === 'video' && currentLesson()?.content?.video?.provider === 'local') {
+          <video controls [src]="currentLesson()?.content.video.url"
             class="w-full h-full absolute inset-0 object-contain bg-black"></video>
           }
 
-          @else if (currentLesson().type === 'article') {
+          @else if (currentLesson()?.type === 'article') {
 
           <div class="article-wrapper custom-scrollbar absolute inset-0 p-2xl md:p-4xl bg-secondary overflow-y-auto">
             <div class="article-content typography-body text-primary line-height-relaxed"
-              [innerHTML]="currentLesson().content?.article?.body || 'No content provided.'"></div>
+              [innerHTML]="currentLesson()?.content?.article?.body || 'No content provided.'"></div>
           </div>
           }
-          @else if (currentLesson().type === 'quiz') {
+          @else if (currentLesson()?.type === 'quiz') {
           <div class="absolute inset-0 bg-secondary overflow-y-auto custom-scrollbar d-flex flex-center">
             <div class="text-center p-3xl">
               <i class="pi pi-question-circle text-5xl text-primary mb-xl"></i>
@@ -93,15 +93,6 @@
             </div>
           </div>
           }
-
-          <!-- Add this after the media-container div, before closing lesson-stage-inner -->
-
-          <!-- @else if (currentLesson().type === 'quiz') {
-          <div class="absolute inset-0 bg-secondary overflow-y-auto custom-scrollbar">
-            <app-lesson-quiz-taker [quizId]="currentLesson().content.quiz"
-              (quizCompleted)="onProgressUpdatedFromTracker($event)"></app-lesson-quiz-taker>
-          </div>
-          }  -->
 
           @else {
           <div class="processing-wrapper absolute inset-0 flex-col flex-center bg-secondary text-center">
@@ -201,7 +192,7 @@
               <div class="flex-between w-full">
                 <div class="flex-col gap-xs flex-grow-1 overflow-hidden pr-md">
                   <span class="text-primary font-bold text-sm line-clamp-1">{{ section.title }}</span>
-                  <span class="text-tertiary font-mono text-xs">{{ section.lessons?.length || 0 }} lessons • {{
+                  <span class="text-tertiary font-mono text-xs">{{ section.lessons.length || 0 }} lessons • {{
                     section.totalDuration || 0 | duration }}</span>
                 </div>
               </div>
@@ -255,4 +246,4 @@
   <app-lesson-quiz-taker [quizId]="selectedQuizId()" (quizCompleted)="handleQuizCompleted($event)">
   </app-lesson-quiz-taker>
   }
-</p-dialog>
+</p-dialog> -->

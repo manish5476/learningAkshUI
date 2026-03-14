@@ -69,11 +69,11 @@ interface SectionWithLessons {
     ToastModule,
     ConfirmDialogModule,
     SkeletonModule,
-    DurationPipe,
-    TitleCasePipe,
-    LessonProgressTrackerComponent,
-    LessonQuizTakerComponent,
-    Dialog
+    // DurationPipe,
+    // TitleCasePipe,
+    // LessonProgressTrackerComponent,
+    // LessonQuizTakerComponent,
+    // Dialog
 ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './course-player.component.html',

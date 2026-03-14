@@ -74,7 +74,7 @@
       </button>
       }
     </div>
-}
+    }
 
     <!-- @if (canManageCourse()) {
     <div class="nav-right">
@@ -140,8 +140,28 @@
                 <span>{{ course.language }}</span>
               </div>
             </div>
-
+            <!-- In the instructor-p-card section, update the instructor display -->
             <p-card class="instructor-p-card">
+              <ng-template pTemplate="content">
+                <div class="instructor-card">
+                  <div class="instructor-avatar">
+                    @if (course.instructor?.profilePicture) {
+                    <img [src]="course.instructor.profilePicture" [alt]="course.instructor.firstName">
+                    } @else {
+                    <div class="avatar-placeholder">
+                      {{ getInstructorInitials(course.instructor) }}
+                    </div>
+                    }
+                  </div>
+                  <div class="instructor-info">
+                    <span class="label">Created by</span>
+                    <span class="name">{{ getInstructorName(course.instructor) }}</span>
+                  </div>
+                </div>
+              </ng-template>
+            </p-card>
+
+            <!-- <p-card class="instructor-p-card">
               <ng-template pTemplate="content">
                 <div class="instructor-card">
                   <div class="instructor-avatar">
@@ -159,7 +179,7 @@
                   </div>
                 </div>
               </ng-template>
-            </p-card>
+            </p-card> -->
           </div>
         </ng-template>
       </p-card>
