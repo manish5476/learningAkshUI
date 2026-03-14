@@ -48,15 +48,20 @@ export const routes: Routes = [
         path: '',
         loadChildren: () => import('./core/routes/admin.routes').then(m => m.ADMIN_ROUTES)
       },
+      //     {
+      //   path: 'master',
+      //   // Use loadComponent instead of loadChildren for standalone components
+      //   loadComponent: () => import('./features/master/components/master-data-grid.component').then(m => m.MasterDataGridComponent)
+      // },
       {
-    path: 'master',
-    // Use loadComponent instead of loadChildren for standalone components
-    loadComponent: () => import('./features/master/components/master-data-grid.component').then(m => m.MasterDataGridComponent)
-  },
-  {
-    path: 'certificates',
-    loadChildren: () => import('./features/certificates/certificate.routes').then(m => m.CERTIFICATE_ROUTES)
-  },
+        path: 'master',
+        // Use loadComponent instead of loadChildren for standalone components
+        loadComponent: () => import('./features/master/components/master-container/master-container.component').then(m => m.MasterContainerComponent)
+      },
+      {
+        path: 'certificates',
+        loadChildren: () => import('./features/certificates/certificate.routes').then(m => m.CERTIFICATE_ROUTES)
+      },
     ]
   },
   // Auth Routes (Login, Signup - outside the MainScreen layout)
@@ -64,8 +69,8 @@ export const routes: Routes = [
     path: 'auth',
     loadChildren: () => import('./core/routes/auth.routes').then(m => m.AUTH_ROUTES)
   },
-  
-  
+
+
   // Wildcard fallback
   {
     path: '**',
