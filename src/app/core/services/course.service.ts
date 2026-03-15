@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { BaseApiService,  ApiResponseWithPagination, ApiResponse } from '../http/base-api.service';
+import { BaseApiService, ApiResponseWithPagination, ApiResponse } from '../http/base-api.service';
 
 // --- Optional: Define your interfaces here for strict typing ---
 export interface Course {
@@ -16,7 +16,7 @@ export class CourseService {
   // Base route for course endpoints
   private readonly endpoint = 'courses';
 
-  constructor(private api: BaseApiService) {}
+  constructor(private api: BaseApiService) { }
 
   // ==================== PUBLIC ROUTES ====================
 
@@ -43,13 +43,17 @@ export class CourseService {
   // ==================== PROTECTED ROUTES ====================
 
   // --- Instructor's Courses ---
-  
+
   getMyInstructorCourses(options?: any): Observable<ApiResponseWithPagination<Course[]>> {
     return this.api.getWithPagination<Course[]>(`${this.endpoint}/instructor/my-courses`, options);
   }
 
-    getCoursesBySlug(slug: string): Observable<ApiResponse<any>> {
+  getCoursesBySlug(slug: string): Observable<ApiResponse<any>> {
     return this.api.get<any>(`${this.endpoint}/slug/${slug}`);
+  }
+
+  getquizzesBySlug(slug: string): Observable<ApiResponse<any>> {
+    return this.api.get<any>(`${this.endpoint}/slug/${slug}/quizzes`);
   }
 
   // --- Course CRUD ---

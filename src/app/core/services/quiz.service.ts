@@ -18,7 +18,14 @@ export class QuizService {
   getQuizWithQuestions(id: string): Observable<ApiResponse<any>> {
     return this.baseApi.get<any>(`${this.endpoint}/${id}/take`, { 
       showLoader: true,
-      params: { mode: 'take' } // Passing mode=take as expected by your backend
+      params: { mode: 'take' }
+    });
+  }
+
+  getQuizByCOurse(id: string): Observable<ApiResponse<any>> {
+    return this.baseApi.get<any>(`${this.endpoint}/course/${id}`, { 
+      showLoader: true,
+      // params: { mode: 'take' } 
     });
   }
 

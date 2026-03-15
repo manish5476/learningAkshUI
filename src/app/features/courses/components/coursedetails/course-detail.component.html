@@ -53,9 +53,9 @@
         Analytics
       </button>
 
-      <button class="action-btn quiz-btn focus-ring" (click)="openQuizBuilder()">
+     <button class="action-btn quiz-btn focus-ring" (click)="openQuizzesModal()">
         <i class="pi pi-question-circle"></i>
-        Manage Quiz
+        Manage Quizzes ({{ quizzes().length || 0 }})
       </button>
 
       @if (!course.isPublished) {
@@ -521,5 +521,62 @@
       </video>
       }
     </div>
+  </div>
+</p-dialog>
+
+<p-dialog [(visible)]="showQuizzesModal" [modal]="true" [draggable]="false" [resizable]="false" 
+  header="Course Assessments" styleClass="quizzes-dialog" [style]="{ width: '90%', maxWidth: '650px' }"
+  (onHide)="closeQuizzesModal()">
+  
+  <div class="quizzes-modal-body">
+    <div class="quizzes-header-actions flex justify-content-between align-items-center mb-4">
+      <p class="text-secondary m-0">Manage tests and quizzes for this course.</p>
+      <p-button label="Create New Quiz" icon="pi pi-plus" size="small" (onClick)="createNewQuiz()"></p-button>
+    </div>
+
+    @if (quizzes() && quizzes().length > 0) {
+      <div class="quizzes-grid">
+        @for (quiz of quizzes(); track quiz._id) {
+          <div class="quiz-mini-card">
+            
+            <div class="q-card-top">
+              <h4 class="q-card-title line-clamp-1" [title]="quiz.title">{{ quiz.title }}</h4>
+              <p-tag [value]="quiz.isPublished ? 'Published' : 'Draft'" [severity]="quiz.isPublished ? 'success' : 'warn'"></p-tag>
+            </div>
+            
+            <p class="q-card-desc">
+              {{ quiz.description || 'No description provided.' }}
+            </p>
+            
+            <div class="q-card-meta">
+              <div class="meta-item">
+                <i class="pi pi-list"></i>
+                <span>{{ quiz.totalQuestions || 0 }} Qs</span>
+              </div>
+              <div class="meta-item">
+                <i class="pi pi-check-circle"></i>
+                <span>{{ quiz.passingScore || 0 }}% Pass</span>
+              </div>
+              <div class="meta-item">
+                <i class="pi pi-clock"></i>
+                <span>{{ quiz.timeLimit || 0 }} Min</span>
+              </div>
+            </div>
+
+            <div class="q-card-footer">
+              <p-button label="Edit Assessment" icon="pi pi-pencil" size="small" (onClick)="editQuiz(quiz._id)"></p-button>
+            </div>
+
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty-quizzes-state text-center p-5 bg-ternary border-round-xl border-1 border-300">
+        <i class="pi pi-inbox text-5xl text-400 mb-3"></i>
+        <h3 class="m-0 mb-2 font-bold">No Quizzes Found</h3>
+        <p class="text-secondary m-0 mb-4">You haven't created any assessments for this course yet.</p>
+        <p-button label="Create Your First Quiz" icon="pi pi-plus" (onClick)="createNewQuiz()"></p-button>
+      </div>
+    }
   </div>
 </p-dialog>

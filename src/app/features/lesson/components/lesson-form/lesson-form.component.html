@@ -108,22 +108,65 @@
         @if (lessonForm.get('type')?.value === 'quiz') {
           <div class="content-form">
             <div class="info-message surface-subtle">
-              <div class="icon-circle"><i class="pi pi-info-circle text-info"></i></div>
+              <div class="icon-circle"><i class="pi pi-check-square text-primary"></i></div>
               <div>
-                <h4 class="m-0 text-primary">Quiz Configuration</h4>
-                <p class="m-0 text-xs text-secondary mt-xs">Link an existing quiz by ID. Quiz builder is managed in a separate module.</p>
+                <h4 class="m-0 text-primary">Attach Assessment</h4>
+                <p class="m-0 text-xs text-secondary mt-xs">Select a quiz you have created for this course. (Create new ones from Course Details > Manage Quizzes).</p>
               </div>
             </div>
-            <div class="form-group mt-lg">
-              <label class="input-label">Target Quiz ID</label>
-              <div class="input-wrapper">
-                <i class="pi pi-hashtag field-icon"></i>
-                <input pInputText formControlName="quizId" placeholder="Paste MongoDB Object ID here" class="custom-input w-full pl-xl font-mono">
-              </div>
+            
+            <div class="form-group mt-lg full-width">
+              <label class="input-label">Select Quiz <span class="required">*</span></label>
+              
+              @if (isLoadingQuizzes()) {
+                <div class="flex align-items-center gap-sm text-tertiary font-medium">
+                  <i class="pi pi-spin pi-spinner text-primary"></i> Fetching available quizzes...
+                </div>
+              } @else if (courseQuizzes().length === 0) {
+                <div class="info-message" style="background: var(--color-error-bg); border-color: var(--color-error);">
+                  <div class="icon-circle" style="background: transparent;"><i class="pi pi-exclamation-triangle text-error"></i></div>
+                  <div>
+                    <h4 class="m-0 text-error">No Quizzes Found</h4>
+                    <p class="m-0 text-xs text-secondary mt-xs">You haven't created any quizzes for this course yet.</p>
+                  </div>
+                </div>
+              } @else {
+                <p-select 
+                  appendTo='body' 
+                  formControlName="quizId" 
+                  [options]="courseQuizzes()" 
+                  optionLabel="title" 
+                  optionValue="_id" 
+                  placeholder="Choose an assessment..." 
+                  styleClass="w-full custom-select"
+                  [class.error]="isFieldInvalid('quizId')">
+                  
+                  <ng-template let-quiz pTemplate="selectedItem">
+                    <div class="flex align-items-center gap-sm">
+                      <i class="pi pi-verified text-primary"></i>
+                      <span class="font-bold">{{ quiz.title }}</span>
+                    </div>
+                  </ng-template>
+
+                  <ng-template let-quiz pTemplate="item">
+                    <div class="flex align-items-center gap-md">
+                      <i class="pi pi-file-edit text-tertiary text-xl"></i>
+                      <div class="flex-col gap-1">
+                        <span class="font-bold text-primary">{{ quiz.title }}</span>
+                        <span class="text-xs text-tertiary font-mono uppercase tracking-widest">
+                          {{ quiz.totalQuestions || 0 }} Qs • {{ quiz.timeLimit || 0 }} Min • {{ quiz.passingScore || 0 }}% to pass
+                        </span>
+                      </div>
+                    </div>
+                  </ng-template>
+
+                </p-select>
+                @if (isFieldInvalid('quizId')) { <small class="error-message">You must select a quiz.</small> }
+              }
             </div>
           </div>
         }
-      </p-tabpanel>
+  </p-tabpanel>
 
       <p-tabpanel value="2">
         <div class="resources-form" formArrayName="resources">

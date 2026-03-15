@@ -1,3 +1,459 @@
+<div class="theater-app-shell" [class.sidebar-collapsed]="!sidebarVisible()">
+  <p-toast position="top-right"></p-toast>
+  <p-confirmDialog styleClass="glass-dialog"></p-confirmDialog>
+
+  @if (loading()) {
+  <div class="fullscreen-state cinematic-bg">
+    <div class="icon-circle play-pulse mb-4">
+      <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+    </div>
+    <h3 class="font-heading font-bold text-primary m-0">Loading your workspace...</h3>
+  </div>
+  }
+
+  @else if (error()) {
+  <div class="fullscreen-state">
+    <div class="icon-circle error-glow mb-4">
+      <i class="pi pi-lock text-3xl text-error"></i>
+    </div>
+    <h2 class="font-heading font-bold text-2xl m-0 mb-2">Access Denied</h2>
+    <p class="text-secondary mb-5 max-w-20rem text-center line-height-relaxed">{{ error() }}</p>
+    <p-button label="Return to Dashboard" icon="pi pi-arrow-left" (onClick)="goToMyLearning()"></p-button>
+  </div>
+  }
+
+  @else if (course()) {
+
+  <header class="player-topbar flex-between">
+    <div class="flex align-items-center gap-md">
+      <p-button icon="pi pi-arrow-left" [text]="true" [rounded]="true" severity="secondary" (onClick)="goToMyLearning()"
+        pTooltip="Back to Dashboard" tooltipPosition="bottom">
+      </p-button>
+      <div class="border-left pl-md">
+        <span class="font-heading font-bold text-primary line-clamp-1">{{ course().title }}</span>
+      </div>
+    </div>
+
+    <div class="flex align-items-center gap-md">
+      <div class="hidden-mobile align-items-center gap-md">
+        <div class="flex flex-col align-items-end">
+          <span class="text-xs uppercase text-tertiary tracking-widest">Progress</span>
+          <span class="text-sm font-bold text-primary">{{ courseProgress() }}%</span>
+        </div>
+        <div class="theater-progress p-progressbar">
+          <div class="p-progressbar-value" [style.width.%]="courseProgress()"></div>
+        </div>
+      </div>
+
+      @if (courseProgress() === 100) {
+      <p-button label="Certificate" icon="pi pi-verified" severity="success" (onClick)="completeCourse()"
+        class="hidden-mobile"></p-button>
+      <p-button icon="pi pi-verified" severity="success" [rounded]="true" [text]="true" (onClick)="completeCourse()"
+        class="lg-hidden"></p-button>
+      }
+
+      <p-button icon="pi pi-list" severity="secondary" [text]="true" [rounded]="true" (onClick)="toggleSidebar()"
+        pTooltip="Toggle Curriculum" tooltipPosition="bottom">
+      </p-button>
+    </div>
+  </header>
+
+  <div class="player-workspace">
+
+    <main class="content-stage custom-scrollbar">
+      @if (currentLesson()) {
+      <div class="lesson-stage-inner">
+
+        <!-- MEDIA PLAYER - OPTIMAL SIZE WITH ZOOM CAPABILITY -->
+        <div class="media-player-wrapper">
+          <div class="media-container" #mediaContainer>
+
+            @if (currentLesson()?.type === 'video' && safeVideoUrl()) {
+            <iframe [src]="safeVideoUrl()" frameborder="0" allow="autoplay; fullscreen; picture-in-picture"
+              allowfullscreen class="media-frame" (load)="onVideoLoad()">
+            </iframe>
+            }
+            @else if (currentLesson()?.type === 'video' && currentLesson()?.content?.video?.provider === 'local') {
+            <video controls [src]="currentLesson()?.content?.video?.url" class="media-frame bg-black" #videoPlayer
+              (loadeddata)="onVideoLoad()">
+            </video>
+            }
+            @else if (currentLesson()?.type === 'article') {
+            <div class="article-viewer custom-scrollbar">
+              <div class="article-body prose"
+                [innerHTML]="currentLesson()?.content?.article?.body || 'No content provided.'">
+              </div>
+            </div>
+            }
+            @else if (currentLesson()?.type === 'quiz') {
+            <div class="quiz-viewer flex-col flex-center text-center">
+              <div class="icon-circle mb-xl">
+                <i class="pi pi-check-square text-4xl text-primary"></i>
+              </div>
+              <h2 class="font-heading font-bold text-2xl m-0 mb-md">Knowledge Check</h2>
+              <p class="text-secondary mb-xl max-w-30rem">Test your understanding before moving forward.</p>
+              <p-button label="Start Assessment" icon="pi pi-play" size="large"
+                (onClick)="openQuizDialog(currentLesson()?.content?.quiz)"></p-button>
+            </div>
+            }
+            @else {
+            <div class="loading-viewer flex-col flex-center">
+              <i class="pi pi-spin pi-spinner text-3xl text-primary mb-md"></i>
+              <span class="text-secondary">Loading lesson...</span>
+            </div>
+            }
+
+            <!-- ZOOM CONTROLS (only for video) -->
+            @if (currentLesson()?.type === 'video') {
+            <div class="media-zoom-controls">
+              <button class="zoom-btn" (click)="zoomIn()" pTooltip="Zoom In" tooltipPosition="top">
+                <i class="pi pi-plus"></i>
+              </button>
+              <button class="zoom-btn" (click)="zoomOut()" pTooltip="Zoom Out" tooltipPosition="top">
+                <i class="pi pi-minus"></i>
+              </button>
+              <button class="zoom-btn" (click)="resetZoom()" pTooltip="Reset Zoom" tooltipPosition="top">
+                <i class="pi pi-refresh"></i>
+              </button>
+            </div>
+            }
+          </div>
+        </div>
+
+        <!-- LESSON DETAILS CARD -->
+        <div class="details-card">
+          <div class="flex-between flex-wrap gap-md mb-xl">
+
+            <div class="lesson-info">
+              <h1 class="font-heading font-bold text-2xl m-0 mb-xs">{{ currentLesson()?.title }}</h1>
+              <div class="flex gap-xs">
+                <p-tag [value]="currentLesson()?.type | titlecase" icon="pi pi-tag" severity="info"
+                  class="uppercase"></p-tag>
+                @if (currentLesson()?.duration) {
+                <p-tag [value]="currentLesson()?.duration | duration" icon="pi pi-clock" severity="secondary"
+                  class="font-mono"></p-tag>
+                }
+              </div>
+            </div>
+
+            <div class="lesson-actions">
+              <app-lesson-progress-tracker [lessonId]="currentLesson()?._id"
+                [lessonDuration]="currentLesson()?.duration" (progressUpdated)="onProgressUpdatedFromTracker($event)">
+              </app-lesson-progress-tracker>
+            </div>
+          </div>
+
+          <!-- RESOURCES SECTION -->
+          @if (hasResources()) {
+          <div class="resources-box mb-xl">
+            <h3 class="font-heading font-bold text-lg m-0 mb-md flex align-items-center gap-xs">
+              <i class="pi pi-download text-tertiary"></i> Resources
+            </h3>
+            <div class="resources-grid">
+              @for (resource of currentLesson()?.resources; track resource.url) {
+              <a [href]="resource.url" target="_blank" class="resource-item">
+                <i class="pi pi-link resource-icon"></i>
+                <div class="resource-text">
+                  <span class="resource-title line-clamp-1">{{ resource.title }}</span>
+                  <span class="resource-type">{{ resource.type }}</span>
+                </div>
+              </a>
+              }
+            </div>
+          </div>
+          }
+
+          <!-- LESSON NAVIGATION -->
+          <div class="lesson-navigation flex-between gap-md pt-xl border-top-subtle">
+            <p-button label="Previous" icon="pi pi-arrow-left" severity="secondary" [outlined]="true"
+              [disabled]="!lessonNav().prev" (onClick)="selectLesson(lessonNav().prev)" class="w-full md:w-auto">
+            </p-button>
+            <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" [disabled]="!lessonNav().next"
+              (onClick)="selectLesson(lessonNav().next)" class="w-full md:w-auto">
+            </p-button>
+          </div>
+        </div>
+      </div>
+      }
+      @else {
+      <div class="empty-state h-full flex-col flex-center text-center p-2xl">
+        <div class="icon-circle mb-xl">
+          <i class="pi pi-video text-3xl text-tertiary"></i>
+        </div>
+        <h2 class="font-heading font-bold text-xl m-0 mb-xs">Ready to dive in?</h2>
+        <p class="text-secondary m-0">Select a lesson from the curriculum</p>
+      </div>
+      }
+    </main>
+
+    <!-- CURRICULUM SIDEBAR -->
+    <aside class="curriculum-sidebar custom-scrollbar" [class.open]="sidebarVisible()">
+      <div class="sidebar-top flex-between">
+        <h3 class="font-heading font-bold text-lg m-0">Course Content</h3>
+        <p-button icon="pi pi-times" [text]="true" [rounded]="true" severity="secondary" class="lg-hidden"
+          (onClick)="toggleSidebar()"></p-button>
+      </div>
+
+      <div class="sidebar-body">
+        <div class="theater-accordion">
+          <p-accordion [multiple]="true" [(value)]="expandedSections">
+            @for (section of sections(); track section._id; let i = $index) {
+            <p-accordion-panel [value]="i.toString()">
+
+              <p-accordion-header>
+                <div class="flex flex-col gap-xs w-full">
+                  <span class="font-bold line-clamp-2">{{ section.title }}</span>
+                  <span class="text-xs text-tertiary font-mono">{{ section.lessons.length }} lessons • {{
+                    (section.totalDuration || 0) | duration }}</span>
+                </div>
+              </p-accordion-header>
+
+              <p-accordion-content>
+                <div class="sidebar-lessons">
+                  @for (lesson of section.lessons; track lesson._id) {
+                  <div class="sb-lesson-item flex gap-md align-items-start"
+                    [class.active-lesson]="currentLesson()?._id === lesson._id" (click)="selectLesson(lesson)">
+
+                    <div class="sb-status">
+                      @if (completedLessons().has(lesson._id)) {
+                      <i class="pi pi-check-circle text-success"></i>
+                      } @else if (currentLesson()?._id === lesson._id) {
+                      <i class="pi pi-play-circle text-primary"></i>
+                      } @else {
+                      <i class="pi pi-circle text-tertiary" style="font-size: 0.5rem;"></i>
+                      }
+                    </div>
+
+                    <div class="flex flex-col gap-xs flex-grow-1">
+                      <span class="sb-title text-sm line-clamp-2">{{ lesson.title }}</span>
+                      <span class="sb-meta text-xs text-tertiary flex align-items-center gap-xs">
+                        <i class="pi text-xs" [class.pi-video]="lesson.type === 'video'"
+                          [class.pi-file]="lesson.type === 'article'"
+                          [class.pi-question-circle]="lesson.type === 'quiz'"></i>
+                        {{ lesson.duration || 0 | duration }}
+                      </span>
+                    </div>
+                  </div>
+                  }
+                </div>
+              </p-accordion-content>
+
+            </p-accordion-panel>
+            }
+          </p-accordion>
+        </div>
+      </div>
+    </aside>
+
+    <!-- SIDEBAR TOGGLE BUTTON -->
+    <button class="sidebar-toggle-btn" (click)="toggleSidebar()">
+      <i class="pi" [class.pi-chevron-right]="sidebarVisible()" [class.pi-chevron-left]="!sidebarVisible()"></i>
+    </button>
+  </div>
+  }
+</div>
+
+<!-- QUIZ DIALOG -->
+<p-dialog [(visible)]="showQuizDialog" [modal]="true" [style]="{ width: '90%' }" [maximizable]="true"
+  [draggable]="false" [resizable]="false" header="Knowledge Check" styleClass="glass-dialog">
+  @if (selectedQuizId()) {
+  <app-lesson-quiz-taker [quizId]="selectedQuizId()"
+    (quizCompleted)="handleQuizCompleted($event)"></app-lesson-quiz-taker>
+  }
+</p-dialog>
+
+
+
+<!-- <div class="cp-layout" [class.sidebar-closed]="!sidebarVisible()">
+  <p-toast position="top-right"></p-toast>
+  <p-confirmDialog styleClass="cp-dialog"></p-confirmDialog>
+
+  @if (loading()) {
+    <div class="cp-fullscreen-state">
+      <i class="pi pi-spin pi-spinner cp-spinner"></i>
+      <h3>Loading your workspace...</h3>
+    </div>
+  } 
+  
+  @else if (error()) {
+    <div class="cp-fullscreen-state">
+      <div class="cp-error-icon"><i class="pi pi-lock"></i></div>
+      <h2>Access Denied</h2>
+      <p>{{ error() }}</p>
+      <p-button label="Return to Dashboard" icon="pi pi-arrow-left" (onClick)="goToMyLearning()"></p-button>
+    </div>
+  } 
+  
+  @else if (course()) {
+    
+    <header class="cp-header">
+      <div class="cp-header-left">
+        <p-button icon="pi pi-arrow-left" [text]="true" [rounded]="true" severity="secondary" (onClick)="goToMyLearning()"></p-button>
+        <div class="cp-course-title">{{ course().title }}</div>
+      </div>
+
+      <div class="cp-header-right">
+        <div class="cp-progress-wrapper">
+          <div class="cp-progress-text">
+            <span>Your Progress</span>
+            <strong>{{ courseProgress() }}%</strong>
+          </div>
+          <p-progressBar [value]="courseProgress()" [showValue]="false" styleClass="cp-progress-bar"></p-progressBar>
+        </div>
+
+        @if (courseProgress() === 100) {
+          <p-button label="Certificate" icon="pi pi-verified" severity="success" (onClick)="completeCourse()" class="hide-mobile"></p-button>
+        }
+        <p-button icon="pi pi-list" severity="secondary" [text]="true" [rounded]="true" (onClick)="toggleSidebar()"></p-button>
+      </div>
+    </header>
+
+    <div class="cp-workspace">
+      
+      <main class="cp-main">
+        @if (currentLesson()) {
+          <div class="cp-lesson-container">
+            
+            <div class="cp-media-player">
+              @if (currentLesson()?.type === 'video' && safeVideoUrl()) {
+                <iframe [src]="safeVideoUrl()" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+              } 
+              @else if (currentLesson()?.type === 'video' && currentLesson()?.content?.video?.provider === 'local') {
+                <video controls [src]="currentLesson()?.content?.video?.url"></video>
+              }
+              @else if (currentLesson()?.type === 'article') {
+                <div class="cp-article-viewer cp-scrollbar">
+                  <div class="cp-article-body" [innerHTML]="currentLesson()?.content?.article?.body || 'No content provided.'"></div>
+                </div>
+              }
+              @else if (currentLesson()?.type === 'quiz') {
+                <div class="cp-quiz-viewer">
+                  <i class="pi pi-check-square"></i>
+                  <h2>Knowledge Check</h2>
+                  <p>Test your understanding before moving forward.</p>
+                  <p-button label="Start Assessment" icon="pi pi-play" size="large" (onClick)="openQuizDialog(currentLesson()?.content?.quiz)"></p-button>
+                </div>
+              }
+              @else {
+                <div class="cp-loading-viewer">
+                  <i class="pi pi-spin pi-spinner"></i>
+                  <span>Loading lesson...</span>
+                </div>
+              }
+            </div>
+
+            <div class="cp-lesson-details">
+              <div class="cp-details-header">
+                <div class="cp-info">
+                  <h1>{{ currentLesson()?.title }}</h1>
+                  <div class="cp-badges">
+                    <p-tag [value]="currentLesson()?.type | titlecase" icon="pi pi-tag" severity="info"></p-tag>
+                    @if (currentLesson()?.duration) {
+                      <p-tag [value]="currentLesson()?.duration | duration" icon="pi pi-clock" severity="secondary"></p-tag>
+                    }
+                  </div>
+                </div>
+                <div class="cp-actions">
+                  <app-lesson-progress-tracker [lessonId]="currentLesson()?._id" [lessonDuration]="currentLesson()?.duration"
+                    (progressUpdated)="onProgressUpdatedFromTracker($event)">
+                  </app-lesson-progress-tracker>
+                </div>
+              </div>
+
+              @if (currentLesson()?.resources?.length || currentLesson()?.content?.article?.attachments?.length) {
+                <div class="cp-resources">
+                  <h3><i class="pi pi-download"></i> Downloads</h3>
+                  <div class="cp-resources-grid">
+                    @for (resource of currentLesson()?.resources; track resource.url) {
+                      <a [href]="resource.url" target="_blank" class="cp-resource-card">
+                        <i class="pi pi-link"></i>
+                        <div>
+                          <strong>{{ resource.title }}</strong>
+                          <span>{{ resource.type }}</span>
+                        </div>
+                      </a>
+                    }
+                  </div>
+                </div>
+              }
+
+              <div class="cp-navigation">
+                <p-button label="Previous Lesson" icon="pi pi-arrow-left" severity="secondary" [outlined]="true"
+                  [disabled]="!lessonNav().prev" (onClick)="selectLesson(lessonNav().prev)"></p-button>
+                <p-button label="Next Lesson" icon="pi pi-arrow-right" iconPos="right" 
+                  [disabled]="!lessonNav().next" (onClick)="selectLesson(lessonNav().next)"></p-button>
+              </div>
+            </div>
+          </div>
+        } 
+        @else {
+          <div class="cp-empty-state">
+            <i class="pi pi-video"></i>
+            <h2>Ready to dive in?</h2>
+            <p>Select a module from the curriculum sidebar to begin learning.</p>
+          </div>
+        }
+      </main>
+
+      <aside class="cp-sidebar">
+        <div class="cp-sidebar-header">
+          <h3>Course Content</h3>
+          <p-button icon="pi pi-times" [text]="true" [rounded]="true" severity="secondary" class="hide-desktop" (onClick)="toggleSidebar()"></p-button>
+        </div>
+
+        <div class="cp-sidebar-content cp-scrollbar">
+          <p-accordion [multiple]="true" [(value)]="expandedSections" styleClass="cp-accordion">
+            @for (section of sections(); track section._id; let i = $index) {
+              <p-accordion-panel [value]="i.toString()">
+                <p-accordion-header>
+                  <div class="cp-section-header">
+                    <strong>{{ section.title }}</strong>
+                    <span>{{ section.lessons.length || 0 }} lessons • {{ (section.totalDuration || 0) | duration }}</span>
+                  </div>
+                </p-accordion-header>
+                <p-accordion-content>
+                  <div class="cp-lesson-list">
+                    @for (lesson of section.lessons; track lesson._id) {
+                      <div class="cp-lesson-item" [class.active]="currentLesson()?._id === lesson._id" (click)="selectLesson(lesson)">
+                        <div class="cp-status">
+                          @if (completedLessons().has(lesson._id)) {
+                            <i class="pi pi-check-circle cp-text-success"></i>
+                          } @else if (currentLesson()?._id === lesson._id) {
+                            <i class="pi pi-play-circle cp-text-primary"></i>
+                          } @else {
+                            <i class="pi pi-circle cp-text-muted"></i>
+                          }
+                        </div>
+                        <div class="cp-lesson-meta">
+                          <strong [class.cp-text-primary]="currentLesson()?._id === lesson._id">{{ lesson.title }}</strong>
+                          <span>
+                            <i class="pi" [class.pi-video]="lesson.type === 'video'" [class.pi-file]="lesson.type === 'article'" [class.pi-question-circle]="lesson.type === 'quiz'"></i>
+                            {{ lesson.duration || 0 | duration }}
+                          </span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </p-accordion-content>
+              </p-accordion-panel>
+            }
+          </p-accordion>
+        </div>
+      </aside>
+      
+      @if (sidebarVisible()) {
+        <div class="cp-backdrop" (click)="toggleSidebar()"></div>
+      }
+    </div>
+  }
+</div>
+
+<p-dialog [(visible)]="showQuizDialog" [modal]="true" [style]="{ width: '90%', maxWidth: '900px' }" header="Knowledge Check" styleClass="cp-dialog">
+  @if (selectedQuizId()) {
+    <app-lesson-quiz-taker [quizId]="selectedQuizId()" (quizCompleted)="handleQuizCompleted($event)"></app-lesson-quiz-taker>
+  }
+</p-dialog> -->
+
 <!-- <div class="theater-app-shell" [class.sidebar-collapsed]="!sidebarVisible()">
   <p-toast position="top-right"></p-toast>
   <p-confirmDialog styleClass="glass-dialog"></p-confirmDialog>
@@ -88,7 +544,7 @@
               <h3 class="font-heading text-2xl text-primary font-bold m-0 mb-md">Ready to test your knowledge?</h3>
               <p class="text-secondary mb-2xl max-w-prose mx-auto">This lesson contains a quiz to reinforce your
                 learning.</p>
-              <p-button label="Start Quiz" icon="pi pi-play" (onClick)="openQuizDialog(currentLesson().content.quiz)"
+              <p-button label="Start Quiz" icon="pi pi-play" (onClick)="openQuizDialog(currentLesson()?.content.quiz)"
                 styleClass="p-button-lg"></p-button>
             </div>
           </div>
@@ -106,28 +562,28 @@
         <div class="lesson-meta-bar glass-panel surface-raised mt-2xl flex-col lg:flex-row flex-between gap-xl w-full">
           <div class="meta-left flex-col gap-sm flex-grow-1">
             <h2 class="lesson-title gradient-text font-heading text-2xl md:text-3xl font-bold m-0 line-height-tight">{{
-              currentLesson().title }}</h2>
+              currentLesson()?.title }}</h2>
             <div class="lesson-badges flex flex-wrap gap-sm">
-              <p-tag [value]="currentLesson().type | titlecase" icon="pi pi-tag" severity="secondary"></p-tag>
-              @if (currentLesson().duration) {
-              <p-tag [value]="currentLesson().duration | duration" icon="pi pi-clock" severity="secondary"></p-tag>
+              <p-tag [value]="currentLesson()?.type | titlecase" icon="pi pi-tag" severity="secondary"></p-tag>
+              @if (currentLesson()?.duration) {
+              <p-tag [value]="currentLesson()?.duration | duration" icon="pi pi-clock" severity="secondary"></p-tag>
               }
             </div>
           </div>
 
           <div class="meta-right flex-shrink-0 w-full lg:w-auto">
-            <app-lesson-progress-tracker [lessonId]="currentLesson()._id" [lessonDuration]="currentLesson().duration"
+            <app-lesson-progress-tracker [lessonId]="currentLesson()?._id" [lessonDuration]="currentLesson()?.duration"
               (progressUpdated)="onProgressUpdatedFromTracker($event)"></app-lesson-progress-tracker>
           </div>
         </div>
 
-        @if (currentLesson().resources?.length || currentLesson().content?.article?.attachments?.length) {
+        @if (currentLesson()?.resources?.length || currentLesson()?.content?.article?.attachments?.length) {
         <div class="resources-section glass-inset mt-2xl p-xl md:p-2xl border-radius-lg w-full">
           <h3 class="section-heading font-heading text-lg text-primary m-0 mb-xl flex align-items-center gap-sm">
             <i class="pi pi-paperclip"></i> Downloadable Resources
           </h3>
           <div class="resources-grid">
-            @for (resource of currentLesson().resources; track resource.url) {
+            @for (resource of currentLesson()?.resources; track resource.url) {
             <a [href]="resource.url" target="_blank"
               class="resource-card flex align-items-center gap-md p-md bg-ternary border-secondary border-radius-md text-decoration-none hover-lift transition-base">
               <div class="r-icon flex-center bg-secondary border-radius-sm text-secondary w-2rem aspect-ratio-1"><i
@@ -139,7 +595,7 @@
               </div>
             </a>
             }
-            @for (attachment of currentLesson().content?.article?.attachments; track attachment) {
+            @for (attachment of currentLesson()?.content?.article?.attachments; track attachment) {
             <a [href]="attachment" target="_blank"
               class="resource-card flex align-items-center gap-md p-md bg-ternary border-secondary border-radius-md text-decoration-none hover-lift transition-base">
               <div class="r-icon flex-center bg-secondary border-radius-sm text-secondary w-2rem aspect-ratio-1"><i
@@ -193,7 +649,7 @@
                 <div class="flex-col gap-xs flex-grow-1 overflow-hidden pr-md">
                   <span class="text-primary font-bold text-sm line-clamp-1">{{ section.title }}</span>
                   <span class="text-tertiary font-mono text-xs">{{ section.lessons.length || 0 }} lessons • {{
-                    section.totalDuration || 0 | duration }}</span>
+                    (section.totalDuration || 0 )| duration }}</span>
                 </div>
               </div>
             </p-accordion-header>
@@ -246,4 +702,4 @@
   <app-lesson-quiz-taker [quizId]="selectedQuizId()" (quizCompleted)="handleQuizCompleted($event)">
   </app-lesson-quiz-taker>
   }
-</p-dialog> -->
+</p-dialog>  -->

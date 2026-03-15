@@ -1,7 +1,7 @@
 @use '../../../../../styles/mixins' as *;
 
 // ==========================================================================
-// 1. PRIME NG OVERRIDES (Aggressively Themed via Tokens)
+// 1. PRIME NG OVERRIDES
 // ==========================================================================
 :host ::ng-deep {
   .p-button { 
@@ -20,9 +20,9 @@
     letter-spacing: 0.05em;
   }
 
-  // PREMIUM THEATER ACCORDION
+  // ACCORDION STYLES
   .theater-accordion {
-    .p-accordion-panel, .p-accordion-tab {
+    .p-accordion-panel {
       margin-bottom: 0 !important;
       border: none !important;
       background: transparent !important;
@@ -43,12 +43,11 @@
       }
     }
     
-    .p-accordion-header:not(.p-disabled).p-highlight .p-accordion-header-link {
+    .p-accordion-header.p-highlight .p-accordion-header-link {
       background: var(--bg-primary) !important; 
       color: var(--accent-primary) !important;
     }
 
-    /* ZERO PADDING on content wrapper for edge-to-edge lesson items */
     .p-toggleable-content,
     .p-accordion-content {
       background: var(--bg-secondary) !important; 
@@ -60,11 +59,13 @@
     }
   }
 
-  .theater-progress.p-progressbar {
-    width: 150px; height: 6px; 
+  .theater-progress {
+    width: 120px; 
+    height: 4px; 
     background: var(--bg-secondary); 
     border-radius: var(--ui-border-radius-lg); 
     overflow: hidden;
+    
     .p-progressbar-value { 
       background: var(--accent-primary); 
       border-radius: var(--ui-border-radius-lg); 
@@ -73,16 +74,35 @@
 
   // Dialog Overrides
   .glass-dialog { 
-    background: var(--bg-secondary); border: var(--ui-border-width) solid var(--border-primary); 
-    border-radius: var(--ui-border-radius-xl); overflow: hidden; box-shadow: var(--shadow-2xl); 
-    .p-dialog-header { background: var(--bg-ternary); border-bottom: var(--ui-border-width) solid var(--border-secondary); color: var(--text-primary); }
-    .p-dialog-content { background: transparent; color: var(--text-secondary); padding: var(--spacing-2xl); font-family: var(--font-body); }
-    .p-dialog-footer { background: transparent; border-top: var(--ui-border-width) solid var(--border-secondary); padding: var(--spacing-xl); }
+    background: var(--bg-secondary); 
+    border: var(--ui-border-width) solid var(--border-primary); 
+    border-radius: var(--ui-border-radius-xl); 
+    overflow: hidden; 
+    box-shadow: var(--shadow-2xl); 
+    
+    .p-dialog-header { 
+      background: var(--bg-ternary); 
+      border-bottom: var(--ui-border-width) solid var(--border-secondary); 
+      color: var(--text-primary); 
+    }
+    
+    .p-dialog-content { 
+      background: transparent; 
+      color: var(--text-secondary); 
+      padding: var(--spacing-2xl); 
+      font-family: var(--font-body); 
+    }
+    
+    .p-dialog-footer { 
+      background: transparent; 
+      border-top: var(--ui-border-width) solid var(--border-secondary); 
+      padding: var(--spacing-xl); 
+    }
   }
 }
 
 // ==========================================================================
-// 2. APP SHELL CORE (BULLETPROOF LAYOUT)
+// 2. APP SHELL
 // ==========================================================================
 .theater-app-shell {
   position: absolute; 
@@ -121,17 +141,22 @@
 }
 
 // ==========================================================================
-// 3. MEDIA STAGE
+// 3. MEDIA STAGE - OPTIMIZED FOR BEST VIEWING EXPERIENCE
 // ==========================================================================
 .lesson-stage-inner {
   max-width: 1400px;
   margin: 0 auto;
-  /* Extra bottom clearance for mobile */
-  padding: var(--spacing-xl) var(--spacing-3xl) 120px var(--spacing-3xl); 
+  padding: var(--spacing-xl) var(--spacing-3xl);
   
   @include lg { 
     padding: var(--spacing-2xl) var(--spacing-5xl); 
   }
+}
+
+// Media Player Wrapper - Controls the container size
+.media-player-wrapper {
+  width: 100%;
+  margin-bottom: var(--spacing-2xl);
 }
 
 .media-container {
@@ -140,36 +165,218 @@
   overflow: hidden;
   border: var(--ui-border-width) solid var(--border-secondary);
   position: relative;
-  aspect-ratio: 16/9;
-  max-height: 70vh; 
+  
+  // Perfect 16:9 aspect ratio for optimal viewing
+  aspect-ratio: 16 / 9;
+  
+  // Maximum height constraint - never too big, always comfortable
+  max-height: min(70vh, 800px);
+  
+  // Minimum height for smaller screens
+  min-height: 240px;
+  
   box-shadow: var(--shadow-xl);
+  
+  // Enable zoom functionality
+  .media-frame {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; // Maintains aspect ratio, allows zoom
+    background: #000;
+    transition: transform 0.2s ease;
+    
+    // Zoom states (controlled by JS)
+    &.zoomed-1 { transform: scale(1.1); }
+    &.zoomed-2 { transform: scale(1.25); }
+    &.zoomed-3 { transform: scale(1.5); }
+  }
+  
+  // Article viewer specific
+  .article-viewer {
+    height: 100%;
+    overflow-y: auto;
+    padding: var(--spacing-2xl);
+    background: var(--bg-primary);
+    
+    .article-body {
+      max-width: 800px;
+      margin: 0 auto;
+      font-family: var(--font-body);
+      line-height: var(--line-height-relaxed);
+      color: var(--text-primary);
+      
+      ::ng-deep {
+        img { max-width: 100%; height: auto; border-radius: var(--ui-border-radius-lg); }
+        h1, h2, h3 { font-family: var(--font-heading); margin-top: var(--spacing-xl); }
+        p { margin-bottom: var(--spacing-md); }
+        code { font-family: var(--font-mono); background: var(--bg-secondary); padding: 0.2em 0.4em; border-radius: var(--ui-border-radius-sm); }
+      }
+    }
+  }
+  
+  // Quiz viewer
+  .quiz-viewer {
+    height: 100%;
+    padding: var(--spacing-3xl);
+    background: var(--bg-primary);
+  }
+  
+  .loading-viewer {
+    height: 100%;
+    padding: var(--spacing-3xl);
+    background: var(--bg-primary);
+  }
+}
+
+// Zoom Controls
+.media-zoom-controls {
+  position: absolute;
+  bottom: var(--spacing-lg);
+  right: var(--spacing-lg);
+  display: flex;
+  gap: var(--spacing-xs);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  padding: var(--spacing-xs);
+  border-radius: var(--ui-border-radius-lg);
+  border: var(--ui-border-width) solid rgba(255, 255, 255, 0.1);
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  
+  .media-container:hover & {
+    opacity: 1;
+  }
+  
+  .zoom-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--ui-border-radius-md);
+    background: transparent;
+    border: none;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-base);
+    
+    &:hover {
+      background: var(--accent-primary);
+    }
+    
+    i {
+      font-size: 1rem;
+    }
+  }
 }
 
 // ==========================================================================
-// 4. PREMIUM CURRICULUM SIDEBAR & LESSON LIST
+// 4. DETAILS CARD
+// ==========================================================================
+.details-card {
+  background: var(--bg-secondary);
+  border-radius: var(--ui-border-radius-xl);
+  border: var(--ui-border-width) solid var(--border-secondary);
+  padding: var(--spacing-2xl);
+  margin-top: var(--spacing-xl);
+}
+
+.lesson-info {
+  h1 {
+    color: var(--text-primary);
+    line-height: var(--line-height-tight);
+  }
+}
+
+.resources-box {
+  background: var(--bg-ternary);
+  border-radius: var(--ui-border-radius-lg);
+  padding: var(--spacing-xl);
+}
+
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.resource-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-primary);
+  border-radius: var(--ui-border-radius-md);
+  border: var(--ui-border-width) solid var(--border-secondary);
+  text-decoration: none;
+  transition: var(--transition-base);
+  
+  &:hover {
+    border-color: var(--accent-primary);
+    background: var(--component-bg-hover);
+    
+    .resource-icon {
+      color: var(--accent-primary);
+    }
+  }
+  
+  .resource-icon {
+    color: var(--text-tertiary);
+    font-size: 1rem;
+    transition: color 0.2s ease;
+  }
+  
+  .resource-text {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .resource-title {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    font-weight: var(--font-weight-medium);
+  }
+  
+  .resource-type {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+  }
+}
+
+// ==========================================================================
+// 5. CURRICULUM SIDEBAR
 // ==========================================================================
 .curriculum-sidebar {
-  position: absolute; right: 0; top: 0; bottom: 0;
-  width: 100%; max-width: 380px;
+  position: absolute; 
+  right: 0; 
+  top: 0; 
+  bottom: 0;
+  width: 100%; 
+  max-width: 380px;
   transform: translateX(100%);
   background: var(--bg-secondary); 
   border-left: var(--ui-border-width) solid var(--border-primary);
   display: flex;
   flex-direction: column;
   z-index: var(--z-modal);
-  transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.2, 1), margin 0.3s;
+  transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.2, 1);
 
-  &.open { transform: translateX(0); box-shadow: var(--shadow-2xl); }
+  &.open { 
+    transform: translateX(0); 
+    box-shadow: var(--shadow-2xl); 
+  }
 
   @include lg {
     position: relative;
     transform: translateX(0);
     box-shadow: none;
-    flex-shrink: 0;
     
-    margin-right: 0;
     .sidebar-collapsed & {
-      margin-right: -380px; 
+      transform: translateX(100%);
     }
   }
 }
@@ -187,40 +394,40 @@
 }
 
 .sidebar-lessons {
-  padding-bottom: var(--spacing-md);
+  padding: var(--spacing-xs) 0;
 }
 
-/* Beautiful Edge-to-Edge Lesson Items */
 .sb-lesson-item {
   padding: var(--spacing-md) var(--spacing-xl);
   border-left: 3px solid transparent;
   transition: var(--transition-base);
-  background: transparent;
-  margin: 2px 0; 
-
+  cursor: pointer;
+  
   &:hover { 
     background: var(--component-bg-hover); 
   }
 
   .sb-status { 
-    width: 24px; height: 24px; 
-    display: flex; align-items: center; justify-content: center; 
-    margin-top: 2px; 
+    width: 20px; 
+    flex-shrink: 0;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
   }
 
-  /* ACTIVE LESSON STATE */
   &.active-lesson { 
     background: var(--color-primary-bg); 
     border-left-color: var(--accent-primary); 
     
-    .sb-title { color: var(--accent-primary) !important; font-weight: var(--font-weight-bold); }
-    .sb-status i { color: var(--accent-primary); }
-    .sb-meta { color: var(--text-primary); }
+    .sb-title { 
+      color: var(--accent-primary) !important; 
+      font-weight: var(--font-weight-bold); 
+    }
   }
 }
 
 // ==========================================================================
-// 5. FLOATING TOGGLE BUTTON
+// 6. SIDEBAR TOGGLE BUTTON
 // ==========================================================================
 .sidebar-toggle-btn {
   position: fixed; 
@@ -228,15 +435,25 @@
   top: 50%; 
   transform: translateY(-50%); 
   z-index: var(--z-sticky);
-  width: 28px; height: 64px; 
-  background: var(--bg-ternary); color: var(--text-secondary);
+  width: 28px; 
+  height: 64px; 
+  background: var(--bg-ternary); 
+  color: var(--text-secondary);
   border: var(--ui-border-width) solid var(--border-primary);
   border-right: none; 
   border-radius: var(--ui-border-radius-lg) 0 0 var(--ui-border-radius-lg);
-  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  cursor: pointer;
   transition: var(--transition-base);
 
-  &:hover { background: var(--accent-primary); color: #fff; border-color: var(--accent-primary); width: 32px; }
+  &:hover { 
+    background: var(--accent-primary); 
+    color: #fff; 
+    border-color: var(--accent-primary); 
+    width: 32px; 
+  }
 
   @include lg {
     .theater-app-shell:not(.sidebar-collapsed) & {
@@ -246,51 +463,43 @@
 }
 
 // ==========================================================================
-// 6. UTILITIES & TYPOGRAPHY
+// 7. UTILITIES
 // ==========================================================================
 .flex { display: flex; }
 .flex-col { display: flex; flex-direction: column; }
 .flex-between { display: flex; justify-content: space-between; align-items: center; }
 .flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-wrap { flex-wrap: wrap; }
 .flex-grow-1 { flex-grow: 1; }
-.flex-shrink-0 { flex-shrink: 0; }
 .align-items-center { align-items: center; }
 .align-items-start { align-items: flex-start; }
+.justify-content-between { justify-content: space-between; }
 .w-full { width: 100%; }
 .h-full { height: 100%; }
-.relative { position: relative; }
-.absolute { position: absolute; }
-.inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
-.overflow-hidden { overflow: hidden; }
-.overflow-y-auto { overflow-y: auto; }
-.mx-auto { margin-left: auto; margin-right: auto; }
 
-// Margins mapped to tokens
+// Spacing
 .m-0 { margin: 0; }
 .mb-xs { margin-bottom: var(--spacing-xs); }
 .mb-sm { margin-bottom: var(--spacing-sm); }
 .mb-md { margin-bottom: var(--spacing-md); }
 .mb-xl { margin-bottom: var(--spacing-xl); }
 .mb-2xl { margin-bottom: var(--spacing-2xl); }
-.mb-3xl { margin-bottom: var(--spacing-3xl); }
-.mt-xs { margin-top: var(--spacing-xs); }
+.mt-xl { margin-top: var(--spacing-xl); }
 .mt-2xl { margin-top: var(--spacing-2xl); }
-.mt-3xl { margin-top: var(--spacing-3xl); }
-
-// Paddings mapped to tokens
 .p-md { padding: var(--spacing-md); }
-.p-lg { padding: var(--spacing-lg); }
 .p-xl { padding: var(--spacing-xl); }
 .p-2xl { padding: var(--spacing-2xl); }
+.pl-md { padding-left: var(--spacing-md); }
 .pr-md { padding-right: var(--spacing-md); }
+.pt-xl { padding-top: var(--spacing-xl); }
 
-// Gaps mapped to tokens
+// Gaps
 .gap-xs { gap: var(--spacing-xs); }
 .gap-sm { gap: var(--spacing-sm); }
 .gap-md { gap: var(--spacing-md); }
 .gap-xl { gap: var(--spacing-xl); }
 
-// Typography mapped to tokens
+// Typography
 .text-center { text-align: center; }
 .uppercase { text-transform: uppercase; }
 .tracking-widest { letter-spacing: 0.1em; }
@@ -299,37 +508,608 @@
 .font-mono { font-family: var(--font-mono); }
 .line-height-tight { line-height: var(--line-height-tight); }
 .line-height-relaxed { line-height: var(--line-height-relaxed); }
-.text-decoration-none { text-decoration: none; }
 .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
 .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-// Colors mapped to tokens
+// Text sizes
+.text-xs { font-size: 0.75rem; }
+.text-sm { font-size: 0.875rem; }
+.text-lg { font-size: 1.125rem; }
+.text-xl { font-size: 1.25rem; }
+.text-2xl { font-size: 1.5rem; }
+.text-3xl { font-size: 1.875rem; }
+.text-4xl { font-size: 2.25rem; }
+
+// Colors
 .text-primary { color: var(--text-primary); }
 .text-secondary { color: var(--text-secondary); }
 .text-tertiary { color: var(--text-tertiary); }
 .text-success { color: var(--color-success); }
-.text-warning { color: var(--color-warning); }
 .text-error { color: var(--color-error); }
 .bg-primary { background: var(--bg-primary); }
 .bg-secondary { background: var(--bg-secondary); }
 .bg-ternary { background: var(--bg-ternary); }
 
-.border-bottom-subtle { border-bottom: var(--ui-border-width) solid var(--border-secondary); }
+// Borders
+.border-left { border-left: var(--ui-border-width) solid var(--border-primary); }
+.border-top { border-top: var(--ui-border-width) solid var(--border-primary); }
 .border-top-subtle { border-top: var(--ui-border-width) solid var(--border-secondary); }
+.border-bottom { border-bottom: var(--ui-border-width) solid var(--border-primary); }
 
+// Responsive utilities
 .hidden-mobile { display: none; @include lg { display: flex; } }
 .lg-hidden { display: flex; @include lg { display: none; } }
 
-// Loaders & Animations
-.fullscreen-state { height: 100dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-.cinematic-bg { background: radial-gradient(circle at center, color-mix(in srgb, var(--bg-secondary) 80%, transparent) 0%, var(--bg-primary) 100%); }
-.icon-circle { width: clamp(70px, 12vw, 90px); aspect-ratio: 1; border-radius: 50%; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; }
-.error-glow { box-shadow: 0 0 40px var(--color-error-bg); border: var(--ui-border-width) solid var(--color-error); }
-.play-pulse { animation: pulseIcon 2s infinite; }
-@keyframes pulseIcon { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
-
-/* Scrollbar mapped to tokens */
+// Scrollbar
 .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: var(--scroll-track); }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: var(--ui-border-radius-lg); }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+// Empty state
+.empty-state {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+// Animations
+@keyframes pulseIcon {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.icon-circle { 
+  width: clamp(70px, 12vw, 90px); 
+  aspect-ratio: 1; 
+  border-radius: 50%; 
+  background: var(--bg-secondary); 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+}
+
+.play-pulse { 
+  animation: pulseIcon 2s infinite; 
+}
+
+.error-glow { 
+  box-shadow: 0 0 40px var(--color-error-bg); 
+  border: var(--ui-border-width) solid var(--color-error); 
+}
+
+.cinematic-bg { 
+  background: radial-gradient(circle at center, color-mix(in srgb, var(--bg-secondary) 80%, transparent) 0%, var(--bg-primary) 100%); 
+}
+
+// @use '../../../../../styles/mixins' as *;
+
+// // Global Resets for the Player Component
+// :host {
+//   display: block;
+//   height: 100vh;
+//   width: 100vw;
+//   overflow: hidden;
+  
+//   // Safe Fallback Variables (Will use your theme if available, otherwise safe defaults)
+//   --cp-bg: var(--bg-primary, #ffffff);
+//   --cp-bg-alt: var(--bg-secondary, #f8fafc);
+//   --cp-bg-card: var(--bg-ternary, #ffffff);
+//   --cp-text: var(--text-primary, #1e293b);
+//   --cp-text-muted: var(--text-secondary, #64748b);
+//   --cp-border: var(--border-primary, #e2e8f0);
+//   --cp-border-light: var(--border-secondary, #f1f5f9);
+//   --cp-primary: var(--accent-primary, #3b82f6);
+//   --cp-hover: var(--component-bg-hover, #f1f5f9);
+  
+//   // Layout Variables
+//   --cp-header-height: 70px;
+//   --cp-sidebar-width: 380px;
+// }
+
+// // ----------------------------------------------------
+// // 1. PRIME NG OVERRIDES
+// // ----------------------------------------------------
+// :host ::ng-deep {
+//   .p-button { border-radius: 8px; font-weight: 600; }
+//   .p-tag { border-radius: 4px; padding: 0.25rem 0.5rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; font-size: 0.75rem; }
+  
+//   // Accordion Overrides
+//   .cp-accordion {
+//     .p-accordion-panel { border: none; margin-bottom: 2px; }
+//     .p-accordion-header-link { background: transparent !important; padding: 1rem !important; border: none !important; border-bottom: 1px solid var(--cp-border-light) !important; color: var(--cp-text) !important; border-radius: 0 !important; }
+//     .p-accordion-header:not(.p-disabled).p-highlight .p-accordion-header-link { background: var(--cp-hover) !important; color: var(--cp-primary) !important; }
+//     .p-accordion-content { padding: 0 !important; border: none !important; background: transparent !important; }
+//   }
+
+//   // Progress Bar
+//   .cp-progress-bar.p-progressbar {
+//     height: 6px; border-radius: 6px; background: var(--cp-border);
+//     .p-progressbar-value { background: var(--cp-primary); border-radius: 6px; }
+//   }
+
+//   // Dialog
+//   .cp-dialog {
+//     background: var(--cp-bg-card); border-radius: 12px; overflow: hidden; border: 1px solid var(--cp-border);
+//     .p-dialog-header { background: var(--cp-bg-alt); border-bottom: 1px solid var(--cp-border); color: var(--cp-text); }
+//     .p-dialog-content { background: var(--cp-bg); color: var(--cp-text); padding: 1.5rem; }
+//   }
+// }
+
+// // ----------------------------------------------------
+// // 2. CORE LAYOUT
+// // ----------------------------------------------------
+// .cp-layout {
+//   display: flex; flex-direction: column; height: 100%; width: 100%;
+//   background: var(--cp-bg); color: var(--cp-text);
+// }
+
+// .cp-header {
+//   height: var(--cp-header-height); flex-shrink: 0;
+//   display: flex; justify-content: space-between; align-items: center;
+//   padding: 0 1.5rem; background: var(--cp-bg); border-bottom: 1px solid var(--cp-border); z-index: 10;
+// }
+
+// .cp-header-left, .cp-header-right { display: flex; align-items: center; gap: 1rem; }
+// .cp-course-title { font-size: 1.1rem; font-weight: 700; border-left: 2px solid var(--cp-border); padding-left: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 400px; }
+
+// .cp-progress-wrapper {
+//   display: none; width: 180px; gap: 0.5rem; flex-direction: column;
+//   @media (min-width: 768px) { display: flex; }
+// }
+// .cp-progress-text { display: flex; justify-content: space-between; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--cp-text-muted); }
+
+// .cp-workspace {
+//   display: flex; flex: 1; overflow: hidden; position: relative;
+// }
+
+// // ----------------------------------------------------
+// // 3. MAIN CONTENT (Video Area)
+// // ----------------------------------------------------
+// .cp-main {
+//   flex: 1; overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth;
+//   background: var(--cp-bg-alt); padding: 2rem;
+// }
+
+// .cp-lesson-container { display: flex; flex-direction: column; gap: 2rem; max-width: 1200px; margin: 0 auto; padding-bottom: 4rem; }
+
+// // Media Player
+// .cp-media-player {
+//   width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; position: relative;
+//   box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid var(--cp-border);
+  
+//   iframe, video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  
+//   .cp-article-viewer, .cp-quiz-viewer, .cp-loading-viewer {
+//     position: absolute; inset: 0; background: var(--cp-bg-card); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+//   }
+  
+//   .cp-article-viewer { padding: 3rem; align-items: flex-start; justify-content: flex-start; text-align: left; }
+//   .cp-article-body { max-width: 800px; margin: 0 auto; line-height: 1.8; font-size: 1.1rem; color: var(--cp-text); }
+  
+//   .cp-quiz-viewer i { font-size: 4rem; color: var(--cp-primary); margin-bottom: 1rem; }
+//   .cp-loading-viewer i { font-size: 3rem; color: var(--cp-primary); margin-bottom: 1rem; animation: spin 1s linear infinite; }
+// }
+
+// @keyframes spin { 100% { transform: rotate(360deg); } }
+
+// // Lesson Details
+// .cp-lesson-details {
+//   background: var(--cp-bg-card); border-radius: 12px; padding: 2rem; border: 1px solid var(--cp-border); box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+// }
+
+// .cp-details-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.5rem; align-items: center; }
+// .cp-info h1 { margin: 0 0 0.5rem 0; font-size: 1.8rem; line-height: 1.2; color: var(--cp-text); }
+// .cp-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+// // Resources
+// .cp-resources { margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--cp-border-light); }
+// .cp-resources h3 { margin: 0 0 1rem 0; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem; color: var(--cp-text); }
+// .cp-resources-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; }
+
+// .cp-resource-card {
+//   display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--cp-bg-alt); border: 1px solid var(--cp-border); border-radius: 8px; text-decoration: none; color: inherit; transition: all 0.2s ease;
+//   &:hover { background: var(--cp-hover); border-color: var(--cp-primary); transform: translateY(-2px); }
+//   i { font-size: 1.5rem; color: var(--cp-primary); }
+//   strong { font-size: 0.9rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+//   span { font-size: 0.75rem; color: var(--cp-text-muted); text-transform: uppercase; font-weight: bold; margin-top: 0.2rem; display: block; }
+// }
+
+// .cp-navigation { display: flex; justify-content: space-between; gap: 1rem; margin-top: 3rem; flex-wrap: wrap; }
+
+// // ----------------------------------------------------
+// // 4. SIDEBAR CURRICULUM
+// // ----------------------------------------------------
+// .cp-sidebar {
+//   width: var(--cp-sidebar-width); flex-shrink: 0; display: flex; flex-direction: column;
+//   background: var(--cp-bg-card); border-left: 1px solid var(--cp-border); z-index: 20; transition: transform 0.3s ease, margin 0.3s ease;
+// }
+
+// .sidebar-closed .cp-sidebar { transform: translateX(100%); margin-right: calc(var(--cp-sidebar-width) * -1); }
+
+// .cp-sidebar-header {
+//   height: 65px; display: flex; justify-content: space-between; align-items: center; padding: 0 1.5rem; border-bottom: 1px solid var(--cp-border); background: var(--cp-bg-alt);
+//   h3 { margin: 0; font-size: 1.1rem; }
+// }
+
+// .cp-sidebar-content { flex: 1; overflow-y: auto; }
+
+// .cp-section-header {
+//   display: flex; flex-direction: column; gap: 0.25rem; text-align: left;
+//   strong { font-size: 0.95rem; line-height: 1.3; }
+//   span { font-size: 0.75rem; font-family: monospace; color: var(--cp-text-muted); }
+// }
+
+// .cp-lesson-item {
+//   display: flex; gap: 1rem; padding: 0.75rem 1.5rem; cursor: pointer; transition: background 0.2s ease; border-left: 3px solid transparent;
+//   &:hover { background: var(--cp-hover); }
+//   &.active { background: color-mix(in srgb, var(--cp-primary) 10%, transparent); border-left-color: var(--cp-primary); }
+// }
+
+// .cp-status { width: 20px; display: flex; align-items: flex-start; padding-top: 2px; }
+// .cp-lesson-meta { display: flex; flex-direction: column; gap: 0.25rem; overflow: hidden; }
+// .cp-lesson-meta strong { font-size: 0.9rem; line-height: 1.4; color: var(--cp-text); }
+// .cp-lesson-meta span { font-size: 0.75rem; color: var(--cp-text-muted); display: flex; align-items: center; gap: 0.5rem; }
+
+// // Utilities & Colors
+// .cp-text-primary { color: var(--cp-primary) !important; }
+// .cp-text-success { color: #22c55e !important; }
+// .cp-text-muted { color: var(--cp-text-muted) !important; }
+
+// .cp-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+// .cp-scrollbar::-webkit-scrollbar-track { background: transparent; }
+// .cp-scrollbar::-webkit-scrollbar-thumb { background: var(--cp-border); border-radius: 10px; }
+// .cp-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--cp-text-muted); }
+
+// .cp-fullscreen-state { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: var(--cp-bg); color: var(--cp-text); }
+// .cp-error-icon { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #fee2e2; margin-bottom: 1.5rem; i { font-size: 2.5rem; color: #ef4444; } }
+
+// // ----------------------------------------------------
+// // 5. RESPONSIVE QUERIES
+// // ----------------------------------------------------
+// .hide-desktop { display: none; }
+// @media (max-width: 991px) {
+//   .hide-desktop { display: inline-flex; }
+//   .hide-mobile { display: none; }
+//   .cp-sidebar { position: absolute; right: 0; top: 0; bottom: 0; height: 100%; box-shadow: -5px 0 20px rgba(0,0,0,0.1); }
+//   .cp-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.5); z-index: 15; }
+//   .sidebar-closed .cp-sidebar { margin-right: 0; }
+//   .cp-main { padding: 1rem; }
+//   .cp-lesson-details { padding: 1.5rem; }
+//   .cp-navigation p-button { flex: 1; ::ng-deep .p-button { width: 100%; justify-content: center; } }
+// }
+// // @use '../../../../../styles/mixins' as *;
+
+// // // ==========================================================================
+// // // 1. PRIME NG OVERRIDES (Aggressively Themed via Tokens)
+// // // ==========================================================================
+// // :host ::ng-deep {
+// //   .p-button { 
+// //     border-radius: var(--ui-border-radius-lg); 
+// //     font-family: var(--font-heading); 
+// //     font-weight: var(--font-weight-semibold); 
+// //     transition: var(--transition-base);
+// //   }
+
+// //   .p-tag {
+// //     font-family: var(--font-mono);
+// //     border-radius: var(--ui-border-radius-sm);
+// //     padding: var(--spacing-xs) var(--spacing-md);
+// //     text-transform: uppercase;
+// //     font-weight: var(--font-weight-bold);
+// //     letter-spacing: 0.05em;
+// //   }
+
+// //   // PREMIUM THEATER ACCORDION
+// //   .theater-accordion {
+// //     .p-accordion-panel, .p-accordion-tab {
+// //       margin-bottom: 0 !important;
+// //       border: none !important;
+// //       background: transparent !important;
+// //       border-bottom: var(--ui-border-width) solid var(--border-primary) !important;
+// //     }
+    
+// //     .p-accordion-header-link {
+// //       background: var(--bg-secondary) !important;
+// //       color: var(--text-primary) !important;
+// //       border: none !important;
+// //       border-radius: 0 !important;
+// //       padding: var(--spacing-lg) var(--spacing-xl) !important;
+// //       transition: var(--transition-colors) !important;
+// //       box-shadow: none !important; 
+      
+// //       &:hover { 
+// //         background: var(--component-bg-hover) !important; 
+// //       }
+// //     }
+    
+// //     .p-accordion-header:not(.p-disabled).p-highlight .p-accordion-header-link {
+// //       background: var(--bg-primary) !important; 
+// //       color: var(--accent-primary) !important;
+// //     }
+
+// //     /* ZERO PADDING on content wrapper for edge-to-edge lesson items */
+// //     .p-toggleable-content,
+// //     .p-accordion-content {
+// //       background: var(--bg-secondary) !important; 
+// //       color: var(--text-secondary) !important;
+// //       border: none !important;
+// //       margin: 0 !important;
+// //       padding: 0 !important; 
+// //       border-radius: 0 !important;
+// //     }
+// //   }
+
+// //   .theater-progress.p-progressbar {
+// //     width: 150px; height: 6px; 
+// //     background: var(--bg-secondary); 
+// //     border-radius: var(--ui-border-radius-lg); 
+// //     overflow: hidden;
+// //     .p-progressbar-value { 
+// //       background: var(--accent-primary); 
+// //       border-radius: var(--ui-border-radius-lg); 
+// //     }
+// //   }
+
+// //   // Dialog Overrides
+// //   .glass-dialog { 
+// //     background: var(--bg-secondary); border: var(--ui-border-width) solid var(--border-primary); 
+// //     border-radius: var(--ui-border-radius-xl); overflow: hidden; box-shadow: var(--shadow-2xl); 
+// //     .p-dialog-header { background: var(--bg-ternary); border-bottom: var(--ui-border-width) solid var(--border-secondary); color: var(--text-primary); }
+// //     .p-dialog-content { background: transparent; color: var(--text-secondary); padding: var(--spacing-2xl); font-family: var(--font-body); }
+// //     .p-dialog-footer { background: transparent; border-top: var(--ui-border-width) solid var(--border-secondary); padding: var(--spacing-xl); }
+// //   }
+// // }
+
+// // // ==========================================================================
+// // // 2. APP SHELL CORE (BULLETPROOF LAYOUT)
+// // // ==========================================================================
+// // .theater-app-shell {
+// //   position: absolute; 
+// //   inset: 0; 
+// //   z-index: var(--z-fixed); 
+// //   display: flex; 
+// //   flex-direction: column;
+// //   background: var(--bg-primary);
+// //   overflow: hidden; 
+// // }
+
+// // .player-topbar {
+// //   flex: 0 0 auto; 
+// //   padding: calc(var(--spacing-md) + env(safe-area-inset-top, 0px)) var(--spacing-xl);
+// //   z-index: var(--z-sticky);
+// //   background: var(--bg-primary);
+// //   border-bottom: var(--ui-border-width) solid var(--border-primary);
+// // }
+
+// // .player-workspace {
+// //   flex: 1 1 0; 
+// //   min-height: 0; 
+// //   display: flex; 
+// //   background: var(--bg-primary);
+// //   position: relative;
+// //   overflow: hidden; 
+// // }
+
+// // .content-stage {
+// //   flex: 1 1 auto;
+// //   height: 100%;
+// //   overflow-y: auto; 
+// //   overflow-x: hidden;
+// //   -webkit-overflow-scrolling: touch;
+// //   position: relative;
+// // }
+
+// // // ==========================================================================
+// // // 3. MEDIA STAGE
+// // // ==========================================================================
+// // .lesson-stage-inner {
+// //   max-width: 1400px;
+// //   margin: 0 auto;
+// //   /* Extra bottom clearance for mobile */
+// //   padding: var(--spacing-xl) var(--spacing-3xl) 120px var(--spacing-3xl); 
+  
+// //   @include lg { 
+// //     padding: var(--spacing-2xl) var(--spacing-5xl); 
+// //   }
+// // }
+
+// // .media-container {
+// //   background: var(--bg-ternary);
+// //   border-radius: var(--ui-border-radius-xl);
+// //   overflow: hidden;
+// //   border: var(--ui-border-width) solid var(--border-secondary);
+// //   position: relative;
+// //   aspect-ratio: 16/9;
+// //   max-height: 70vh; 
+// //   box-shadow: var(--shadow-xl);
+// // }
+
+// // // ==========================================================================
+// // // 4. PREMIUM CURRICULUM SIDEBAR & LESSON LIST
+// // // ==========================================================================
+// // .curriculum-sidebar {
+// //   position: absolute; right: 0; top: 0; bottom: 0;
+// //   width: 100%; max-width: 380px;
+// //   transform: translateX(100%);
+// //   background: var(--bg-secondary); 
+// //   border-left: var(--ui-border-width) solid var(--border-primary);
+// //   display: flex;
+// //   flex-direction: column;
+// //   z-index: var(--z-modal);
+// //   transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.2, 1), margin 0.3s;
+
+// //   &.open { transform: translateX(0); box-shadow: var(--shadow-2xl); }
+
+// //   @include lg {
+// //     position: relative;
+// //     transform: translateX(0);
+// //     box-shadow: none;
+// //     flex-shrink: 0;
+    
+// //     margin-right: 0;
+// //     .sidebar-collapsed & {
+// //       margin-right: -380px; 
+// //     }
+// //   }
+// // }
+
+// // .sidebar-top {
+// //   flex: 0 0 auto;
+// //   padding: var(--spacing-xl);
+// //   border-bottom: var(--ui-border-width) solid var(--border-primary);
+// //   background: var(--bg-secondary);
+// // }
+
+// // .sidebar-body {
+// //   flex: 1;
+// //   overflow-y: auto;
+// // }
+
+// // .sidebar-lessons {
+// //   padding-bottom: var(--spacing-md);
+// // }
+
+// // /* Beautiful Edge-to-Edge Lesson Items */
+// // .sb-lesson-item {
+// //   padding: var(--spacing-md) var(--spacing-xl);
+// //   border-left: 3px solid transparent;
+// //   transition: var(--transition-base);
+// //   background: transparent;
+// //   margin: 2px 0; 
+
+// //   &:hover { 
+// //     background: var(--component-bg-hover); 
+// //   }
+
+// //   .sb-status { 
+// //     width: 24px; height: 24px; 
+// //     display: flex; align-items: center; justify-content: center; 
+// //     margin-top: 2px; 
+// //   }
+
+// //   /* ACTIVE LESSON STATE */
+// //   &.active-lesson { 
+// //     background: var(--color-primary-bg); 
+// //     border-left-color: var(--accent-primary); 
+    
+// //     .sb-title { color: var(--accent-primary) !important; font-weight: var(--font-weight-bold); }
+// //     .sb-status i { color: var(--accent-primary); }
+// //     .sb-meta { color: var(--text-primary); }
+// //   }
+// // }
+
+// // // ==========================================================================
+// // // 5. FLOATING TOGGLE BUTTON
+// // // ==========================================================================
+// // .sidebar-toggle-btn {
+// //   position: fixed; 
+// //   right: 0; 
+// //   top: 50%; 
+// //   transform: translateY(-50%); 
+// //   z-index: var(--z-sticky);
+// //   width: 28px; height: 64px; 
+// //   background: var(--bg-ternary); color: var(--text-secondary);
+// //   border: var(--ui-border-width) solid var(--border-primary);
+// //   border-right: none; 
+// //   border-radius: var(--ui-border-radius-lg) 0 0 var(--ui-border-radius-lg);
+// //   display: flex; align-items: center; justify-content: center; cursor: pointer;
+// //   transition: var(--transition-base);
+
+// //   &:hover { background: var(--accent-primary); color: #fff; border-color: var(--accent-primary); width: 32px; }
+
+// //   @include lg {
+// //     .theater-app-shell:not(.sidebar-collapsed) & {
+// //       right: 380px; 
+// //     }
+// //   }
+// // }
+
+// // // ==========================================================================
+// // // 6. UTILITIES & TYPOGRAPHY
+// // // ==========================================================================
+// // .flex { display: flex; }
+// // .flex-col { display: flex; flex-direction: column; }
+// // .flex-between { display: flex; justify-content: space-between; align-items: center; }
+// // .flex-center { display: flex; align-items: center; justify-content: center; }
+// // .flex-grow-1 { flex-grow: 1; }
+// // .flex-shrink-0 { flex-shrink: 0; }
+// // .align-items-center { align-items: center; }
+// // .align-items-start { align-items: flex-start; }
+// // .w-full { width: 100%; }
+// // .h-full { height: 100%; }
+// // .relative { position: relative; }
+// // .absolute { position: absolute; }
+// // .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+// // .overflow-hidden { overflow: hidden; }
+// // .overflow-y-auto { overflow-y: auto; }
+// // .mx-auto { margin-left: auto; margin-right: auto; }
+
+// // // Margins mapped to tokens
+// // .m-0 { margin: 0; }
+// // .mb-xs { margin-bottom: var(--spacing-xs); }
+// // .mb-sm { margin-bottom: var(--spacing-sm); }
+// // .mb-md { margin-bottom: var(--spacing-md); }
+// // .mb-xl { margin-bottom: var(--spacing-xl); }
+// // .mb-2xl { margin-bottom: var(--spacing-2xl); }
+// // .mb-3xl { margin-bottom: var(--spacing-3xl); }
+// // .mt-xs { margin-top: var(--spacing-xs); }
+// // .mt-2xl { margin-top: var(--spacing-2xl); }
+// // .mt-3xl { margin-top: var(--spacing-3xl); }
+
+// // // Paddings mapped to tokens
+// // .p-md { padding: var(--spacing-md); }
+// // .p-lg { padding: var(--spacing-lg); }
+// // .p-xl { padding: var(--spacing-xl); }
+// // .p-2xl { padding: var(--spacing-2xl); }
+// // .pr-md { padding-right: var(--spacing-md); }
+
+// // // Gaps mapped to tokens
+// // .gap-xs { gap: var(--spacing-xs); }
+// // .gap-sm { gap: var(--spacing-sm); }
+// // .gap-md { gap: var(--spacing-md); }
+// // .gap-xl { gap: var(--spacing-xl); }
+
+// // // Typography mapped to tokens
+// // .text-center { text-align: center; }
+// // .uppercase { text-transform: uppercase; }
+// // .tracking-widest { letter-spacing: 0.1em; }
+// // .font-bold { font-weight: var(--font-weight-bold); }
+// // .font-heading { font-family: var(--font-heading); }
+// // .font-mono { font-family: var(--font-mono); }
+// // .line-height-tight { line-height: var(--line-height-tight); }
+// // .line-height-relaxed { line-height: var(--line-height-relaxed); }
+// // .text-decoration-none { text-decoration: none; }
+// // .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+// // .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+// // // Colors mapped to tokens
+// // .text-primary { color: var(--text-primary); }
+// // .text-secondary { color: var(--text-secondary); }
+// // .text-tertiary { color: var(--text-tertiary); }
+// // .text-success { color: var(--color-success); }
+// // .text-warning { color: var(--color-warning); }
+// // .text-error { color: var(--color-error); }
+// // .bg-primary { background: var(--bg-primary); }
+// // .bg-secondary { background: var(--bg-secondary); }
+// // .bg-ternary { background: var(--bg-ternary); }
+
+// // .border-bottom-subtle { border-bottom: var(--ui-border-width) solid var(--border-secondary); }
+// // .border-top-subtle { border-top: var(--ui-border-width) solid var(--border-secondary); }
+
+// // .hidden-mobile { display: none; @include lg { display: flex; } }
+// // .lg-hidden { display: flex; @include lg { display: none; } }
+
+// // // Loaders & Animations
+// // .fullscreen-state { height: 100dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+// // .cinematic-bg { background: radial-gradient(circle at center, color-mix(in srgb, var(--bg-secondary) 80%, transparent) 0%, var(--bg-primary) 100%); }
+// // .icon-circle { width: clamp(70px, 12vw, 90px); aspect-ratio: 1; border-radius: 50%; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; }
+// // .error-glow { box-shadow: 0 0 40px var(--color-error-bg); border: var(--ui-border-width) solid var(--color-error); }
+// // .play-pulse { animation: pulseIcon 2s infinite; }
+// // @keyframes pulseIcon { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
+
+// // /* Scrollbar mapped to tokens */
+// // .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+// // .custom-scrollbar::-webkit-scrollbar-track { background: var(--scroll-track); }
+// // .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: var(--ui-border-radius-lg); }
+// // .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }

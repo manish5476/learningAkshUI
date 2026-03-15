@@ -12,7 +12,10 @@ import { TabsModule } from 'primeng/tabs';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { CheckboxModule } from 'primeng/checkbox';
+
+// Services
 import { LessonService } from '../../../../core/services/lesson.service';
+import { CourseService } from '../../../../core/services/course.service';
 import { ApiResponse } from '../../../../core/http/base-api.service';
 
 @Component({
@@ -33,7 +36,7 @@ import { ApiResponse } from '../../../../core/http/base-api.service';
   styleUrls: ['./lesson-form.component.scss']
 })
 export class LessonFormComponent implements OnInit {
-  // Modern Signal Inputs/Outputs
+  // Inputs/Outputs
   sectionId = input.required<string>();
   courseId = input.required<string>();
   lessonId = input<string | null>(null);
@@ -43,11 +46,16 @@ export class LessonFormComponent implements OnInit {
 
   // Injectors
   private fb = inject(FormBuilder);
-  private lessonApiService = inject(LessonService); // <-- Updated Injection
+  private lessonApiService = inject(LessonService);
+  private courseService = inject(CourseService); 
   private destroyRef = inject(DestroyRef);
 
   // Reactive State
   isLoading = signal<boolean>(false);
+  
+  // Quiz Signals
+  courseQuizzes = signal<any[]>([]);
+  isLoadingQuizzes = signal<boolean>(false);
 
   // Configuration Constants
   lessonTypes = [
@@ -80,21 +88,17 @@ export class LessonFormComponent implements OnInit {
     duration: [0],
     isPublished: [true],
     isFree: [false],
-    // Video fields
     videoUrl: [''],
     videoProvider: ['youtube'],
     videoDuration: [0],
     videoThumbnail: [''],
-    // Article fields
     articleBody: [''],
-    // Quiz fields
     quizId: [''],
-    // Resources
     resources: this.fb.array([])
   });
 
   constructor() {
-    // React to lessonId changes (e.g., when modal opens for edit vs create)
+    // React to lessonId changes (edit vs create)
     effect(() => {
       const id = this.lessonId();
       if (id) {
@@ -103,9 +107,34 @@ export class LessonFormComponent implements OnInit {
         this.resetForm();
       }
     }, { allowSignalWrites: true });
+
+    // Fetch quizzes when courseId is available
+    effect(() => {
+      const cId = this.courseId();
+      if (cId) {
+        this.loadQuizzesForCourse(cId);
+      }
+    }, { allowSignalWrites: true });
   }
 
   ngOnInit(): void { }
+
+  private loadQuizzesForCourse(courseId: string): void {
+    this.isLoadingQuizzes.set(true);
+    this.courseService.getquizzesBySlug(courseId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: any) => {
+          const fetchedQuizzes = res?.data?.quizzes || res?.quizzes || [];
+          this.courseQuizzes.set(fetchedQuizzes);
+          this.isLoadingQuizzes.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load course quizzes', err);
+          this.isLoadingQuizzes.set(false);
+        }
+      });
+  }
 
   private resetForm(): void {
     this.lessonForm.reset({
@@ -121,12 +150,10 @@ export class LessonFormComponent implements OnInit {
 
   private loadLesson(id: string): void {
     this.isLoading.set(true);
-    // <-- Updated to use new service signature
     this.lessonApiService.getLesson(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: ApiResponse<any>) => {
-          // Unwrapping logic is cleaner because BaseApiService standardizes it
           const lesson = res.data;
           if (lesson) {
             this.patchForm(lesson);
@@ -183,10 +210,19 @@ export class LessonFormComponent implements OnInit {
   }
 
   onTypeChange(event: any): void {
-    // Clear specific fields when switching types to avoid dirty data payload
+    const type = event.value;
+    
     this.lessonForm.patchValue({
       videoUrl: '', videoDuration: 0, videoThumbnail: '', articleBody: '', quizId: ''
     });
+
+    const quizControl = this.lessonForm.get('quizId');
+    if (type === 'quiz') {
+      quizControl?.setValidators([Validators.required]);
+    } else {
+      quizControl?.clearValidators();
+    }
+    quizControl?.updateValueAndValidity();
   }
 
   addResource(): void {
@@ -220,7 +256,6 @@ export class LessonFormComponent implements OnInit {
     this.isLoading.set(true);
     const formData = this.lessonForm.getRawValue();
 
-    // Construct backend-compliant payload
     const content: any = {};
     if (formData.type === 'video') {
       content.video = {
@@ -249,16 +284,11 @@ export class LessonFormComponent implements OnInit {
     };
 
     const id = this.lessonId();
-
-    // <-- Updated to use new service signatures (no longer passing courseId/sectionId as route params)
-    const request$ = (id
-      ? this.lessonApiService.updateLesson(id, payload)
-      : this.lessonApiService.createLesson(payload)) as Observable<ApiResponse<any>>;
+    const request$ = (id ? this.lessonApiService.updateLesson(id, payload) : this.lessonApiService.createLesson(payload)) as Observable<ApiResponse<any>>;
 
     request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: ApiResponse<any>) => {
         this.isLoading.set(false);
-        // Standardized response wrapping
         this.saved.emit(res.data);
       },
       error: (error: any) => {

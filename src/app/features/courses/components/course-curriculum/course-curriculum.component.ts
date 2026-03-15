@@ -63,7 +63,6 @@ export class CourseCurriculumComponent implements OnInit {
   // Dialog State
   showSectionDialog = signal<boolean>(false);
   editingSectionId = signal<string | null>(null);
-
   // Drag & Drop State
   draggedSectionIndex = signal<number | null>(null);
 
