@@ -252,7 +252,7 @@
         }
       </div>
 
-      <div class="info-grid mt-4">
+      <div class=" mt-4">
         <app-course-discussion [courseId]="course._id"></app-course-discussion>
       </div>
     </div>
@@ -345,6 +345,7 @@
   </div>
   }
 </div>
+
 <p-dialog appendTo="body"  [(visible)]="showCheckoutModal" [modal]="true" [draggable]="false" [resizable]="false"
   styleClass="checkout-dialog" [dismissableMask]="true" (onHide)="closeCheckout()" [closeOnEscape]="true"
   [showHeader]="false">
@@ -493,7 +494,6 @@
   </div>
 </p-dialog>
 
-
 <p-dialog appendTo="body"  [(visible)]="showVideoModal" [modal]="true" [draggable]="false" [resizable]="false" styleClass="video-dialog"
   [dismissableMask]="true" (onHide)="closeVideoModal()" [closeOnEscape]="true" [showHeader]="false">
 
@@ -524,58 +524,73 @@
   </div>
 </p-dialog>
 
-<p-dialog appendTo="body"  [(visible)]="showQuizzesModal" [modal]="true" [draggable]="false" [resizable]="false" 
-  header="Course Assessments" styleClass="quizzes-dialog" [style]="{ width: '90%', maxWidth: '650px' }"
+<p-dialog 
+  appendTo="body" 
+  [(visible)]="showQuizzesModal" 
+  [modal]="true" 
+  [draggable]="false" 
+  [resizable]="false" 
+  [showHeader]="true"
+  header="Course Assessments" 
+  styleClass="quizzes-management-dialog" 
+  [style]="{ width: '95%', maxWidth: '750px' }"
   (onHide)="closeQuizzesModal()">
   
-  <div class="quizzes-modal-body">
-    <div class="quizzes-header-actions flex justify-content-between align-items-center mb-4">
-      <p class="text-secondary m-0">Manage tests and quizzes for this course.</p>
-      <p-button label="Create New Quiz" icon="pi pi-plus" size="small" (onClick)="createNewQuiz()"></p-button>
+  <div class="quizzes-container">
+    <div class="modal-subheader">
+      <div class="header-info">
+        <h3>Assessments Overview</h3>
+        <p>Manage and track quiz configurations for this course.</p>
+      </div>
+      <p-button label="Create Quiz" icon="pi pi-plus-circle" severity="primary" size="small" (onClick)="createNewQuiz()"></p-button>
     </div>
 
-    @if (quizzes() && quizzes().length > 0) {
-      <div class="quizzes-grid">
-        @for (quiz of quizzes(); track quiz._id) {
-          <div class="quiz-mini-card">
-            
-            <div class="q-card-top">
-              <h4 class="q-card-title line-clamp-1" [title]="quiz.title">{{ quiz.title }}</h4>
-              <p-tag [value]="quiz.isPublished ? 'Published' : 'Draft'" [severity]="quiz.isPublished ? 'success' : 'warn'"></p-tag>
-            </div>
-            
-            <p class="q-card-desc">
-              {{ quiz.description || 'No description provided.' }}
-            </p>
-            
-            <div class="q-card-meta">
-              <div class="meta-item">
-                <i class="pi pi-list"></i>
-                <span>{{ quiz.totalQuestions || 0 }} Qs</span>
+    @if (quizzes().length) {
+      <div class="quizzes-scroll-area pt-4">
+        <div class="quizzes-grid">
+          @for (quiz of quizzes(); track quiz._id) {
+            <div class="quiz-glass-card" [class.is-draft]="!quiz.isPublished">
+              <div class="card-status">
+                <p-tag [value]="quiz.isPublished ? 'Published' : 'Draft'" 
+                       [severity]="quiz.isPublished ? 'success' : 'secondary'"
+                       [rounded]="true">
+                </p-tag>
               </div>
-              <div class="meta-item">
-                <i class="pi pi-check-circle"></i>
-                <span>{{ quiz.passingScore || 0 }}% Pass</span>
-              </div>
-              <div class="meta-item">
-                <i class="pi pi-clock"></i>
-                <span>{{ quiz.timeLimit || 0 }} Min</span>
-              </div>
-            </div>
 
-            <div class="q-card-footer">
-              <p-button label="Edit Assessment" icon="pi pi-pencil" size="small" (onClick)="editQuiz(quiz._id)"></p-button>
-            </div>
+              <div class="card-main">
+                <h4 class="quiz-title">{{ quiz.title }}</h4>
+                <p class="quiz-desc">{{ quiz.description || 'No description available for this assessment.' }}</p>
+              </div>
 
-          </div>
-        }
+              <div class="quiz-stats">
+                <div class="stat-pill" pTooltip="Questions">
+                  <i class="pi pi-list"></i> <span>{{ quiz.totalQuestions || 0 }}</span>
+                </div>
+                <div class="stat-pill" pTooltip="Passing Score">
+                  <i class="pi pi-verified"></i> <span>{{ quiz.passingScore }}%</span>
+                </div>
+                <div class="stat-pill" pTooltip="Time Limit">
+                  <i class="pi pi-hourglass"></i> <span>{{ quiz.timeLimit }}m</span>
+                </div>
+              </div>
+
+              <div class="card-actions">
+                <p-button label="Edit Assessment" icon="pi pi-arrow-right" iconPos="right" 
+                          [text]="true" size="small" (onClick)="editQuiz(quiz._id)">
+                </p-button>
+              </div>
+            </div>
+          }
+        </div>
       </div>
     } @else {
-      <div class="empty-quizzes-state text-center p-5 bg-ternary border-round-xl border-1 border-300">
-        <i class="pi pi-inbox text-5xl text-400 mb-3"></i>
-        <h3 class="m-0 mb-2 font-bold">No Quizzes Found</h3>
-        <p class="text-secondary m-0 mb-4">You haven't created any assessments for this course yet.</p>
-        <p-button label="Create Your First Quiz" icon="pi pi-plus" (onClick)="createNewQuiz()"></p-button>
+      <div class="empty-state-v2">
+        <div class="icon-circle">
+          <i class="pi pi-file-edit"></i>
+        </div>
+        <h3>Ready to test your students?</h3>
+        <p>Create your first quiz to start measuring course progress.</p>
+        <p-button label="Add First Assessment" icon="pi pi-plus" (onClick)="createNewQuiz()" severity="primary"></p-button>
       </div>
     }
   </div>

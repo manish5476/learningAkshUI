@@ -1,7 +1,8 @@
 <div class="course-list-container fade-in">
   <p-toast position="top-right"></p-toast>
 
-  <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+  <div class="page-header"
+    style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
     <div>
       <h1 class="page-title">Browse Courses</h1>
       <p class="page-subtitle">
@@ -10,11 +11,8 @@
     </div>
 
     @if (canManageCourses()) {
-      <p-button 
-        label="Create New Course" 
-        icon="pi pi-plus" 
-        [routerLink]="['/instructor/courses/new']">
-      </p-button>
+    <p-button label="Create New Course" icon="pi pi-plus" [routerLink]="['/instructor/courses/new']">
+    </p-button>
     }
   </div>
 
@@ -29,8 +27,12 @@
         (onChange)="onFilterChange()" placeholder="All Categories" [showClear]="true" styleClass="w-full">
       </p-select>
 
-      <p-select [options]="levelOptions" [(ngModel)]="filters.level" (onChange)="onFilterChange()"
-        placeholder="All Levels" [showClear]="true" styleClass="w-full">
+      <p-select [options]="levelOptions()" [(ngModel)]="filters.level" optionLabel="name" optionValue="code"
+        (onChange)="onFilterChange()" placeholder="All Levels" [showClear]="true" styleClass="w-full">
+      </p-select>
+
+      <p-select [options]="languages()" [(ngModel)]="filters.language" optionLabel="name" optionValue="code"
+        (onChange)="onFilterChange()" placeholder="All Languages" [showClear]="true" styleClass="w-full">
       </p-select>
 
       <p-select [options]="sortOptions" [(ngModel)]="filters.sort" (onChange)="onFilterChange()" placeholder="Sort by"
@@ -61,7 +63,7 @@
   @else {
   <div class="courses-grid">
     @for (course of courses(); track course._id) {
-      <app-property-course-card [course]="course"></app-property-course-card>
+    <app-property-course-card [course]="course"></app-property-course-card>
     }
 
     @empty {
