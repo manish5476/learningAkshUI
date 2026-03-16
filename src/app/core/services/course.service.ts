@@ -36,10 +36,16 @@ export class CourseService {
     return this.api.get<Course>(`${this.endpoint}/${id}`, { ...options, skipAuth: true });
   }
 
-  getAllCourses(options?: any): Observable<ApiResponseWithPagination<Course[]>> {
-    return this.api.getWithPagination<Course[]>(this.endpoint, { ...options, skipAuth: true });
-  }
+  // getAllCourses(options?: any): Observable<ApiResponseWithPagination<Course[]>> {
+  //   return this.api.getWithPagination<Course[]>(this.endpoint, { ...options, skipAuth: true });
+  // }
 
+  getAllCourses(filters?: any): Observable<ApiResponseWithPagination<Course[]>> {
+    return this.api.getWithPagination<Course[]>(this.endpoint, { 
+      params: filters, 
+      skipAuth: true 
+    });
+  }
   // ==================== PROTECTED ROUTES ====================
 
   // --- Instructor's Courses ---
