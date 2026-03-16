@@ -102,7 +102,7 @@
 </div>
 
 
-<p-dialog [(visible)]="displayDialog" [style]="{width: '600px'}" [header]="isEditing() ? 'Edit Record' : 'New Record'"
+<p-dialog appendTo="body"  [(visible)]="displayDialog" [style]="{width: '600px'}" [header]="isEditing() ? 'Edit Record' : 'New Record'"
   [modal]="true" styleClass="p-fluid">
   <ng-template pTemplate="content">
     
@@ -174,7 +174,7 @@
   </ng-template>
 </p-dialog>
 
-<p-dialog [(visible)]="displayBulkDialog" [style]="{width: '1000px', 'max-height': '90vh'}" header="Bulk Add Records"
+<p-dialog appendTo="body"  [(visible)]="displayBulkDialog" [style]="{width: '1000px', 'max-height': '90vh'}" header="Bulk Add Records"
   [modal]="true" styleClass="p-fluid">
 
   <ng-template pTemplate="content">

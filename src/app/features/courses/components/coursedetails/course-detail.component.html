@@ -345,7 +345,7 @@
   </div>
   }
 </div>
-<p-dialog [(visible)]="showCheckoutModal" [modal]="true" [draggable]="false" [resizable]="false"
+<p-dialog appendTo="body"  [(visible)]="showCheckoutModal" [modal]="true" [draggable]="false" [resizable]="false"
   styleClass="checkout-dialog" [dismissableMask]="true" (onHide)="closeCheckout()" [closeOnEscape]="true"
   [showHeader]="false">
 
@@ -494,7 +494,7 @@
 </p-dialog>
 
 
-<p-dialog [(visible)]="showVideoModal" [modal]="true" [draggable]="false" [resizable]="false" styleClass="video-dialog"
+<p-dialog appendTo="body"  [(visible)]="showVideoModal" [modal]="true" [draggable]="false" [resizable]="false" styleClass="video-dialog"
   [dismissableMask]="true" (onHide)="closeVideoModal()" [closeOnEscape]="true" [showHeader]="false">
 
   <div class="video-modal">
@@ -524,7 +524,7 @@
   </div>
 </p-dialog>
 
-<p-dialog [(visible)]="showQuizzesModal" [modal]="true" [draggable]="false" [resizable]="false" 
+<p-dialog appendTo="body"  [(visible)]="showQuizzesModal" [modal]="true" [draggable]="false" [resizable]="false" 
   header="Course Assessments" styleClass="quizzes-dialog" [style]="{ width: '90%', maxWidth: '650px' }"
   (onHide)="closeQuizzesModal()">
   

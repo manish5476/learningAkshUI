@@ -13,6 +13,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { CertificateService } from '../../../../core/services/certificate.service';
 import { SelectModule } from 'primeng/select';
+import { AppMessageService } from '../../../../core/utils/message.service';
 
 @Component({
   selector: 'app-instructor-certificates',
@@ -265,7 +266,7 @@ import { SelectModule } from 'primeng/select';
 })
 export class InstructorCertificatesComponent implements OnInit {
   private certificateService = inject(CertificateService);
-  private messageService = inject(MessageService);
+  private messageService = inject(AppMessageService);
 
   certificates = this.certificateService.certificates;
   loading = this.certificateService.loading;
@@ -321,19 +322,11 @@ export class InstructorCertificatesComponent implements OnInit {
 
   downloadPDF(id: string): void {
     this.certificateService.downloadCertificatePDF(id);
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Download Started',
-      detail: 'Certificate PDF is being generated...'
-    });
+    this.messageService.showInfo('Certificate PDF is being generated...');
   }
 
   exportData(): void {
     // Implement CSV export
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Export Started',
-      detail: 'Your report will be downloaded shortly'
-    });
+    this.messageService.showSuccess( 'Your report will be downloaded shortly');
   }
 }

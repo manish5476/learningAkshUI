@@ -14,6 +14,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 
 // Services
 import { MockTestService } from '../../../core/services/mock-test.service';
+import { AppMessageService } from '../../../core/utils/message.service';
 
 interface AnswerMap {
   [questionId: string]: number;
@@ -40,7 +41,7 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private mockTestService = inject(MockTestService);
   private confirmationService = inject(ConfirmationService);
-  private messageService = inject(MessageService);
+  private messageService = inject(AppMessageService);
   private destroyRef = inject(DestroyRef);
 
   // Core State
@@ -48,18 +49,18 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
   attemptId = signal<string>('');
   testState = signal<'intro' | 'in-progress' | 'submitting'>('intro');
   isLoading = signal<boolean>(false);
-  isMobilePaletteOpen = signal<boolean>(false); 
-  
+  isMobilePaletteOpen = signal<boolean>(false);
+
   // Test Data
   mockTest = signal<any>(null);
   questions = signal<any[]>([]);
-  
+
   // User Interaction State
   currentIndex = signal<number>(0);
   answers = signal<AnswerMap>({});
-  
+
   // Timer State
-  timeRemaining = signal<number>(0); 
+  timeRemaining = signal<number>(0);
   private timerInterval: any;
 
   // Computed Values
@@ -77,14 +78,14 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-    
+
     if (hours > 0) {
       return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   });
 
-  isTimerDanger = computed(() => this.timeRemaining() < 300 && this.timeRemaining() > 0); 
+  isTimerDanger = computed(() => this.timeRemaining() < 300 && this.timeRemaining() > 0);
 
   ngOnInit(): void {
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
@@ -109,7 +110,7 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
           this.isLoading.set(false);
         },
         error: () => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not load test.' });
+          this.messageService.showError('Could not load test.');
           this.isLoading.set(false);
         }
       });
@@ -124,16 +125,16 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
           const payload = res.data;
           this.attemptId.set(payload.attempt._id);
           this.questions.set(payload.questions);
-          
+
           const durationMins = this.mockTest()?.duration || 30;
           this.timeRemaining.set(durationMins * 60);
           this.startTimer();
-          
+
           this.testState.set('in-progress');
           this.isLoading.set(false);
         },
         error: (err: any) => {
-          this.messageService.add({ severity: 'error', summary: 'Cannot Start', detail: err.error?.message || 'Failed to start attempt.' });
+          this.messageService.showError(err.error?.message || 'Failed to start attempt.');
           this.isLoading.set(false);
         }
       });
@@ -157,7 +158,7 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
   }
 
   private autoSubmitTimeUp(): void {
-    this.messageService.add({ severity: 'warn', summary: 'Time is up!', detail: 'Auto-submitting your test...', sticky: true });
+    this.messageService.showWarn('Auto-submitting your test...');
     this.submitTest(true);
   }
 
@@ -195,7 +196,7 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
 
   confirmSubmit(): void {
     const unanswered = this.totalQuestions() - this.answeredCount();
-    const msg = unanswered > 0 
+    const msg = unanswered > 0
       ? `You still have ${unanswered} unanswered questions. Are you sure you want to submit?`
       : `You have answered all questions. Ready to submit?`;
 
@@ -210,7 +211,7 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
   private submitTest(isAutoSubmit = false): void {
     this.clearTimer();
     this.testState.set('submitting');
-    
+
     const answerPayload = Object.keys(this.answers()).map(qId => ({
       questionId: qId,
       selectedOptionIndex: this.answers()[qId]
@@ -220,15 +221,15 @@ export class MockTestTakerComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Test submitted successfully!' });
+          this.messageService.showSuccess('Test submitted successfully!');
           setTimeout(() => {
             this.router.navigate(['/mock-tests/results', this.attemptId()]);
           }, 1500);
         },
         error: () => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to submit test.' });
-          this.testState.set('in-progress'); 
-          this.startTimer(); 
+          this.messageService.showError('Failed to submit test.');
+          this.testState.set('in-progress');
+          this.startTimer();
         }
       });
   }

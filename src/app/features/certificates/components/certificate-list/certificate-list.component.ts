@@ -15,6 +15,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Certificate, CertificateService } from '../../../../core/services/certificate.service';
+import { AppMessageService } from '../../../../core/utils/message.service';
 
 @Component({
   selector: 'app-certificate-list',
@@ -251,7 +252,7 @@ import { Certificate, CertificateService } from '../../../../core/services/certi
     </div>
 
     <!-- Verification Dialog -->
-    <p-dialog 
+    <p-dialog appendTo="body"  
       [(visible)]="showVerificationModal" 
       [modal]="true"
       [draggable]="false"
@@ -545,7 +546,7 @@ import { Certificate, CertificateService } from '../../../../core/services/certi
 export class CertificateListComponent implements OnInit {
   private certificateService = inject(CertificateService);
   private confirmationService = inject(ConfirmationService);
-  private messageService = inject(MessageService);
+  private messageService = inject(AppMessageService);
 
   // Signals
   certificates = this.certificateService.certificates;
@@ -557,8 +558,8 @@ export class CertificateListComponent implements OnInit {
   filteredCertificates = computed(() => {
     const query = this.searchQuery().toLowerCase();
     if (!query) return this.certificates();
-    
-    return this.certificates().filter(cert => 
+
+    return this.certificates().filter(cert =>
       cert.certificateNumber.toLowerCase().includes(query) ||
       cert.studentName.toLowerCase().includes(query) ||
       cert.courseName.toLowerCase().includes(query) ||
@@ -566,7 +567,7 @@ export class CertificateListComponent implements OnInit {
     );
   });
 
-  validCertificates = computed(() => 
+  validCertificates = computed(() =>
     this.certificates().filter(c => c.isValid)
   );
 
@@ -597,11 +598,7 @@ export class CertificateListComponent implements OnInit {
 
   downloadCertificate(id: string): void {
     this.certificateService.downloadCertificatePDF(id);
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Download Started',
-      detail: 'Your certificate PDF is being generated...'
-    });
+    this.messageService.showInfo('Your certificate PDF is being generated...');
   }
 
   viewCertificate(id: string): void {
@@ -626,7 +623,7 @@ export class CertificateListComponent implements OnInit {
 
   verifyCertificate(): void {
     if (!this.certificateNumberInput()) return;
-    
+
     this.verificationLoading.set(true);
     this.certificateService.verifyCertificate(this.certificateNumberInput()).subscribe({
       next: () => {
@@ -634,11 +631,7 @@ export class CertificateListComponent implements OnInit {
       },
       error: () => {
         this.verificationLoading.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Verification Failed',
-          detail: 'Invalid certificate number'
-        });
+        this.messageService.showError('Invalid certificate number');
       }
     });
   }
@@ -655,18 +648,11 @@ export class CertificateListComponent implements OnInit {
   revokeCertificate(id: string): void {
     this.certificateService.revokeCertificate(id).subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Certificate Revoked',
-          detail: 'The certificate has been successfully revoked'
-        });
+        this.messageService.showSuccess('The certificate has been successfully revoked'
+        );
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to revoke certificate'
-        });
+        this.messageService.showError('Failed to revoke certificate');
       }
     });
   }

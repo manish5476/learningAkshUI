@@ -11,6 +11,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { DatePickerModule } from 'primeng/datepicker';
+import { AppMessageService } from '../../../../core/utils/message.service';
 
 @Component({
   selector: 'app-issue-certificate',
@@ -228,7 +229,7 @@ export class IssueCertificateComponent implements OnInit {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private messageService = inject(MessageService);
+  private messageService = inject(AppMessageService);
 
   certificateForm!: FormGroup;
   isSubmitting = signal(false);

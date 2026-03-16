@@ -17,6 +17,7 @@ import { PropertyCourseCardComponent } from '../../../../shared/components/cours
 import { CategoryService } from "../../../../core/services/category.service";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { AuthService } from "../../../../core/services/auth.service"; // <-- IMPORT AUTH SERVICE
+import { AppMessageService } from "../../../../core/utils/message.service";
 
 @Component({
   selector: 'app-course-list',
@@ -40,9 +41,9 @@ export class CourseListComponent implements OnInit {
 
   private courseService = inject(CourseService);
   private categoryService = inject(CategoryService);
-  private messageService = inject(MessageService);
+  private messageService = inject(AppMessageService);
   private destroyRef = inject(DestroyRef);
-  private authService = inject(AuthService); // <-- INJECT AUTH SERVICE
+  private authService = inject(AuthService);
 
   /* ========================
      FILTER STATE
@@ -61,7 +62,7 @@ export class CourseListComponent implements OnInit {
   courses = signal<Course[]>([]);
   loading = signal<boolean>(true);
   categories = signal<Category[]>([]);
-  currentUser = signal<any>(null); // <-- STORE CURRENT USER
+  currentUser = signal<any>(null);
 
   pagination = signal({
     page: 1,
@@ -115,12 +116,12 @@ export class CourseListComponent implements OnInit {
           this.categories.set(res?.data?.data || res?.data || []);
         },
         error: () => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load categories' });
+          this.messageService.showError('Failed to load categories');
         }
       });
   }
 
-loadCourses(): void {
+  loadCourses(): void {
     this.loading.set(true);
     const params: CourseQueryParams = {};
     Object.entries(this.filters).forEach(([key, value]) => {
@@ -146,13 +147,13 @@ loadCourses(): void {
             hasNextPage: false,
             hasPrevPage: false
           };
-          
+
           this.pagination.set(safePagination);
           this.loading.set(false);
         },
         error: () => {
           this.loading.set(false);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load courses' });
+          this.messageService.showError('Failed to load courses');
         }
       });
   }

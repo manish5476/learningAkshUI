@@ -407,7 +407,7 @@
 //   // Services
 //   private courseService = inject(CourseService);
 //   private enrollmentService = inject(EnrollmentService);
-//   private messageService = inject(MessageService);
+//   private messageService = inject(AppMessageService);
 //   private location = inject(Location);
 //   private sanitizer = inject(DomSanitizer);
 //   private destroyRef = inject(DestroyRef);

@@ -294,7 +294,7 @@ import { AppMessageService } from '../../core/utils/message.service';
         </p-table>
       </div>
 
-      <p-dialog appendTo="body" 
+      <p-dialog appendTo="body"  appendTo="body" 
         [visible]="showFormDialog()" 
         (visibleChange)="showFormDialog.set($event)"
         [style]="{width: '80%', height:'75%'}" 
@@ -310,7 +310,7 @@ import { AppMessageService } from '../../core/utils/message.service';
         </app-user-form>
       </p-dialog>
 
-      <p-dialog appendTo="body" 
+      <p-dialog appendTo="body"  appendTo="body" 
         [visible]="showDetailDialog()" 
         (visibleChange)="showDetailDialog.set($event)"
         [style]="{width: '80%', height:'95%'}" 
@@ -1348,7 +1348,7 @@ hasActiveFilters = computed(() => {
 //         </p-table>
 //       </div>
 
-//       <p-dialog appendTo="body" 
+//       <p-dialog appendTo="body"  appendTo="body" 
 //         [visible]="showFormDialog()" 
 //         (visibleChange)="showFormDialog.set($event)"
 //         [style]="{width: '80%',height:'75%'}" 
@@ -1364,7 +1364,7 @@ hasActiveFilters = computed(() => {
 //         </app-user-form>
 //       </p-dialog>
 
-//       <p-dialog appendTo="body" 
+//       <p-dialog appendTo="body"  appendTo="body" 
 //         [visible]="showDetailDialog()" 
 //         (visibleChange)="showDetailDialog.set($event)"
 //         [style]="{width: '80%',height:'95%'}" 
@@ -1683,7 +1683,7 @@ hasActiveFilters = computed(() => {
 //   // Services
 //   private userService = inject(UserService);
 //   private confirmationService = inject(ConfirmationService);
-//   private messageService = inject(MessageService);
+//   private messageService = inject(AppMessageService);
 //   private destroyRef = inject(DestroyRef); // Replaces NgOnDestroy
 
 //   // ViewChild

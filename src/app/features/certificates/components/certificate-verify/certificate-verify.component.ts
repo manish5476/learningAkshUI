@@ -11,6 +11,7 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { CertificateService } from '../../../../core/services/certificate.service';
+import { AppMessageService } from '../../../../core/utils/message.service';
 
 @Component({
   selector: 'app-certificate-verify',
@@ -286,7 +287,7 @@ import { CertificateService } from '../../../../core/services/certificate.servic
 export class CertificateVerifyComponent {
   private route = inject(ActivatedRoute);
   private certificateService = inject(CertificateService);
-  private messageService = inject(MessageService);
+  private messageService = inject(AppMessageService);
 
   certificateNumber = signal('');
   verificationResult = this.certificateService.verificationResult;
@@ -309,21 +310,15 @@ export class CertificateVerifyComponent {
 
   verifyCertificate(): void {
     if (!this.certificateNumber()) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Required',
-        detail: 'Please enter a certificate number'
-      });
+      this.messageService.showWarn('Please enter a certificate number'
+      );
       return;
     }
 
     this.certificateService.verifyCertificate(this.certificateNumber()).subscribe({
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Verification Failed',
-          detail: 'Certificate not found or invalid'
-        });
+        this.messageService.showError('Certificate not found or invalid'
+        );
       }
     });
   }

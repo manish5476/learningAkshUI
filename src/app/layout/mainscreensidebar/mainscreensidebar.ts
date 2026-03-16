@@ -6,6 +6,7 @@ import { SIDEBAR_MENU, MenuItem } from './menu-items.constants';
 import { filter, takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { Subject } from 'rxjs';
+import { Dialog } from "primeng/dialog";
 
 interface FlatMenuItem {
   label: string;
@@ -17,7 +18,7 @@ interface FlatMenuItem {
 @Component({
   selector: 'app-mainscreen-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, Dialog],
   templateUrl: './mainscreensidebar.html',
   styleUrl: './mainscreensidebar.scss'
 })

@@ -136,7 +136,7 @@
   }
 
   <!-- Lesson Form Dialog -->
-  <p-dialog appendTo="body" [(visible)]="showFormDialog" [style]="{width: '750px', maxWidth: '95vw'}"
+  <p-dialog appendTo="body"  appendTo="body" [(visible)]="showFormDialog" [style]="{width: '750px', maxWidth: '95vw'}"
     [header]="dialogTitle()" [modal]="true" [draggable]="false" [resizable]="false" styleClass="glass-dialog">
     @if (showFormDialog()) {
     <app-lesson-form [sectionId]="sectionId()" [lessonId]="selectedLessonId()" [courseId]="courseId()"
@@ -146,7 +146,7 @@
   </p-dialog>
 
   <!-- Lesson Detail Dialog -->
-  <p-dialog appendTo="body" [(visible)]="showDetailDialog" [style]="{width: '75%', maxWidth: '95vw'}"
+  <p-dialog appendTo="body"  appendTo="body" [(visible)]="showDetailDialog" [style]="{width: '75%', maxWidth: '95vw'}"
     header="Lesson Preview" [modal]="true" [draggable]="false" [resizable]="false" styleClass="glass-dialog">
     @if (selectedLesson()) {
     <app-lesson-detail [lesson]="selectedLesson()" (edit)="editFromDetail()" (close)="closeDetailDialog()">
@@ -259,7 +259,7 @@
     </div>
   }
 
-  <p-dialog appendTo="body" 
+  <p-dialog appendTo="body"  appendTo="body" 
     [(visible)]="showFormDialog" 
     [style]="{width: '750px', maxWidth: '95vw'}" 
     [header]="dialogTitle()"
@@ -278,7 +278,7 @@
     }
   </p-dialog>
 
-  <p-dialog appendTo="body" 
+  <p-dialog appendTo="body"  appendTo="body" 
     [(visible)]="showDetailDialog" 
     [style]="{width: '75%', maxWidth: '95vw'}" 
     header="Lesson Preview"

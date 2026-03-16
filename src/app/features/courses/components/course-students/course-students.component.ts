@@ -18,6 +18,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 // Services
 import { CourseService } from '../../../../core/services/course.service';
 import { EnrollmentService } from '../../../../core/services/enrollment.service';
+import { AppMessageService } from '../../../../core/utils/message.service';
 
 @Component({
   selector: 'app-course-students',
@@ -45,7 +46,7 @@ export class CourseStudentsComponent implements OnInit {
   private enrollmentService = inject(EnrollmentService);
   private courseService = inject(CourseService);
   private confirmationService = inject(ConfirmationService);
-  private messageService = inject(MessageService);
+  private messageService = inject(AppMessageService);
   private destroyRef = inject(DestroyRef);
 
   // State Signals 
@@ -171,7 +172,7 @@ export class CourseStudentsComponent implements OnInit {
 //   private enrollmentService = inject(EnrollmentService);
 //   private courseService = inject(CourseService);
 //   private confirmationService = inject(ConfirmationService);
-//   private messageService = inject(MessageService);
+//   private messageService = inject(AppMessageService);
 //   private destroyRef = inject(DestroyRef);
 
 //   // State Signals 

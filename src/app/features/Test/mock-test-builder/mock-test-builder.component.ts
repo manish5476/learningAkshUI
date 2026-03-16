@@ -1,6 +1,6 @@
 // core/models/course.model.ts
 
- interface Category {
+interface Category {
   _id: string;
   name: string;
   description?: string;
@@ -11,7 +11,7 @@
   updatedAt?: Date;
 }
 
- interface Question {
+interface Question {
   _id?: string;
   question: string;
   sectionName?: string;
@@ -25,7 +25,7 @@
   mockTest?: string;
 }
 
- interface MockTest {
+interface MockTest {
   _id?: string;
   title: string;
   description?: string;
@@ -44,7 +44,7 @@
   updatedAt?: Date;
 }
 
- interface ApiResponse<T> {
+interface ApiResponse<T> {
   success: boolean;
   data: T;
   message?: string;
@@ -74,6 +74,7 @@ import { MessageService } from 'primeng/api';
 import { MockTestService } from '../../../core/services/mock-test.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { MasterApiService } from '../../../core/services/master-list.service';
+import { AppMessageService } from '../../../core/utils/message.service';
 
 // Models
 // import { Category, MockTest } from '../../../core/models/course.model';
@@ -116,13 +117,13 @@ export class MockTestBuilderComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private masterApiService = inject(MasterApiService);
   private router = inject(Router);
-  private messageService = inject(MessageService);
+  private messageService = inject(AppMessageService);
   private mockTestService = inject(MockTestService);
   private categoryService = inject(CategoryService);
   private destroyRef = inject(DestroyRef);
 
   // Public constants
-  readonly levels=signal<any[]>([]);
+  readonly levels = signal<any[]>([]);
   readonly maxQuestions = MAX_QUESTIONS;
 
   // State signals
@@ -148,8 +149,8 @@ export class MockTestBuilderComponent implements OnInit {
     this.setupRouteSubscription();
     this.setupFormSubscriptions();
   }
-  
-private loadMasterData(): void {
+
+  private loadMasterData(): void {
     forkJoin({
       categories: this.masterApiService.getPublicValues('course_category'),
       levels: this.masterApiService.getPublicValues('course_level'),
@@ -158,7 +159,7 @@ private loadMasterData(): void {
       // lessonTypes: this.masterApiService.getPublicValues('lesson_type')
     }).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res:any) => {
+        next: (res: any) => {
           this.categories.set(res.categories.data);
           this.levels.set(res.levels.data || []);
           // this.languages.set(res.languages.data || []);
@@ -215,7 +216,7 @@ private loadMasterData(): void {
         this.testForm.patchValue({ category: qParams['categoryId'] });
       }
     });
-    
+
     // Add initial question
     this.addQuestion();
     this.isLoading.set(false);
@@ -235,11 +236,7 @@ private loadMasterData(): void {
           },
           error: (error) => {
             console.error('Failed to load categories', error);
-            this.messageService.add({
-              severity: 'warn',
-              summary: 'Warning',
-              detail: 'Could not load categories. Please try again.'
-            });
+            this.messageService.showWarn('Could not load categories. Please try again.');
           }
         }),
         takeUntilDestroyed(this.destroyRef)
@@ -260,11 +257,7 @@ private loadMasterData(): void {
           },
           error: (error) => {
             this.loadingError.set(error.message || 'Failed to load mock test');
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: 'Could not load Mock Test. Please try again.'
-            });
+            this.messageService.showError('Could not load Mock Test. Please try again.');
           }
         }),
         finalize(() => this.isLoading.set(false)),
@@ -290,7 +283,7 @@ private loadMasterData(): void {
 
     // Clear and populate questions
     this.questions.clear();
-    
+
     if (test.questions?.length) {
       test.questions.forEach((q: any) => this.addExistingQuestion(q));
     } else {
@@ -323,7 +316,7 @@ private loadMasterData(): void {
       }
 
       const formArray = control as FormArray;
-      
+
       // Check if any option has isCorrect = true
       const hasCorrect = formArray.controls.some(
         (optionControl: AbstractControl) => optionControl.get('isCorrect')?.value === true
@@ -351,11 +344,7 @@ private loadMasterData(): void {
 
   addQuestion(): void {
     if (this.questions.length >= MAX_QUESTIONS) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Limit Reached',
-        detail: `Maximum ${MAX_QUESTIONS} questions allowed`
-      });
+      this.messageService.showWarn(`Maximum ${MAX_QUESTIONS} questions allowed`);
       return;
     }
 
@@ -365,7 +354,7 @@ private loadMasterData(): void {
 
   private addExistingQuestion(question: any): void {
     const questionGroup = this.createQuestionGroup();
-    
+
     questionGroup.patchValue({
       sectionName: question.sectionName || 'General',
       question: question.question,
@@ -376,7 +365,7 @@ private loadMasterData(): void {
     // Clear and add options
     const optionsArray = questionGroup.get('options') as FormArray;
     optionsArray.clear();
-    
+
     question.options?.forEach((opt: any) => {
       optionsArray.push(this.fb.group({
         text: [opt.text, Validators.required],
@@ -418,11 +407,7 @@ private loadMasterData(): void {
 
   removeQuestion(index: number): void {
     if (this.questions.length <= 1) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Cannot Remove',
-        detail: 'Test must have at least one question'
-      });
+      this.messageService.showWarn('Test must have at least one question');
       return;
     }
 
@@ -435,18 +420,14 @@ private loadMasterData(): void {
 
   addOption(questionIndex: number): void {
     const options = this.getOptions(questionIndex);
-    
+
     if (options.length >= MAX_OPTIONS) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Limit Reached',
-        detail: `Maximum ${MAX_OPTIONS} options allowed`
-      });
+      this.messageService.showWarn(`Maximum ${MAX_OPTIONS} options allowed`);
       return;
     }
 
     options.push(this.createOptionGroup());
-    
+
     // Re-apply validator and update validity
     options.setValidators(this.validateOptions());
     options.updateValueAndValidity();
@@ -454,18 +435,14 @@ private loadMasterData(): void {
 
   removeOption(questionIndex: number, optionIndex: number): void {
     const options = this.getOptions(questionIndex);
-    
+
     if (options.length <= MIN_OPTIONS) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Cannot Remove',
-        detail: `Minimum ${MIN_OPTIONS} options required`
-      });
+      this.messageService.showWarn(`Minimum ${MIN_OPTIONS} options required`);
       return;
     }
 
     options.removeAt(optionIndex);
-    
+
     // Re-apply validator and update validity
     options.setValidators(this.validateOptions());
     options.updateValueAndValidity();
@@ -480,7 +457,7 @@ private loadMasterData(): void {
         control.get('isCorrect')?.setValue(false, { emitEvent: false });
       }
     });
-    
+
     // Update validity after changes
     options.updateValueAndValidity();
   }
@@ -506,11 +483,7 @@ private loadMasterData(): void {
   private validateTest(): boolean {
     if (this.testForm.invalid) {
       this.testForm.markAllAsTouched();
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Incomplete Form',
-        detail: 'Please fill out all required fields correctly.'
-      });
+      this.messageService.showWarn('Please fill out all required fields correctly.');
       return false;
     }
 
@@ -519,11 +492,7 @@ private loadMasterData(): void {
     for (let i = 0; i < questions.length; i++) {
       const hasCorrect = questions[i].options.some((opt: any) => opt.isCorrect);
       if (!hasCorrect) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Missing Answer',
-          detail: `Question ${i + 1} needs a correct option selected.`
-        });
+        this.messageService.showError(`Question ${i + 1} needs a correct option selected.`);
         return false;
       }
     }
@@ -542,7 +511,7 @@ private loadMasterData(): void {
 
     this.isSaving.set(true);
     const rawData = this.testForm.getRawValue();
-    
+
     // Prepare payload
     const mockTestPayload = this.prepareMockTestPayload(rawData);
 
@@ -553,22 +522,16 @@ private loadMasterData(): void {
     saveOperation.pipe(
       tap({
         next: () => {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: `Mock Test ${this.mockTestId() ? 'updated' : 'created'} successfully!`
-          });
-          
+          this.messageService.showSuccess(
+            `Mock Test ${this.mockTestId() ? 'updated' : 'created'} successfully!`
+          );
+
           setTimeout(() => {
             this.router.navigate(['/instructor/mock-tests']);
           }, 1500);
         },
         error: (error) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: error.error?.message || `Failed to ${this.mockTestId() ? 'update' : 'create'} mock test.`
-          });
+          this.messageService.showError(error.error?.message || `Failed to ${this.mockTestId() ? 'update' : 'create'} mock test.`);
         }
       }),
       finalize(() => this.isSaving.set(false)),
@@ -600,7 +563,7 @@ private loadMasterData(): void {
     return this.mockTestService.create(payload).pipe(
       switchMap((res: any) => {
         const newId = res.data.mockTest._id;
-        
+
         const questionsWithRef = questions.map((q: any, index: number) => ({
           ...q,
           mockTest: newId,

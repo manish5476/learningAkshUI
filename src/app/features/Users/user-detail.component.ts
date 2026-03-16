@@ -19,6 +19,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { RippleModule } from 'primeng/ripple';
 import { StyleClassModule } from 'primeng/styleclass';
 import { UserService } from '../../core/services/user.service';
+import { AppMessageService } from '../../core/utils/message.service';
 
 interface User {
   _id: string;
@@ -1093,7 +1094,7 @@ export class UserDetailComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
 
   private userService = inject(UserService);
-  private messageService = inject(MessageService);
+  private messageService = inject(AppMessageService);
   private destroy$ = new Subscription();
 
   // Signals
@@ -1221,11 +1222,8 @@ this.userDataSignal.set(null)
         console.error('Failed to load user', error);
         this.errorSignal.set(error.message || 'Failed to load user profile');
         this.loadingSignal.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load user profile'
-        });
+        this.messageService.showError('Failed to load user profile'
+        );
       }
     });
 
@@ -1248,12 +1246,7 @@ this.userDataSignal.set(null)
     try {
       await navigator.clipboard.writeText(text);
       this.copiedIdSignal.set(text);
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Copied!',
-        detail: 'User ID copied to clipboard',
-        life: 2000
-      });
+      this.messageService.showSuccess('User ID copied to clipboard');
       
       setTimeout(() => {
         if (this.copiedIdSignal() === text) {
@@ -1262,11 +1255,8 @@ this.userDataSignal.set(null)
       }, 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to copy to clipboard'
-      });
+      this.messageService.showError('Failed to copy to clipboard'
+      );
     }
   }
 

@@ -22,6 +22,7 @@ import { MessageService } from 'primeng/api';
 // Services
 import { QuizService } from '../../../../core/services/quiz.service';
 import { MasterApiService } from '../../../../core/services/master-list.service';
+import { AppMessageService } from '../../../../core/utils/message.service';
 
 // Types
 interface QuestionType {
@@ -52,7 +53,7 @@ export class QuizBuilderComponent implements OnInit {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private messageService = inject(MessageService);
+  private messageService = inject(AppMessageService);
   private quizService = inject(QuizService);
   private masterApi = inject(MasterApiService);
   private destroyRef = inject(DestroyRef);
@@ -148,11 +149,7 @@ export class QuizBuilderComponent implements OnInit {
     this.questions.clear();
     this.addQuestion();
 
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Started Fresh',
-      detail: 'You are now creating a new quiz.'
-    });
+    this.messageService.showInfo('You are now creating a new quiz.');
   }
 
   get questions(): FormArray { return this.quizForm.get('questions') as FormArray; }
@@ -275,27 +272,7 @@ export class QuizBuilderComponent implements OnInit {
     else this.addQuestion();
   }
 
-  private addExistingQuestion(question: any): void {
-    const questionGroup = this.createQuestionGroup();
-    questionGroup.patchValue({
-      question: question.question,
-      type: question.type,
-      points: question.points,
-      explanation: question.explanation || '',
-      correctAnswer: question.correctAnswer || ''
-    });
 
-    if (question.type === 'multiple-choice' && question.options?.length) {
-      const optionsArray = questionGroup.get('options') as FormArray;
-      optionsArray.clear();
-      question.options.forEach((opt: any) => {
-        optionsArray.push(this.fb.group({ text: [opt.text, Validators.required], isCorrect: [opt.isCorrect || false] }));
-      });
-      optionsArray.setValidators(this.validateOptions());
-      optionsArray.updateValueAndValidity();
-    }
-    this.questions.push(questionGroup);
-  }
 
   saveQuiz(): void {
     if (!this.validateQuiz()) return;
@@ -308,17 +285,17 @@ export class QuizBuilderComponent implements OnInit {
 
     saveOperation.pipe(finalize(() => this.isSaving.set(false)), takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: `Quiz ${this.quizId() ? 'updated' : 'created'} successfully!` });
+        this.messageService.showSuccess(`Quiz ${this.quizId() ? 'updated' : 'created'} successfully!`);
         setTimeout(() => this.router.navigate(['/instructor/courses']), 1500);
       },
-      error: (error) => this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error?.message || `Failed to save quiz.` })
+      error: (error) => this.messageService.showError(error.error?.message || `Failed to save quiz.`)
     });
   }
 
   private validateQuiz(): boolean {
     if (this.quizForm.invalid) {
       this.quizForm.markAllAsTouched();
-      this.messageService.add({ severity: 'warn', summary: 'Incomplete Form', detail: 'Please fill out all required fields.' });
+      this.messageService.showWarn('Please fill out all required fields.');
       return false;
     }
     return true;
@@ -331,7 +308,7 @@ export class QuizBuilderComponent implements OnInit {
       timeLimit: rawData.timeLimit,
       passingScore: rawData.passingScore,
       maxAttempts: rawData.maxAttempts,
-      questions: rawData.questions ,
+      questions: rawData.questions,
       course: rawData.courseId
     };
 
@@ -360,7 +337,42 @@ export class QuizBuilderComponent implements OnInit {
   copyQuizId(): void {
     if (this.quizId()) {
       navigator.clipboard.writeText(this.quizId()!);
-      this.messageService.add({ severity: 'info', summary: 'Copied', detail: 'Quiz ID copied to clipboard!' });
+      this.messageService.showInfo('Quiz ID copied to clipboard!');
     }
+  }
+
+
+  private addExistingQuestion(question: any): void {
+    const questionGroup = this.createQuestionGroup();
+
+    // Normalize the type to lowercase to match your frontend logic
+    const normalizedType = question.type?.toLowerCase() || 'multiple-choice';
+
+    questionGroup.patchValue({
+      question: question.question,
+      type: normalizedType, // Store as lowercase
+      points: question.points,
+      explanation: question.explanation || '',
+      correctAnswer: question.correctAnswer || ''
+    });
+
+    // Check against normalized type
+    if (normalizedType === 'multiple-choice' && question.options?.length) {
+      const optionsArray = questionGroup.get('options') as FormArray;
+      optionsArray.clear();
+
+      question.options.forEach((opt: any) => {
+        optionsArray.push(this.fb.group({
+          text: [opt.text, Validators.required],
+          // Ensure isCorrect is properly mapped from the API
+          isCorrect: [opt.isCorrect || false]
+        }));
+      });
+
+      optionsArray.setValidators(this.validateOptions());
+      optionsArray.updateValueAndValidity();
+    }
+
+    this.questions.push(questionGroup);
   }
 }

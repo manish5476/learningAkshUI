@@ -28,6 +28,7 @@ import { CourseDiscussionComponent } from "../course-discussion/course-discussio
 import { QuizService } from '../../../../core/services/quiz.service';
 import { PaymentService } from '../../../../core/services/payment.service';
 import { MasterApiService } from '../../../../core/services/master-list.service';
+import { AppMessageService } from '../../../../core/utils/message.service';
 
 @Component({
   selector: 'app-course-detail',
@@ -48,7 +49,7 @@ export class CourseDetailComponent implements OnInit {
   private fb = inject(FormBuilder);
   private courseService = inject(CourseService);
   private enrollmentService = inject(EnrollmentService);
-  private messageService = inject(MessageService);
+  private messageService = inject(AppMessageService);
   private quizService = inject(QuizService);
   private destroyRef = inject(DestroyRef);
   private authService = inject(AuthService);
@@ -61,9 +62,9 @@ export class CourseDetailComponent implements OnInit {
   videoType = signal<'youtube' | 'vimeo' | 'direct' | null>(null);
   videoId = signal<string>('');
 
-  quizzes = signal<any[]>([]); 
-    showQuizzesModal = signal<boolean>(false);
-    course = signal<any | undefined>(undefined);
+  quizzes = signal<any[]>([]);
+  showQuizzesModal = signal<boolean>(false);
+  course = signal<any | undefined>(undefined);
   sections = signal<any[]>([]);
   isLoading = signal<boolean>(true);
   error = signal<string | null>(null);
@@ -242,9 +243,9 @@ export class CourseDetailComponent implements OnInit {
       .subscribe({
         next: () => {
           this.course.update(course => course ? { ...course, isPublished: true } : course);
-          this.messageService.add({ severity: 'success', summary: 'Published!', detail: 'Course published successfully' });
+          this.messageService.showSuccess('Course published successfully');
         },
-        error: (error) => this.messageService.add({ severity: 'error', summary: 'Failed', detail: error.message || 'Could not publish course' })
+        error: (error) => this.messageService.showError(error.message || 'Could not publish course')
       });
   }
 
@@ -257,9 +258,9 @@ export class CourseDetailComponent implements OnInit {
       .subscribe({
         next: () => {
           this.course.update(course => course ? { ...course, isPublished: false } : course);
-          this.messageService.add({ severity: 'info', summary: 'Unpublished', detail: 'Course is now hidden.' });
+          this.messageService.showInfo('Course is now hidden.');
         },
-        error: () => this.messageService.add({ severity: 'error', summary: 'Failed', detail: 'Could not unpublish course' })
+        error: () => this.messageService.showError('Could not unpublish course')
       });
   }
 
@@ -307,12 +308,12 @@ export class CourseDetailComponent implements OnInit {
           this.isProcessingPayment.set(false);
           this.showCheckoutModal.set(false);
           this.isEnrolled.set(true);
-          this.messageService.add({ severity: 'success', summary: 'Payment Successful!', detail: 'Taking you to the classroom...' });
+          this.messageService.showSuccess('Taking you to the classroom...');
           setTimeout(() => this.router.navigate(['/courses/learn', course.slug || courseId]), 1500);
         },
         error: (err: any) => {
           this.isProcessingPayment.set(false);
-          this.messageService.add({ severity: 'error', summary: 'Payment Failed', detail: err?.error?.message || 'Could not complete payment.' });
+          this.messageService.showError(err?.error?.message || 'Could not complete payment.');
         }
       });
   }
@@ -325,17 +326,17 @@ export class CourseDetailComponent implements OnInit {
           this.isProcessingPayment.set(false);
           this.showCheckoutModal.set(false);
           this.isEnrolled.set(true);
-          this.messageService.add({ severity: 'success', summary: 'Success!', detail: 'Enrollment complete.' });
+          this.messageService.showSuccess('Enrollment complete.');
           setTimeout(() => this.router.navigate(['/courses/learn', this.course()?.slug || courseId]), 1500);
         },
         error: (err: any) => {
           this.isProcessingPayment.set(false);
-          this.messageService.add({ severity: 'error', summary: 'Enrollment Failed', detail: err?.error?.message || 'Could not complete enrollment.' });
+          this.messageService.showError( err?.error?.message || 'Could not complete enrollment.');
         }
       });
   }
 
- private CourseQuizes(courseId: string): void {
+  private CourseQuizes(courseId: string): void {
     this.courseService.getquizzesBySlug(courseId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -473,7 +474,7 @@ export class CourseDetailComponent implements OnInit {
   //   // ✅ CORRECT: Matches your :courseId/quiz/new route
   //   this.router.navigate(['/courses', courseData._id, 'quiz', 'new']);
   // }
-// ==================== QUIZ MANAGEMENT ====================
+  // ==================== QUIZ MANAGEMENT ====================
   openQuizzesModal(): void {
     this.showQuizzesModal.set(true);
   }
@@ -495,7 +496,7 @@ export class CourseDetailComponent implements OnInit {
     // Navigates to: /courses/:courseId/quiz/:id
     this.router.navigate(['/courses', courseId, 'quiz', quizId]);
   }
-  
+
   viewInstructors(): void {
     const courseId = this.course()?._id;
     if (courseId) this.router.navigate(['/instructor/courses', courseId, 'instructors']);

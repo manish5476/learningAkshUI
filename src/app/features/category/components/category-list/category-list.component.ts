@@ -15,6 +15,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
 import { CategoryService } from '../../../../core/services/category.service';
+import { AppMessageService } from '../../../../core/utils/message.service';
 
 @Component({
   selector: 'app-category-list',
@@ -39,7 +40,7 @@ import { CategoryService } from '../../../../core/services/category.service';
 export class CategoryListComponent implements OnInit {
   private categoryService = inject(CategoryService);
   private confirmationService = inject(ConfirmationService);
-  private messageService = inject(MessageService);
+  private messageService = inject(AppMessageService);
   private destroyRef = inject(DestroyRef);
 
   // Reactive State Signals
@@ -118,7 +119,7 @@ export class CategoryListComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Failed to load categories', error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load categories' });
+        this.messageService.showError( 'Failed to load categories' );
         this.loading.set(false);
       }
     });
@@ -155,12 +156,12 @@ export class CategoryListComponent implements OnInit {
       accept: () => {
         this.categoryService.deleteCategory(category._id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
           next: () => {
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Category deleted successfully' });
+            this.messageService.showSuccess( 'Category deleted successfully' );
             this.loadCategories();
           },
           error: (error: any) => {
             console.error('Failed to delete category', error);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error?.message || 'Failed to delete category' });
+            this.messageService.showError( error.error?.message || 'Failed to delete category' );
           }
         });
       }
@@ -201,7 +202,7 @@ export class CategoryListComponent implements OnInit {
 //   // Injectors
 //   private categoryService = inject(CategoryService);
 //   private confirmationService = inject(ConfirmationService);
-//   private messageService = inject(MessageService);
+//   private messageService = inject(AppMessageService);
 //   private destroyRef = inject(DestroyRef);
 
 //   // Reactive State Signals

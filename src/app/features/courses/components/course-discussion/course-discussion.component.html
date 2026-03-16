@@ -170,7 +170,7 @@
   }
 </div>
 
-<p-dialog [(visible)]="showNewDiscussionDialog" header="Ask a Question" [modal]="true" [style]="{width: '550px'}" styleClass="border-radius-xl shadow-xl discussion-dialog" [draggable]="false" [dismissableMask]="true">
+<p-dialog appendTo="body"  [(visible)]="showNewDiscussionDialog" header="Ask a Question" [modal]="true" [style]="{width: '550px'}" styleClass="border-radius-xl shadow-xl discussion-dialog" [draggable]="false" [dismissableMask]="true">
   <form [formGroup]="newDiscussionForm" (ngSubmit)="submitNewDiscussion()" class="flex-col gap-xl pt-md">
     <div class="form-group flex-col gap-xs">
       <label for="input-title" class="font-bold text-sm text-primary">Question Title <span class="text-error">*</span></label>
@@ -357,7 +357,7 @@
   }
 </div>
 
-<p-dialog [(visible)]="showNewDiscussionDialog" header="Ask a Question" [modal]="true" [style]="{width: '550px'}" styleClass="border-radius-xl shadow-xl discussion-dialog" [draggable]="false" [dismissableMask]="true">
+<p-dialog appendTo="body"  [(visible)]="showNewDiscussionDialog" header="Ask a Question" [modal]="true" [style]="{width: '550px'}" styleClass="border-radius-xl shadow-xl discussion-dialog" [draggable]="false" [dismissableMask]="true">
   <form [formGroup]="newDiscussionForm" (ngSubmit)="submitNewDiscussion()" class="flex-col gap-xl pt-md">
     <div class="form-group flex-col gap-xs">
       <label class="font-bold text-sm text-primary">Question Title <span class="text-error">*</span></label>

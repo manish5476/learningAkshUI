@@ -11,6 +11,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { Certificate, CertificateService } from '../../../../core/services/certificate.service';
+import { AppMessageService } from '../../../../core/utils/message.service';
 
 @Component({
   selector: 'app-certificate-detail',
@@ -366,7 +367,7 @@ import { Certificate, CertificateService } from '../../../../core/services/certi
 export class CertificateDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private certificateService = inject(CertificateService);
-  private messageService = inject(MessageService);
+  private messageService = inject(AppMessageService);
 
   certificate = this.certificateService.selectedCertificate;
   loading = this.certificateService.loading;
@@ -377,7 +378,7 @@ export class CertificateDetailComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     const url = this.route.snapshot.url.join('/');
     this.isAdminView.set(url.includes('admin'));
-    
+
     if (id) {
       this.loadCertificate(id);
     }
@@ -410,11 +411,8 @@ export class CertificateDetailComponent implements OnInit {
     const cert = this.certificate();
     if (cert) {
       this.certificateService.downloadCertificatePDF(cert._id);
-      this.messageService.add({
-        severity: 'info',
-        summary: 'Download Started',
-        detail: 'Your certificate PDF is being generated...'
-      });
+      this.messageService.showSuccess('Your certificate PDF is being generated...'
+      );
     }
   }
 
@@ -422,11 +420,8 @@ export class CertificateDetailComponent implements OnInit {
     const cert = this.certificate();
     if (cert) {
       navigator.clipboard.writeText(cert.certificateNumber);
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Copied!',
-        detail: 'Certificate number copied to clipboard'
-      });
+      this.messageService.showInfo('Certificate number copied to clipboard'
+      );
     }
   }
 

@@ -14,6 +14,7 @@ import { TooltipModule } from 'primeng/tooltip';
 
 import { Enrollment } from '../../../../core/models/enrollment.model';
 import { EnrollmentService } from '../../../../core/services/enrollment.service';
+import { AppMessageService } from '../../../../core/utils/message.service';
 
 @Component({
   selector: 'app-student-enrollments',
@@ -35,7 +36,7 @@ import { EnrollmentService } from '../../../../core/services/enrollment.service'
 })
 export class StudentEnrollmentsComponent implements OnInit {
   private enrollmentService = inject(EnrollmentService);
-  private messageService = inject(MessageService);
+  private messageService = inject(AppMessageService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
@@ -73,7 +74,7 @@ export class StudentEnrollmentsComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error fetching enrollments', err);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not load your courses.' });
+          this.messageService.showError( 'Could not load your courses.' );
           this.isLoading.set(false);
         }
       });
@@ -111,7 +112,7 @@ export class StudentEnrollmentsComponent implements OnInit {
   }
 
   downloadCertificate(enrollmentId: string): void {
-    this.messageService.add({ severity: 'info', summary: 'Processing', detail: 'Generating your certificate...' });
+    this.messageService.showInfo( 'Generating your certificate...' );
     
     // this.enrollmentService.getCertificate(enrollmentId)
     //   .pipe(takeUntilDestroyed(this.destroyRef))
@@ -178,7 +179,7 @@ export class StudentEnrollmentsComponent implements OnInit {
 // })
 // export class StudentEnrollmentsComponent implements OnInit {
 //   private enrollmentService = inject(EnrollmentService);
-//   private messageService = inject(MessageService);
+//   private messageService = inject(AppMessageService);
 //   private router = inject(Router);
 //   private destroyRef = inject(DestroyRef);
 

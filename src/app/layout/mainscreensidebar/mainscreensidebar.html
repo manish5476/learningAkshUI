@@ -5,76 +5,64 @@
       <span class="brand-text">Apex Infinity</span>
 
       @if (!layout.isMobile()) {
-        <button class="pin-btn search-trigger" (click)="openSearch()" title="Search (Ctrl+K)">
-          <i class="pi pi-search"></i>
-        </button>
+      <button class="pin-btn search-trigger" (click)="openSearch()" title="Search (Ctrl+K)">
+        <i class="pi pi-search"></i>
+      </button>
 
-        <button class="pin-btn" 
-                [class.active]="layout.isPinned()" 
-                (click)="togglePin()"
-                title="Pin Sidebar">
-          <i class="pi pi-thumbtack"></i>
-        </button>
+      <button class="pin-btn" [class.active]="layout.isPinned()" (click)="togglePin()" title="Pin Sidebar">
+        <i class="pi pi-thumbtack"></i>
+      </button>
       }
     </div>
 
     <div class="menu-scroll-area">
       @for (item of menuItems; track item.label) {
 
-        <div class="menu-group">
-          <div 
-            class="menu-item level-1" 
-            [class.active-parent]="hasActiveChild(item)"
-            (click)="handleItemClick(item)">
+      <div class="menu-group">
+        <div class="menu-item level-1" [class.active-parent]="hasActiveChild(item)" (click)="handleItemClick(item)">
 
-            <div class="icon-wrapper"><i [class]="item.icon"></i></div>
-            <span class="label-text">{{ item.label }}</span>
-
-            @if (item.items) {
-              <i class="pi pi-chevron-down arrow-indicator" 
-                 [class.rotated]="expandedState[item.label]"></i>
-            }
-          </div>
+          <div class="icon-wrapper"><i [class]="item.icon"></i></div>
+          <span class="label-text">{{ item.label }}</span>
 
           @if (item.items) {
-            <div class="submenu-accordion" [class.expanded]="expandedState[item.label]">
-              <div class="submenu-content">
-                @for (subItem of item.items; track subItem.label) {
-
-                  <div class="submenu-wrapper">
-                    <div 
-                      class="menu-item level-2"
-                      [class.active-link]="isActiveLink(subItem)"
-                      (click)="handleItemClick(subItem)">
-                      <span class="label-text">{{ subItem.label }}</span>
-
-                      @if (subItem.items) {
-                        <i class="pi pi-chevron-down arrow-indicator sm" 
-                           [class.rotated]="expandedState[subItem.label]"></i>
-                      }
-                    </div>
-
-                    @if (subItem.items) {
-                      <div class="submenu-accordion" [class.expanded]="expandedState[subItem.label]">
-                        <div class="submenu-content level-3-wrapper">
-                          @for (deepItem of subItem.items; track deepItem.label) {
-                            <a 
-                              class="menu-item level-3"
-                              [class.active-link]="isActiveLink(deepItem)"
-                              (click)="handleItemClick(deepItem)">
-                              <span class="label-text">{{ deepItem.label }}</span>
-                            </a>
-                          }
-                        </div>
-                      </div>
-                    }
-
-                  </div>
-                }
-              </div>
-            </div>
+          <i class="pi pi-chevron-down arrow-indicator" [class.rotated]="expandedState[item.label]"></i>
           }
         </div>
+
+        @if (item.items) {
+        <div class="submenu-accordion" [class.expanded]="expandedState[item.label]">
+          <div class="submenu-content">
+            @for (subItem of item.items; track subItem.label) {
+
+            <div class="submenu-wrapper">
+              <div class="menu-item level-2" [class.active-link]="isActiveLink(subItem)"
+                (click)="handleItemClick(subItem)">
+                <span class="label-text">{{ subItem.label }}</span>
+
+                @if (subItem.items) {
+                <i class="pi pi-chevron-down arrow-indicator sm" [class.rotated]="expandedState[subItem.label]"></i>
+                }
+              </div>
+
+              @if (subItem.items) {
+              <div class="submenu-accordion" [class.expanded]="expandedState[subItem.label]">
+                <div class="submenu-content level-3-wrapper">
+                  @for (deepItem of subItem.items; track deepItem.label) {
+                  <a class="menu-item level-3" [class.active-link]="isActiveLink(deepItem)"
+                    (click)="handleItemClick(deepItem)">
+                    <span class="label-text">{{ deepItem.label }}</span>
+                  </a>
+                  }
+                </div>
+              </div>
+              }
+
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </div>
       }
     </div>
 
@@ -87,66 +75,72 @@
   </div>
 </aside>
 
-@if (isSearchVisible) {
-  <div class="spotlight-overlay" (click)="closeSearch()">
-    <div class="spotlight-modal" (click)="$event.stopPropagation()">
-      
-      <div class="spotlight-header">
-        <i class="pi pi-search search-icon"></i>
-        <input 
-          #searchInput 
-          type="text" 
-          placeholder="Search navigation..." 
-          [value]="searchQuery"
-          (input)="onSearchInput($event)"
-          class="spotlight-input"
-        >
-        <div class="esc-badge">ESC</div>
-      </div>
+<p-dialog 
+  [(visible)]="isSearchVisible" 
+  [modal]="true" 
+  [closable]="false"
+  [draggable]="false" 
+  [resizable]="false" 
+  [showHeader]="false"
+  styleClass="spotlight-dialog"
+  maskStyleClass="spotlight-mask"
+  appendTo="body">
+  
+  <div class="spotlight-container" (click)="$event.stopPropagation()">
+    <div class="spotlight-header">
+      <i class="pi pi-search search-icon"></i>
+      <input #searchInput 
+             type="text" 
+             placeholder="Search navigation..." 
+             [value]="searchQuery"
+             (input)="onSearchInput($event)" 
+             class="spotlight-input"
+             (keydown.esc)="closeSearch()">
+      <div class="esc-badge">ESC</div>
+    </div>
 
-      <div class="spotlight-results">
-        <div class="search-results-list">
-          @for (result of filteredResults; track result.label; let i = $index) {
-            <div 
-              class="result-item" 
-              [id]="'result-' + i"
-              [class.focused]="i === focusedIndex"
-              (click)="navigateToResult(result)"
-              (mouseenter)="focusedIndex = i">
-              
-              <div class="result-icon">
-                <i [class]="result.icon"></i>
-              </div>
-              
-              <div class="result-info">
-                <span class="result-label">{{ result.label }}</span>
-                @if(result.breadcrumb) {
-                  <span class="result-breadcrumb">{{ result.breadcrumb }}</span>
-                }
-              </div>
+    <div class="spotlight-results">
+      <div class="search-results-list">
+        @for (result of filteredResults; track result.label; let i = $index) {
+          <div class="result-item" 
+               [id]="'result-' + i" 
+               [class.focused]="i === focusedIndex"
+               (click)="navigateToResult(result)" 
+               (mouseenter)="focusedIndex = i">
 
-              <i class="pi pi-arrow-left enter-icon"></i>
+            <div class="result-icon">
+              <i [class]="result.icon"></i>
             </div>
-          }
 
-          @if (filteredResults.length === 0) {
-            <div class="no-results">
-              <i class="pi pi-inbox"></i>
-              <span>No results found for "{{ searchQuery }}"</span>
+            <div class="result-info">
+              <span class="result-label">{{ result.label }}</span>
+              @if(result.breadcrumb) {
+                <span class="result-breadcrumb">{{ result.breadcrumb }}</span>
+              }
             </div>
-          }
-        </div>
-      </div>
-      
-      <div class="spotlight-footer">
-        <div class="key-hint">
-          <span>↑</span><span>↓</span> to navigate
-        </div>
-        <div class="key-hint">
-          <span>↵</span> to select
-        </div>
-      </div>
 
+            <div class="enter-action">
+              <span class="enter-text">Open</span>
+              <i class="pi pi-arrow-right enter-icon"></i>
+            </div>
+          </div>
+        }
+
+        @if (filteredResults.length === 0) {
+          <div class="no-results">
+            <i class="pi pi-search-plus"></i>
+            <span>No results found for "<strong>{{ searchQuery }}</strong>"</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="spotlight-footer">
+      <div class="footer-hints">
+        <div class="key-hint"><span>↑↓</span> Navigate</div>
+        <div class="key-hint"><span>↵</span> Select</div>
+      </div>
+      <div class="brand-tag">Apex Infinity Search</div>
     </div>
   </div>
-}
+</p-dialog>

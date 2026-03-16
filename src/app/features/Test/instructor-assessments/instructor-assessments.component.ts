@@ -13,6 +13,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { SkeletonModule } from 'primeng/skeleton';
 import { QuizService } from '../../../core/services/quiz.service';
+import { AppMessageService } from '../../../core/utils/message.service';
 
 // Services
 // import { QuizService } from '../../../../core/services/quiz.service';
@@ -39,7 +40,7 @@ export class InstructorAssessmentsComponent implements OnInit {
   private quizService = inject(QuizService);
   private router = inject(Router);
   private confirmationService = inject(ConfirmationService);
-  private messageService = inject(MessageService);
+  private messageService = inject(AppMessageService);
   private destroyRef = inject(DestroyRef);
 
   // State
@@ -56,7 +57,7 @@ export class InstructorAssessmentsComponent implements OnInit {
 
   private fetchQuizzes(): void {
     this.isLoading.set(true);
-    
+
     this.quizService.getAllQuizzes()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -66,7 +67,7 @@ export class InstructorAssessmentsComponent implements OnInit {
           this.isLoading.set(false);
         },
         error: (err: any) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load assessments.' });
+          this.messageService.showError('Failed to load assessments.');
           this.isLoading.set(false);
         }
       });
@@ -101,11 +102,11 @@ export class InstructorAssessmentsComponent implements OnInit {
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
             next: () => {
-              this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Quiz successfully deleted.' });
+              this.messageService.showSuccess('Quiz successfully deleted.');
               this.quizzes.update(list => list.filter(q => q._id !== id));
             },
             error: (err) => {
-              this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message || 'Failed to delete quiz.' });
+              this.messageService.showError(err.error?.message || 'Failed to delete quiz.');
             }
           });
       }
@@ -114,7 +115,7 @@ export class InstructorAssessmentsComponent implements OnInit {
 
   copyQuizId(id: string): void {
     navigator.clipboard.writeText(id);
-    this.messageService.add({ severity: 'info', summary: 'Copied', detail: 'Quiz ID copied to clipboard! Paste it into your Lesson Form.' });
+    this.messageService.showInfo('Quiz ID copied to clipboard! Paste it into your Lesson Form.' );
   }
 
   onSearch(event: Event, table: any): void {
@@ -161,7 +162,7 @@ export class InstructorAssessmentsComponent implements OnInit {
 //   private quizService = inject(QuizService);
 //   private router = inject(Router);
 //   private confirmationService = inject(ConfirmationService);
-//   private messageService = inject(MessageService);
+//   private messageService = inject(AppMessageService);
 //   private destroyRef = inject(DestroyRef);
 
 //   // State

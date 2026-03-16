@@ -254,7 +254,7 @@
 </div>
 
 <!-- QUIZ DIALOG -->
-<p-dialog [(visible)]="showQuizDialog" [modal]="true" [style]="{ width: '90%' }" [maximizable]="true"
+<p-dialog appendTo="body"  [(visible)]="showQuizDialog" [modal]="true" [style]="{ width: '90%' }" [maximizable]="true"
   [draggable]="false" [resizable]="false" header="Knowledge Check" styleClass="glass-dialog">
   @if (selectedQuizId()) {
   <app-lesson-quiz-taker [quizId]="selectedQuizId()"
@@ -448,7 +448,7 @@
   }
 </div>
 
-<p-dialog [(visible)]="showQuizDialog" [modal]="true" [style]="{ width: '90%', maxWidth: '900px' }" header="Knowledge Check" styleClass="cp-dialog">
+<p-dialog appendTo="body"  [(visible)]="showQuizDialog" [modal]="true" [style]="{ width: '90%', maxWidth: '900px' }" header="Knowledge Check" styleClass="cp-dialog">
   @if (selectedQuizId()) {
     <app-lesson-quiz-taker [quizId]="selectedQuizId()" (quizCompleted)="handleQuizCompleted($event)"></app-lesson-quiz-taker>
   }
@@ -695,7 +695,7 @@
   }
 </div>
 
-<p-dialog [(visible)]="showQuizDialog" [modal]="true" [style]="{ width: '90%', maxWidth: '800px' }" [maximizable]="true"
+<p-dialog appendTo="body"  [(visible)]="showQuizDialog" [modal]="true" [style]="{ width: '90%', maxWidth: '800px' }" [maximizable]="true"
   [draggable]="false" [resizable]="false" header="Quiz" styleClass="quiz-dialog">
 
   @if (selectedQuizId()) {
