@@ -1,4 +1,3 @@
-
 <div class="course-detail-container">
   <p-toast position="top-right"></p-toast>
 
@@ -29,16 +28,16 @@
 
   @else if (course(); as course) {
 
- <div class="nav-bar">
+  <div class="nav-bar">
     <div class="nav-left">
       <a [routerLink]="canManageCourse() ? '/instructor/courses' : '/courses'" class="back-link focus-ring">
         <i class="pi pi-arrow-left"></i>
         <span>{{ canManageCourse() ? 'My Courses' : 'All Courses' }}</span>
       </a>
       <span class="separator">/</span>
-      
+
       <span class="category">{{ getCategoryName()?.name }}</span>
-      
+
     </div>
 
     @if (canManageCourse()) {
@@ -48,12 +47,16 @@
         {{ getCourseStatus().label }}
       </span>
 
+      <button class="action-btn success focus-ring" (click)="showCourseInvitationDialog.set(true)">
+        <i class="pi pi-chart-bar"></i>
+        Invite
+      </button>
       <button class="action-btn success focus-ring" (click)="goAnalytics()">
         <i class="pi pi-chart-bar"></i>
         Analytics
       </button>
 
-     <button class="action-btn quiz-btn focus-ring" (click)="openQuizzesModal()">
+      <button class="action-btn quiz-btn focus-ring" (click)="openQuizzesModal()">
         <i class="pi pi-question-circle"></i>
         Manage Quizzes ({{ quizzes().length || 0 }})
       </button>
@@ -103,22 +106,23 @@
                 <span>{{ course.language }}</span>
               </div>
             </div>
-            
+
             <p-card class="instructor-p-card">
               <ng-template pTemplate="content">
                 <div class="instructor-card">
                   <div class="instructor-avatar">
                     @if (course.primaryInstructor?.profilePicture) {
-                      <img [src]="course.primaryInstructor.profilePicture" [alt]="course.primaryInstructor.firstName">
+                    <img [src]="course.primaryInstructor.profilePicture" [alt]="course.primaryInstructor.firstName">
                     } @else {
-                      <div class="avatar-placeholder">
-                        {{ getInstructorInitials(course.primaryInstructor) }}
-                      </div>
+                    <div class="avatar-placeholder">
+                      {{ getInstructorInitials(course.primaryInstructor) }}
+                    </div>
                     }
                   </div>
                   <div class="instructor-info">
                     <span class="label">Created by</span>
-                    <span class="name">{{ course.primaryInstructor?.firstName }} {{ course.primaryInstructor?.lastName }}</span>
+                    <span class="name">{{ course.primaryInstructor?.firstName }} {{ course.primaryInstructor?.lastName
+                      }}</span>
                   </div>
                 </div>
               </ng-template>
@@ -195,7 +199,7 @@
                   @if (section.expanded) {
                   <div class="item-content">
                     @if (section.description) {
-                      <p class="section-description">{{ section.description }}</p>
+                    <p class="section-description">{{ section.description }}</p>
                     }
 
                     <div class="lessons-list">
@@ -207,7 +211,7 @@
                         </div>
                         <div class="lesson-meta">
                           @if (lesson.isFree) {
-                            <span class="free-badge">Free Preview</span>
+                          <span class="free-badge">Free Preview</span>
                           }
                           <span class="duration">{{ formatDuration(lesson.duration) }}</span>
                         </div>
@@ -261,7 +265,7 @@
       <p-card class="sidebar-p-card">
         <ng-template pTemplate="content">
           <div class="action-card">
-            
+
             <div class="card-image">
               <img [src]="course.thumbnail || 'assets/images/placeholder.jpg'" [alt]="course.title">
               @if (!canManageCourse() && course.previewVideo) {
@@ -274,51 +278,51 @@
             <div class="card-content">
               <div class="card-price">
                 @if (course.isFree) {
-                  <span class="free-price">Free</span>
+                <span class="free-price">Free</span>
                 } @else {
-                  @if (course.discountPrice) {
-                  <div class="discount-price">
-                    <span class="current">{{ course.discountPrice | currency:course.currency }}</span>
-                    <span class="original">{{ course.price | currency:course.currency }}</span>
-                    <span class="discount-badge">-{{ calculateDiscount() }}%</span>
-                  </div>
-                  } @else {
-                    <span class="regular-price">{{ course.price | currency:course.currency }}</span>
-                  }
+                @if (course.discountPrice) {
+                <div class="discount-price">
+                  <span class="current">{{ course.discountPrice | currency:course.currency }}</span>
+                  <span class="original">{{ course.price | currency:course.currency }}</span>
+                  <span class="discount-badge">-{{ calculateDiscount() }}%</span>
+                </div>
+                } @else {
+                <span class="regular-price">{{ course.price | currency:course.currency }}</span>
+                }
                 }
               </div>
 
               <div class="card-actions">
                 @if (canManageCourse()) {
-                  <button class="action-btn focus-ring" (click)="editCourse()">
-                    <i class="pi pi-pencil"></i> Edit Details
-                  </button>
+                <button class="action-btn focus-ring" (click)="editCourse()">
+                  <i class="pi pi-pencil"></i> Edit Details
+                </button>
 
-                  <button class="action-btn secondary focus-ring" (click)="editPricing()">
-                    <i class="pi pi-dollar"></i> Manage Pricing
-                  </button>
+                <button class="action-btn secondary focus-ring" (click)="editPricing()">
+                  <i class="pi pi-dollar"></i> Manage Pricing
+                </button>
 
-                  <button class="action-btn outline focus-ring" (click)="previewCourse()">
-                    <i class="pi pi-eye"></i> Preview as Student
-                  </button>
+                <button class="action-btn outline focus-ring" (click)="previewCourse()">
+                  <i class="pi pi-eye"></i> Preview as Student
+                </button>
 
                 } @else {
-                  @if (isEnrolled()) {
-                    <button class="action-btn success focus-ring" (click)="goToLearning()">
-                      <i class="pi pi-play-circle"></i> Continue Learning
-                    </button>
-                    <div class="progress-indicator mt-3">
-                      <div class="progress-bar">
-                        <div class="progress-fill" [style.width.%]="userProgress()"></div>
-                      </div>
-                      <span class="progress-text">{{ userProgress() }}% Complete</span>
-                    </div>
-                  } @else {
-                    <button class="action-btn focus-ring" (click)="openCheckout()">
-                      <i class="pi pi-bolt"></i> {{ course.isFree ? 'Enroll for Free' : 'Enroll Now' }}
-                    </button>
-                    <p class="guarantee"><i class="pi pi-shield"></i> 30-Day Money-Back Guarantee</p>
-                  }
+                @if (isEnrolled()) {
+                <button class="action-btn success focus-ring" (click)="goToLearning()">
+                  <i class="pi pi-play-circle"></i> Continue Learning
+                </button>
+                <div class="progress-indicator mt-3">
+                  <div class="progress-bar">
+                    <div class="progress-fill" [style.width.%]="userProgress()"></div>
+                  </div>
+                  <span class="progress-text">{{ userProgress() }}% Complete</span>
+                </div>
+                } @else {
+                <button class="action-btn focus-ring" (click)="openCheckout()">
+                  <i class="pi pi-bolt"></i> {{ course.isFree ? 'Enroll for Free' : 'Enroll Now' }}
+                </button>
+                <p class="guarantee"><i class="pi pi-shield"></i> 30-Day Money-Back Guarantee</p>
+                }
                 }
               </div>
 
@@ -346,7 +350,7 @@
   }
 </div>
 
-<p-dialog appendTo="body"  [(visible)]="showCheckoutModal" [modal]="true" [draggable]="false" [resizable]="false"
+<p-dialog appendTo="body" [(visible)]="showCheckoutModal" [modal]="true" [draggable]="false" [resizable]="false"
   styleClass="checkout-dialog" [dismissableMask]="true" (onHide)="closeCheckout()" [closeOnEscape]="true"
   [showHeader]="false">
 
@@ -357,7 +361,7 @@
 
     <div class="modal-grid">
 
-      
+
       <div class="modal-course-info">
         <div class="modal-image">
           <img [src]="course()?.thumbnail || 'assets/images/course-placeholder.jpg'" [alt]="course()?.title">
@@ -400,7 +404,7 @@
         </div>
       </div>
 
-      
+
       <div class="modal-payment">
         <h3>Complete Your Enrollment</h3>
 
@@ -482,7 +486,7 @@
           <i class="pi pi-verified" style="margin-left: auto; color: var(--color-info);"></i>
         </p>
 
-        
+
         <div style="display: flex; justify-content: center; gap: var(--spacing-md); margin-top: var(--spacing-lg);">
           <i class="pi pi-cc-visa" style="font-size: var(--font-size-2xl); color: var(--text-tertiary);"></i>
           <i class="pi pi-cc-mastercard" style="font-size: var(--font-size-2xl); color: var(--text-tertiary);"></i>
@@ -494,9 +498,16 @@
   </div>
 </p-dialog>
 
-<p-dialog appendTo="body"  [(visible)]="showVideoModal" [modal]="true" [draggable]="false" [resizable]="false" styleClass="video-dialog"
-  [dismissableMask]="true" (onHide)="closeVideoModal()" [closeOnEscape]="true" [showHeader]="false">
+@if(showCourseInvitationDialog()){
+<p-dialog appendTo="body" [(visible)]="showCourseInvitationDialog" [modal]="true" [draggable]="false"
+  [style]="{ width: '85%', height:'80%' }" [resizable]="false" styleClass="video-dialog" [dismissableMask]="true"
+  (onHide)="closeVideoModal()" [closeOnEscape]="true" [showHeader]="false">
+  <app-course-instructors [courseId]="this.courseId()"> </app-course-instructors></p-dialog>
+}
 
+<p-dialog appendTo="body" [(visible)]="showVideoModal" [modal]="true" [draggable]="false" [resizable]="false"
+  [style]="{ width: '85%', height:'80%' }" styleClass="video-dialog" [dismissableMask]="true"
+  (onHide)="closeVideoModal()" [closeOnEscape]="true" [showHeader]="false">
   <div class="video-modal">
     <button class="close-btn focus-ring" (click)="closeVideoModal()" aria-label="Close">
       <i class="pi pi-times"></i>
@@ -524,74 +535,67 @@
   </div>
 </p-dialog>
 
-<p-dialog 
-  appendTo="body" 
-  [(visible)]="showQuizzesModal" 
-  [modal]="true" 
-  [draggable]="false" 
-  [resizable]="false" 
-  [showHeader]="true"
-  header="Course Assessments" 
-  styleClass="quizzes-management-dialog" 
-  [style]="{ width: '95%', maxWidth: '750px' }"
-  (onHide)="closeQuizzesModal()">
-  
+<p-dialog appendTo="body" [(visible)]="showQuizzesModal" [modal]="true" [draggable]="false" [resizable]="false"
+  [showHeader]="true" header="Course Assessments" styleClass="quizzes-management-dialog"
+  [style]="{ width: '85%', height:'80%' }" (onHide)="closeQuizzesModal()">
+
   <div class="quizzes-container">
     <div class="modal-subheader">
       <div class="header-info">
         <h3>Assessments Overview</h3>
         <p>Manage and track quiz configurations for this course.</p>
       </div>
-      <p-button label="Create Quiz" icon="pi pi-plus-circle" severity="primary" size="small" (onClick)="createNewQuiz()"></p-button>
+      <p-button label="Create Quiz" icon="pi pi-plus-circle" severity="primary" size="small"
+        (onClick)="createNewQuiz()"></p-button>
     </div>
 
     @if (quizzes().length) {
-      <div class="quizzes-scroll-area pt-4">
-        <div class="quizzes-grid">
-          @for (quiz of quizzes(); track quiz._id) {
-            <div class="quiz-glass-card" [class.is-draft]="!quiz.isPublished">
-              <div class="card-status">
-                <p-tag [value]="quiz.isPublished ? 'Published' : 'Draft'" 
-                       [severity]="quiz.isPublished ? 'success' : 'secondary'"
-                       [rounded]="true">
-                </p-tag>
-              </div>
+    <div class="quizzes-scroll-area pt-4">
+      <div class="quizzes-grid">
+        @for (quiz of quizzes(); track quiz._id) {
+        <div class="quiz-glass-card" [class.is-draft]="!quiz.isPublished">
+          <div class="card-status">
+            <p-tag [value]="quiz.isPublished ? 'Published' : 'Draft'"
+              [severity]="quiz.isPublished ? 'success' : 'secondary'" [rounded]="true">
+            </p-tag>
+          </div>
 
-              <div class="card-main">
-                <h4 class="quiz-title">{{ quiz.title }}</h4>
-                <p class="quiz-desc">{{ quiz.description || 'No description available for this assessment.' }}</p>
-              </div>
+          <div class="card-main">
+            <h4 class="quiz-title">{{ quiz.title }}</h4>
+            <p class="quiz-desc">{{ quiz.description || 'No description available for this assessment.' }}</p>
+          </div>
 
-              <div class="quiz-stats">
-                <div class="stat-pill" pTooltip="Questions">
-                  <i class="pi pi-list"></i> <span>{{ quiz.totalQuestions || 0 }}</span>
-                </div>
-                <div class="stat-pill" pTooltip="Passing Score">
-                  <i class="pi pi-verified"></i> <span>{{ quiz.passingScore }}%</span>
-                </div>
-                <div class="stat-pill" pTooltip="Time Limit">
-                  <i class="pi pi-hourglass"></i> <span>{{ quiz.timeLimit }}m</span>
-                </div>
-              </div>
-
-              <div class="card-actions">
-                <p-button label="Edit Assessment" icon="pi pi-arrow-right" iconPos="right" 
-                          [text]="true" size="small" (onClick)="editQuiz(quiz._id)">
-                </p-button>
-              </div>
+          <div class="quiz-stats">
+            <div class="stat-pill" pTooltip="Questions">
+              <i class="pi pi-list"></i> <span>{{ quiz.totalQuestions || 0 }}</span>
             </div>
-          }
+            <div class="stat-pill" pTooltip="Passing Score">
+              <i class="pi pi-verified"></i> <span>{{ quiz.passingScore }}%</span>
+            </div>
+            <div class="stat-pill" pTooltip="Time Limit">
+              <i class="pi pi-hourglass"></i> <span>{{ quiz.timeLimit }}m</span>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <p-button label="Edit Assessment" icon="pi pi-arrow-right" iconPos="right" [text]="true" size="small"
+              (onClick)="editQuiz(quiz._id)">
+            </p-button>
+          </div>
         </div>
+        }
       </div>
+    </div>
     } @else {
-      <div class="empty-state-v2">
-        <div class="icon-circle">
-          <i class="pi pi-file-edit"></i>
-        </div>
-        <h3>Ready to test your students?</h3>
-        <p>Create your first quiz to start measuring course progress.</p>
-        <p-button label="Add First Assessment" icon="pi pi-plus" (onClick)="createNewQuiz()" severity="primary"></p-button>
+    <div class="empty-state-v2">
+      <div class="icon-circle">
+        <i class="pi pi-file-edit"></i>
       </div>
+      <h3>Ready to test your students?</h3>
+      <p>Create your first quiz to start measuring course progress.</p>
+      <p-button label="Add First Assessment" icon="pi pi-plus" (onClick)="createNewQuiz()"
+        severity="primary"></p-button>
+    </div>
     }
   </div>
 </p-dialog>

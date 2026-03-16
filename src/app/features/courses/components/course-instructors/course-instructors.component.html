@@ -1,0 +1,180 @@
+<div class="ci-container">
+  <p-toast position="top-right"></p-toast>
+
+  <div class="ci-header">
+    <div class="ci-header-titles">
+      <h2 class="ci-title">Course Team</h2>
+      <p class="ci-subtitle">Manage instructors and pending invitations.</p>
+    </div>
+    <p-button label="Invite Instructor" icon="pi pi-user-plus" (onClick)="openInviteModal()"></p-button>
+  </div>
+
+  <h3 class="ci-section-title">Active Instructors</h3>
+  <div class="ci-table-wrapper">
+    <p-table [value]="instructors()" [loading]="loadingInstructors()" styleClass="p-datatable-sm" [rowHover]="true">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Instructor</th>
+          <th>Role</th>
+          <th>Permissions</th>
+          <th style="width: 100px">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>
+            <div class="ci-user-cell">
+              <div class="ci-avatar">{{ (item.instructor?.firstName?.charAt(0) || '?') | uppercase }}</div>
+              <div class="ci-user-info">
+                <div class="ci-user-name">{{ item.instructor?.firstName }} {{ item.instructor?.lastName }}</div>
+                <div class="ci-user-email">{{ item.instructor?.email }}</div>
+              </div>
+            </div>
+          </td>
+          <td><p-tag [severity]="item.role === 'instructor' ? 'success' : 'info'" [value]="item.role"></p-tag></td>
+          <td>
+            <div class="ci-badges">
+              @for(perm of permissionKeys; track perm.key) {
+              @if(item.permissions[perm.key]) {
+              <span class="ci-badge">{{ perm.label }}</span>
+              }
+              }
+            </div>
+          </td>
+          <td>
+            <div class="ci-actions">
+              <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary"
+                (onClick)="openEditModal(item)"></p-button>
+              <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger"
+                (onClick)="removeInstructor(item.instructor?._id)"></p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4" class="ci-empty-state">No active instructors found.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  @if(invitations().length > 0 || loadingInvitations()) {
+  <h3 class="ci-section-title ci-mt-section">Pending Invitations</h3>
+  <div class="ci-table-wrapper">
+    <p-table [value]="invitations()" [loading]="loadingInvitations()" styleClass="p-datatable-sm" [rowHover]="true">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Invited Email</th>
+          <th>Role</th>
+          <th>Expires On</th>
+          <th style="width: 100px">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-inv>
+        <tr>
+          <td>
+            <div class="ci-user-cell">
+              <div class="ci-avatar ci-avatar-muted"><i class="pi pi-envelope"></i></div>
+              <div class="ci-user-info">
+                <div class="ci-user-name">{{ inv.email }}</div>
+                <div class="ci-user-email">Invited by: {{ inv.invitedBy?.firstName || 'Admin' }}</div>
+              </div>
+            </div>
+          </td>
+          <td><p-tag severity="secondary" [value]="inv.role"></p-tag></td>
+          <td class="ci-text-danger">{{ inv.expiresAt | date:'mediumDate' }}</td>
+          <td>
+            <p-button icon="pi pi-times" label="Revoke" [text]="true" severity="danger" size="small"
+              (onClick)="revokeInvite(inv._id)"></p-button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  }
+
+  <p-dialog header="Invite Instructor" [visible]="showInviteModal()" (visibleChange)="showInviteModal.set($event)"
+    [modal]="true" [style]="{ width: '85%', height:'80%' }" [draggable]="false" [resizable]="false">
+
+    <p-card class="ci-modal-body p-5">
+      <p class="ci-modal-subtitle">
+        Send an email invitation to add a new instructor or co-instructor to this course.
+      </p>
+
+      <div class="ci-form-group">
+        <label for="email" class="ci-label">Email Address <span class="ci-required">*</span></label>
+        <div class="p-fluid">
+          <p-select [options]="availableInstructors()" [(ngModel)]="inviteForm().email" optionLabel="label"
+            optionValue="email" [editable]="true" [filter]="true" filterBy="label,email" appendTo="body"
+            placeholder="Type or select an email address..." styleClass="ci-select-input">
+          </p-select>
+        </div>
+        <small class="ci-helper-text">Pick from existing users or type a completely new email.</small>
+      </div>
+
+      <div class="ci-form-group">
+        <label for="role" class="ci-label">Assign Role <span class="ci-required">*</span></label>
+        <div class="p-fluid">
+          <p-select [options]="roleOptions" [(ngModel)]="inviteForm().role" optionLabel="label" optionValue="value"
+            appendTo="body" styleClass="ci-select-input">
+          </p-select>
+        </div>
+      </div>
+
+      <div class="ci-form-group">
+        <label class="ci-label">
+          <i class="pi pi-shield ci-icon-mr"></i> Access Permissions
+        </label>
+
+        <div class="ci-permissions-card">
+          <div class="ci-grid-2">
+            @for(perm of permissionKeys; track perm.key) {
+            <div class="ci-checkbox-wrapper">
+              <p-checkbox [(ngModel)]="inviteForm().permissions[perm.key]" [binary]="true"
+                [inputId]="perm.key"></p-checkbox>
+              <label [for]="perm.key" class="ci-checkbox-label">{{ perm.label }}</label>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+    </p-card>
+
+    <ng-template pTemplate="footer">
+      <div class="ci-modal-footer">
+        <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="showInviteModal.set(false)"></p-button>
+        <p-button label="Send Invitation" icon="pi pi-send" [loading]="isSubmitting()" (onClick)="sendInvitation()"
+          [disabled]="!inviteForm().email"></p-button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+
+  <p-dialog header="Edit Permissions" [visible]="showEditModal()" (visibleChange)="showEditModal.set($event)"
+    [modal]="true" [style]="{width: '500px'}">
+    <div class="ci-modal-body">
+      <div class="ci-info-box">
+        Editing permissions for <strong class="ci-text-strong">{{ inviteForm().email }}</strong>
+      </div>
+
+      <div class="ci-field">
+        <label class="ci-label ci-label-divider">Toggle Permissions</label>
+        <div class="ci-grid-2">
+          @for(perm of permissionKeys; track perm.key) {
+          <div class="ci-checkbox-wrapper">
+            <p-checkbox [(ngModel)]="inviteForm().permissions[perm.key]" [binary]="true"
+              [inputId]="'edit-' + perm.key"></p-checkbox>
+            <label [for]="'edit-' + perm.key" class="ci-checkbox-label">{{ perm.label }}</label>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+    <ng-template pTemplate="footer">
+      <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="showEditModal.set(false)"></p-button>
+      <p-button label="Save Changes" icon="pi pi-check" [loading]="isSubmitting()"
+        (onClick)="savePermissions()"></p-button>
+    </ng-template>
+  </p-dialog>
+</div>

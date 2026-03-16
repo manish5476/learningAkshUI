@@ -29,6 +29,7 @@ import { QuizService } from '../../../../core/services/quiz.service';
 import { PaymentService } from '../../../../core/services/payment.service';
 import { MasterApiService } from '../../../../core/services/master-list.service';
 import { AppMessageService } from '../../../../core/utils/message.service';
+import { CourseInstructorsComponent } from "../course-instructors/course-instructors.component";
 
 @Component({
   selector: 'app-course-detail',
@@ -38,6 +39,7 @@ import { AppMessageService } from '../../../../core/utils/message.service';
     DialogModule, InputTextModule, ButtonModule, TagModule, ToastModule,
     TooltipModule, AccordionModule, DividerModule, SkeletonModule,
     CourseDiscussionComponent, Card,
+    CourseInstructorsComponent
   ],
   providers: [MessageService],
   templateUrl: './course-detail.component.html',
@@ -63,11 +65,13 @@ export class CourseDetailComponent implements OnInit {
   videoId = signal<string>('');
 
   quizzes = signal<any[]>([]);
+  showCourseInvitationDialog = signal<boolean>(false);
   showQuizzesModal = signal<boolean>(false);
   course = signal<any | undefined>(undefined);
   sections = signal<any[]>([]);
   isLoading = signal<boolean>(true);
   error = signal<string | null>(null);
+  courseId = signal<string | null>(null);
 
   currentUser = signal<any>(null);
   isEnrolled = signal<boolean>(false);
@@ -331,7 +335,7 @@ export class CourseDetailComponent implements OnInit {
         },
         error: (err: any) => {
           this.isProcessingPayment.set(false);
-          this.messageService.showError( err?.error?.message || 'Could not complete enrollment.');
+          this.messageService.showError(err?.error?.message || 'Could not complete enrollment.');
         }
       });
   }
@@ -516,7 +520,7 @@ export class CourseDetailComponent implements OnInit {
         const responseData = response?.data || response;
         const courseData = responseData?.course || responseData;
         const sectionsData = responseData?.sections || [];
-
+        this.courseId.set(courseData._id)
         return this.enrichCourseWithMasterData({ ...courseData, sections: sectionsData });
       }),
       takeUntilDestroyed(this.destroyRef)
