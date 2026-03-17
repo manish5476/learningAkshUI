@@ -36,16 +36,26 @@ export class CourseService {
     return this.api.get<Course>(`${this.endpoint}/${id}`, { ...options, skipAuth: true });
   }
 
-  getAllCourses(options?: any): Observable<ApiResponseWithPagination<Course[]>> {
-    return this.api.getWithPagination<Course[]>(this.endpoint, { ...options, skipAuth: true });
-  }
+  // getAllCourses(options?: any): Observable<ApiResponseWithPagination<Course[]>> {
+  //   return this.api.getWithPagination<Course[]>(this.endpoint, { ...options, skipAuth: true });
+  // }
 
+  getAllCourses(filters?: any): Observable<ApiResponseWithPagination<Course[]>> {
+    return this.api.getWithPagination<Course[]>(this.endpoint, { 
+      params: filters, 
+      skipAuth: true 
+    });
+  }
   // ==================== PROTECTED ROUTES ====================
 
   // --- Instructor's Courses ---
-
   getMyInstructorCourses(options?: any): Observable<ApiResponseWithPagination<Course[]>> {
     return this.api.getWithPagination<Course[]>(`${this.endpoint}/instructor/my-courses`, options);
+  }
+
+  // Fetch invitations specifically for the logged-in user
+  getMyPendingInvitations(options?: any): Observable<any> {
+    return this.api.get<any>(`${this.endpoint}/instructor/my-invitations`, options);
   }
 
   getCoursesBySlug(slug: string): Observable<ApiResponse<any>> {
