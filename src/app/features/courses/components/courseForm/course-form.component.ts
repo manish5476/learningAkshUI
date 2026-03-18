@@ -24,11 +24,12 @@ import { CourseService } from '../../../../core/services/course.service';
 import { LessonService } from '../../../../core/services/lesson.service';
 import { SectionService } from '../../../../core/services/section.service';
 import { Master, MasterApiService } from '../../../../core/services/master-list.service';
+import { DynamicDropdownComponent } from '../../../../shared/components/dynamic-select/dynamic-select.component';
 
 @Component({
   selector: 'app-course-form',
   standalone: true,
-  imports: [FormsModule, CommonModule, ReactiveFormsModule, SelectModule, InputTextModule, InputNumberModule, TextareaModule, CheckboxModule, ButtonModule, TooltipModule, CardModule],
+  imports: [FormsModule,DynamicDropdownComponent, CommonModule, ReactiveFormsModule, SelectModule, InputTextModule, InputNumberModule, TextareaModule, CheckboxModule, ButtonModule, TooltipModule, CardModule],
   templateUrl: './course-form.component.html',
   styleUrls: ['./course-form.component.scss']
 })

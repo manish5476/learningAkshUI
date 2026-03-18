@@ -25,6 +25,7 @@
     <div class="form-workspace-scroll-area">
       <div class="max-w-screen form-content-grid">
 
+        <!-- Progress Steps -->
         <div class="form-progress mb-4xl mt-xl">
           <div class="progress-steps flex-between relative">
             <div class="step flex-col flex-center gap-sm z-1 cursor-pointer transition-base"
@@ -73,6 +74,7 @@
 
         <div class="form-step-container fade-in">
 
+          <!-- STEP 1: Basic Info -->
           @if (currentStep() === 1) {
           <p-card class="step-card">
             <ng-template pTemplate="title">
@@ -116,28 +118,30 @@
                 </div>
 
                 <div class="grid-3-col gap-lg col-span-full flex flex-wrap md:flex-nowrap">
+                  <!-- ✅ UPDATED: Category Dropdown -->
                   <div class="form-group flex-col gap-xs w-full">
                     <label class="input-label text-primary font-bold text-sm">Category <span
                         class="text-error">*</span></label>
                     <app-dynamic-dropdown formControlName="category" model="category" placeholder="Select category">
                     </app-dynamic-dropdown>
-                    <!-- <p-select appendTo="body" formControlName="category" [options]="categories()" optionLabel="name"
-                      optionValue="_id" placeholder="Select category" [filter]="true" filterBy="name"
-                      styleClass="w-full"></p-select> -->
                   </div>
 
+                  <!-- ✅ UPDATED: Difficulty Dropdown -->
                   <div class="form-group flex-col gap-xs w-full">
                     <label class="input-label text-primary font-bold text-sm">Difficulty <span
                         class="text-error">*</span></label>
-                    <p-select appendTo="body" formControlName="level" [options]="difficultyLevels()" optionLabel="name"
-                      optionValue="code" placeholder="Select level" styleClass="w-full"></p-select>
+                    <app-dynamic-dropdown formControlName="level" model="master" masterType="course_level"
+                      placeholder="Select level">
+                    </app-dynamic-dropdown>
                   </div>
 
+                  <!-- ✅ UPDATED: Language Dropdown -->
                   <div class="form-group flex-col gap-xs w-full">
                     <label class="input-label text-primary font-bold text-sm">Language <span
                         class="text-error">*</span></label>
-                    <p-select appendTo="body" formControlName="language" [options]="languages()" optionLabel="name"
-                      optionValue="code" placeholder="Select language" styleClass="w-full"></p-select>
+                    <app-dynamic-dropdown formControlName="language" model="master" masterType="language"
+                      placeholder="Select language">
+                    </app-dynamic-dropdown>
                   </div>
                 </div>
 
@@ -162,6 +166,7 @@
           </p-card>
           }
 
+          <!-- STEP 2: Course Content -->
           @if (currentStep() === 2) {
           <p-card class="step-card">
             <ng-template pTemplate="title">
@@ -246,6 +251,7 @@
                   </div>
                 </div>
 
+                <!-- Curriculum Builder -->
                 <div class="form-group flex-col gap-lg col-span-full mt-3xl pt-2xl border-top-subtle">
                   <div class="flex-between align-items-end mb-md">
                     <div>
@@ -310,10 +316,13 @@
                               class="flex-grow-1 border-transparent bg-transparent font-medium text-primary px-sm py-xs w-full transition-base hover-bg-ternary focus-bg-ternary border-radius-sm">
 
                             <div class="lesson-meta hidden-mobile flex align-items-center gap-md ml-auto pl-md">
-                              <p-select appendTo="body" [formControl]="getLessonControl(i, j, 'type')"
-                                [options]="lessonTypes()" optionLabel="name" optionValue="code"
-                                styleClass="w-8rem border-transparent bg-ternary text-sm shadow-none">
-                              </p-select>
+
+                              <!-- ✅ UPDATED: Lesson Type Dropdown -->
+                              <div class="w-8rem">
+                                <app-dynamic-dropdown [formControl]="getLessonControl(i, j, 'type')" model="master"
+                                  masterType="lesson_type" placeholder="Type">
+                                </app-dynamic-dropdown>
+                              </div>
 
                               <div
                                 class="duration-input flex align-items-center bg-ternary border-radius-sm overflow-hidden border-secondary transition-base">
@@ -377,6 +386,7 @@
           </p-card>
           }
 
+          <!-- STEP 3: Pricing -->
           @if (currentStep() === 3) {
           <p-card class="step-card">
             <ng-template pTemplate="title">
@@ -406,10 +416,12 @@
                       styleClass="w-full"></p-inputNumber>
                   </div>
 
+                  <!-- ✅ UPDATED: Currency Dropdown -->
                   <div class="form-group flex-col gap-xs w-full">
                     <label class="input-label text-primary font-bold text-sm">Currency</label>
-                    <p-select appendTo="body" formControlName="currency" [options]="currencies()" optionLabel="name"
-                      optionValue="code" styleClass="w-full"></p-select>
+                    <app-dynamic-dropdown formControlName="currency" model="master" masterType="currency"
+                      placeholder="Select currency">
+                    </app-dynamic-dropdown>
                   </div>
                 </div>
 
@@ -447,6 +459,7 @@
           </p-card>
           }
 
+          <!-- STEP 4: Outcomes -->
           @if (currentStep() === 4) {
           <p-card class="step-card">
             <ng-template pTemplate="title">
@@ -542,6 +555,7 @@
       </div>
     </div>
 
+    <!-- Mobile Bottom Bar -->
     <div
       class="mobile-bottom-bar glass-panel border-top-subtle lg-hidden flex-between gap-md p-md fixed bottom-0 left-0 w-full z-50 bg-secondary">
       @if (currentStep() > 1) {
