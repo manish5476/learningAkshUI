@@ -113,12 +113,11 @@ export const SIDEBAR_MENU: MenuItem[] = [
         icon: 'pi pi-users',
         routerLink: ['/users']
       },
-
-      // {
-      //   label: 'Category Manager',
-      //   icon: 'pi ' + 'pi-tags',
-      //   routerLink: ['/categories/admin']
-      // },
+      {
+        label: 'Category Manager',
+        icon: 'pi ' + 'pi-tags',
+        routerLink: ['/categories/admin']
+      },
       {
         label: 'Certificate Dashboard',
         icon: 'pi pi-chart-pie',
