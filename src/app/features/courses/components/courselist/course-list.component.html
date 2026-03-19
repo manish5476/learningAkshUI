@@ -75,19 +75,19 @@
       }
     </div>
 
-    @if (pagination().totalResults > 0) {
-      <div class="mt-5">
-        <p-paginator 
-          (onPageChange)="onPageChange($event)" 
-          [first]="(pagination().page - 1) * pagination().limit" 
-          [rows]="pagination().limit" 
-          [totalRecords]="pagination().totalResults" 
-          [rowsPerPageOptions]="[12, 24, 36]"
-          [showCurrentPageReport]="true"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} courses">
-        </p-paginator>
-      </div>
-    }
+   @if (pagination().totalResults > 0) {
+    <div class="mt-5 flex justify-content-center">
+      <p-paginator 
+        (onPageChange)="onPageChange($event)" 
+        [first]="first" 
+        [rows]="rows" 
+        [totalRecords]="pagination().totalResults" 
+        [rowsPerPageOptions]="[12, 24, 36]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} courses">
+      </p-paginator>
+    </div>
+  }
   }
 </div>
 <!-- <div class="course-list-container fade-in">
