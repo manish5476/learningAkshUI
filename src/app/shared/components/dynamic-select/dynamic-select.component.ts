@@ -13,7 +13,7 @@ import { DropdownOption, DropdownService } from '../../../core/services/dropdown
   imports: [SelectModule, MultiSelectModule, FormsModule, CommonModule],
   template: `
     @if (!multiple) {
-      <p-select 
+      <p-select  appendTo="body"
         [options]="options" 
         [(ngModel)]="value" 
         [placeholder]="placeholder" 
@@ -30,7 +30,7 @@ import { DropdownOption, DropdownService } from '../../../core/services/dropdown
       </p-select>
     } @else {
       <p-multiselect
-        [options]="options"
+        [options]="options" appendTo="body"
         [(ngModel)]="value"
         [placeholder]="placeholder"
         [virtualScroll]="true"
@@ -94,13 +94,11 @@ export class DynamicDropdownComponent implements OnInit, ControlValueAccessor {
     });
   }
 
-  // ✅ NEW: Watch for changes to initialOptions and merge them instantly
   ngOnChanges(changes: SimpleChanges) {
     if (changes['initialOptions'] && this.initialOptions?.length > 0) {
       this.mergeInitialOptions();
     }
   }
-  // ✅ NEW: Helper to ensure the pre-selected item is always in the options list
   private mergeInitialOptions() {
     const existingValues = new Set(this.options.map(o => o.value));
     const toAdd = this.initialOptions.filter(o => !existingValues.has(o.value));
@@ -115,7 +113,6 @@ export class DynamicDropdownComponent implements OnInit, ControlValueAccessor {
     this.dropdownService.getOptions(this.model, '', this.masterType).subscribe({
       next: (res) => {
         this.options = res;
-        // ✅ Ensure initial options stay in the list after the API returns
         if (this.initialOptions?.length > 0) {
           this.mergeInitialOptions();
         }

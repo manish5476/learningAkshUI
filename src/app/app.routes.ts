@@ -29,6 +29,10 @@ export const routes: Routes = [
         loadChildren: () => import('./core/routes/instructor.routes').then(m => m.INSTRUCTOR_ROUTES)
       },
        {
+        path: 'blog',
+        loadChildren: () => import('./core/routes/blog.routes').then(m => m.POST_ROUTES)
+      },
+       {
         path: '',
         loadChildren: () => import('./core/routes/category.routes').then(m => m.CATEGORY_ROUTES)
       },

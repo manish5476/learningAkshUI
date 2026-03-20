@@ -1,4 +1,478 @@
+<!-- master-data.component.html -->
 <p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="master-data-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <div>
+        <h1>Master Data Management</h1>
+        <p class="page-description">Manage your system configurations and reference data</p>
+      </div>
+      <div class="header-actions">
+        <p-button 
+          severity="secondary" 
+          label="Bulk Import" 
+          icon="pi pi-upload" 
+          [outlined]="true"
+          (onClick)="openBulkAdd()">
+        </p-button>
+        <p-button 
+          severity="primary" 
+          label="Add New" 
+          icon="pi pi-plus" 
+          (onClick)="openNew()">
+        </p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label for="typeFilter" class="filter-label">Data Type</label>
+      <p-select 
+        id="typeFilter" 
+        [options]="masterTypes()" 
+        optionLabel="label" 
+        optionValue="value"
+        [(ngModel)]="selectedType" 
+        (onChange)="onTypeChange($event)" 
+        placeholder="Select a Type" 
+        [filter]="true" 
+        class="type-select">
+        <ng-template pTemplate="selectedItem">
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-database"></i>
+            <span>{{ selectedTypeLabel() }}</span>
+          </div>
+        </ng-template>
+      </p-select>
+    </div>
+
+    <div class="stats-badge" *ngIf="masters().length > 0">
+      <i class="pi pi-chart-line"></i>
+      <span>{{ masters().length }} Records</span>
+    </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="data-card">
+    <!-- Toolbar -->
+    <div class="data-toolbar">
+      <div class="toolbar-left">
+        @if(selectedMasters().length > 0) {
+          <div class="selection-info">
+            <i class="pi pi-check-circle"></i>
+            <span>{{ selectedMasters().length }} item(s) selected</span>
+            <p-button 
+              severity="danger" 
+              label="Delete Selected" 
+              icon="pi pi-trash" 
+              [text]="true"
+              (onClick)="deleteSelected()">
+            </p-button>
+          </div>
+        }
+      </div>
+
+      <div class="toolbar-right">
+        <div class="search-wrapper">
+          <i class="pi pi-search search-icon"></i>
+          <input 
+            pInputText 
+            type="text" 
+            (input)="onGlobalFilter($event)"
+            placeholder="Search by name, code or description..." 
+            class="global-search" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <p-table 
+      #dt 
+      [value]="masters()" 
+      [(selection)]="selectedMasters" 
+      [rows]="10" 
+      [paginator]="true" 
+      [loading]="loading()"
+      [globalFilterFields]="['name', 'code', 'description']" 
+      [rowHover]="true" 
+      dataKey="_id"
+      styleClass="modern-table">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 3rem">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th pSortableColumn="metadata.sortOrder" style="width: 5rem">
+            <div class="th-content">
+              Order
+              <p-sortIcon field="metadata.sortOrder"></p-sortIcon>
+            </div>
+          </th>
+          <th style="width: 4rem">Image</th>
+          <th pSortableColumn="code">
+            <div class="th-content">
+              Code
+              <p-sortIcon field="code"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="name">
+            <div class="th-content">
+              Name
+              <p-sortIcon field="name"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="metadata.isFeatured" style="width: 6rem">
+            <div class="th-content">
+              Featured
+              <p-sortIcon field="metadata.isFeatured"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="isActive" style="width: 6rem">
+            <div class="th-content">
+              Status
+              <p-sortIcon field="isActive"></p-sortIcon>
+            </div>
+          </th>
+          <th style="width: 8rem">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-master>
+        <tr>
+          <td>
+            <p-tableCheckbox [value]="master"></p-tableCheckbox>
+          </td>
+          <td>
+            <span class="order-badge">{{ master.metadata?.sortOrder || 0 }}</span>
+          </td>
+          <td>
+            @if(master.imageUrl) {
+              <div class="avatar-wrapper">
+                <img [src]="master.imageUrl" alt="icon" class="record-avatar" />
+              </div>
+            } @else {
+              <div class="avatar-placeholder">
+                <i class="pi pi-image"></i>
+              </div>
+            }
+          </td>
+          <td>
+            <span class="record-code">{{ master.code }}</span>
+          </td>
+          <td>
+            <div class="record-name">
+              <span class="name-text">{{ master.name }}</span>
+              @if(master.description) {
+                <i class="pi pi-info-circle description-icon" 
+                   pTooltip="{{ master.description }}" 
+                   tooltipPosition="top"></i>
+              }
+            </div>
+          </td>
+          <td>
+            <div class="featured-badge" [class.active]="master.metadata?.isFeatured">
+              <i class="pi" [ngClass]="{
+                'pi-star-fill': master.metadata?.isFeatured,
+                'pi-star': !master.metadata?.isFeatured
+              }"></i>
+              <span>{{ master.metadata?.isFeatured ? 'Featured' : 'Standard' }}</span>
+            </div>
+          </td>
+          <td>
+            <p-tag 
+              [value]="master.isActive ? 'Active' : 'Inactive'" 
+              [severity]="master.isActive ? 'success' : 'danger'"
+              [rounded]="true">
+            </p-tag>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button pButton 
+                      icon="pi pi-pencil" 
+                      class="p-button-rounded p-button-text p-button-sm"
+                      pTooltip="Edit"
+                      (click)="editRecord(master)"></button>
+              <button pButton 
+                      [icon]="master.isActive ? 'pi pi-eye-slash' : 'pi pi-eye'" 
+                      class="p-button-rounded p-button-text p-button-sm"
+                      [severity]="master.isActive ? 'warn' : 'success'"
+                      pTooltip="{{ master.isActive ? 'Deactivate' : 'Activate' }}"
+                      (click)="toggleStatus(master)"></button>
+              <button pButton 
+                      icon="pi pi-trash" 
+                      class="p-button-rounded p-button-text p-button-sm p-button-danger"
+                      pTooltip="Delete"
+                      (click)="deleteRecord(master)"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8">
+            <div class="empty-state">
+              <i class="pi pi-inbox empty-icon"></i>
+              <p>No records found for {{ selectedType() | uppercase }}</p>
+              <p-button label="Add New Record" icon="pi pi-plus" [text]="true" (onClick)="openNew()"></p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- Edit/Create Dialog -->
+<p-dialog 
+  appendTo="body" 
+  [(visible)]="displayDialog" 
+  [style]="{width: '560px'}" 
+  [header]="isEditing() ? 'Edit Record' : 'Create New Record'"
+  [modal]="true" 
+  [draggable]="false"
+  styleClass="modern-dialog">
+
+  <ng-template pTemplate="content">
+    <div class="dialog-content">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="code">
+            Unique Code <span class="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            pInputText 
+            id="code" 
+            [(ngModel)]="currentMaster().code" 
+            style="text-transform: uppercase" 
+            placeholder="e.g., CAT_001"
+            autofocus />
+        </div>
+
+        <div class="form-field">
+          <label for="name">
+            Display Name <span class="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            pInputText 
+            id="name" 
+            [(ngModel)]="currentMaster().name" 
+            placeholder="Enter display name" />
+        </div>
+      </div>
+
+      @if(isEditing()) {
+        <div class="form-field system-slug">
+          <label>System Slug</label>
+          <div class="slug-display">
+            <i class="pi pi-link"></i>
+            <code>{{ currentMaster().slug }}</code>
+          </div>
+        </div>
+      }
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="imageUrl">Image URL</label>
+          <input 
+            type="text" 
+            pInputText 
+            id="imageUrl" 
+            [(ngModel)]="currentMaster().imageUrl" 
+            placeholder="https://example.com/image.jpg" />
+        </div>
+
+        <div class="form-field">
+          <label for="parentId">Parent Category</label>
+          <p-select 
+            id="parentId" 
+            [options]="masters()" 
+            optionLabel="name" 
+            optionValue="_id" 
+            [(ngModel)]="currentMaster().parentId" 
+            [showClear]="true" 
+            placeholder="Select parent category">
+          </p-select>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="description">Description</label>
+        <textarea 
+          id="description" 
+          pInputTextarea 
+          [(ngModel)]="currentMaster().description" 
+          rows="3"
+          placeholder="Optional description for this record..."></textarea>
+      </div>
+
+      <div class="settings-grid">
+        <div class="setting-item">
+          <label>Sort Order</label>
+          @if(currentMaster().metadata) {
+            <p-inputNumber 
+              [(ngModel)]="currentMaster().metadata!.sortOrder" 
+              [showButtons]="true" 
+              [min]="0"
+              [max]="999">
+            </p-inputNumber>
+          }
+        </div>
+
+        <div class="setting-item">
+          <label>Status</label>
+          <div class="toggle-wrapper">
+            <p-toggleswitch [(ngModel)]="currentMaster().isActive"></p-toggleswitch>
+            <span class="toggle-label">{{ currentMaster().isActive ? 'Active' : 'Inactive' }}</span>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <label>Featured</label>
+          <div class="toggle-wrapper">
+            @if(currentMaster().metadata) {
+              <p-toggleswitch [(ngModel)]="currentMaster().metadata!.isFeatured"></p-toggleswitch>
+              <span class="toggle-label">{{ currentMaster().metadata!.isFeatured ? 'Featured' : 'Standard' }}</span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button pButton 
+              label="Cancel" 
+              icon="pi pi-times" 
+              class="p-button-text"
+              (click)="displayDialog.set(false)"></button>
+      <button pButton 
+              label="Save Record" 
+              icon="pi pi-check" 
+              class="p-button-primary"
+              (click)="saveRecord()"></button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Bulk Add Dialog -->
+<p-dialog 
+  appendTo="body" 
+  [(visible)]="displayBulkDialog" 
+  [style]="{width: '900px'}" 
+  header="Bulk Import Records"
+  [modal]="true" 
+  [draggable]="false"
+  styleClass="modern-dialog bulk-dialog">
+
+  <ng-template pTemplate="content">
+    <div class="bulk-content">
+      <div class="bulk-header">
+        <i class="pi pi-info-circle"></i>
+        <p>Add multiple records at once. Each row will be validated before saving.</p>
+      </div>
+
+      <p-table 
+        [value]="bulkAddItems()" 
+        [scrollable]="true" 
+        scrollHeight="450px"
+        styleClass="bulk-table">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 20%">Code <span class="required">*</span></th>
+            <th style="width: 25%">Name <span class="required">*</span></th>
+            <th style="width: 30%">Image URL</th>
+            <th style="width: 25%">Description</th>
+            <th style="width: 5%"></th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
+          <tr>
+            <td>
+              <input 
+                type="text" 
+                pInputText 
+                [(ngModel)]="item.code" 
+                placeholder="e.g., CODE_001"
+                style="text-transform: uppercase" 
+                class="w-full" />
+            </td>
+            <td>
+              <input 
+                type="text" 
+                pInputText 
+                [(ngModel)]="item.name" 
+                placeholder="Display name" 
+                class="w-full" />
+            </td>
+            <td>
+              <input 
+                type="text" 
+                pInputText 
+                [(ngModel)]="item.imageUrl" 
+                placeholder="https://..." 
+                class="w-full" />
+            </td>
+            <td>
+              <input 
+                type="text" 
+                pInputText 
+                [(ngModel)]="item.description" 
+                placeholder="Optional description" 
+                class="w-full" />
+            </td>
+            <td class="text-center">
+              <button pButton 
+                      icon="pi pi-trash" 
+                      class="p-button-rounded p-button-text p-button-danger"
+                      pTooltip="Remove row"
+                      (click)="removeBulkRow(rowIndex)" 
+                      [disabled]="bulkAddItems().length === 1">
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <div class="bulk-actions">
+        <button pButton 
+                label="Add Row" 
+                icon="pi pi-plus" 
+                [text]="true" 
+                (click)="addBulkRow()">
+        </button>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button pButton 
+              label="Cancel" 
+              icon="pi pi-times" 
+              class="p-button-text"
+              (click)="displayBulkDialog.set(false)"></button>
+      <button pButton 
+              label="Import {{ bulkAddItems().length }} Records" 
+              icon="pi pi-upload" 
+              severity="success"
+              (click)="saveBulk()"></button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- <p-toast></p-toast>
 <p-confirmDialog></p-confirmDialog>
 
 <div class="card">
@@ -232,4 +706,4 @@
     <p-button label="Save All Records" icon="pi pi-check" severity="success" (onClick)="saveBulk()">
     </p-button>
   </ng-template>
-</p-dialog>
+</p-dialog> -->

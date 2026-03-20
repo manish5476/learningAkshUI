@@ -1,0 +1,136 @@
+<div class="list-wrapper p-4">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Header -->
+  <div class="flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+      <h2 class="text-2xl font-bold text-900 m-0">Content Management</h2>
+      <p class="text-500 m-0 mt-1">Manage your blogs, current affairs, and announcements.</p>
+    </div>
+    <p-button label="Create New Post" icon="pi pi-plus" [routerLink]="['/instructor/posts/new']"></p-button>
+  </div>
+
+  <!-- Table Card -->
+  <div class="card bg-white p-4 border-round-xl shadow-1 border-1 border-gray-200">
+    
+    <!-- Toolbar / Filters -->
+    <div class="flex flex-column md:flex-row gap-3 mb-4">
+      <span class="p-input-icon-left w-full md:w-20rem">
+        <i class="pi pi-search"></i>
+        <input pInputText type="text" [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()" 
+               placeholder="Search by title..." class="w-full" />
+      </span>
+
+      <div class="w-full md:w-14rem">
+        <app-dynamic-dropdown [(ngModel)]="selectedType" (ngModelChange)="onFilterChange()" 
+                              model="master" masterType="post_type" placeholder="Filter by Type"></app-dynamic-dropdown>
+      </div>
+
+      <div class="w-full md:w-14rem">
+        <app-dynamic-dropdown [(ngModel)]="selectedStatus" (ngModelChange)="onFilterChange()" 
+                              model="master" masterType="post_status" placeholder="Filter by Status"></app-dynamic-dropdown>
+      </div>
+
+      @if (searchQuery || selectedType || selectedStatus) {
+        <p-button icon="pi pi-filter-slash" severity="secondary" [text]="true" 
+                  (onClick)="clearFilters()" pTooltip="Clear Filters"></p-button>
+      }
+    </div>
+
+    <!-- PrimeNG Lazy Table -->
+    <p-table [value]="posts()" [lazy]="true" (onLazyLoad)="onLazyLoad($event)" dataKey="_id"
+             [tableStyle]="{ 'min-width': '75rem' }" [paginator]="true" [rows]="rows" [first]="first"
+             [totalRecords]="totalRecords()" [loading]="loading()" [rowsPerPageOptions]="[10, 25, 50]"
+             styleClass="p-datatable-sm p-datatable-striped">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 35%">Title & Excerpt</th>
+          <th style="width: 15%">Type / Category</th>
+          <th style="width: 15%">Author</th>
+          <th style="width: 10%">Stats</th>
+          <th style="width: 15%">Status & Date</th>
+          <th style="width: 10%" class="text-center">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-post>
+        <tr>
+          <!-- Title & Excerpt -->
+          <td>
+            <div class="flex align-items-center gap-3">
+              @if (post.thumbnail) {
+                <img [src]="post.thumbnail" [alt]="post.title" class="w-4rem h-3rem border-round object-cover border-1 border-gray-200">
+              } @else {
+                <div class="w-4rem h-3rem border-round bg-gray-100 flex align-items-center justify-content-center border-1 border-gray-200">
+                  <i class="pi pi-image text-gray-400"></i>
+                </div>
+              }
+              <div>
+                <div class="font-bold text-900 line-height-2 max-w-20rem white-space-nowrap overflow-hidden text-overflow-ellipsis" [title]="post.title">
+                  {{ post.title }}
+                </div>
+                <div class="text-sm text-500 mt-1 max-w-20rem white-space-nowrap overflow-hidden text-overflow-ellipsis">
+                  {{ post.excerpt }}
+                </div>
+              </div>
+            </div>
+          </td>
+
+          <!-- Type & Category -->
+          <td>
+            <div class="font-medium text-700 capitalize">{{ post.type?.replace('_', ' ') }}</div>
+            <div class="text-sm text-500 mt-1">{{ post.category?.name || 'Uncategorized' }}</div>
+          </td>
+
+          <!-- Author -->
+          <td>
+            <div class="flex align-items-center gap-2">
+              <div class="font-medium text-700">{{ post.author?.firstName }} {{ post.author?.lastName }}</div>
+            </div>
+          </td>
+
+          <!-- Stats -->
+          <td>
+            <div class="flex flex-column gap-1 text-sm text-600">
+              <span><i class="pi pi-eye mr-1 text-primary"></i> {{ post.views | number }}</span>
+              <span><i class="pi pi-clock mr-1 text-primary"></i> {{ post.readTime }} min</span>
+            </div>
+          </td>
+
+          <!-- Status & Date -->
+          <td>
+            <p-tag [value]="post.status | uppercase" [severity]="getStatusSeverity(post.status)"></p-tag>
+            <div class="text-xs text-500 mt-2">
+              {{ (post.publishedAt || post.createdAt) | date:'mediumDate' }}
+            </div>
+          </td>
+
+          <!-- Actions -->
+          <td class="text-center">
+            <div class="flex justify-content-center gap-2">
+              <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="info" 
+                        pTooltip="Edit" (onClick)="editPost(post._id)"></p-button>
+              <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" 
+                        pTooltip="Delete" (onClick)="deletePost(post)"></p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <!-- Empty State -->
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="text-center p-5">
+            <div class="flex flex-column align-items-center">
+              <i class="pi pi-file text-4xl text-300 mb-3"></i>
+              <span class="text-600 font-medium">No posts found. Create your first post!</span>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
+  </div>
+</div>

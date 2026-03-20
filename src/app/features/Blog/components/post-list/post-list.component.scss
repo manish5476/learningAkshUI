@@ -1,0 +1,45 @@
+.list-wrapper {
+  background-color: var(--surface-ground);
+  min-height: calc(100vh - 70px);
+}
+
+::ng-deep {
+  .p-datatable {
+    // Make headers look cleaner
+    .p-datatable-thead > tr > th {
+      background: var(--surface-ground);
+      color: var(--text-color-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+      padding: 1rem;
+      border-bottom: 2px solid var(--surface-border);
+    }
+
+    // Add a nice hover effect to rows
+    .p-datatable-tbody > tr {
+      transition: background-color 0.2s ease;
+      cursor: default;
+
+      &:hover {
+        background-color: var(--surface-hover) !important;
+      }
+
+      > td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--surface-border);
+      }
+    }
+  }
+
+  // Smooth out the confirm dialog styling
+  .p-confirm-dialog {
+    .p-dialog-header {
+      border-bottom: 0;
+    }
+    .p-dialog-footer {
+      border-top: 0;
+    }
+  }
+}

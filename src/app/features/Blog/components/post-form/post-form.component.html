@@ -1,0 +1,254 @@
+<!-- post-form.component.html -->
+<!-- <p-confirmdialog /> -->
+
+<div class="form-wrapper" [class.is-loading]="isLoading()">
+  <form [formGroup]="postForm" (ngSubmit)="onSubmit()" class="app-shell-layout">
+    <!-- Sticky Glass Header -->
+    <header class="form-topbar glass-panel">
+      <div class="topbar-content">
+        <div class="flex justify-content-between align-items-center">
+          <div class="flex align-items-center gap-3">
+            <button pButton icon="pi pi-arrow-left" class="p-button-text p-button-rounded p-button-secondary"
+              (click)="onCancel()" [attr.aria-label]="'Go back'"></button>
+            <h2 class="form-title m-0">
+              {{ isEditMode() ? 'Edit Post' : 'Create New Post' }}
+            </h2>
+          </div>
+          <div class="flex gap-3">
+            <button pButton label="Cancel" class="p-button-text p-button-secondary" (click)="onCancel()"></button>
+            <button pButton [label]="getSubmitButtonLabel()" [icon]="getSubmitButtonIcon()" type="submit"
+              [disabled]="postForm.invalid || isLoading()" [loading]="isLoading()" class="p-button-primary"></button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <div class="form-content-grid">
+
+      <!-- MAIN CONTENT COLUMN -->
+      <div class="main-column">
+
+        <!-- Basic Info Card -->
+        <div class="card premium-card">
+          <div class="card-header">
+            <h3>Basic Information</h3>
+            <p class="card-description">Essential content for your post</p>
+          </div>
+          <div class="card-body">
+            <div class="field">
+              <label for="title">
+                Post Title <span class="required-asterisk">*</span>
+              </label>
+              <input id="title" type="text" pInputText formControlName="title" placeholder="Enter an engaging title..."
+                [class.ng-invalid]="postForm.get('title')?.invalid && postForm.get('title')?.touched">
+              @if (postForm.get('title')?.invalid && postForm.get('title')?.touched) {
+              <small class="field-error">Title is required</small>
+              }
+            </div>
+
+            <div class="field">
+              <label for="excerpt">
+                Short Excerpt <span class="required-asterisk">*</span>
+              </label>
+              <textarea id="excerpt" pInputTextarea formControlName="excerpt" rows="3"
+                placeholder="A brief summary for the blog grid..."
+                [class.ng-invalid]="postForm.get('excerpt')?.invalid && postForm.get('excerpt')?.touched"></textarea>
+              <small class="field-hint">A compelling summary that appears in post listings</small>
+            </div>
+
+            <div class="field editor-field">
+              <label for="content">
+                Post Content <span class="required-asterisk">*</span>
+              </label>
+              <p-editor id="content" formControlName="content" [style]="{ height: '400px' }"
+                placeholder="Write your amazing content here..."></p-editor>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sources & Attachments Card (Collapsible) -->
+        <div class="card premium-card collapsible-card">
+          <div class="card-header clickable" (click)="toggleSourcesSection()">
+            <div class="flex justify-content-between align-items-center w-full">
+              <div>
+                <h3>Sources & Attachments</h3>
+                <p class="card-description">Optional: Add references and downloadable content</p>
+              </div>
+              <i [class]="sourcesExpanded() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
+            </div>
+          </div>
+          <div class="card-body" [class.collapsed]="!sourcesExpanded()">
+            <div class="grid form-grid">
+              <div class="col-12 md:col-6 field">
+                <label for="sourceName">Source Name</label>
+                <input id="sourceName" type="text" pInputText formControlName="sourceName"
+                  placeholder="e.g., The Hindu">
+              </div>
+              <div class="col-12 md:col-6 field">
+                <label for="sourceUrl">Source URL</label>
+                <input id="sourceUrl" type="url" pInputText formControlName="sourceUrl" placeholder="https://...">
+              </div>
+              <div class="col-12 field">
+                <label for="attachmentUrl">Attachment PDF URL</label>
+                <input id="attachmentUrl" type="url" pInputText formControlName="attachmentUrl"
+                  placeholder="Link to downloadable PDF">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEO Card -->
+        <div class="card premium-card" formGroupName="seo">
+          <div class="card-header">
+            <h3>SEO & Meta Data</h3>
+            <p class="card-description">Optimize your post for search engines</p>
+          </div>
+          <div class="card-body">
+            <div class="field">
+              <label for="metaTitle">Meta Title</label>
+              <input id="metaTitle" type="text" pInputText formControlName="metaTitle" placeholder="SEO Title"
+                [maxlength]="60">
+              <small class="field-hint">Recommended length: 50-60 characters</small>
+            </div>
+            <div class="field">
+              <label for="metaDescription">Meta Description</label>
+              <textarea id="metaDescription" pInputTextarea formControlName="metaDescription" rows="2"
+                [maxlength]="160"></textarea>
+              <small class="field-hint">Recommended length: 150-160 characters</small>
+            </div>
+            <div class="field">
+              <label>SEO Preview</label>
+              <div class="seo-preview">
+                <div class="seo-title">{{ getMetaTitlePreview() || 'Meta Title' }}</div>
+                <div class="seo-url">{{ getSeoUrlPreview() }}</div>
+                <div class="seo-description">{{ getMetaDescriptionPreview() || 'Meta description will appear here...' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR SETTINGS COLUMN -->
+      <div class="sidebar-column">
+
+        <!-- Publishing Status Card -->
+        <div class="card premium-card">
+          <div class="card-header">
+            <h3>Publishing</h3>
+          </div>
+          <div class="card-body">
+            <div class="field">
+              <label for="status">
+                Status <span class="required-asterisk">*</span>
+              </label>
+              <app-dynamic-dropdown appendTo="body" id="status" formControlName="status" model="master" masterType="post_status"
+                placeholder="Select Status"></app-dynamic-dropdown>
+            </div>
+
+            <div class="field">
+              <label for="eventDate">
+                Event Date
+                <span class="label-hint">(For Current Affairs)</span>
+              </label>
+              <p-datepicker id="eventDate" formControlName="eventDate" [showIcon]="true" placeholder="Select Date" appendTo="body"
+                dateFormat="dd/mm/yy"></p-datepicker>
+            </div>
+
+            <div class="field-checkbox">
+              <p-checkbox formControlName="isFeatured" [binary]="true" inputId="featured"></p-checkbox>
+              <label for="featured">⭐ Feature this post</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Organization Card -->
+        <div class="card premium-card">
+          <div class="card-header">
+            <h3>Organization</h3>
+          </div>
+          <div class="card-body">
+            <div class="field">
+              <label for="type">
+                Post Type <span class="required-asterisk">*</span>
+              </label>
+              <app-dynamic-dropdown id="type" formControlName="type" model="master" masterType="post_type"
+                placeholder="Select Type"></app-dynamic-dropdown>
+            </div>
+
+            <div class="field">
+              <label for="language">
+                Language <span class="required-asterisk">*</span>
+              </label>
+              <app-dynamic-dropdown id="language" formControlName="language" model="master" masterType="language"
+                placeholder="Select Language"></app-dynamic-dropdown>
+            </div>
+
+            <div class="field">
+              <label for="category">
+                Category <span class="required-asterisk">*</span>
+              </label>
+              <app-dynamic-dropdown id="category" formControlName="category" model="category"
+                [initialOptions]="editCategoryOptions" placeholder="Select Category"></app-dynamic-dropdown>
+            </div>
+
+            <!-- Tags with improved UX -->
+            <div class="field">
+              <label>Tags</label>
+              <div class="tag-input-wrapper">
+                <input #tagInput type="text" pInputText placeholder="Type tag and press Enter..."
+                  (keydown.enter)="addTag($event, tagInput)" (keydown.comma)="addTagFromComma($event, tagInput)">
+              </div>
+              <div class="tag-container">
+                @for (tag of tags.controls; track $index) {
+                <span class="custom-tag">
+                  #{{ tag.value }}
+                  <i class="pi pi-times-circle tag-close" (click)="removeTag($index)"
+                    [attr.aria-label]="'Remove tag ' + tag.value"></i>
+                </span>
+                }
+                @if (tags.controls.length === 0) {
+                <span class="tag-placeholder">No tags added yet</span>
+                }
+              </div>
+            </div>
+
+            <!-- Thumbnail with preview -->
+            <div class="field">
+              <label for="thumbnail">Thumbnail URL</label>
+              <input id="thumbnail" type="url" pInputText formControlName="thumbnail"
+                placeholder="Paste image link here...">
+              @if (postForm.get('thumbnail')?.value) {
+              <div class="thumbnail-preview">
+                <img [src]="postForm.get('thumbnail')?.value" alt="Thumbnail preview"
+                  (error)="onThumbnailError($event)">
+                <button type="button" class="p-button-text p-button-sm" (click)="clearThumbnail()">
+                  Clear
+                </button>
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="card premium-card quick-actions">
+          <div class="card-header">
+            <h3>Quick Actions</h3>
+          </div>
+          <div class="card-body">
+            <div class="action-buttons">
+              <button pButton type="button" icon="pi pi-copy" label="Duplicate" class="p-button-outlined p-button-sm"
+                (click)="duplicatePost()"></button>
+              <button pButton type="button" icon="pi pi-eye" label="Preview" class="p-button-outlined p-button-sm"
+                (click)="previewPost()"></button>
+              <button pButton type="button" icon="pi pi-save" label="Save Draft" class="p-button-outlined p-button-sm"
+                (click)="saveDraft()"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

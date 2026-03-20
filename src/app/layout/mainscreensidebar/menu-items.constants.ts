@@ -62,6 +62,16 @@ export const SIDEBAR_MENU: MenuItem[] = [
     roles: ['instructor', 'admin'],
     items: [
       {
+        label: 'Blog List',
+        icon: 'pi pi-chart-bar',
+        routerLink: ['/blog']
+      },
+      {
+        label: 'Blog Form',
+        icon: 'pi pi-chart-bar',
+        routerLink: ['/blog/new']
+      },
+      {
         label: 'Analytics Dashboard',
         icon: 'pi pi-chart-bar',
         routerLink: ['/instructor/dashboard']
