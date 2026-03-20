@@ -14,6 +14,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { CardModule } from "primeng/card"; 
+import { CategoryService } from '../../../../core/services/category.service';
 
 // Models
 import { Course } from '../../../../core/models/course.model';
@@ -40,6 +41,7 @@ export class CourseFormComponent implements OnInit {
   cancelled = output<void>();
   
   // Injectors
+    private categoryService = inject(CategoryService);
   private sectionApiService = inject(SectionService);
   private lessonApiService = inject(LessonService);
   private courseApiService = inject(CourseService);
@@ -57,7 +59,7 @@ export class CourseFormComponent implements OnInit {
   hasDiscount = signal<boolean>(false);
 
   // Master Data Signals (Replaces hardcoded arrays)
-  categories = signal<Master[]>([]);
+  categories:any = signal<Master[]>([]);
   difficultyLevels = signal<Master[]>([]);
   lessonTypes = signal<Master[]>([]);
   currencies = signal<Master[]>([]);
@@ -118,10 +120,10 @@ export class CourseFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadCategories()
     this.isLoading.set(true);
-    
     forkJoin({
-      categories: this.masterApiService.getPublicValues('course_category'),
+      // categories: this.masterApiService.getPublicValues('course_category'),
       levels: this.masterApiService.getPublicValues('course_level'),
       languages: this.masterApiService.getPublicValues('language'),
       currencies: this.masterApiService.getPublicValues('currency'),
@@ -130,7 +132,7 @@ export class CourseFormComponent implements OnInit {
       .subscribe({
         next: (res) => {
           // 2. Set the dropdown signals
-          this.categories.set(res.categories.data || []);
+          // this.categories.set(res.categories.data || []);
           this.difficultyLevels.set(res.levels.data || []);
           this.languages.set(res.languages.data || []);
           this.currencies.set(res.currencies.data || []);
@@ -165,6 +167,35 @@ export class CourseFormComponent implements OnInit {
         this.addLearningItem();
       }
     });
+  }
+
+      private loadCategories(): void {
+    this.categoryService.getAllCategories({ isActive: true })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: any) =>this.categories.set(this.mapToDropdownOptions(res.data || [],'name','_id')),
+        error: (error: any) => console.error('Failed to load categories', error)
+      });
+  }
+  /**
+   * Maps an array of objects to PrimeNG dropdown option format.
+   * 
+   * @param items - The original array of data.
+   * @param labelKey - The object key to use for the dropdown label.
+   * @param valueKey - The object key to use for the dropdown value.
+   * @returns An array of { label, value } objects.
+   */
+    mapToDropdownOptions<T>(
+    items: T[], 
+    labelKey: keyof T, 
+    valueKey: keyof T
+  ) {
+    if (!items || !Array.isArray(items)) return [];
+  
+    return items.map(item => ({
+      label: item[labelKey],
+      value: item[valueKey]
+    }));
   }
 
   // --- NEW: Load all master data in parallel ---
