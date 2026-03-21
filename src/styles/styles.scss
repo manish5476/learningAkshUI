@@ -1,7 +1,9 @@
 
-@use './mixins';
+@use 'tailwindcss';
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
-
+@import 'primeicons/primeicons.css';
+// @import 'leaflet/dist/leaflet.css;
+// @use './mixins';
 /* ==========================================================================
    CSS RESET & BASE TYPOGRAPHY (The Fix for "Zoomed In" UI)
    ========================================================================== */
@@ -18,7 +20,6 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* 2. Scale down the Root Font Size */
 html {
   /* Default is 16px. Setting it to 14px (87.5%) scales down EVERYTHING 
      using 'rem' units proportionally. If it STILL looks too big, drop it to 13px. */

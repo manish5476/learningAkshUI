@@ -68,8 +68,8 @@ export const SIDEBAR_MENU: MenuItem[] = [
       },
       {
         label: 'Blog Form',
-        icon: 'pi pi-chart-bar',
-        routerLink: ['/blog/new']
+        icon: 'pi pi-plus',
+        routerLink: ['/blog/admin/new']
       },
       {
         label: 'Analytics Dashboard',

@@ -1,136 +1,171 @@
-<div class="list-wrapper p-4">
+<!-- post-list.component.html - Enhanced Version -->
+<div class="posts-container">
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
 
-  <!-- Header -->
-  <div class="flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-    <div>
-      <h2 class="text-2xl font-bold text-900 m-0">Content Management</h2>
-      <p class="text-500 m-0 mt-1">Manage your blogs, current affairs, and announcements.</p>
-    </div>
-    <p-button label="Create New Post" icon="pi pi-plus" [routerLink]="['/instructor/posts/new']"></p-button>
+  <!-- Animated Background Elements -->
+  <div class="bg-animation">
+    <div class="bg-circle bg-circle-1"></div>
+    <div class="bg-circle bg-circle-2"></div>
+    <div class="bg-circle bg-circle-3"></div>
   </div>
 
-  <!-- Table Card -->
-  <div class="card bg-white p-4 border-round-xl shadow-1 border-1 border-gray-200">
-    
-    <!-- Toolbar / Filters -->
-    <div class="flex flex-column md:flex-row gap-3 mb-4">
-      <span class="p-input-icon-left w-full md:w-20rem">
-        <i class="pi pi-search"></i>
-        <input pInputText type="text" [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()" 
-               placeholder="Search by title..." class="w-full" />
-      </span>
-
-      <div class="w-full md:w-14rem">
-        <app-dynamic-dropdown [(ngModel)]="selectedType" (ngModelChange)="onFilterChange()" 
-                              model="master" masterType="post_type" placeholder="Filter by Type"></app-dynamic-dropdown>
+  <!-- Header Section -->
+  @if (isAdminView()) {
+  <!-- Admin Header with KPI Cards -->
+  <div class="admin-header animate-slide-down">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="icon-wrapper">
+          <i class="pi pi-file-edit"></i>
+        </div>
+        <div class="title-wrapper">
+          <h1>Content Management</h1>
+          <p>Create, edit, and manage your blog posts</p>
+        </div>
       </div>
+      <button pButton label="New Post" icon="pi pi-plus" class="create-button" [routerLink]="['/blog/admin/new']">
+        <i class="pi pi-plus"></i>
+        <span>New Post</span>
+      </button>
+    </div>
 
-      <div class="w-full md:w-14rem">
-        <app-dynamic-dropdown [(ngModel)]="selectedStatus" (ngModelChange)="onFilterChange()" 
-                              model="master" masterType="post_status" placeholder="Filter by Status"></app-dynamic-dropdown>
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      @for (stat of stats; track stat.label) {
+      <div class="stat-card" [style.border-top-color]="stat.color">
+        <div class="stat-icon" [style.background]="stat.color">
+          <i [class]="stat.icon"></i>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{ stat.value }}</span>
+          <span class="stat-label">{{ stat.label }}</span>
+        </div>
       </div>
-
-      @if (searchQuery || selectedType || selectedStatus) {
-        <p-button icon="pi pi-filter-slash" severity="secondary" [text]="true" 
-                  (onClick)="clearFilters()" pTooltip="Clear Filters"></p-button>
       }
     </div>
-
-    <!-- PrimeNG Lazy Table -->
-    <p-table [value]="posts()" [lazy]="true" (onLazyLoad)="onLazyLoad($event)" dataKey="_id"
-             [tableStyle]="{ 'min-width': '75rem' }" [paginator]="true" [rows]="rows" [first]="first"
-             [totalRecords]="totalRecords()" [loading]="loading()" [rowsPerPageOptions]="[10, 25, 50]"
-             styleClass="p-datatable-sm p-datatable-striped">
-      
-      <ng-template pTemplate="header">
-        <tr>
-          <th style="width: 35%">Title & Excerpt</th>
-          <th style="width: 15%">Type / Category</th>
-          <th style="width: 15%">Author</th>
-          <th style="width: 10%">Stats</th>
-          <th style="width: 15%">Status & Date</th>
-          <th style="width: 10%" class="text-center">Actions</th>
-        </tr>
-      </ng-template>
-
-      <ng-template pTemplate="body" let-post>
-        <tr>
-          <!-- Title & Excerpt -->
-          <td>
-            <div class="flex align-items-center gap-3">
-              @if (post.thumbnail) {
-                <img [src]="post.thumbnail" [alt]="post.title" class="w-4rem h-3rem border-round object-cover border-1 border-gray-200">
-              } @else {
-                <div class="w-4rem h-3rem border-round bg-gray-100 flex align-items-center justify-content-center border-1 border-gray-200">
-                  <i class="pi pi-image text-gray-400"></i>
-                </div>
-              }
-              <div>
-                <div class="font-bold text-900 line-height-2 max-w-20rem white-space-nowrap overflow-hidden text-overflow-ellipsis" [title]="post.title">
-                  {{ post.title }}
-                </div>
-                <div class="text-sm text-500 mt-1 max-w-20rem white-space-nowrap overflow-hidden text-overflow-ellipsis">
-                  {{ post.excerpt }}
-                </div>
-              </div>
-            </div>
-          </td>
-
-          <!-- Type & Category -->
-          <td>
-            <div class="font-medium text-700 capitalize">{{ post.type?.replace('_', ' ') }}</div>
-            <div class="text-sm text-500 mt-1">{{ post.category?.name || 'Uncategorized' }}</div>
-          </td>
-
-          <!-- Author -->
-          <td>
-            <div class="flex align-items-center gap-2">
-              <div class="font-medium text-700">{{ post.author?.firstName }} {{ post.author?.lastName }}</div>
-            </div>
-          </td>
-
-          <!-- Stats -->
-          <td>
-            <div class="flex flex-column gap-1 text-sm text-600">
-              <span><i class="pi pi-eye mr-1 text-primary"></i> {{ post.views | number }}</span>
-              <span><i class="pi pi-clock mr-1 text-primary"></i> {{ post.readTime }} min</span>
-            </div>
-          </td>
-
-          <!-- Status & Date -->
-          <td>
-            <p-tag [value]="post.status | uppercase" [severity]="getStatusSeverity(post.status)"></p-tag>
-            <div class="text-xs text-500 mt-2">
-              {{ (post.publishedAt || post.createdAt) | date:'mediumDate' }}
-            </div>
-          </td>
-
-          <!-- Actions -->
-          <td class="text-center">
-            <div class="flex justify-content-center gap-2">
-              <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="info" 
-                        pTooltip="Edit" (onClick)="editPost(post._id)"></p-button>
-              <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" 
-                        pTooltip="Delete" (onClick)="deletePost(post)"></p-button>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-
-      <!-- Empty State -->
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="6" class="text-center p-5">
-            <div class="flex flex-column align-items-center">
-              <i class="pi pi-file text-4xl text-300 mb-3"></i>
-              <span class="text-600 font-medium">No posts found. Create your first post!</span>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-
-    </p-table>
   </div>
-</div>
+  } @else {
+  <!-- Public Header -->
+  <div class="public-header animate-slide-down">
+    <div class="hero-section">
+      <div class="hero-content">
+        <h1>Welcome to Our Blog</h1>
+        <p>Discover insights, tutorials, and stories from our expert team</p>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <i class="pi pi-file"></i>
+            <span>{{ totalRecords() }} Articles</span>
+          </div>
+          <div class="hero-stat">
+            <i class="pi pi-users"></i>
+            <span>10k+ Readers</span>
+          </div>
+          <div class="hero-stat">
+            <i class="pi pi-tags"></i>
+            <span>Multiple Categories</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Filter Bar - Enhanced -->
+  <div class="filter-section animate-slide-up">
+    <div class="filter-container">
+      <div class="search-box">
+        <i class="pi pi-search search-icon"></i>
+        <input type="text" pInputText [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()"
+          placeholder="Search by title, content, or author..." class="search-input" />
+        @if (searchQuery) {
+        <button class="clear-btn" (click)="clearSearch()">
+          <i class="pi pi-times-circle"></i>
+        </button>
+        }
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-item">
+          <i class="pi pi-tag"></i>
+          <app-dynamic-dropdown [(ngModel)]="selectedType" (ngModelChange)="onFilterChange()" model="master"
+            masterType="post_type" placeholder="All Types" [showClear]="true" class="filter-dropdown">
+          </app-dynamic-dropdown>
+        </div>
+
+        @if (isAdminView()) {
+        <div class="filter-item">
+          <i class="pi pi-flag"></i>
+          <app-dynamic-dropdown [(ngModel)]="selectedStatus" (ngModelChange)="onFilterChange()" model="master"
+            masterType="post_status" placeholder="All Status" [showClear]="true" class="filter-dropdown">
+          </app-dynamic-dropdown>
+        </div>
+        }
+      </div>
+
+      @if (hasActiveFilters()) {
+      <div class="active-filters">
+        <span class="filter-label">Active filters:</span>
+        @if (searchQuery) {
+        <span class="filter-chip">
+          {{ searchQuery }}
+          <i class="pi pi-times" (click)="clearSearch()"></i>
+        </span>
+        }
+        @if (selectedType) {
+        <span class="filter-chip">
+          Type: {{ selectedType }}
+          <i class="pi pi-times" (click)="clearTypeFilter()"></i>
+        </span>
+        }
+        @if (selectedStatus && isAdminView()) {
+        <span class="filter-chip">
+          Status: {{ selectedStatus }}
+          <i class="pi pi-times" (click)="clearStatusFilter()"></i>
+        </span>
+        }
+        <button pButton label="Clear All" icon="pi pi-filter-slash" class="clear-all-btn" [text]="true"
+          (click)="clearAllFilters()"></button>
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- Loading State - Enhanced -->
+  @if (loading()) {
+  <div class="loading-state">
+    <div class="skeleton-grid">
+      @for (item of [1,2,3,4,5,6]; track item) {
+      <div class="skeleton-card">
+        <div class="skeleton-image"></div>
+        <div class="skeleton-content">
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line medium"></div>
+          <div class="skeleton-line short"></div>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+  }
+
+  @if (!loading()) {
+  <div class="posts-grid">
+    @for (post of posts(); track post._id) {
+
+    <!-- Simply plug in your new component here -->
+    <app-post-card class="animate-scale-in" [post]="post" [isAdminView]="isAdminView()" (delete)="deletePost(post)"
+      (publish)="publishPost($event)" (unpublish)="unpublishPost($event)" (toggleFeature)="toggleFeature($event)">
+    </app-post-card>
+
+    }
+  </div>
+  }
+  <!-- Pagination -->
+  @if (totalPages() > 1 && !loading()) {
+  <div class="pagination-wrapper">
+    <p-paginator [first]="first" [rows]="rows" [totalRecords]="totalRecords()" [rowsPerPageOptions]="[12, 24, 36]"
+      (onPageChange)="onPageChange($event)">
+    </p-paginator>
+  </div>
+  }
