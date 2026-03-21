@@ -1,14 +1,15 @@
 <div class="course-list-container fade-in">
   <p-toast position="top-right"></p-toast>
 
-  <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+  <div class="page-header"
+    style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
     <div>
       <h1 class="page-title">Browse Courses</h1>
       <p class="page-subtitle">Discover the perfect course for your learning journey</p>
     </div>
 
     @if (canManageCourses()) {
-      <p-button label="Create New Course" icon="pi pi-plus" [routerLink]="['/instructor/courses/new']"></p-button>
+    <p-button label="Create New Course" icon="pi pi-plus" [routerLink]="['/instructor/courses/new']"></p-button>
     }
   </div>
 
@@ -25,13 +26,13 @@
       </div>
 
       <div class="w-full md:w-14rem">
-        <app-dynamic-dropdown [(ngModel)]="filters.level" model="master" masterType="course_level" placeholder="All Levels"
-          (ngModelChange)="onFilterChange()"></app-dynamic-dropdown>
+        <app-dynamic-dropdown [(ngModel)]="filters.level" model="master" masterType="course_level"
+          placeholder="All Levels" (ngModelChange)="onFilterChange()"></app-dynamic-dropdown>
       </div>
 
       <div class="w-full md:w-14rem">
-        <app-dynamic-dropdown [(ngModel)]="filters.language" model="master" masterType="language" placeholder="All Languages"
-          (ngModelChange)="onFilterChange()"></app-dynamic-dropdown>
+        <app-dynamic-dropdown [(ngModel)]="filters.language" model="master" masterType="language"
+          placeholder="All Languages" (ngModelChange)="onFilterChange()"></app-dynamic-dropdown>
       </div>
 
       <div class="w-full md:w-14rem">
@@ -40,53 +41,49 @@
       </div>
 
       @if (hasActiveFilters()) {
-        <p-button label="Clear" icon="pi pi-filter-slash" severity="secondary" [text]="true" (onClick)="clearFilters()"></p-button>
+      <p-button label="Clear" icon="pi pi-filter-slash" severity="secondary" [text]="true"
+        (onClick)="clearFilters()"></p-button>
       }
     </div>
   </div>
 
   @if (loading()) {
-    <div class="courses-grid">
-      @for (item of [1,2,3,4,5,6]; track item) {
-      <div class="course-card-skeleton">
-        <p-skeleton height="200px" borderRadius="12px"></p-skeleton>
-        <p-skeleton width="80%" height="22px" class="mt-md"></p-skeleton>
-        <p-skeleton width="60%" height="18px" class="mt-sm"></p-skeleton>
-      </div>
-      }
+  <div class="courses-grid">
+    @for (item of [1,2,3,4,5,6]; track item) {
+    <div class="course-card-skeleton">
+      <p-skeleton height="200px" borderRadius="12px"></p-skeleton>
+      <p-skeleton width="80%" height="22px" class="mt-md"></p-skeleton>
+      <p-skeleton width="60%" height="18px" class="mt-sm"></p-skeleton>
     </div>
+    }
+  </div>
   }
 
   @else {
-    <div class="courses-grid">
-      @for (course of courses(); track course._id) {
-        <app-property-course-card [course]="course"></app-property-course-card>
-      }
+  <div class="courses-grid">
+    @for (course of courses(); track course._id) {
+    <app-property-course-card [course]="course"></app-property-course-card>
+    }
 
-      @empty {
-        <div class="empty-state col-span-full text-center p-5">
-          <div class="empty-icon mb-3">
-            <i class="pi pi-search text-4xl text-gray-400"></i>
-          </div>
-          <h3>No courses found</h3>
-          <p class="text-gray-500 mb-4">Try adjusting your search or filters</p>
-          <p-button label="Clear Filters" icon="pi pi-filter-slash" (onClick)="clearFilters()"></p-button>
-        </div>
-      }
+    @empty {
+    <div class="empty-state col-span-full text-center p-5">
+      <div class="empty-icon mb-3">
+        <i class="pi pi-search text-4xl text-gray-400"></i>
+      </div>
+      <h3>No courses found</h3>
+      <p class="text-gray-500 mb-4">Try adjusting your search or filters</p>
+      <p-button label="Clear Filters" icon="pi pi-filter-slash" (onClick)="clearFilters()"></p-button>
     </div>
+    }
+  </div>
 
-   @if (pagination().totalResults > 0) {
-    <div class="mt-5 flex justify-content-center">
-      <p-paginator 
-        (onPageChange)="onPageChange($event)" 
-        [first]="first" 
-        [rows]="rows" 
-        [totalRecords]="pagination().totalResults" 
-        [rowsPerPageOptions]="[12, 24, 36]"
-        [showCurrentPageReport]="true"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} courses">
-      </p-paginator>
-    </div>
+  @if (pagination().totalResults > 0) {
+  <div class="mt-5 flex justify-content-center">
+    <p-paginator (onPageChange)="onPageChange($event)" [first]="first" [rows]="rows"
+      [totalRecords]="pagination().totalResults" [rowsPerPageOptions]="[12, 24, 36]" [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} courses">
+    </p-paginator>
+  </div>
   }
   }
 </div>

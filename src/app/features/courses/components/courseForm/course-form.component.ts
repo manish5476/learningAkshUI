@@ -474,7 +474,7 @@ export class CourseFormComponent implements OnInit {
     request$.subscribe({
       next: (res: ApiResponse<any>) => {
         this.isLoading.set(false);
-        this.router.navigate(['/courses/instructor']);
+        this.router.navigate(['/instructor/courses']);
         this.saved.emit(res?.data?.course || res?.data);
       },
       error: (error: any) => {
@@ -486,7 +486,7 @@ export class CourseFormComponent implements OnInit {
 
   onCancel(): void {
     this.cancelled.emit();
-    this.router.navigate(['/courses/instructor']);
+    this.router.navigate(['/instructor/courses']);
   }
 
   private executeLocalSectionRemoval(index: number): void {

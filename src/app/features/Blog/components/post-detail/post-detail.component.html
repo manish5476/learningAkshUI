@@ -1,0 +1,279 @@
+<div class="min-h-screen transition-colors duration-300 bg-[var(--bg-primary)]">
+  <!-- Top Navigation (Mobile/Standard) -->
+  <div
+    class="w-full px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between border-b overflow-hidden border-[var(--border-secondary)]">
+    <button (click)="goBack()"
+      class="flex items-center gap-2 text-sm font-medium hover:opacity-75 transition-opacity text-[var(--text-secondary)]">
+      <i class="pi pi-arrow-left"></i>
+      <span>{{ isAdminView() ? 'Back to Admin' : 'Back to Blog' }}</span>
+    </button>
+    <button (click)="toggleDarkMode()"
+      class="w-10 h-10 rounded-full flex items-center justify-center transition-colors text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]">
+      <i class="text-xl" [ngClass]="isDarkMode() ? 'pi pi-sun text-[var(--color-warning)]' : 'pi pi-moon'"></i>
+    </button>
+  </div>
+
+  <!-- Sticky Header with Reading Progress -->
+  @if (!loading() && post() && !error()) {
+  <div
+    class="fixed top-0 left-0 right-0 w-full backdrop-blur-md z-50 border-b shadow-sm transition-transform duration-300 flex flex-col border-[var(--border-secondary)] bg-[var(--bg-secondary)]/90"
+    [class.translate-y-0]="showStickyHeader()" [class.-translate-y-full]="!showStickyHeader()">
+
+    <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <h2 class="font-bold text-lg truncate pr-4 max-w-[60%] text-[var(--text-primary)]">
+        {{ post().title }}
+      </h2>
+      <div class="flex items-center gap-3">
+        <button (click)="shareOnTwitter()"
+          class="w-8 h-8 rounded-full flex items-center justify-center transition-colors text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"
+          title="Share on Twitter"><i class="pi pi-twitter"></i></button>
+        <button (click)="copyLink()"
+          class="w-8 h-8 rounded-full flex items-center justify-center transition-colors text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"
+          title="Copy Link"><i class="pi pi-link"></i></button>
+      </div>
+    </div>
+
+    <!-- Reading Progress Indicator -->
+    <div class="h-1.5 w-full absolute bottom-0 left-0 bg-[var(--bg-ternary)]">
+      <div class="h-full transition-all duration-150 rounded-r-full"
+        style="background: var(--accent-gradient); width: 0%;" [style.width.%]="readingProgress()"></div>
+    </div>
+  </div>
+  }
+
+  <!-- Loading Skeleton -->
+  @if (loading()) {
+  <main class="max-w-3xl mx-auto px-4 py-16 animate-pulse">
+    <div class="w-24 h-6 rounded-md mb-8 bg-[var(--bg-ternary)]"></div>
+    <div class="w-full h-12 rounded-lg mb-4 bg-[var(--bg-ternary)]"></div>
+    <div class="w-3/4 h-12 rounded-lg mb-8 bg-[var(--bg-ternary)]"></div>
+    <div class="flex items-center gap-4 mb-12">
+      <div class="w-12 h-12 rounded-full bg-[var(--bg-ternary)]"></div>
+      <div>
+        <div class="w-32 h-4 rounded mb-2 bg-[var(--bg-ternary)]"></div>
+        <div class="w-24 h-3 rounded bg-[var(--bg-ternary)]"></div>
+      </div>
+    </div>
+    <div class="w-full h-[400px] rounded-2xl mb-12 bg-[var(--bg-ternary)]"></div>
+    <div class="space-y-4">
+      <div class="h-4 rounded w-full bg-[var(--bg-ternary)]"></div>
+      <div class="h-4 rounded w-5/6 bg-[var(--bg-ternary)]"></div>
+      <div class="h-4 rounded w-full bg-[var(--bg-ternary)]"></div>
+      <div class="h-4 rounded w-4/6 bg-[var(--bg-ternary)]"></div>
+    </div>
+  </main>
+  }
+
+  <!-- Error State -->
+  @if (!loading() && error()) {
+  <div class="min-h-[60vh] flex flex-col items-center justify-center p-8 text-center">
+    <div class="w-24 h-24 rounded-full flex items-center justify-center mb-6 bg-[var(--color-error-bg)]">
+      <i class="pi pi-exclamation-triangle text-4xl text-[var(--color-error)]"></i>
+    </div>
+    <h2 class="text-3xl font-bold mb-4 text-[var(--text-primary)]">Oops!</h2>
+    <p class="text-lg mb-8 text-[var(--text-secondary)]">{{ error() }}</p>
+    <button (click)="goBack()" pButton label="Go Back to Blog" class="p-button-primary"></button>
+  </div>
+  }
+
+  <!-- Main Content Layout -->
+  @if (!loading() && post() && !error()) {
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16 pb-32 lg:pb-16">
+
+    <!-- CSS Grid Layout -->
+    <div
+      class="grid grid-cols-1 lg:grid-cols-[80px_minmax(0,1fr)_250px] xl:grid-cols-[1fr_minmax(650px,800px)_1fr] gap-8 xl:gap-16">
+
+      <!-- ======================= -->
+      <!-- LEFT SIDEBAR: Engagements -->
+      <!-- ======================= -->
+      <aside class="hidden lg:block relative">
+        <div
+          class="sticky top-40 flex flex-col items-end xl:items-center gap-6 pr-4 border-r border-transparent xl:border-[var(--border-secondary)]">
+          <div class="flex flex-col items-center gap-2">
+            <button (click)="toggleLike()"
+              class="w-12 h-12 rounded-full border flex flex-col items-center justify-center transition-all duration-300 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+              [ngClass]="isLiked() ? 'bg-[var(--color-primary-bg)] border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-[var(--border-secondary)] text-[var(--text-secondary)] bg-[var(--bg-primary)]'">
+              <i class="text-xl" [class.pi-heart-fill]="isLiked()" [class.pi-heart]="!isLiked()"></i>
+            </button>
+            <span class="text-xs font-semibold text-[var(--text-tertiary)]">{{ post().likes || 0 }} Reads / Likes</span>
+          </div>
+
+          <div class="h-px w-8 bg-[var(--border-secondary)]"></div>
+
+          <button (click)="toggleSave()"
+            class="w-10 h-10 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--bg-hover)] text-[var(--text-secondary)]"
+            [ngClass]="{'text-[var(--color-primary)]': isSaved()}">
+            <i class="text-lg" [class.pi-bookmark-fill]="isSaved()" [class.pi-bookmark]="!isSaved()"></i>
+          </button>
+          <button (click)="shareOnTwitter()"
+            class="w-10 h-10 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--bg-hover)] text-[var(--text-secondary)]">
+            <i class="pi pi-twitter text-lg"></i>
+          </button>
+          <button (click)="shareOnLinkedIn()"
+            class="w-10 h-10 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--bg-hover)] text-[var(--text-secondary)]">
+            <i class="pi pi-linkedin text-lg"></i>
+          </button>
+        </div>
+      </aside>
+
+      <!-- ======================= -->
+      <!-- CENTER: Article Content   -->
+      <!-- ======================= -->
+      <article class="w-full mx-auto animate-fade-in-up">
+
+        <!-- Category & Tag Info -->
+        <div class="flex flex-wrap items-center gap-3 mb-6">
+          @if (post().category?.name) {
+          <span
+            class="px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase text-[var(--color-primary)] bg-[var(--color-primary-bg)]">
+            {{ post().category.name }}
+          </span>
+          }
+          @if (post().type) {
+          <span
+            class="px-3 py-1 rounded-full text-xs font-semibold uppercase bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
+            {{ post().type }}
+          </span>
+          }
+        </div>
+
+        <!-- Hero Headline -->
+        <h1
+          class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-8 text-[var(--text-primary)]"
+          style="font-family: var(--font-heading);">
+          {{ post().title }}
+        </h1>
+
+        <!-- Author Info & Meta Data -->
+        <div class="flex items-center justify-between border-b pb-8 mb-8 border-[var(--border-secondary)]">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full overflow-hidden bg-[var(--bg-ternary)]">
+              @if (post().author?.profilePicture) {
+              <img [src]="post().author.profilePicture" [alt]="post().author.firstName"
+                class="w-full h-full object-cover">
+              } @else {
+              <div class="w-full h-full flex items-center justify-center text-[var(--text-muted)]">
+                <i class="pi pi-user text-xl"></i>
+              </div>
+              }
+            </div>
+            <div class="flex flex-col">
+              <span class="font-bold text-base text-[var(--text-primary)]">
+                {{ post().author?.firstName }} {{ post().author?.lastName }}
+              </span>
+              <div class="flex items-center gap-2 text-sm text-[var(--text-tertiary)]">
+                <time [attr.datetime]="post().eventDate || post().createdAt">{{ formattedDate() }}</time>
+                <span>·</span>
+                <span>{{ estimatedReadTime() }}</span>
+                <span>·</span>
+                <span class="flex items-center gap-1"><i class="pi pi-eye text-xs"></i> {{ post().views || 0 }}
+                  Views</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cover Image -->
+        @if (post().thumbnail) {
+        <div class="w-full rounded-2xl overflow-hidden mb-12 relative group shadow-lg">
+          <img [src]="post().thumbnail" [alt]="post().title"
+            class="w-full h-auto aspect-video object-cover transition-transform duration-700 hover:scale-105">
+        </div>
+        }
+
+        <!-- Admin Quick Edit Alert -->
+        @if (isAdminView()) {
+        <div
+          class="mb-8 p-4 rounded-xl flex items-center justify-between border border-[var(--color-primary)] bg-[var(--color-primary-bg)] text-[var(--color-primary)]">
+          <div class="flex items-center gap-3">
+            <i class="pi" [ngClass]="getStatusIcon(post().status)"></i>
+            <span class="font-medium">Admin View: Currently viewing a <strong>{{ post().status | titlecase }}</strong>
+              post.</span>
+          </div>
+          <button pButton icon="pi pi-pencil" label="Edit Article" class="p-button-sm" (click)="editPost()"></button>
+        </div>
+        }
+
+        <!-- The Sanitized HTML Body (Quill) -->
+        <div class="ql-custom-prose w-full max-w-none text-lg leading-relaxed" [innerHTML]="sanitizedContent()"></div>
+
+        <!-- Tags at Bottom -->
+        @if (post().tags && post().tags.length > 0) {
+        <div class="mt-16 pt-8 border-t flex flex-wrap gap-2 border-[var(--border-secondary)]">
+          @for (tag of post().tags; track tag) {
+          <span
+            class="px-4 py-2 rounded-lg transition-colors cursor-pointer text-sm font-medium bg-[var(--bg-secondary)] hover:bg-[var(--bg-ternary)] text-[var(--text-secondary)]">
+            #{{ tag }}
+          </span>
+          }
+        </div>
+        }
+      </article>
+
+      <!-- ======================= -->
+      <!-- RIGHT SIDEBAR: Outline    -->
+      <!-- ======================= -->
+      <aside class="hidden xl:block relative">
+        <div class="sticky top-40 pl-6 border-l w-full max-w-[280px] border-[var(--border-secondary)]">
+          @if (tableOfContents().length > 0) {
+          <h3 class="text-xs font-black uppercase tracking-widest mb-5 text-[var(--text-muted)]">In this article</h3>
+          <nav class="flex flex-col gap-3">
+            @for (toc of tableOfContents(); track toc.id) {
+            <button (click)="scrollToHeading(toc.id)"
+              class="text-left text-sm transition-all duration-200 py-1 border-l-2 -ml-[25px] pl-6 hover:text-[var(--color-primary)]"
+              [ngClass]="activeTocId() === toc.id ? 'border-[var(--color-primary)] text-[var(--color-primary)] font-bold' : 'border-transparent text-[var(--text-secondary)]'">
+              {{ toc.text }}
+            </button>
+            }
+          </nav>
+          } @else {
+          <!-- Fallback -->
+          <div class="p-6 rounded-xl border bg-[var(--bg-ternary)] border-[var(--border-secondary)]">
+            <p class="text-sm font-medium mb-4 text-[var(--text-secondary)]">Estimated Reading Time: <br> <span
+                class="text-lg font-bold text-[var(--text-primary)]">{{ estimatedReadTime() }}</span></p>
+          </div>
+          }
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- Mobile Fixed Bottom Action Bar -->
+  <div
+    class="lg:hidden fixed bottom-0 left-0 right-0 p-3 border-t backdrop-blur-md z-40 flex justify-around items-center bg-[var(--bg-primary)]/95 border-[var(--border-secondary)] pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+    <button (click)="toggleLike()" class="flex flex-col items-center gap-1 transition-colors"
+      [ngClass]="isLiked() ? 'text-[var(--color-primary)]' : 'text-[var(--text-secondary)]'">
+      <i class="text-xl" [class.pi-heart-fill]="isLiked()" [class.pi-heart]="!isLiked()"></i>
+      <span class="text-[10px] font-medium">{{ post().likes || 0 }}</span>
+    </button>
+    <button (click)="toggleSave()"
+      class="flex flex-col items-center gap-1 transition-colors text-[var(--text-secondary)]"
+      [ngClass]="{'text-[var(--color-primary)]': isSaved()}">
+      <i class="text-xl" [class.pi-bookmark-fill]="isSaved()" [class.pi-bookmark]="!isSaved()"></i>
+      <span class="text-[10px] font-medium">Save</span>
+    </button>
+    <button (click)="shareOnTwitter()"
+      class="flex flex-col items-center gap-1 transition-colors text-[var(--text-secondary)]">
+      <i class="pi pi-twitter text-xl"></i>
+      <span class="text-[10px] font-medium">Tweet</span>
+    </button>
+  </div>
+
+  <!-- Related Posts -->
+  @if (relatedPosts().length) {
+  <div class="w-full mt-10 pt-16 pb-32 lg:pb-24 bg-[var(--bg-secondary)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-3xl font-bold mb-10 text-[var(--text-primary)]" style="font-family: var(--font-heading);">
+        More from Learning Aksh
+      </h2>
+      <app-related-posts [posts]="relatedPosts()"></app-related-posts>
+    </div>
+  </div>
+  }
+  }
+
+  <p-toast position="bottom-right"></p-toast>
+  <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+</div>

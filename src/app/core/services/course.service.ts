@@ -41,9 +41,9 @@ export class CourseService {
   // }
 
   getAllCourses(filters?: any): Observable<ApiResponseWithPagination<Course[]>> {
-    return this.api.getWithPagination<Course[]>(this.endpoint, { 
-      params: filters, 
-      skipAuth: true 
+    return this.api.getWithPagination<Course[]>(this.endpoint, {
+      params: filters,
+      skipAuth: true
     });
   }
   // ==================== PROTECTED ROUTES ====================

@@ -5,6 +5,7 @@ import { map, catchError, tap } from 'rxjs/operators';
 import { BaseApiService, ApiResponse } from '../http/base-api.service';
 import { isPlatformBrowser } from '@angular/common';
 export interface User {
+  id: string;
   _id: string;
   email: string;
   firstName: string;

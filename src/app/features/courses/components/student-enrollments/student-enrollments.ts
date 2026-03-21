@@ -108,7 +108,11 @@ export class StudentEnrollmentsComponent implements OnInit {
   // Navigation & Actions
   goToCourse(enrollment: Enrollment): void {
     const courseId = typeof enrollment.course === 'string' ? enrollment.course : (enrollment.course as any)._id;
-    this.router.navigate(['/learning', courseId]); 
+    this.router.navigate(['/courses/learn', courseId]); 
+  }
+
+  resumeCourse(courseId: string) {
+    this.router.navigate(['/courses/learn', courseId]); 
   }
 
   downloadCertificate(enrollmentId: string): void {

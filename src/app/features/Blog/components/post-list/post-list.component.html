@@ -1,136 +1,140 @@
-<div class="list-wrapper p-4">
-  <p-toast></p-toast>
-  <p-confirmDialog></p-confirmDialog>
+<div class="min-h-screen bg-[var(--bg-primary)] px-4 sm:px-6 lg:px-8 py-4 transition-colors duration-300">
+  <p-toast position="bottom-right"></p-toast>
+  <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 
-  <!-- Header -->
-  <div class="flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-    <div>
-      <h2 class="text-2xl font-bold text-900 m-0">Content Management</h2>
-      <p class="text-500 m-0 mt-1">Manage your blogs, current affairs, and announcements.</p>
+  <!-- ======================= -->
+  <!-- ULTRA-COMPACT HEADER    -->
+  <!-- ======================= -->
+  @if (isAdminView()) {
+  <div
+    class="flex items-center justify-between gap-4 mb-4 pb-4 border-b border-[var(--border-secondary)] animate-fade-in-up">
+    <div class="flex items-center gap-2">
+      <i class="pi pi-file-edit text-xl text-[var(--color-primary)]"></i>
+      <h1 class="text-xl font-bold text-[var(--text-primary)] m-0" style="font-family: var(--font-heading);">Content
+        Management</h1>
     </div>
-    <p-button label="Create New Post" icon="pi pi-plus" [routerLink]="['/instructor/posts/new']"></p-button>
+
+    <div class="flex items-center gap-4">
+      <!-- Minimal Stats (Hidden on small mobile) -->
+      <div
+        class="hidden md:flex items-center gap-4 text-xs font-semibold text-[var(--text-tertiary)] border-r pr-4 border-[var(--border-secondary)]">
+        <span class="flex items-center gap-1.5"><i class="pi pi-file"></i> {{ totalRecords() }} Posts</span>
+        <span class="flex items-center gap-1.5"><i class="pi pi-eye"></i> 10k+ Views</span>
+      </div>
+      <!-- Compact Button -->
+      <button pButton label="New Post" icon="pi pi-plus" class="p-button-sm p-button-primary whitespace-nowrap"
+        [routerLink]="['/blog/admin/new']"></button>
+    </div>
   </div>
+  } @else {
+  <div
+    class="flex items-center justify-between gap-4 mb-4 pb-4 border-b border-[var(--border-secondary)] animate-fade-in-up">
+    <h1 class="text-2xl font-bold text-[var(--text-primary)] m-0" style="font-family: var(--font-heading);">Our Blog
+    </h1>
+    <div class="flex items-center gap-4 text-sm font-medium text-[var(--text-tertiary)]">
+      <span class="flex items-center gap-1.5"><i class="pi pi-file"></i> {{ totalRecords() }} Articles</span>
+    </div>
+  </div>
+  }
 
-  <!-- Table Card -->
-  <div class="card bg-white p-4 border-round-xl shadow-1 border-1 border-gray-200">
-    
-    <!-- Toolbar / Filters -->
-    <div class="flex flex-column md:flex-row gap-3 mb-4">
-      <span class="p-input-icon-left w-full md:w-20rem">
-        <i class="pi pi-search"></i>
-        <input pInputText type="text" [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()" 
-               placeholder="Search by title..." class="w-full" />
-      </span>
+  <!-- ======================= -->
+  <!-- SINGLE ROW FILTER BAR   -->
+  <!-- ======================= -->
+  <!-- Using flex-row and items-center to force everything onto one line -->
+  <div class="w-full flex flex-row items-center gap-3 mb-6 animate-fade-in-up" style="animation-delay: 50ms;">
 
-      <div class="w-full md:w-14rem">
-        <app-dynamic-dropdown [(ngModel)]="selectedType" (ngModelChange)="onFilterChange()" 
-                              model="master" masterType="post_type" placeholder="Filter by Type"></app-dynamic-dropdown>
-      </div>
-
-      <div class="w-full md:w-14rem">
-        <app-dynamic-dropdown [(ngModel)]="selectedStatus" (ngModelChange)="onFilterChange()" 
-                              model="master" masterType="post_status" placeholder="Filter by Status"></app-dynamic-dropdown>
-      </div>
-
-      @if (searchQuery || selectedType || selectedStatus) {
-        <p-button icon="pi pi-filter-slash" severity="secondary" [text]="true" 
-                  (onClick)="clearFilters()" pTooltip="Clear Filters"></p-button>
+    <!-- Search Box (flex-1 makes it stretch) -->
+    <div class="relative flex-1 min-w-[150px]">
+      <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] text-sm"></i>
+      <input type="text" pInputText [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()"
+        placeholder="Search articles..."
+        class="w-full pl-9 pr-8 py-2 rounded-md border text-sm bg-[var(--bg-secondary)] text-[var(--text-primary)] border-[var(--border-secondary)] hover:border-[var(--color-primary)] focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-all" />
+      @if (searchQuery) {
+      <button
+        class="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--color-error)] transition-colors"
+        (click)="clearSearch()">
+        <i class="pi pi-times-circle"></i>
+      </button>
       }
     </div>
 
-    <!-- PrimeNG Lazy Table -->
-    <p-table [value]="posts()" [lazy]="true" (onLazyLoad)="onLazyLoad($event)" dataKey="_id"
-             [tableStyle]="{ 'min-width': '75rem' }" [paginator]="true" [rows]="rows" [first]="first"
-             [totalRecords]="totalRecords()" [loading]="loading()" [rowsPerPageOptions]="[10, 25, 50]"
-             styleClass="p-datatable-sm p-datatable-striped">
-      
-      <ng-template pTemplate="header">
-        <tr>
-          <th style="width: 35%">Title & Excerpt</th>
-          <th style="width: 15%">Type / Category</th>
-          <th style="width: 15%">Author</th>
-          <th style="width: 10%">Stats</th>
-          <th style="width: 15%">Status & Date</th>
-          <th style="width: 10%" class="text-center">Actions</th>
-        </tr>
-      </ng-template>
+    <!-- Type Filter (shrink-0 prevents it from getting crushed by search) -->
+    <div class="w-32 md:w-44 shrink-0">
+      <app-dynamic-dropdown [(ngModel)]="selectedType" (ngModelChange)="onFilterChange()" model="master"
+        masterType="post_type" placeholder="Category" [showClear]="true" class="w-full block">
+      </app-dynamic-dropdown>
+    </div>
 
-      <ng-template pTemplate="body" let-post>
-        <tr>
-          <!-- Title & Excerpt -->
-          <td>
-            <div class="flex align-items-center gap-3">
-              @if (post.thumbnail) {
-                <img [src]="post.thumbnail" [alt]="post.title" class="w-4rem h-3rem border-round object-cover border-1 border-gray-200">
-              } @else {
-                <div class="w-4rem h-3rem border-round bg-gray-100 flex align-items-center justify-content-center border-1 border-gray-200">
-                  <i class="pi pi-image text-gray-400"></i>
-                </div>
-              }
-              <div>
-                <div class="font-bold text-900 line-height-2 max-w-20rem white-space-nowrap overflow-hidden text-overflow-ellipsis" [title]="post.title">
-                  {{ post.title }}
-                </div>
-                <div class="text-sm text-500 mt-1 max-w-20rem white-space-nowrap overflow-hidden text-overflow-ellipsis">
-                  {{ post.excerpt }}
-                </div>
-              </div>
-            </div>
-          </td>
+    <!-- Status Filter (Admin Only) -->
+    @if (isAdminView()) {
+    <div class="w-32 md:w-40 shrink-0">
+      <app-dynamic-dropdown [(ngModel)]="selectedStatus" (ngModelChange)="onFilterChange()" model="master"
+        masterType="post_status" placeholder="Status" [showClear]="true" class="w-full block">
+      </app-dynamic-dropdown>
+    </div>
+    }
 
-          <!-- Type & Category -->
-          <td>
-            <div class="font-medium text-700 capitalize">{{ post.type?.replace('_', ' ') }}</div>
-            <div class="text-sm text-500 mt-1">{{ post.category?.name || 'Uncategorized' }}</div>
-          </td>
-
-          <!-- Author -->
-          <td>
-            <div class="flex align-items-center gap-2">
-              <div class="font-medium text-700">{{ post.author?.firstName }} {{ post.author?.lastName }}</div>
-            </div>
-          </td>
-
-          <!-- Stats -->
-          <td>
-            <div class="flex flex-column gap-1 text-sm text-600">
-              <span><i class="pi pi-eye mr-1 text-primary"></i> {{ post.views | number }}</span>
-              <span><i class="pi pi-clock mr-1 text-primary"></i> {{ post.readTime }} min</span>
-            </div>
-          </td>
-
-          <!-- Status & Date -->
-          <td>
-            <p-tag [value]="post.status | uppercase" [severity]="getStatusSeverity(post.status)"></p-tag>
-            <div class="text-xs text-500 mt-2">
-              {{ (post.publishedAt || post.createdAt) | date:'mediumDate' }}
-            </div>
-          </td>
-
-          <!-- Actions -->
-          <td class="text-center">
-            <div class="flex justify-content-center gap-2">
-              <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="info" 
-                        pTooltip="Edit" (onClick)="editPost(post._id)"></p-button>
-              <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" 
-                        pTooltip="Delete" (onClick)="deletePost(post)"></p-button>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-
-      <!-- Empty State -->
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="6" class="text-center p-5">
-            <div class="flex flex-column align-items-center">
-              <i class="pi pi-file text-4xl text-300 mb-3"></i>
-              <span class="text-600 font-medium">No posts found. Create your first post!</span>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-
-    </p-table>
+    <!-- Clear All Button (Icon only to save space) -->
+    @if (hasActiveFilters()) {
+    <button pButton icon="pi pi-filter-slash" class="p-button-text p-button-secondary shrink-0 !px-3"
+      pTooltip="Clear all filters" tooltipPosition="top" (click)="clearAllFilters()">
+    </button>
+    }
   </div>
+
+  <!-- ======================= -->
+  <!-- CONTENT GRID            -->
+  <!-- ======================= -->
+
+  @if (loading()) {
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+    @for (item of [1,2,3,4,5,6,7,8]; track item) {
+    <div
+      class="rounded-xl border border-[var(--border-secondary)] bg-[var(--bg-secondary)] overflow-hidden animate-pulse">
+      <div class="w-full h-40 bg-[var(--bg-ternary)]"></div>
+      <div class="p-4">
+        <div class="h-5 rounded bg-[var(--bg-ternary)] w-3/4 mb-3"></div>
+        <div class="h-3 rounded bg-[var(--bg-ternary)] w-full mb-2"></div>
+        <div class="h-3 rounded bg-[var(--bg-ternary)] w-5/6 mb-4"></div>
+        <div class="flex items-center gap-2 mt-4">
+          <div class="w-6 h-6 rounded-full bg-[var(--bg-ternary)]"></div>
+          <div class="h-3 rounded bg-[var(--bg-ternary)] w-1/3"></div>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+  }
+
+  @if (!loading()) {
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+    @for (post of posts(); track post._id) {
+    <app-post-card class="block h-full transition-all duration-300 hover:-translate-y-1" [post]="post"
+      [isAdminView]="isAdminView()" (delete)="deletePost(post)" (publish)="publishPost($event)"
+      (unpublish)="unpublishPost($event)" (toggleFeature)="toggleFeature($event)">
+    </app-post-card>
+    }
+  </div>
+
+  <!-- Empty State -->
+  @if (posts().length === 0) {
+  <div
+    class="w-full py-16 flex flex-col items-center justify-center text-center rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-secondary)]">
+    <i class="pi pi-folder-open text-3xl mb-3 text-[var(--text-tertiary)]"></i>
+    <h3 class="text-lg font-bold text-[var(--text-primary)] mb-1">No articles found</h3>
+    <p class="text-sm text-[var(--text-secondary)]">Adjust your search or clear filters to see more.</p>
+  </div>
+  }
+  }
+
+  <!-- ======================= -->
+  <!-- PAGINATION              -->
+  <!-- ======================= -->
+  @if (totalPages() > 1 && !loading()) {
+  <div class="flex justify-center pt-4 border-t border-[var(--border-secondary)]">
+    <p-paginator [first]="first" [rows]="rows" [totalRecords]="totalRecords()" [rowsPerPageOptions]="[12, 24, 36]"
+      (onPageChange)="onPageChange($event)">
+    </p-paginator>
+  </div>
+  }
 </div>

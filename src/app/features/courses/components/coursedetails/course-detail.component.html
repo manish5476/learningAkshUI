@@ -61,11 +61,23 @@
         Manage Quizzes ({{ quizzes().length || 0 }})
       </button>
 
+      @if (!course.isApproved) {
+      <button class="publish-btn focus-ring" (click)="approveCourse()">
+        <i class="pi pi-rocket"></i> Approve Course
+      </button>
+      }@else {
+      <button class="unpublish-btn focus-ring" (click)="rejectCourse()">
+        <i class="pi pi-eye-slash"></i> Reject Course
+      </button>
+      }
+
       @if (!course.isPublished) {
       <button class="publish-btn focus-ring" (click)="publishCourse()">
         <i class="pi pi-rocket"></i> Publish Course
       </button>
-      } @else {
+      }
+
+      @else {
       <button class="unpublish-btn focus-ring" (click)="unpublishCourse()">
         <i class="pi pi-eye-slash"></i> Unpublish Course
       </button>

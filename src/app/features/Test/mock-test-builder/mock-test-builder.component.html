@@ -151,14 +151,6 @@
                   <p-select appendTo="body" formControlName="category" [options]="categories()" optionLabel="name"
                       optionValue="_id" placeholder="Select category" [filter]="true" filterBy="name"
                     [class.invalid]="isFieldInvalid('category')"  styleClass="w-full"></p-select>
-<!-- 
-                    <ng-template let-category pTemplate="item">
-                      <div class="category-option">
-                        <i [class]="category.icon || 'pi pi-folder'" class="text-primary"></i>
-                        <span>{{ category.name }}</span>
-                      </div>
-                    </ng-template> -->
-                  <!-- </p-select> -->
                   @if (isFieldInvalid('category')) {
                     <small class="error-message">
                       <i class="pi pi-exclamation-circle"></i>
