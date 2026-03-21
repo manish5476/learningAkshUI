@@ -144,6 +144,7 @@ export class MockTestBuilderComponent implements OnInit {
 
   // Lifecycle
   ngOnInit() {
+    this.loadCategories()
     this.initializeForm();
     this.loadMasterData();
     this.setupRouteSubscription();
@@ -152,7 +153,7 @@ export class MockTestBuilderComponent implements OnInit {
 
   private loadMasterData(): void {
     forkJoin({
-      categories: this.masterApiService.getPublicValues('course_category'),
+      // categories: this.masterApiService.getPublicValues('course_category'),
       levels: this.masterApiService.getPublicValues('course_level'),
       // languages: this.masterApiService.getPublicValues('language'),
       // currencies: this.masterApiService.getPublicValues('currency'),
@@ -160,7 +161,7 @@ export class MockTestBuilderComponent implements OnInit {
     }).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
-          this.categories.set(res.categories.data);
+          // this.categories.set(res.categories.data);
           this.levels.set(res.levels.data || []);
           // this.languages.set(res.languages.data || []);
           // this.currencies.set(res.currencies.data || []);

@@ -21,7 +21,7 @@ import { Toast } from "primeng/toast";
     CommonModule,
     RouterModule,
     FormsModule,
-    DatePipe,
+    // DatePipe,
     NgClass,
     ButtonModule,
     InputTextModule,
