@@ -1,1481 +1,438 @@
-<div class="home-container">
-  <!-- Toast -->
+<div
+  class="min-h-screen bg-[var(--bg-primary)] overflow-x-hidden selection:bg-[var(--color-primary)] selection:text-white pb-24 transition-colors duration-300">
   <p-toast position="top-right"></p-toast>
 
-  <!-- Hero Section with Glass Effect -->
-  <!-- <section class="hero-section glass-panel mb-5xl">
-    <div class="hero-content">
-      <div class="hero-text">
-        <h1 class="hero-title">
-          Unlock Your Potential with <span class="text-gradient">Expert-Led Courses</span>
-        </h1>
-        <p class="hero-subtitle">
-          Join thousands of learners and advance your career with our comprehensive courses and mock tests.
-        </p>
-        
-        Search Bar
-        <div class="hero-search">
-          <span class="search-wrapper glass-inset">
-            <i class="pi pi-search search-icon"></i>
-            <input 
-              type="text" 
-              pInputText 
-              [(ngModel)]="searchQuery" 
-              (keyup.enter)="searchCourses()"
-              placeholder="What do you want to learn today?" 
-              class="search-input"
-            />
-            <button 
-              pButton 
-              pRipple 
-              label="Search" 
-              icon="pi pi-arrow-right" 
-              iconPos="right"
-              class="search-btn" 
-              (click)="searchCourses()"
-            ></button>
-          </span>
-        </div>
+  <!-- ===================================================================== -->
+  <!-- 1. THE SHOWCASE HERO (Curved Banner + Floating Search)                -->
+  <!-- ===================================================================== -->
+  <div class="pt-6 sm:pt-10 px-4 sm:px-6 lg:px-8 max-w-[1600px] mx-auto relative z-10">
 
-        Stats
-        <div class="hero-stats">
-          <div class="stat-item">
-            <span class="stat-value">{{ formatNumber(totalStudents()) }}+</span>
-            <span class="stat-label">Students</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value">{{ formatNumber(totalCourses()) }}+</span>
-            <span class="stat-label">Courses</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value">{{ formatNumber(totalInstructors()) }}+</span>
-            <span class="stat-label">Instructors</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value">{{ formatNumber(totalMockTests()) }}+</span>
-            <span class="stat-label">Mock Tests</span>
-          </div>
-        </div>
-      </div>
-      
-      <div class="hero-image">
-        <div class="floating-card card-1 glass-panel">
-          <i class="pi pi-video text-primary"></i>
-          <span>100+ Video Courses</span>
-        </div>
-        <div class="floating-card card-2 glass-panel">
-          <i class="pi pi-users text-success"></i>
-          <span>Expert Instructors</span>
-        </div>
-        <div class="floating-card card-3 glass-panel">
-          <i class="pi pi-certificate text-warning"></i>
-          <span>Certification</span>
-        </div>
-      </div>
-    </div>
-  </section> -->
-<section class="hero-section mb-5xl">
-  <div class="hero-glow glow-1"></div>
-  <div class="hero-glow glow-2"></div>
+    <!-- Curved Hero Container -->
+    <div
+      class="relative w-full rounded-[2rem] sm:rounded-[3rem] overflow-hidden bg-[var(--bg-secondary)] border border-[var(--border-secondary)] shadow-2xl hero-container transition-all duration-500 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)]">
 
-  <div class="hero-content">
-    
-    <div class="hero-text">
-      <div class="hero-badge">
-        <span class="badge-pulse"></span>
-        <span class="badge-text">New: State Service Exams Added!</span>
+      @if (isLoading()) {
+      <div
+        class="w-full h-[500px] lg:h-[650px] bg-[var(--bg-ternary)] animate-pulse flex flex-col justify-center px-10 lg:px-24">
+        <div class="w-32 h-8 bg-black/10 rounded-full mb-6"></div>
+        <div class="w-3/4 h-16 bg-black/10 rounded-2xl mb-6"></div>
+        <div class="w-1/2 h-6 bg-black/10 rounded-lg mb-10"></div>
+        <div class="w-48 h-14 bg-black/10 rounded-xl"></div>
       </div>
-
-      <h1 class="hero-title">
-        Unlock Your Potential with <br/>
-        <span class="text-gradient">Expert-Led Courses</span>
-      </h1>
-      
-      <p class="hero-subtitle">
-        Join thousands of learners and advance your career with our comprehensive courses, interactive lessons, and premium mock tests.
-      </p>
-      
-      <div class="hero-search-pill">
-        <i class="pi pi-search search-icon"></i>
-        <input 
-          type="text" 
-          [(ngModel)]="searchQuery" 
-          (keyup.enter)="searchCourses()"
-          placeholder="What do you want to learn today?" 
-          class="search-input focus-ring"
-        />
-        <button class="search-btn" (click)="searchCourses()">
-          <span>Explore</span> <i class="pi pi-arrow-right"></i>
-        </button>
-      </div>
-
-      <div class="hero-stats">
-        <div class="stat-item">
-          <span class="stat-value">{{ totalStudents() || '10k' }}+</span>
-          <span class="stat-label">Students</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-value">{{ totalCourses() || '150' }}+</span>
-          <span class="stat-label">Courses</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-value">{{ totalInstructors() || '50' }}+</span>
-          <span class="stat-label">Experts</span>
-        </div>
-      </div>
-    </div>
-    
-    <div class="hero-visual">
-      <div class="hero-image-wrapper">
-        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1471&auto=format&fit=crop" alt="Students Learning" class="main-hero-img">
-        <div class="image-overlay"></div>
-      </div>
-
-      <div class="floating-card card-1">
-        <div class="icon-wrapper glass-icon"><i class="pi pi-video"></i></div>
-        <div class="card-text">
-          <span class="card-title">100+ Video Courses</span>
-          <span class="card-sub">High Quality HD</span>
-        </div>
-      </div>
-      
-      <div class="floating-card card-2">
-        <div class="icon-wrapper glass-icon success"><i class="pi pi-star-fill"></i></div>
-        <div class="card-text">
-          <span class="card-title">4.9/5 Rating</span>
-          <span class="card-sub">From Students</span>
-        </div>
-      </div>
-      
-      <div class="floating-card card-3">
-        <div class="icon-wrapper glass-icon warning"><i class="pi pi-certificate"></i></div>
-        <div class="card-text">
-          <span class="card-title">Certifications</span>
-          <span class="card-sub">Industry Recognized</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-  <!-- Categories Section -->
-  <section class="categories-section mb-5xl">
-    <div class="section-header flex-between align-items-center mb-2xl">
-      <div>
-        <h2 class="section-title">Explore Top Categories</h2>
-        <p class="section-subtitle">Choose from hundreds of courses across various categories</p>
-      </div>
-      <a [routerLink]="['/courses']" class="view-all-link">
-        All Categories <i class="pi pi-arrow-right"></i>
-      </a>
-    </div>
-
-  @if (isLoading()) {
-  <div class="categories-grid compact">
-    @for (item of [1,2,3,4,5,6,7,8]; track item) {
-      <div class="category-skeleton-card">
-        <div class="skeleton-content">
-          <div class="skeleton-icon-badge">
-            <p-skeleton shape="circle" size="36px"></p-skeleton>
-          </div>
-          <div class="skeleton-text-area">
-            <div class="skeleton-text w-full">
-              <p-skeleton width="60%" height="1.2rem" styleClass="mb-1"></p-skeleton>
-              <p-skeleton width="35%" height="0.8rem"></p-skeleton>
-            </div>
-          </div>
-        </div>
-      </div>
-    }
-  </div>
-} @else {
-  <div class="categories-grid compact">
-    @for (category of categories(); track category._id) {
-      <div class="category-card" (click)="viewCategory(category._id, category.name)" pRipple>
-        
-        <div class="category-image-wrapper">
-          @if (category.imageUrl) {
-            <img [src]="category.imageUrl" [alt]="category.name" class="category-bg-img" loading="lazy" />
-          } @else {
-            <div class="category-fallback-bg"></div>
-          }
-          <div class="category-overlay"></div>
-        </div>
-
-        <div class="category-content">
-          <div class="category-icon-badge">
-            <i class="pi {{ getCategoryIcon(category.name) }}"></i>
-          </div>
-          
-          <div class="category-text-area">
-            <div class="category-text">
-              <h3 class="category-name">{{ category.name }}</h3>
-              <p class="category-count">{{ category.courseCount || 0 }} Courses</p>
-            </div>
-            <div class="category-arrow">
-              <i class="pi pi-arrow-right"></i>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    }
-  </div>
-}
-  </section>
-
-  <!-- Featured Courses -->
-  <section class="featured-section mb-5xl">
-    <div class="section-header flex-between align-items-center mb-2xl">
-      <div>
-        <h2 class="section-title">Featured Courses</h2>
-        <p class="section-subtitle">Most popular courses loved by our students</p>
-      </div>
-      <button pButton pRipple label="View All" icon="pi pi-arrow-right" iconPos="right" class="p-button-outlined" (click)="viewAllCourses()"></button>
-    </div>
-
-    @if (isLoading()) {
-      <div class="courses-grid">
-        @for (item of [1,2,3,4]; track item) {
-          <div class="course-skeleton-card glass-panel">
-            <p-skeleton height="160px" borderRadius="12px" styleClass="mb-lg"></p-skeleton>
-            <p-skeleton width="80%" height="1.5rem" styleClass="mb-sm"></p-skeleton>
-            <p-skeleton width="60%" height="1rem" styleClass="mb-lg"></p-skeleton>
-            <div class="flex-between">
-              <p-skeleton width="40%" height="1.2rem"></p-skeleton>
-              <p-skeleton width="30%" height="2rem"></p-skeleton>
-            </div>
-          </div>
-        }
-      </div>
-    } @else {
-      <div class="courses-grid">
-        @for (course of featuredCourses(); track course._id) {
-          <app-property-course-card [course]="course"></app-property-course-card>
-        }
-      </div>
-    }
-  </section>
-
-  <!-- Mock Tests Section -->
-  <section class="mocktests-section mb-5xl">
-    <div class="section-header flex-between align-items-center mb-2xl">
-      <div>
-        <h2 class="section-title">Practice with Mock Tests</h2>
-        <p class="section-subtitle">Test your knowledge and prepare for success</p>
-      </div>
-      <button pButton pRipple label="View All Tests" icon="pi pi-arrow-right" iconPos="right" class="p-button-outlined" (click)="viewAllMockTests()"></button>
-    </div>
-
-    @if (isLoading()) {
-      <div class="mocktests-grid">
-        @for (item of [1,2,3,4]; track item) {
-          <div class="mocktest-skeleton-card glass-panel">
-            <p-skeleton width="100%" height="1.5rem" styleClass="mb-md"></p-skeleton>
-            <p-skeleton width="80%" height="1rem" styleClass="mb-lg"></p-skeleton>
-            <div class="flex gap-md mb-lg">
-              <p-skeleton width="3rem" height="1rem"></p-skeleton>
-              <p-skeleton width="3rem" height="1rem"></p-skeleton>
-            </div>
-            <div class="flex-between">
-              <p-skeleton width="30%" height="1.2rem"></p-skeleton>
-              <p-skeleton width="30%" height="2rem"></p-skeleton>
-            </div>
-          </div>
-        }
-      </div>
-    } @else {
-      <div class="mocktests-grid">
-        @for (test of featuredMockTests(); track test._id) {
-          <div class="mocktest-card glass-panel">
-            <div class="card-header flex-between mb-md">
-              <p-tag 
-                [value]="test.level | titlecase" 
-                [severity]="getLevelSeverity(test.level)"
-                [rounded]="true"
-              ></p-tag>
-              <span class="category-badge">
-                <i class="pi pi-folder text-primary"></i>
-                {{ test.category?.name || 'General' }}
-              </span>
-            </div>
-            
-            <h3 class="mocktest-title">{{ test.title }}</h3>
-            
-            @if (test.instructor) {
-              <p class="instructor-info">
-                <i class="pi pi-user"></i>
-                {{ test.instructor.firstName }} {{ test.instructor.lastName }}
-              </p>
-            }
-
-            <p class="mocktest-desc">
-              {{ test.description ? (test.description | slice:0:60) + (test.description.length > 60 ? '...' : '') : 'Practice test to assess your knowledge' }}
-            </p>
-            
-            <div class="mocktest-meta">
-              <div class="meta-item">
-                <i class="pi pi-clock"></i>
-                <span>{{ test.duration }} min</span>
-              </div>
-              <div class="meta-item">
-                <i class="pi pi-question-circle"></i>
-                <span>{{ test.totalQuestions }} Qs</span>
-              </div>
-              <div class="meta-item">
-                <i class="pi pi-star"></i>
-                <span>{{ test.totalMarks || test.totalQuestions }} pts</span>
-              </div>
-            </div>
-
-            <div class="card-footer">
-              <span class="price-tag" [class.free]="test.isFree">
-                {{ test.isFree ? 'Free' : (test.price | currency:'USD') }}
-              </span>
-              
-              <button 
-                pButton 
-                pRipple 
-                label="Start Test" 
-                icon="pi pi-arrow-right" 
-                iconPos="right"
-                class="p-button-rounded p-button-sm"
-                [routerLink]="['/mock-tests/take', test._id]"
-              ></button>
-            </div>
-          </div>
-        }
-      </div>
-    }
-  </section>
-
-  <!-- Recent Courses -->
-  <section class="recent-section mb-5xl">
-    <div class="section-header flex-between align-items-center mb-2xl">
-      <div>
-        <h2 class="section-title">Recently Added</h2>
-        <p class="section-subtitle">Fresh new content to keep you learning</p>
-      </div>
-      <button pButton pRipple label="View All" icon="pi pi-arrow-right" iconPos="right" class="p-button-outlined" (click)="viewAllCourses()"></button>
-    </div>
-
-    <div class="recent-carousel">
-      <p-carousel 
-        [value]="recentCourses()" 
-        [numVisible]="4" 
-        [numScroll]="1"
-        [circular]="true"
-        [autoplayInterval]="5000"
-        [responsiveOptions]="carouselResponsiveOptions"
-        [showIndicators]="true"
-        [showNavigators]="true"
-      >
+      } @else {
+      <p-carousel [value]="featuredCourses().slice(0, 5)" [numVisible]="1" [numScroll]="1" [circular]="true"
+        [autoplayInterval]="6000" styleClass="hero-banner-carousel">
         <ng-template let-course pTemplate="item">
-          <div class="carousel-item">
-            <app-property-course-card [course]="course"></app-property-course-card>
+          <div class="relative w-full h-[550px] lg:h-[650px] flex items-center">
+
+            <!-- Background Image with Parallax Effect -->
+            <div class="absolute inset-0 overflow-hidden">
+              <img
+                [src]="course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070'"
+                class="w-full h-full object-cover transition-transform duration-[8000ms] ease-out hover:scale-110"
+                alt="Course Banner">
+            </div>
+
+            <!-- Premium Multi-Layer Gradient Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-gray-900/70 to-gray-900/40 z-10"></div>
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-[var(--color-primary)]/10 via-transparent to-transparent z-10">
+            </div>
+
+            <!-- Content -->
+            <div class="relative z-20 px-6 sm:px-12 lg:px-24 max-w-4xl animate-fade-in-up">
+              <div class="flex flex-wrap items-center gap-3 mb-6">
+                <span
+                  class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-bold uppercase tracking-widest">
+                  <span class="w-2 h-2 rounded-full bg-[var(--color-success)] animate-pulse"></span> Trending Now
+                </span>
+                <span
+                  class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--color-primary)]/20 backdrop-blur-md border border-[var(--color-primary)]/30 text-white text-xs font-bold uppercase tracking-widest">
+                  <i class="pi pi-star-fill text-yellow-400 text-xs"></i> {{ course.rating || '4.9' }} Rating
+                </span>
+              </div>
+
+              <h1
+                class="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1] mb-6 drop-shadow-2xl"
+                style="font-family: var(--font-heading);">
+                {{ course.title }}
+              </h1>
+
+              <p class="text-lg sm:text-xl text-gray-200/90 mb-8 line-clamp-2 max-w-2xl font-light leading-relaxed">
+                {{ course.description || 'Elevate your skills with this comprehensive, expert-led course designed for
+                modern professionals. Master in-demand skills and accelerate your career growth.' }}
+              </p>
+
+              <div class="flex flex-wrap items-center gap-4">
+                <button
+                  class="group relative px-8 py-4 rounded-xl bg-[var(--color-primary)] text-white font-bold text-lg overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_25px_rgba(var(--color-primary-rgb),0.5)]"
+                  [routerLink]="['/courses', course._id]">
+                  <span class="relative z-10 flex items-center gap-2">Enroll Now <i
+                      class="pi pi-arrow-right transition-transform group-hover:translate-x-1"></i></span>
+                  <div
+                    class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform">
+                  </div>
+                </button>
+                <div
+                  class="flex items-center gap-4 px-6 py-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 text-white hover:bg-white/10 transition-all">
+                  <div class="flex items-center gap-1">
+                    <i class="pi pi-clock text-sm"></i>
+                    <span class="text-sm font-medium">{{ course.duration || '40+' }} hours</span>
+                  </div>
+                  <div class="w-px h-4 bg-white/20"></div>
+                  <div class="flex items-center gap-1">
+                    <i class="pi pi-users text-sm"></i>
+                    <span class="text-sm font-medium">{{ course.studentsEnrolled || '5k+' }} enrolled</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </ng-template>
       </p-carousel>
-    </div>
-  </section>
-
-  <!-- Features/Why Choose Us -->
-  <section class="features-section mb-5xl">
-    <div class="section-header text-center mb-3xl">
-      <h2 class="section-title">Why Choose Our Platform</h2>
-      <p class="section-subtitle">Everything you need to succeed in your learning journey</p>
+      }
     </div>
 
-    <div class="features-grid">
-      <div class="feature-card glass-panel">
-        <div class="feature-icon glass-inset">
-          <i class="pi pi-video text-primary"></i>
+    <!-- Enhanced Floating Search Bar -->
+    <div class="relative -mt-10 z-30 max-w-4xl mx-auto px-4 sm:px-0 animate-slide-up">
+      <div
+        class="group p-3 sm:p-4 rounded-2xl sm:rounded-[2rem] bg-[var(--bg-primary)] border border-[var(--border-secondary)] shadow-2xl flex items-center gap-3 transition-all duration-300 focus-within:-translate-y-1 focus-within:shadow-[0_20px_35px_-15px_rgba(0,0,0,0.2)] hover:border-[var(--color-primary)]/50">
+        <div
+          class="w-12 h-12 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center shrink-0 group-focus-within:bg-[var(--color-primary-bg)] transition-colors">
+          <i
+            class="pi pi-search text-[var(--text-tertiary)] text-xl group-focus-within:text-[var(--color-primary)] transition-colors"></i>
         </div>
-        <h3>Expert-Led Courses</h3>
-        <p>Learn from industry professionals with real-world experience</p>
-      </div>
-
-      <div class="feature-card glass-panel">
-        <div class="feature-icon glass-inset">
-          <i class="pi pi-clock text-success"></i>
-        </div>
-        <h3>Learn at Your Pace</h3>
-        <p>Access course materials anytime, anywhere, on any device</p>
-      </div>
-
-      <div class="feature-card glass-panel">
-        <div class="feature-icon glass-inset">
-          <i class="pi pi-file text-warning"></i>
-        </div>
-        <h3>Mock Tests & Assessments</h3>
-        <p>Practice with realistic tests and track your progress</p>
-      </div>
-
-      <div class="feature-card glass-panel">
-        <div class="feature-icon glass-inset">
-          <i class="pi pi-certificate text-info"></i>
-        </div>
-        <h3>Get Certified</h3>
-        <p>Earn certificates to showcase your achievements</p>
+        <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="searchCourses()"
+          placeholder="What skill do you want to master today?"
+          class="flex-1 bg-transparent border-none outline-none text-[var(--text-primary)] placeholder-[var(--text-tertiary)] text-base sm:text-lg w-full" />
+        <button (click)="searchCourses()"
+          class="hidden sm:flex px-8 py-3.5 rounded-xl bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-dark)] text-white font-bold transition-all hover:shadow-lg hover:scale-105 active:scale-95">
+          Search
+        </button>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- Call to Action -->
-  <section class="cta-section glass-panel mb-5xl">
-    <div class="cta-content">
-      <h2 class="cta-title">Ready to Start Learning?</h2>
-      <p class="cta-subtitle">Join thousands of students already learning on our platform</p>
-      <div class="cta-buttons">
-        <button pButton pRipple label="Browse All Courses" icon="pi pi-search" (click)="viewAllCourses()"></button>
-        <button pButton pRipple label="Explore Mock Tests" icon="pi pi-question-circle" class="p-button-outlined" (click)="viewAllMockTests()"></button>
+  <!-- ===================================================================== -->
+  <!-- 2. TRUST & METRICS STRIP                                              -->
+  <!-- ===================================================================== -->
+  <div
+    class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 flex flex-wrap justify-center lg:justify-between items-center gap-8 border-b border-[var(--border-secondary)]">
+    <p
+      class="text-[var(--text-tertiary)] font-bold tracking-widest uppercase text-sm w-full lg:w-auto text-center flex items-center justify-center lg:justify-start gap-2">
+      <i class="pi pi-shield text-[var(--color-primary)]"></i> Trusted by learners globally
+    </p>
+    <div class="flex flex-wrap justify-center gap-8 sm:gap-16">
+      <div class="flex items-center gap-3 group cursor-pointer">
+        <div class="p-2 rounded-full bg-[var(--color-primary-bg)] group-hover:scale-110 transition-transform">
+          <i class="pi pi-users text-xl text-[var(--color-primary)]"></i>
+        </div>
+        <span class="text-xl font-black text-[var(--text-primary)]">{{ totalStudents() || '10,000' }}+ <span
+            class="text-sm font-medium text-[var(--text-tertiary)]">Students</span></span>
+      </div>
+      <div class="flex items-center gap-3 group cursor-pointer">
+        <div class="p-2 rounded-full bg-[var(--color-primary-bg)] group-hover:scale-110 transition-transform">
+          <i class="pi pi-video text-xl text-[var(--color-primary)]"></i>
+        </div>
+        <span class="text-xl font-black text-[var(--text-primary)]">{{ totalCourses() || '150' }}+ <span
+            class="text-sm font-medium text-[var(--text-tertiary)]">Courses</span></span>
+      </div>
+      <div class="flex items-center gap-3 group cursor-pointer">
+        <div class="p-2 rounded-full bg-[var(--color-primary-bg)] group-hover:scale-110 transition-transform">
+          <i class="pi pi-check-circle text-xl text-[var(--color-primary)]"></i>
+        </div>
+        <span class="text-xl font-black text-[var(--text-primary)]">{{ totalMockTests() || '45' }}+ <span
+            class="text-sm font-medium text-[var(--text-tertiary)]">Exams</span></span>
       </div>
     </div>
-  </section>
-</div>
+  </div>
 
-<!-- <div class="home-container">
-  Fixed Header
-  <header class="app-header">
-    <div class="header-container">
-      <div class="header-left">
-        <a routerLink="/" class="logo-link focus-ring">
-          <i class="pi pi-graduation-cap"></i>
-          <span class="brand">LearnHub</span>
-        </a>
-        
-        <nav class="main-nav">
-          <a routerLink="/courses" routerLinkActive="active" class="nav-link">Courses</a>
-          <a routerLink="/mock-tests" routerLinkActive="active" class="nav-link">Mock Tests</a>
-          <a routerLink="/categories" routerLinkActive="active" class="nav-link">Categories</a>
-          <a href="#features" class="nav-link">Features</a>
-        </nav>
+  <!-- Main Content Wrapper with consistent padding -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-32 py-24">
+
+    <!-- ===================================================================== -->
+    <!-- 3. TOP CATEGORIES (Pill Cloud)                                        -->
+    <!-- ===================================================================== -->
+    <!-- <section>
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <div
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-primary-bg)] text-[var(--color-primary)] text-sm font-bold mb-4">
+          <i class="pi pi-tag"></i> Discover
+        </div>
+        <h2 class="text-3xl font-bold text-[var(--text-primary)] mb-4" style="font-family: var(--font-heading);">Explore
+          Top Categories</h2>
+        <p class="text-[var(--text-secondary)] text-lg">Whether you are pivoting your career or deep-diving into a
+          passion, we have a category for you.</p>
       </div>
 
-      <div class="header-right">
-        @if (currentUser()) {
-          <button class="header-btn icon-btn focus-ring" [routerLink]="['/dashboard']" pTooltip="Dashboard">
-            <i class="pi pi-user"></i>
-            <span class="btn-text">{{ currentUser()?.firstName }}</span>
-          </button>
+      <div class="flex flex-wrap justify-center gap-3 sm:gap-4">
+        @if (isLoading()) {
+        @for (item of [1,2,3,4,5,6,7,8]; track item) {
+        <div class="w-32 h-12 rounded-full bg-[var(--bg-ternary)] animate-pulse"></div>
+        }
         } @else {
-          <button class="header-btn focus-ring" [routerLink]="['/login']">
-            <i class="pi pi-sign-in"></i>
-            <span class="btn-text">Login</span>
-          </button>
-          <button class="header-btn primary-btn focus-ring" [routerLink]="['/register']">
-            <span class="btn-text">Sign Up</span>
-          </button>
+        @for (category of categories(); track category._id) {
+        <button (click)="viewCategory(category._id, category.name)"
+          class="group relative flex items-center gap-2 px-6 py-3 rounded-full border border-[var(--border-secondary)] bg-[var(--bg-secondary)] hover:bg-[var(--color-primary)] hover:border-[var(--color-primary)] transition-all duration-300 overflow-hidden">
+          <i
+            class="pi {{ getCategoryIcon(category.name) }} text-[var(--text-tertiary)] group-hover:text-white transition-colors relative z-10"></i>
+          <span
+            class="font-semibold text-[var(--text-primary)] group-hover:text-white transition-colors whitespace-nowrap relative z-10">{{
+            category.name }}</span>
+        </button>
+        }
         }
       </div>
-    </div>
-  </header>
+    </section> -->
+    <!-- ===================================================================== -->
+    <!-- 3. TOP EXAM CATEGORIES (Smart Pill Cloud for 58+ items)               -->
+    <!-- ===================================================================== -->
+    <section>
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <div
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-primary-bg)] text-[var(--color-primary)] text-sm font-bold mb-4">
+          <i class="pi pi-tag"></i> Discover Exams
+        </div>
+        <h2 class="text-3xl font-bold text-[var(--text-primary)] mb-4" style="font-family: var(--font-heading);">Choose
+          Your Target Exam</h2>
+        <p class="text-[var(--text-secondary)] text-lg">Prepare for India's top competitive exams with expert guidance
+          and premium study material.</p>
+      </div>
 
-  Main Content
-  <main class="main-content">
-    Hero Section
-    <section class="hero-section">
-      <div class="hero-content">
-        <div class="hero-text">
-          <div class="hero-badge">
-            <i class="pi pi-bolt"></i>
-            <span>New: AI-Powered Learning Paths</span>
+      <div class="flex flex-wrap justify-center gap-3 sm:gap-4 max-w-5xl mx-auto">
+        @if (isLoading()) {
+        @for (item of [1,2,3,4,5,6,7,8,9,10,11,12,13,14]; track item) {
+        <div
+          class="w-32 h-12 rounded-full bg-[var(--bg-ternary)] border border-[var(--border-secondary)] animate-pulse">
+        </div>
+        }
+        } @else {
+
+        <!-- Loop through only the first 14 categories -->
+        @for (category of categories().slice(0, 14); track category.value) {
+        <button (click)="viewCategory(category.value, category.label)"
+          class="group relative flex items-center gap-2 px-6 py-3 rounded-full border border-[var(--border-secondary)] bg-[var(--bg-secondary)] hover:bg-[var(--color-primary)] hover:border-[var(--color-primary)] transition-all duration-300 overflow-hidden hover:shadow-md">
+          <i
+            class="pi {{ getCategoryIcon(category.label) }} text-[var(--text-tertiary)] group-hover:text-white transition-colors relative z-10"></i>
+          <span
+            class="font-semibold text-[var(--text-primary)] group-hover:text-white transition-colors whitespace-nowrap relative z-10">
+            {{ category.label }}
+          </span>
+        </button>
+        }
+
+        <!-- Dynamic "View More" Pill for the remaining categories -->
+        @if (categories().length > 14) {
+        <button (click)="viewAllCourses()"
+          class="group flex items-center gap-2 px-6 py-3 rounded-full border-2 border-dashed border-[var(--border-secondary)] bg-[var(--bg-primary)] hover:border-[var(--color-primary)] hover:bg-[var(--color-primary-bg)] transition-all duration-300">
+          <span
+            class="font-bold text-[var(--text-secondary)] group-hover:text-[var(--color-primary)] whitespace-nowrap transition-colors">
+            + {{ categories().length - 14 }} More Exams
+          </span>
+          <i
+            class="pi pi-arrow-right text-xs text-[var(--text-secondary)] group-hover:text-[var(--color-primary)] group-hover:translate-x-1 transition-all"></i>
+        </button>
+        }
+
+        }
+      </div>
+    </section>
+    <!-- ===================================================================== -->
+    <!-- 4. FEATURED COURSES (Grid)                                            -->
+    <!-- ===================================================================== -->
+    <section>
+      <!-- FIXED HEADER LOGIC: Flex-1 for Title, Shrink-0 for Button -->
+      <div
+        class="w-full flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 border-b border-[var(--border-secondary)] pb-6">
+        <div class="flex-1">
+          <span
+            class="text-[var(--color-primary)] font-bold tracking-widest uppercase text-xs mb-2 block flex items-center gap-1">
+            <i class="pi pi-sparkles"></i> Handpicked
+          </span>
+          <h2 class="text-3xl md:text-4xl font-extrabold text-[var(--text-primary)] tracking-tight m-0"
+            style="font-family: var(--font-heading);">Featured Courses</h2>
+        </div>
+        <div class="shrink-0">
+          <button
+            class="px-6 py-2.5 rounded-lg border-2 border-[var(--border-secondary)] text-[var(--text-primary)] font-bold hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all flex items-center gap-2 hover:gap-3"
+            (click)="viewAllCourses()">
+            See all courses <i class="pi pi-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      @if (isLoading()) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        @for (item of [1,2,3,4]; track item) {
+        <div class="h-[350px] rounded-2xl bg-[var(--bg-ternary)] animate-pulse"></div>
+        }
+      </div>
+      } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+        @for (course of featuredCourses().slice(0, 4); track course._id) {
+        <app-property-course-card [course]="course"
+          class="block transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"></app-property-course-card>
+        }
+      </div>
+      }
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 5. MOCK TESTS (Clean, Unbreakable 3-Column Grid)                      -->
+    <!-- ===================================================================== -->
+    <section
+      class="py-12 px-6 sm:px-10 rounded-[2rem] bg-[var(--bg-secondary)] border border-[var(--border-secondary)]">
+
+      <!-- FIXED HEADER LOGIC: Flex-1 for Title, Shrink-0 for Button -->
+      <div class="w-full flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+        <div class="flex-1">
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-primary-bg)] text-[var(--color-primary)] text-xs font-bold mb-3">
+            <i class="pi pi-check-circle"></i> Practice Mode
           </div>
-          
-          <h1 class="hero-title">
-            Unlock Your Potential with 
-            <span class="gradient-text">Expert-Led</span> Courses
-          </h1>
-          
-          <p class="hero-subtitle">
-            Join over 50,000 students learning from industry experts.
-            Master in-demand skills and advance your career today.
+          <h2 class="text-3xl md:text-4xl font-extrabold text-[var(--text-primary)] tracking-tight mb-2 m-0"
+            style="font-family: var(--font-heading);">Test Your Knowledge</h2>
+          <p class="text-[var(--text-secondary)] text-lg m-0">Simulate real exams, identify weak points, and guarantee
+            success.</p>
+        </div>
+        <div class="shrink-0">
+          <button
+            class="px-6 py-2.5 rounded-lg bg-[var(--text-primary)] text-[var(--bg-primary)] font-bold hover:opacity-80 transition-opacity flex items-center gap-2"
+            (click)="viewAllMockTests()">
+            Browse all exams <i class="pi pi-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      @if (isLoading()) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (item of [1,2,3]; track item) {
+        <div class="h-48 rounded-xl bg-[var(--bg-ternary)] animate-pulse"></div>
+        }
+      </div>
+      } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (test of featuredMockTests().slice(0, 3); track test._id) {
+        <div
+          class="flex flex-col p-6 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-secondary)] hover:border-[var(--color-primary)] hover:shadow-lg transition-all duration-300 cursor-pointer group"
+          [routerLink]="['/mock-tests/take', test._id]">
+
+          <div class="flex justify-between items-start mb-4">
+            <div
+              class="w-10 h-10 rounded-full bg-[var(--bg-ternary)] flex items-center justify-center text-[var(--text-tertiary)] group-hover:bg-[var(--color-primary-bg)] group-hover:text-[var(--color-primary)] transition-colors">
+              <i class="pi pi-file-edit text-lg"></i>
+            </div>
+            <span
+              class="px-2 py-1 rounded bg-[var(--bg-ternary)] text-[var(--text-secondary)] text-xs font-bold uppercase tracking-wide">
+              {{ test.level }}
+            </span>
+          </div>
+
+          <h3
+            class="text-xl font-bold text-[var(--text-primary)] mb-2 group-hover:text-[var(--color-primary)] transition-colors line-clamp-1">
+            {{ test.title }}
+          </h3>
+
+          <p class="text-[var(--text-secondary)] text-sm mb-6 line-clamp-2 flex-1">
+            {{ test.description || 'Test your skills with this comprehensive assessment covering key concepts.' }}
           </p>
 
-          Search Bar
-          <div class="search-container">
-            <div class="search-wrapper glass-panel">
-              <i class="pi pi-search search-icon"></i>
-              <input 
-                type="text" 
-                class="search-input" 
-                placeholder="What do you want to learn today?"
-                [(ngModel)]="searchQuery"
-                (input)="onSearchInput()"
-                (keyup.enter)="onSearch()"
-                (focus)="showSearchSuggestions.set(true)"
-                (blur)="showSearchSuggestions.set(false)"
-              >
-              <button class="search-btn" (click)="onSearch()">
-                <span>Search</span>
-                <i class="pi pi-arrow-right"></i>
-              </button>
+          <div class="flex items-center justify-between mt-auto pt-4 border-t border-[var(--border-secondary)]">
+            <div class="flex items-center gap-4 text-sm font-semibold text-[var(--text-tertiary)]">
+              <span><i class="pi pi-clock mr-1"></i> {{ test.duration }}m</span>
+              <span><i class="pi pi-question-circle mr-1"></i> {{ test.totalQuestions }}Q</span>
             </div>
-
-            Search Suggestions
-            @if (showSearchSuggestions() && searchSuggestions().length > 0) {
-              <div class="search-suggestions glass-panel">
-                @for (suggestion of searchSuggestions(); track suggestion) {
-                  <div class="suggestion-item" (click)="selectSuggestion(suggestion)">
-                    <i class="pi pi-search"></i>
-                    <span>{{ suggestion }}</span>
-                  </div>
-                }
-              </div>
-            }
+            <i
+              class="pi pi-arrow-right text-[var(--text-tertiary)] group-hover:text-[var(--color-primary)] transition-colors"></i>
           </div>
 
-          Trust Badges
-          <div class="trust-badges">
-            <div class="trust-item">
-              <i class="pi pi-shield text-success"></i>
-              <span>30-Day Money-Back</span>
-            </div>
-            <div class="trust-item">
-              <i class="pi pi-clock text-info"></i>
-              <span>Lifetime Access</span>
-            </div>
-            <div class="trust-item">
-              <i class="pi pi-certificate text-warning"></i>
-              <span>Certificate of Completion</span>
-            </div>
-          </div>
-
-          User Stats
-          @if (currentUser() && userProgress() > 0) {
-            <div class="user-progress-card glass-panel">
-              <div class="progress-header">
-                <span>Your Learning Progress</span>
-                <span class="progress-value">{{ userProgress() }}%</span>
-              </div>
-              <div class="progress-bar-container">
-                <div class="progress-bar-fill" [style.width.%]="userProgress()"></div>
-              </div>
-              <div class="progress-footer">
-                <i class="pi pi-book"></i>
-                <span>{{ userEnrollments().length }} courses enrolled</span>
-              </div>
-            </div>
-          }
         </div>
-
-        Hero Visual
-        <div class="hero-visual">
-          <div class="floating-card card-1 glass-panel">
-            <i class="pi pi-code"></i>
-            <span>Coding</span>
-          </div>
-          <div class="floating-card card-2 glass-panel">
-            <i class="pi pi-chart-line"></i>
-            <span>Data Science</span>
-          </div>
-          <div class="floating-card card-3 glass-panel">
-            <i class="pi pi-megaphone"></i>
-            <span>Marketing</span>
-          </div>
-          <div class="floating-card card-4 glass-panel">
-            <i class="pi pi-pencil"></i>
-            <span>Design</span>
-          </div>
-          <div class="hero-image-wrapper">
-            <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80" 
-                 alt="Learning illustration" 
-                 class="hero-image">
-            <div class="image-overlay"></div>
-          </div>
-        </div>
+        }
       </div>
-
-      Scroll Indicator
-      <div class="scroll-indicator" (click)="scrollToSection('featured')">
-        <span class="scroll-text">Scroll to explore</span>
-        <i class="pi pi-arrow-down"></i>
-      </div>
+      }
     </section>
 
-    Stats Section
-    <section class="stats-section">
-      <div class="section-container">
-        <div class="stats-grid">
-          @for (stat of statistics(); track stat.label) {
-            <div class="stat-card glass-panel">
-              <div class="stat-icon-wrapper">
-                <i [class]="stat.icon"></i>
-              </div>
-              <div class="stat-content">
-                <h3 class="stat-value">{{ stat.value }}</h3>
-                <p class="stat-label">{{ stat.label }}</p>
-                <span class="stat-trend">{{ stat.trend }}</span>
-              </div>
-            </div>
-          }
+    <!-- ===================================================================== -->
+    <!-- 6. LATEST INSIGHTS (Blog section)                                     -->
+    <!-- ===================================================================== -->
+    <section>
+      <!-- FIXED HEADER LOGIC: Flex-1 for Title, Shrink-0 for Button -->
+      <div
+        class="w-full flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 border-b border-[var(--border-secondary)] pb-6">
+        <div class="flex-1">
+          <span
+            class="text-[var(--color-primary)] font-bold tracking-widest uppercase text-xs mb-2 block flex items-center gap-1">
+            <i class="pi pi-book"></i> Resources
+          </span>
+          <h2 class="text-3xl md:text-4xl font-extrabold text-[var(--text-primary)] tracking-tight m-0"
+            style="font-family: var(--font-heading);">From the Blog</h2>
         </div>
-      </div>
-    </section>
-
-    Ad Banner Carousel
-    <section class="ad-banner-section">
-      <div class="section-container">
-        <div class="ad-banner glass-panel" 
-             [style.background]="adBanners()[currentAdIndex()].backgroundColor">
-          <div class="ad-content">
-            <div class="ad-text">
-              <span class="ad-discount">{{ adBanners()[currentAdIndex()].discount }}</span>
-              <h2>{{ adBanners()[currentAdIndex()].title }}</h2>
-              <p>{{ adBanners()[currentAdIndex()].subtitle }}</p>
-              <button class="ad-cta" (click)="openAdModal(adBanners()[currentAdIndex()])">
-                {{ adBanners()[currentAdIndex()].ctaText }}
-                <i class="pi pi-arrow-right"></i>
-              </button>
-            </div>
-            <div class="ad-image">
-              <img [src]="adBanners()[currentAdIndex()].image" [alt]="adBanners()[currentAdIndex()].title">
-            </div>
-          </div>
-          <div class="ad-indicators">
-            @for (ad of adBanners(); track ad.id; let i = $index) {
-              <span class="ad-dot" [class.active]="currentAdIndex() === i" (click)="currentAdIndex.set(i)"></span>
-            }
-          </div>
-        </div>
-      </div>
-    </section>
-
-    Error State
-    @if (error()) {
-      <div class="error-container">
-        <div class="error-content glass-panel">
-          <i class="pi pi-exclamation-circle error-icon"></i>
-          <h3>Oops! Something went wrong</h3>
-          <p>{{ error() }}</p>
-          <button class="retry-btn" (click)="retry()">
-            <i class="pi pi-refresh"></i> Try Again
+        <div class="shrink-0">
+          <button
+            class="px-6 py-2.5 rounded-lg border-2 border-[var(--border-secondary)] text-[var(--text-primary)] font-bold hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all flex items-center gap-2 hover:gap-3"
+            (click)="viewAllPosts()">
+            Read all articles <i class="pi pi-arrow-right"></i>
           </button>
         </div>
       </div>
-    }
 
-    Loading State
-    @else if (isLoading()) {
-      <div class="loading-section">
-        Categories Skeletons
-        <div class="section-header">
-          <div class="skeleton-header"></div>
-        </div>
-        <div class="categories-grid">
-          @for (item of categorySkeletonArray; track $index) {
-            <div class="category-skeleton glass-panel">
-              <p-skeleton shape="circle" size="64px"></p-skeleton>
-              <p-skeleton width="80%" height="20px"></p-skeleton>
-              <p-skeleton width="60%" height="16px"></p-skeleton>
-            </div>
-          }
-        </div>
+      @if (isLoading()) {
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        @for (item of [1,2,3]; track item) {
+        <div class="h-[400px] rounded-2xl bg-[var(--bg-ternary)] animate-pulse"></div>
+        }
       </div>
-    }
-
-    Main Content
-    @else {
-      Categories Section
-      @if (categories().length > 0) {
-        <section class="categories-section" id="categories">
-          <div class="section-container">
-            <div class="section-header">
-              <div>
-                <span class="section-tag">Explore</span>
-                <h2 class="section-title">Popular Categories</h2>
-                <p class="section-subtitle">Discover courses across various domains</p>
-              </div>
-              <a routerLink="/categories" class="view-all-link">
-                View All <i class="pi pi-arrow-right"></i>
-              </a>
-            </div>
-
-            <div class="categories-grid">
-              @for (category of categories(); track trackByCategoryId($index, category)) {
-                <a [routerLink]="['/courses']" 
-                   [queryParams]="{category: category._id}"
-                   class="category-card glass-panel">
-                  <div class="category-icon-wrapper">
-                    <i [class]="getCategoryIcon(category.name)"></i>
-                  </div>
-                  <h3 class="category-name">{{ category.name }}</h3>
-                  <span class="category-count">{{ category.courseCount || 12 }} courses</span>
-                  <div class="category-hover-effect"></div>
-                </a>
-              }
-            </div>
-
-            Trending Topics
-            <div class="trending-topics">
-              <span class="trending-label">Trending:</span>
-              @for (topic of trendingTopics(); track topic.name) {
-                <a [routerLink]="['/courses']" 
-                   [queryParams]="{search: topic.name}" 
-                   class="trending-tag">
-                  <i [class]="topic.icon"></i>
-                  {{ topic.name }} ({{ topic.count }})
-                </a>
-              }
-            </div>
-          </div>
-        </section>
-      }
-
-      Content Tabs
-      <section class="content-tabs-section">
-        <div class="section-container">
-          <div class="tabs-header">
-            <button class="tab-btn" 
-                    [class.active]="activeTab() === 'courses'"
-                    (click)="activeTab.set('courses')">
-              <i class="pi pi-book"></i>
-              <span>Popular Courses</span>
-            </button>
-            <button class="tab-btn" 
-                    [class.active]="activeTab() === 'mocktests'"
-                    (click)="activeTab.set('mocktests')">
-              <i class="pi pi-question-circle"></i>
-              <span>Mock Tests</span>
-            </button>
-          </div>
-
-          Category Filters
-          @if (activeTab() === 'courses' && categories().length > 0) {
-            <div class="category-filters">
-              <button class="filter-chip" 
-                      [class.active]="activeCategoryFilter() === 'all'"
-                      (click)="activeCategoryFilter.set('all')">
-                All
-              </button>
-              @for (category of categories().slice(0, 5); track category._id) {
-                <button class="filter-chip" 
-                        [class.active]="activeCategoryFilter() === category._id"
-                        (click)="activeCategoryFilter.set(category._id)">
-                  {{ category.name }}
-                </button>
-              }
-            </div>
-          }
-
-          Courses Grid
-          @if (activeTab() === 'courses') {
-            <div class="courses-grid">
-              @for (course of filteredCourses(); track trackByCourseId($index, course)) {
-                <app-property-course-card [course]="course"></app-property-course-card>
-              }
-              
-              View More Card
-              <a routerLink="/courses" class="view-more-card glass-panel">
-                <i class="pi pi-arrow-circle-right"></i>
-                <span>Browse All Courses</span>
-                <small>{{ featuredCourses().length }}+ courses available</small>
-              </a>
-            </div>
-          }
-
-          Mock Tests Grid
-          @if (activeTab() === 'mocktests') {
-            <div class="mock-tests-grid">
-              @for (test of popularMockTests(); track trackByTestId($index, test)) {
-                <div class="mock-test-card glass-panel">
-                  <div class="test-header">
-                    <p-tag [value]="test.level | titlecase" 
-                           [severity]="getLevelSeverity(test.level)"></p-tag>
-                    <span class="test-category">
-                      <i class="pi pi-folder"></i>
-                      {{ test.category?.name || 'General' }}
-                    </span>
-                  </div>
-                  
-                  <h3 class="test-title">{{ test.title }}</h3>
-                  <p class="test-desc">{{ test.description | slice:0:80 }}...</p>
-                  
-                  <div class="test-meta">
-                    <div class="meta-item">
-                      <i class="pi pi-clock"></i>
-                      <span>{{ test.duration }} mins</span>
-                    </div>
-                    <div class="meta-item">
-                      <i class="pi pi-question-circle"></i>
-                      <span>{{ test.totalQuestions }} Qs</span>
-                    </div>
-                    <div class="meta-item">
-                      <i class="pi pi-star"></i>
-                      <span>{{ test.totalMarks || test.totalQuestions }} pts</span>
-                    </div>
-                  </div>
-                  
-                  <div class="test-footer">
-                    <span class="test-price" [class.free]="test.isFree">
-                      {{ test.isFree ? 'Free' : (test.price | currency:'USD') }}
-                    </span>
-                    <button class="test-btn" (click)="startMockTest(test._id)">
-                      Start Test
-                      <i class="pi pi-arrow-right"></i>
-                    </button>
-                  </div>
-                </div>
-              } @empty {
-                <div class="empty-state">
-                  <i class="pi pi-file-excel"></i>
-                  <h3>No mock tests available</h3>
-                  <p>Check back later for new tests</p>
-                </div>
-              }
-              
-              View All Tests Card
-              <a routerLink="/mock-tests" class="view-more-card glass-panel">
-                <i class="pi pi-arrow-circle-right"></i>
-                <span>Browse All Tests</span>
-                <small>{{ popularMockTests().length }}+ tests available</small>
-              </a>
-            </div>
-          }
-        </div>
-      </section>
-
-      Top Rated Courses Carousel
-      @if (topRatedCourses().length > 0) {
-        <section class="carousel-section">
-          <div class="section-container">
-            <div class="section-header">
-              <div>
-                <span class="section-tag">Top Rated</span>
-                <h2 class="section-title">Students' Favorites</h2>
-                <p class="section-subtitle">Highest rated courses by our learners</p>
-              </div>
-            </div>
-
-            <p-carousel [value]="topRatedCourses()" 
-                       [numVisible]="4" 
-                       [numScroll]="1"
-                       [responsiveOptions]="carouselResponsiveOptions" 
-                       [autoplayInterval]="5000" 
-                       [circular]="true"
-                       class="courses-carousel">
-              <ng-template let-course pTemplate="item">
-                <div class="carousel-item">
-                  <app-property-course-card [course]="course"></app-property-course-card>
-                </div>
-              </ng-template>
-            </p-carousel>
-          </div>
-        </section>
-      }
-
-      Features Section
-      <section class="features-section" id="features">
-        <div class="section-container">
-          <div class="section-header text-center">
-            <span class="section-tag">Why Choose Us</span>
-            <h2 class="section-title">The LearnHub Advantage</h2>
-            <p class="section-subtitle">What makes our platform different</p>
-          </div>
-
-          <div class="features-grid">
-            <div class="feature-card glass-panel">
-              <div class="feature-icon expert-icon">
-                <i class="pi pi-star"></i>
-              </div>
-              <h3>Expert Instructors</h3>
-              <p>Learn from industry professionals with years of real-world experience</p>
-              <div class="feature-stats">
-                <span>200+ instructors</span>
-                <i class="pi pi-arrow-right"></i>
-              </div>
-            </div>
-
-            <div class="feature-card glass-panel">
-              <div class="feature-icon flexible-icon">
-                <i class="pi pi-clock"></i>
-              </div>
-              <h3>Flexible Learning</h3>
-              <p>Learn at your own pace with lifetime access to all course materials</p>
-              <div class="feature-stats">
-                <span>100% self-paced</span>
-                <i class="pi pi-arrow-right"></i>
-              </div>
-            </div>
-
-            <div class="feature-card glass-panel">
-              <div class="feature-icon community-icon">
-                <i class="pi pi-users"></i>
-              </div>
-              <h3>Community Support</h3>
-              <p>Join a community of learners and get help when you need it</p>
-              <div class="feature-stats">
-                <span>24/7 support</span>
-                <i class="pi pi-arrow-right"></i>
-              </div>
-            </div>
-
-            <div class="feature-card glass-panel">
-              <div class="feature-icon certificate-icon">
-                <i class="pi pi-certificate"></i>
-              </div>
-              <h3>Certificates</h3>
-              <p>Earn verified certificates to showcase your skills</p>
-              <div class="feature-stats">
-                <span>Shareable on LinkedIn</span>
-                <i class="pi pi-arrow-right"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      Recent Courses
-      @if (recentCourses().length > 0) {
-        <section class="recent-section">
-          <div class="section-container">
-            <div class="section-header">
-              <div>
-                <span class="section-tag">Fresh Content</span>
-                <h2 class="section-title">Recently Added</h2>
-                <p class="section-subtitle">New courses to boost your skills</p>
-              </div>
-            </div>
-
-            <div class="courses-grid">
-              @for (course of recentCourses(); track trackByCourseId($index, course)) {
-                <app-property-course-card [course]="course"></app-property-course-card>
-              }
-            </div>
-          </div>
-        </section>
-      }
-
-      Testimonials
-      <section class="testimonials-section">
-        <div class="section-container">
-          <div class="section-header text-center">
-            <span class="section-tag">Testimonials</span>
-            <h2 class="section-title">What Our Students Say</h2>
-            <p class="section-subtitle">Real stories from real learners</p>
-          </div>
-
-          <div class="testimonials-grid">
-            @for (testimonial of testimonials(); track testimonial.id) {
-              <div class="testimonial-card glass-panel">
-                <div class="testimonial-header">
-                  <p-avatar [image]="testimonial.avatar" shape="circle" size="large"></p-avatar>
-                  <div class="testimonial-info">
-                    <h4>{{ testimonial.name }}</h4>
-                    <p>{{ testimonial.role }}</p>
-                  </div>
-                </div>
-                <div class="testimonial-rating">
-                  @for (star of [1,2,3,4,5]; track star) {
-                    <i class="pi" [ngClass]="{
-                      'pi-star-fill': star <= testimonial.rating,
-                      'pi-star': star > testimonial.rating
-                    }"></i>
-                  }
-                </div>
-                <p class="testimonial-content">"{{ testimonial.content }}"</p>
-              </div>
-            }
-          </div>
-        </div>
-      </section>
-
-      CTA Section
-      <section class="cta-section">
-        <div class="section-container">
-          <div class="cta-content glass-panel">
-            <h2 class="cta-title">Ready to Start Learning?</h2>
-            <p class="cta-subtitle">Join thousands of students already learning on our platform</p>
-            <div class="cta-buttons">
-              <button class="cta-primary" [routerLink]="['/courses']">
-                Browse All Courses
-                <i class="pi pi-arrow-right"></i>
-              </button>
-              <button class="cta-secondary" [routerLink]="['/become-instructor']">
-                Become an Instructor
-              </button>
-            </div>
-            <div class="cta-stats">
-              <div class="cta-stat">
-                <span class="stat-number">50K+</span>
-                <span class="stat-label">Students</span>
-              </div>
-              <div class="cta-stat">
-                <span class="stat-number">500+</span>
-                <span class="stat-label">Courses</span>
-              </div>
-              <div class="cta-stat">
-                <span class="stat-number">95%</span>
-                <span class="stat-label">Satisfaction</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    }
-  </main>
-
-  Footer
-  <footer class="app-footer">
-    <div class="footer-container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <a routerLink="/" class="footer-logo">
-            <i class="pi pi-graduation-cap"></i>
-            <span>LearnHub</span>
-          </a>
-          <p>Empowering learners worldwide with quality education and expert-led courses.</p>
-          <div class="social-links">
-            <a href="#" class="social-link"><i class="pi pi-facebook"></i></a>
-            <a href="#" class="social-link"><i class="pi pi-twitter"></i></a>
-            <a href="#" class="social-link"><i class="pi pi-linkedin"></i></a>
-            <a href="#" class="social-link"><i class="pi pi-youtube"></i></a>
-          </div>
-        </div>
-
-        <div class="footer-links">
-          <h4>Quick Links</h4>
-          <ul>
-            <li><a routerLink="/courses">All Courses</a></li>
-            <li><a routerLink="/mock-tests">Mock Tests</a></li>
-            <li><a routerLink="/categories">Categories</a></li>
-            <li><a href="#features">Features</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-links">
-          <h4>Support</h4>
-          <ul>
-            <li><a href="#">Help Center</a></li>
-            <li><a href="#">FAQs</a></li>
-            <li><a href="#">Contact Us</a></li>
-            <li><a href="#">Terms of Service</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-newsletter">
-          <h4>Newsletter</h4>
-          <p>Subscribe to get updates on new courses and offers</p>
-          <div class="newsletter-form">
-            <input type="email" 
-                   placeholder="Enter your email" 
-                   [(ngModel)]="emailSubscription">
-            <button class="newsletter-btn" (click)="showNewsletterModal.set(true)">
-              <i class="pi pi-send"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="footer-bottom">
-        <p>&copy; 2024 LearnHub. All rights reserved.</p>
-        <div class="footer-bottom-links">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Use</a>
-          <a href="#">Cookie Policy</a>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  Newsletter Modal
-  @if (showNewsletterModal()) {
-    <div class="modal-overlay" (click)="showNewsletterModal.set(false)">
-      <div class="modal-content glass-panel" (click)="$event.stopPropagation()">
-        <button class="modal-close" (click)="showNewsletterModal.set(false)">
-          <i class="pi pi-times"></i>
-        </button>
-        
-        <div class="modal-icon">
-          <i class="pi pi-envelope"></i>
-        </div>
-        
-        <h2>Subscribe to Our Newsletter</h2>
-        <p>Get the latest updates on new courses, mock tests, and exclusive offers!</p>
-        
-        <div class="modal-form">
-          <input type="email" 
-                 placeholder="Enter your email address"
-                 [(ngModel)]="emailSubscription">
-          <button class="subscribe-btn" (click)="onSubscribe()" [disabled]="subscriptionSuccess()">
-            @if (subscriptionSuccess()) {
-              <i class="pi pi-check"></i> Subscribed!
+      } @else {
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        @for (post of recentPosts(); track post._id) {
+        <div (click)="viewPost(post)"
+          class="group cursor-pointer rounded-2xl border border-[var(--border-secondary)] bg-[var(--bg-secondary)] overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl flex flex-col h-full">
+          <div class="w-full h-52 overflow-hidden relative border-b border-[var(--border-secondary)]">
+            @if (post.thumbnail) {
+            <img [src]="post.thumbnail" [alt]="post.title"
+              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
             } @else {
-              Subscribe Now
+            <div
+              class="w-full h-full bg-gradient-to-br from-[var(--bg-ternary)] to-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-tertiary)]">
+              <i class="pi pi-image text-5xl opacity-50"></i>
+            </div>
             }
-          </button>
-        </div>
-        
-        <p class="modal-note">We respect your privacy. Unsubscribe at any time.</p>
-      </div>
-    </div>
-  }
-
-  Ad Modal
-  @if (showAdModal() && selectedAd()) {
-    <div class="modal-overlay" (click)="closeAdModal()">
-      <div class="modal-content ad-modal glass-panel" 
-           [style.background]="selectedAd()?.backgroundColor"
-           (click)="$event.stopPropagation()">
-        <button class="modal-close" (click)="closeAdModal()">
-          <i class="pi pi-times"></i>
-        </button>
-        
-        <div class="ad-modal-content">
-          <div class="ad-modal-icon">
-            <i [class]="selectedAd()?.icon || 'pi pi-gift'"></i>
+            <div class="absolute top-3 left-3">
+              <span
+                class="px-3 py-1 rounded-lg bg-black/60 backdrop-blur-md text-white text-xs font-bold tracking-wide">{{
+                post.category?.name || 'Article' }}</span>
+            </div>
           </div>
-          
-          <h2>{{ selectedAd()?.title }}</h2>
-          <p class="ad-modal-subtitle">{{ selectedAd()?.subtitle }}</p>
-          <p class="ad-modal-desc">{{ selectedAd()?.description }}</p>
-          
-          @if (selectedAd()?.discount) {
-            <div class="ad-modal-discount">{{ selectedAd()?.discount }}</div>
-          }
-          
-          <a [routerLink]="[selectedAd()?.ctaLink]" 
-             class="ad-modal-cta"
-             (click)="trackAdClick(selectedAd()!); closeAdModal()">
-            {{ selectedAd()?.ctaText }}
-            <i class="pi pi-arrow-right"></i>
-          </a>
+          <div class="p-6 flex flex-col flex-grow">
+            <div class="flex items-center gap-2 mb-3">
+              <div
+                class="w-6 h-6 rounded-full bg-[var(--color-primary-bg)] flex items-center justify-center text-[var(--color-primary)] text-xs">
+                <i class="pi pi-user"></i>
+              </div>
+              <span class="text-xs font-medium text-[var(--text-tertiary)]">{{ post.author?.firstName || 'Expert' }} ·
+                {{ formatDate(post.createdAt || post.eventDate) }}</span>
+            </div>
+            <h3
+              class="text-xl font-bold text-[var(--text-primary)] mb-3 leading-tight group-hover:text-[var(--color-primary)] transition-colors line-clamp-2"
+              style="font-family: var(--font-heading);">{{ post.title }}</h3>
+            <p class="text-[var(--text-secondary)] text-sm mb-6 line-clamp-2 leading-relaxed flex-grow">{{ post.excerpt
+              || 'Read this article to enhance your knowledge and stay ahead in your career.' }}</p>
+            <div class="flex items-center justify-between mt-auto pt-4 border-t border-[var(--border-secondary)]">
+              <div class="flex items-center gap-2 text-sm text-[var(--text-tertiary)] font-medium">
+                <i class="pi pi-clock"></i> 5 min read
+              </div>
+              <div
+                class="flex items-center gap-2 text-[var(--color-primary)] font-bold group-hover:gap-3 transition-all">
+                <span class="text-sm">Read</span>
+                <i class="pi pi-arrow-right text-xs"></i>
+              </div>
+            </div>
+          </div>
         </div>
+        }
       </div>
-    </div>
-  }
-</div> -->
-<!-- <div class="home-container">
-
-    Hero Section
-    <section class="hero-section">
-        <div class="hero-content max-w-screen">
-            <div class="hero-text">
-                <h1 class="hero-title gradient-text">
-                    Unlock Your Potential with <span class="text-primary">Expert-Led</span> Courses
-                </h1>
-                <p class="hero-subtitle">
-                    Join over 50,000 students learning from industry experts.
-                    Master in-demand skills and advance your career today.
-                </p>
-
-                Search Bar
-                <div class="search-wrapper glass-panel">
-                    <i class="pi pi-search search-icon"></i>
-                    <input type="text" pInputText class="search-input" placeholder="What do you want to learn today?"
-                        [(ngModel)]="searchQuery" (keyup.enter)="onSearch()">
-                    <button pButton pRipple label="Search" icon="pi pi-arrow-right" iconPos="right" class="search-btn"
-                        (click)="onSearch()">
-                    </button>
-                </div>
-
-                Trust Badges
-                <div class="trust-badges">
-                    <div class="trust-item">
-                        <i class="pi pi-shield text-success"></i>
-                        <span>30-Day Money-Back</span>
-                    </div>
-                    <div class="trust-item">
-                        <i class="pi pi-clock text-info"></i>
-                        <span>Lifetime Access</span>
-                    </div>
-                    <div class="trust-item">
-                        <i class="pi pi-certificate text-warning"></i>
-                        <span>Certificate of Completion</span>
-                    </div>
-                </div>
-            </div>
-
-            Hero Image/Illustration
-            <div class="hero-visual">
-                <div class="floating-card card-1 glass-panel">
-                    <i class="pi pi-code"></i>
-                    <span>Coding</span>
-                </div>
-                <div class="floating-card card-2 glass-panel">
-                    <i class="pi pi-chart-line"></i>
-                    <span>Data Science</span>
-                </div>
-                <div class="floating-card card-3 glass-panel">
-                    <i class="pi pi-megaphone"></i>
-                    <span>Marketing</span>
-                </div>
-                <div class="floating-card card-4 glass-panel">
-                    <i class="pi pi-pencil"></i>
-                    <span>Design</span>
-                </div>
-                <div class="hero-image-wrapper">
-                    <img src="https://images.unsplash.com/photo-1771926623926-a644527a40dc?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        alt="Learning illustration" class="hero-image">
-                </div>
-            </div>
-        </div>
-
-        Scroll Indicator
-        <div class="scroll-indicator" (click)="scrollToSection('featured')">
-            <span class="scroll-text">Scroll to explore</span>
-            <i class="pi pi-arrow-down"></i>
-        </div>
-    </section>
-    <section class="stats-section">
-        <div class="max-w-screen">
-           
-                <app-top-rated-courses></app-top-rated-courses>
-     
-        </div>
-    </section>
-    <section class="stats-section">
-        <div class="max-w-screen">
-           
-                <app-course-list></app-course-list>
-     
-        </div>
-    </section>
-    Statistics Section
-    <section class="stats-section">
-        <div class="max-w-screen">
-            <div class="stats-grid">
-                @for (stat of statistics; track stat.label) {
-                <div class="stat-card glass-panel">
-                    <div class="stat-icon-wrapper">
-                        <i [class]="stat.icon"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 class="stat-value">{{ stat.value }}</h3>
-                        <p class="stat-label">{{ stat.label }}</p>
-                    </div>
-                </div>
-                }
-            </div>
-        </div>
+      }
     </section>
 
-    Error State
-    @if (error()) {
-    <div class="error-container">
-        <div class="error-content glass-panel">
-            <i class="pi pi-exclamation-circle error-icon"></i>
-            <h3>Oops! Something went wrong</h3>
-            <p>{{ error() }}</p>
-            <button pButton pRipple label="Try Again" icon="pi pi-refresh" (click)="retry()"></button>
-        </div>
-    </div>
-    }
-
-    Loading State
-    @else if (isLoading()) {
-    <div class="loading-section">
-        Featured Courses Skeletons
-        <div class="section-header">
-            <div class="skeleton-header"></div>
-        </div>
-        <div class="courses-grid">
-            @for (item of skeletonArray; track $index) {
-            <div class="course-skeleton">
-                <p-skeleton height="180px"></p-skeleton>
-                <div class="skeleton-content">
-                    <p-skeleton height="24px" width="80%"></p-skeleton>
-                    <p-skeleton height="20px" width="60%"></p-skeleton>
-                    <p-skeleton height="30px" width="100px"></p-skeleton>
-                </div>
-            </div>
-            }
-        </div>
-    </div>
-    }
-
-    Main Content
-    @else {
-    Categories Section
-    @if (categories().length > 0) {
-    <section class="categories-section" id="categories">
-        <div class="max-w-screen">
-            <div class="section-header">
-                <div>
-                    <h2 class="section-title">Popular Categories</h2>
-                    <p class="section-subtitle">Explore courses by category</p>
-                </div>
-                <a routerLink="/categories" class="view-all-link" pButton pRipple text="true">
-                    View All <i class="pi pi-arrow-right"></i>
-                </a>
-            </div>
-
-            <div class="categories-grid">
-                @for (category of categories(); track trackByCategoryId($index, category)) {
-                <a [routerLink]="['/courses']" [queryParams]="{category: category._id}"
-                    class="category-card glass-panel">
-                    <div class="category-icon-wrapper">
-                        <i [class]="getCategoryIcon(category.name)"></i>
-                    </div>
-                    <h3 class="category-name">{{ category.name }}</h3>
-                    <span class="category-count">{{ category.courseCount || 0 }} courses</span>
-                </a>
-                }
-            </div>
-        </div>
-    </section>
-    }
-
-    Featured Courses
-    @if (featuredCourses().length > 0) {
-    <section class="courses-section" id="featured">
-        <div class="max-w-screen">
-            <div class="section-header">
-                <div>
-                    <h2 class="section-title">Featured Courses</h2>
-                    <p class="section-subtitle">Hand-picked courses for you</p>
-                </div>
-                <a routerLink="/courses" class="view-all-link" pButton pRipple text="true">
-                    View All <i class="pi pi-arrow-right"></i>
-                </a>
-            </div>
-
-            <div class="courses-grid">
-                @for (course of featuredCourses(); track trackByCourseId($index, course)) {
-                <app-property-course-card [course]="course"></app-property-course-card>
-                }
-            </div>
-        </div>
-    </section>
-    }
-
-    Top Rated Courses Carousel
-    @if (topRatedCourses().length > 0) {
-    <section class="carousel-section">
-        <div class="max-w-screen">
-            <div class="section-header">
-                <div>
-                    <h2 class="section-title">Top Rated Courses</h2>
-                    <p class="section-subtitle">Our students' favorites</p>
-                </div>
-            </div>
-
-            <p-carousel [value]="topRatedCourses()" [numVisible]="4" [numScroll]="1"
-                [responsiveOptions]="carouselResponsiveOptions" [autoplayInterval]="5000" [circular]="true"
-                class="courses-carousel">
-                <ng-template let-course pTemplate="item">
-                    <div class="carousel-item">
-                        <app-property-course-card [course]="course"></app-property-course-card>
-                    </div>
-                </ng-template>
-            </p-carousel>
-        </div>
-    </section>
-    }
-
-    Why Choose Us
-    <section class="features-section">
-        <div class="max-w-screen">
-            <div class="section-header text-center">
-                <h2 class="section-title">Why Choose Us</h2>
-                <p class="section-subtitle">What makes our platform different</p>
-            </div>
-
-            <div class="features-grid">
-                <div class="feature-card glass-panel">
-                    <div class="feature-icon expert-icon">
-                        <i class="pi pi-star"></i>
-                    </div>
-                    <h3>Expert Instructors</h3>
-                    <p>Learn from industry professionals with years of real-world experience</p>
-                </div>
-
-                <div class="feature-card glass-panel">
-                    <div class="feature-icon flexible-icon">
-                        <i class="pi pi-clock"></i>
-                    </div>
-                    <h3>Flexible Learning</h3>
-                    <p>Learn at your own pace with lifetime access to all course materials</p>
-                </div>
-
-                <div class="feature-card glass-panel">
-                    <div class="feature-icon community-icon">
-                        <i class="pi pi-users"></i>
-                    </div>
-                    <h3>Community Support</h3>
-                    <p>Join a community of learners and get help when you need it</p>
-                </div>
-
-                <div class="feature-card glass-panel">
-                    <div class="feature-icon certificate-icon">
-                        <i class="pi pi-certificate"></i>
-                    </div>
-                    <h3>Certificates</h3>
-                    <p>Earn verified certificates to showcase your skills</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    Recent Courses
-    @if (recentCourses().length > 0) {
-    <section class="courses-section">
-        <div class="max-w-screen">
-            <div class="section-header">
-                <div>
-                    <h2 class="section-title">Recently Added</h2>
-                    <p class="section-subtitle">Fresh new content for you</p>
-                </div>
-            </div>
-
-            <div class="courses-grid">
-                @for (course of recentCourses(); track trackByCourseId($index, course)) {
-                <app-property-course-card [course]="course"></app-property-course-card>
-                }
-            </div>
-        </div>
-    </section>
-    }
-
-    Testimonials
-    <section class="testimonials-section">
-        <div class="max-w-screen">
-            <div class="section-header text-center">
-                <h2 class="section-title">What Our Students Say</h2>
-                <p class="section-subtitle">Real stories from real learners</p>
-            </div>
-
-            <div class="testimonials-grid">
-                @for (testimonial of testimonials; track testimonial.id) {
-                <div class="testimonial-card glass-panel">
-                    <div class="testimonial-header">
-                        <p-avatar [image]="testimonial.avatar" shape="circle" size="large"></p-avatar>
-                        <div class="testimonial-info">
-                            <h4>{{ testimonial.name }}</h4>
-                            <p>{{ testimonial.role }}</p>
-                        </div>
-                    </div>
-                    <div class="testimonial-rating">
-                        @for (star of [1,2,3,4,5]; track star) {
-                        <i class="pi" [ngClass]="{
-                    'pi-star-fill': star <= testimonial.rating,
-                    'pi-star': star > testimonial.rating
-                  }"></i>
-                        }
-                    </div>
-                    <p class="testimonial-content">"{{ testimonial.content }}"</p>
-                </div>
-                }
-            </div>
-        </div>
-    </section>
-
-    CTA Section
-    <section class="cta-section">
-        <div class="max-w-screen">
-            <div class="cta-content glass-panel">
-                <h2 class="cta-title">Ready to Start Learning?</h2>
-                <p class="cta-subtitle">Join thousands of students already learning on our platform</p>
-                <div class="cta-buttons">
-                    <button pButton pRipple label="Browse All Courses" icon="pi pi-search" class="cta-primary"></button>
-                    <button pButton pRipple label="Become an Instructor" icon="pi pi-user-plus" class="cta-secondary"
-                        text="true"></button>
-                </div>
-            </div>
-        </div>
-    </section>
-    }
-</div> -->
+  </div>
+</div>

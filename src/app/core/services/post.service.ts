@@ -72,7 +72,6 @@ export class PostService {
     if (queryParams.isFeatured !== undefined) {
       queryParams.isFeatured = queryParams.isFeatured.toString();
     }
-
     return this.api.getWithPagination(this.endpoint, { params: queryParams });
   }
 
@@ -116,10 +115,8 @@ export class PostService {
    */
   getAdminPosts(params: any = {}): Observable<ApiResponseWithPagination> {
     const queryParams = { ...params };
-
     if (!queryParams.page) queryParams.page = 1;
     if (!queryParams.limit) queryParams.limit = 10;
-
     return this.api.getWithPagination(`${this.endpoint}/admin/all`, { params: queryParams });
   }
 

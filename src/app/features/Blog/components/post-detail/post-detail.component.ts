@@ -109,6 +109,25 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
+  // Helper method updated for Competitive Exams
+  getCategoryIcon(label: string): string {
+    if (!label) return 'pi-folder';
+    const lower = label.toLowerCase();
+
+    if (lower.includes('bank') || lower.includes('ibps') || lower.includes('sbi') || lower.includes('rbi')) return 'pi-building';
+    if (lower.includes('upsc') || lower.includes('psc') || lower.includes('bpsc')) return 'pi-briefcase';
+    if (lower.includes('defence') || lower.includes('nda') || lower.includes('cds') || lower.includes('afcat') || lower.includes('agniveer')) return 'pi-shield';
+    if (lower.includes('railway') || lower.includes('rrb')) return 'pi-ticket';
+    if (lower.includes('ssc')) return 'pi-id-card';
+    if (lower.includes('teach') || lower.includes('tet') || lower.includes('kvs') || lower.includes('dsssb')) return 'pi-book';
+    if (lower.includes('police') || lower.includes('constable') || lower.includes('inspector')) return 'pi-star-fill';
+    if (lower.includes('gate') || lower.includes('engineer') || lower.includes('ese') || lower.includes('drdo') || lower.includes('isro')) return 'pi-cog';
+    if (lower.includes('judici') || lower.includes('law') || lower.includes('apo')) return 'pi-building-columns'; // Or 'pi-balance-scale' if available
+
+    // Default icon
+    return 'pi-folder';
+  }
+
   // Update loadPost to accept the ID/Slug as an argument
   loadPost(postIdOrSlug: string) {
     // Reset state for the new post transition
@@ -132,7 +151,7 @@ export class PostDetailComponent implements OnInit {
         // Reset scroll position smoothly for the new post
         setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error loading post:', err);
         this.error.set(this.isAdminView() ? 'Failed to load draft.' : 'Post not found.');
         this.loading.set(false);

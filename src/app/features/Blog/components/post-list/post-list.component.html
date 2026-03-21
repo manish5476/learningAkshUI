@@ -1,171 +1,140 @@
-<!-- post-list.component.html - Enhanced Version -->
-<div class="posts-container">
-  <p-toast></p-toast>
-  <p-confirmDialog></p-confirmDialog>
+<div class="min-h-screen bg-[var(--bg-primary)] px-4 sm:px-6 lg:px-8 py-4 transition-colors duration-300">
+  <p-toast position="bottom-right"></p-toast>
+  <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 
-  <!-- Animated Background Elements -->
-  <div class="bg-animation">
-    <div class="bg-circle bg-circle-1"></div>
-    <div class="bg-circle bg-circle-2"></div>
-    <div class="bg-circle bg-circle-3"></div>
-  </div>
-
-  <!-- Header Section -->
+  <!-- ======================= -->
+  <!-- ULTRA-COMPACT HEADER    -->
+  <!-- ======================= -->
   @if (isAdminView()) {
-  <!-- Admin Header with KPI Cards -->
-  <div class="admin-header animate-slide-down">
-    <div class="header-content">
-      <div class="header-left">
-        <div class="icon-wrapper">
-          <i class="pi pi-file-edit"></i>
-        </div>
-        <div class="title-wrapper">
-          <h1>Content Management</h1>
-          <p>Create, edit, and manage your blog posts</p>
-        </div>
-      </div>
-      <button pButton label="New Post" icon="pi pi-plus" class="create-button" [routerLink]="['/blog/admin/new']">
-        <i class="pi pi-plus"></i>
-        <span>New Post</span>
-      </button>
+  <div
+    class="flex items-center justify-between gap-4 mb-4 pb-4 border-b border-[var(--border-secondary)] animate-fade-in-up">
+    <div class="flex items-center gap-2">
+      <i class="pi pi-file-edit text-xl text-[var(--color-primary)]"></i>
+      <h1 class="text-xl font-bold text-[var(--text-primary)] m-0" style="font-family: var(--font-heading);">Content
+        Management</h1>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="stats-grid">
-      @for (stat of stats; track stat.label) {
-      <div class="stat-card" [style.border-top-color]="stat.color">
-        <div class="stat-icon" [style.background]="stat.color">
-          <i [class]="stat.icon"></i>
-        </div>
-        <div class="stat-info">
-          <span class="stat-value">{{ stat.value }}</span>
-          <span class="stat-label">{{ stat.label }}</span>
-        </div>
+    <div class="flex items-center gap-4">
+      <!-- Minimal Stats (Hidden on small mobile) -->
+      <div
+        class="hidden md:flex items-center gap-4 text-xs font-semibold text-[var(--text-tertiary)] border-r pr-4 border-[var(--border-secondary)]">
+        <span class="flex items-center gap-1.5"><i class="pi pi-file"></i> {{ totalRecords() }} Posts</span>
+        <span class="flex items-center gap-1.5"><i class="pi pi-eye"></i> 10k+ Views</span>
       </div>
-      }
+      <!-- Compact Button -->
+      <button pButton label="New Post" icon="pi pi-plus" class="p-button-sm p-button-primary whitespace-nowrap"
+        [routerLink]="['/blog/admin/new']"></button>
     </div>
   </div>
   } @else {
-  <!-- Public Header -->
-  <div class="public-header animate-slide-down">
-    <div class="hero-section">
-      <div class="hero-content">
-        <h1>Welcome to Our Blog</h1>
-        <p>Discover insights, tutorials, and stories from our expert team</p>
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <i class="pi pi-file"></i>
-            <span>{{ totalRecords() }} Articles</span>
-          </div>
-          <div class="hero-stat">
-            <i class="pi pi-users"></i>
-            <span>10k+ Readers</span>
-          </div>
-          <div class="hero-stat">
-            <i class="pi pi-tags"></i>
-            <span>Multiple Categories</span>
-          </div>
-        </div>
-      </div>
+  <div
+    class="flex items-center justify-between gap-4 mb-4 pb-4 border-b border-[var(--border-secondary)] animate-fade-in-up">
+    <h1 class="text-2xl font-bold text-[var(--text-primary)] m-0" style="font-family: var(--font-heading);">Our Blog
+    </h1>
+    <div class="flex items-center gap-4 text-sm font-medium text-[var(--text-tertiary)]">
+      <span class="flex items-center gap-1.5"><i class="pi pi-file"></i> {{ totalRecords() }} Articles</span>
     </div>
   </div>
   }
 
-  <!-- Filter Bar - Enhanced -->
-  <div class="filter-section animate-slide-up">
-    <div class="filter-container">
-      <div class="search-box">
-        <i class="pi pi-search search-icon"></i>
-        <input type="text" pInputText [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()"
-          placeholder="Search by title, content, or author..." class="search-input" />
-        @if (searchQuery) {
-        <button class="clear-btn" (click)="clearSearch()">
-          <i class="pi pi-times-circle"></i>
-        </button>
-        }
-      </div>
+  <!-- ======================= -->
+  <!-- SINGLE ROW FILTER BAR   -->
+  <!-- ======================= -->
+  <!-- Using flex-row and items-center to force everything onto one line -->
+  <div class="w-full flex flex-row items-center gap-3 mb-6 animate-fade-in-up" style="animation-delay: 50ms;">
 
-      <div class="filter-group">
-        <div class="filter-item">
-          <i class="pi pi-tag"></i>
-          <app-dynamic-dropdown [(ngModel)]="selectedType" (ngModelChange)="onFilterChange()" model="master"
-            masterType="post_type" placeholder="All Types" [showClear]="true" class="filter-dropdown">
-          </app-dynamic-dropdown>
-        </div>
-
-        @if (isAdminView()) {
-        <div class="filter-item">
-          <i class="pi pi-flag"></i>
-          <app-dynamic-dropdown [(ngModel)]="selectedStatus" (ngModelChange)="onFilterChange()" model="master"
-            masterType="post_status" placeholder="All Status" [showClear]="true" class="filter-dropdown">
-          </app-dynamic-dropdown>
-        </div>
-        }
-      </div>
-
-      @if (hasActiveFilters()) {
-      <div class="active-filters">
-        <span class="filter-label">Active filters:</span>
-        @if (searchQuery) {
-        <span class="filter-chip">
-          {{ searchQuery }}
-          <i class="pi pi-times" (click)="clearSearch()"></i>
-        </span>
-        }
-        @if (selectedType) {
-        <span class="filter-chip">
-          Type: {{ selectedType }}
-          <i class="pi pi-times" (click)="clearTypeFilter()"></i>
-        </span>
-        }
-        @if (selectedStatus && isAdminView()) {
-        <span class="filter-chip">
-          Status: {{ selectedStatus }}
-          <i class="pi pi-times" (click)="clearStatusFilter()"></i>
-        </span>
-        }
-        <button pButton label="Clear All" icon="pi pi-filter-slash" class="clear-all-btn" [text]="true"
-          (click)="clearAllFilters()"></button>
-      </div>
+    <!-- Search Box (flex-1 makes it stretch) -->
+    <div class="relative flex-1 min-w-[150px]">
+      <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] text-sm"></i>
+      <input type="text" pInputText [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()"
+        placeholder="Search articles..."
+        class="w-full pl-9 pr-8 py-2 rounded-md border text-sm bg-[var(--bg-secondary)] text-[var(--text-primary)] border-[var(--border-secondary)] hover:border-[var(--color-primary)] focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-all" />
+      @if (searchQuery) {
+      <button
+        class="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--color-error)] transition-colors"
+        (click)="clearSearch()">
+        <i class="pi pi-times-circle"></i>
+      </button>
       }
     </div>
+
+    <!-- Type Filter (shrink-0 prevents it from getting crushed by search) -->
+    <div class="w-32 md:w-44 shrink-0">
+      <app-dynamic-dropdown [(ngModel)]="selectedType" (ngModelChange)="onFilterChange()" model="master"
+        masterType="post_type" placeholder="Category" [showClear]="true" class="w-full block">
+      </app-dynamic-dropdown>
+    </div>
+
+    <!-- Status Filter (Admin Only) -->
+    @if (isAdminView()) {
+    <div class="w-32 md:w-40 shrink-0">
+      <app-dynamic-dropdown [(ngModel)]="selectedStatus" (ngModelChange)="onFilterChange()" model="master"
+        masterType="post_status" placeholder="Status" [showClear]="true" class="w-full block">
+      </app-dynamic-dropdown>
+    </div>
+    }
+
+    <!-- Clear All Button (Icon only to save space) -->
+    @if (hasActiveFilters()) {
+    <button pButton icon="pi pi-filter-slash" class="p-button-text p-button-secondary shrink-0 !px-3"
+      pTooltip="Clear all filters" tooltipPosition="top" (click)="clearAllFilters()">
+    </button>
+    }
   </div>
 
-  <!-- Loading State - Enhanced -->
+  <!-- ======================= -->
+  <!-- CONTENT GRID            -->
+  <!-- ======================= -->
+
   @if (loading()) {
-  <div class="loading-state">
-    <div class="skeleton-grid">
-      @for (item of [1,2,3,4,5,6]; track item) {
-      <div class="skeleton-card">
-        <div class="skeleton-image"></div>
-        <div class="skeleton-content">
-          <div class="skeleton-line"></div>
-          <div class="skeleton-line medium"></div>
-          <div class="skeleton-line short"></div>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+    @for (item of [1,2,3,4,5,6,7,8]; track item) {
+    <div
+      class="rounded-xl border border-[var(--border-secondary)] bg-[var(--bg-secondary)] overflow-hidden animate-pulse">
+      <div class="w-full h-40 bg-[var(--bg-ternary)]"></div>
+      <div class="p-4">
+        <div class="h-5 rounded bg-[var(--bg-ternary)] w-3/4 mb-3"></div>
+        <div class="h-3 rounded bg-[var(--bg-ternary)] w-full mb-2"></div>
+        <div class="h-3 rounded bg-[var(--bg-ternary)] w-5/6 mb-4"></div>
+        <div class="flex items-center gap-2 mt-4">
+          <div class="w-6 h-6 rounded-full bg-[var(--bg-ternary)]"></div>
+          <div class="h-3 rounded bg-[var(--bg-ternary)] w-1/3"></div>
         </div>
       </div>
-      }
     </div>
+    }
   </div>
   }
 
   @if (!loading()) {
-  <div class="posts-grid">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
     @for (post of posts(); track post._id) {
-
-    <!-- Simply plug in your new component here -->
-    <app-post-card class="animate-scale-in" [post]="post" [isAdminView]="isAdminView()" (delete)="deletePost(post)"
-      (publish)="publishPost($event)" (unpublish)="unpublishPost($event)" (toggleFeature)="toggleFeature($event)">
+    <app-post-card class="block h-full transition-all duration-300 hover:-translate-y-1" [post]="post"
+      [isAdminView]="isAdminView()" (delete)="deletePost(post)" (publish)="publishPost($event)"
+      (unpublish)="unpublishPost($event)" (toggleFeature)="toggleFeature($event)">
     </app-post-card>
-
     }
   </div>
+
+  <!-- Empty State -->
+  @if (posts().length === 0) {
+  <div
+    class="w-full py-16 flex flex-col items-center justify-center text-center rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-secondary)]">
+    <i class="pi pi-folder-open text-3xl mb-3 text-[var(--text-tertiary)]"></i>
+    <h3 class="text-lg font-bold text-[var(--text-primary)] mb-1">No articles found</h3>
+    <p class="text-sm text-[var(--text-secondary)]">Adjust your search or clear filters to see more.</p>
+  </div>
   }
-  <!-- Pagination -->
+  }
+
+  <!-- ======================= -->
+  <!-- PAGINATION              -->
+  <!-- ======================= -->
   @if (totalPages() > 1 && !loading()) {
-  <div class="pagination-wrapper">
+  <div class="flex justify-center pt-4 border-t border-[var(--border-secondary)]">
     <p-paginator [first]="first" [rows]="rows" [totalRecords]="totalRecords()" [rowsPerPageOptions]="[12, 24, 36]"
       (onPageChange)="onPageChange($event)">
     </p-paginator>
   </div>
   }
+</div>
