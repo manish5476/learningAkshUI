@@ -1,0 +1,176 @@
+<div class="immersive-auth">
+
+  <!-- ── BACKGROUND (left panel only) ── -->
+  <div class="layout-grid">
+
+    <!-- ════ LEFT HERO PANEL ════ -->
+    <div class="hero-panel">
+      <div class="bg-left-texture"></div>
+      <div class="grid-pattern"></div>
+
+      <!-- Ashoka Chakra Watermark -->
+      <svg class="chakra-watermark" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="100" cy="100" r="95" stroke="white" stroke-width="3"/>
+        <circle cx="100" cy="100" r="15" fill="white"/>
+        <g stroke="white" stroke-width="1.5">
+          <line x1="100" y1="15" x2="100" y2="185"/>
+          <line x1="15"  y1="100" x2="185" y2="100"/>
+          <line x1="28"  y1="28"  x2="172" y2="172"/>
+          <line x1="172" y1="28"  x2="28"  y2="172"/>
+          <line x1="15"  y1="60"  x2="185" y2="140"/>
+          <line x1="60"  y1="15"  x2="140" y2="185"/>
+          <line x1="185" y1="60"  x2="15"  y2="140"/>
+          <line x1="140" y1="15"  x2="60"  y2="185"/>
+          <line x1="15"  y1="75"  x2="185" y2="125"/>
+          <line x1="75"  y1="15"  x2="125" y2="185"/>
+          <line x1="185" y1="75"  x2="15"  y2="125"/>
+          <line x1="125" y1="15"  x2="75"  y2="185"/>
+        </g>
+        <circle cx="100" cy="100" r="40" stroke="white" stroke-width="2" stroke-dasharray="4 4"/>
+      </svg>
+
+      <!-- Brand -->
+      <div class="brand-header">
+        <div class="logo-mark">🎓</div>
+        <div>
+          <div class="brand-name">Learning <span class="brand-accent">Aksh</span></div>
+          <span class="brand-tagline">Government Exam Coaching</span>
+        </div>
+      </div>
+
+      <!-- Hero Content -->
+      <div class="hero-content">
+        <div class="exam-badge">
+          <span class="badge-dot"></span>
+          India's Trusted Exam Preparation Platform
+        </div>
+
+        <h1 class="display-title">
+          Your Path to<br>
+          <span class="text-highlight">Sarkari Naukri</span><br>
+          Starts Here.
+        </h1>
+
+        <p class="hindi-quote">
+          "सफलता उन्हें मिलती है जो तैयारी करते हैं।"<br>
+          <span class="hindi-translation">"Success belongs to those who prepare."</span>
+        </p>
+
+        <div class="exam-tags-row">
+          <span *ngFor="let tag of examTags" class="exam-tag" [class.exam-tag--hot]="tag.hot">
+            {{ tag.label }}
+          </span>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-item" *ngFor="let stat of stats">
+            <span class="stat-num">{{ stat.num }}<span class="stat-suffix">{{ stat.suffix }}</span></span>
+            <span class="stat-label">{{ stat.label }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="hero-footer">
+        <span>© 2026 Learning Aksh. All rights reserved.</span>
+        <div class="footer-links">
+          <a href="#">Terms</a>
+          <a href="#">Privacy</a>
+          <a href="#">Help</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ RIGHT FORM PANEL ════ -->
+    <div class="form-panel">
+      <div class="form-scroll">
+        <div class="form-box">
+
+          <div class="form-header">
+            <h2>Welcome Back 👋</h2>
+            <p>Log in to continue your preparation. <strong>Your rank awaits.</strong></p>
+          </div>
+
+          <!-- Alerts -->
+          <div class="alert alert--warn" *ngIf="sessionExpired">
+            <span>⚠️</span>
+            <span>Your session has expired. Please log in again.</span>
+          </div>
+          <div class="alert alert--error" *ngIf="errorMessage">
+            <span>❌</span>
+            <span>{{ errorMessage }}</span>
+          </div>
+
+          <!-- Form -->
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
+
+            <div class="form-group">
+              <label class="field-label" for="email">Email Address</label>
+              <div class="input-wrap">
+                <span class="input-icon">✉</span>
+                <input
+                  type="email" id="email" formControlName="email"
+                  placeholder="yourname@example.com"
+                  class="glass-input"
+                  [class.glass-input--invalid]="isFieldInvalid('email')"
+                  autocomplete="email" />
+              </div>
+              <small class="field-error" *ngIf="isFieldInvalid('email')">Please enter a valid email address.</small>
+            </div>
+
+            <div class="form-group">
+              <label class="field-label" for="password">Password</label>
+              <div class="input-wrap">
+                <span class="input-icon">🔒</span>
+                <input
+                  [type]="showPassword ? 'text' : 'password'"
+                  id="password" formControlName="password"
+                  placeholder="Enter your password"
+                  class="glass-input glass-input--has-eye"
+                  [class.glass-input--invalid]="isFieldInvalid('password')"
+                  autocomplete="current-password" />
+                <button type="button" class="eye-btn" (click)="togglePassword()">
+                  {{ showPassword ? '🙈' : '👁' }}
+                </button>
+              </div>
+              <small class="field-error" *ngIf="isFieldInvalid('password')">Password is required.</small>
+            </div>
+
+            <div class="options-row">
+              <label class="remember-label">
+                <input type="checkbox" formControlName="rememberMe" class="checkbox" />
+                <span>Remember me for 30 days</span>
+              </label>
+              <a routerLink="/auth/forgot-password" class="text-link">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="submit-btn" [disabled]="loginForm.invalid || isLoading">
+              <span *ngIf="!isLoading">Log In to Dashboard <span class="btn-arrow">→</span></span>
+              <span *ngIf="isLoading" class="spinner"></span>
+            </button>
+
+          </form>
+
+          <div class="divider"><span>or continue with</span></div>
+
+          <button type="button" class="google-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            Sign in with Google
+          </button>
+
+          <p class="signup-row">
+            New to Learning Aksh?
+            <a routerLink="/auth/signup" class="text-link text-link--accent">Create a free account</a>
+          </p>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

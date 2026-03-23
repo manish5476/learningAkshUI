@@ -1,0 +1,281 @@
+<div class="immersive-signup">
+
+  <!-- ── LAYOUT GRID ── -->
+  <div class="layout-grid">
+
+    <!-- ════ LEFT HERO PANEL ════ -->
+    <div class="hero-panel">
+      <div class="bg-left-texture"></div>
+      <div class="grid-pattern"></div>
+
+      <!-- Brand -->
+      <div class="brand-header">
+        <div class="logo-mark">🎓</div>
+        <div>
+          <div class="brand-name">Learning <span class="brand-accent">Aksh</span></div>
+          <span class="brand-tagline">Government Exam Coaching</span>
+        </div>
+      </div>
+
+      <!-- Hero Content -->
+      <div class="hero-content">
+        <div class="exam-badge">
+          <span class="badge-dot"></span>
+          Free Registration — Start Today
+        </div>
+
+        <h1 class="display-title">
+          Join India's Most<br>
+          <span class="text-highlight">Trusted</span> Exam<br>
+          Preparation Hub.
+        </h1>
+
+        <p class="hindi-quote">
+          "हर सफल अधिकारी एक बार छात्र था।"<br>
+          <span class="hindi-translation">"Every successful officer was once a student."</span>
+        </p>
+
+        <div class="features-list">
+          <div class="feature-item" *ngFor="let f of features">
+            <div class="feature-icon" [ngClass]="f.iconClass">{{ f.emoji }}</div>
+            <div class="feature-text">
+              <strong>{{ f.title }}</strong>
+              <span>{{ f.desc }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="hero-footer">
+        <span>© 2026 Learning Aksh. All rights reserved.</span>
+        <div class="footer-links">
+          <a href="#">Terms</a>
+          <a href="#">Privacy</a>
+          <a href="#">Help</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ RIGHT FORM PANEL ════ -->
+    <div class="form-panel">
+      <div class="form-scroll">
+        <div class="form-box">
+
+          <!-- Header -->
+          <div class="form-header">
+            <h2>Create Account</h2>
+            <p>Join 2.4 lakh+ students preparing for their dream government job.</p>
+          </div>
+
+          <!-- Progress Dots -->
+          <div class="step-dots">
+            <div class="step-dot"
+              [class.step-dot--done]="currentStep > 1"
+              [class.step-dot--active]="currentStep === 1"></div>
+            <div class="step-dot"
+              [class.step-dot--done]="currentStep > 2"
+              [class.step-dot--active]="currentStep === 2"></div>
+            <div class="step-dot"
+              [class.step-dot--done]="currentStep > 3"
+              [class.step-dot--active]="currentStep === 3"></div>
+          </div>
+
+          <!-- Role Selector -->
+          <div class="role-tabs">
+            <button type="button" class="role-tab"
+              [class.role-tab--active]="role === 'student'"
+              (click)="setRole('student')">
+              📖 Student
+            </button>
+            <button type="button" class="role-tab"
+              [class.role-tab--active]="role === 'instructor'"
+              (click)="setRole('instructor')">
+              🧑‍🏫 Instructor
+            </button>
+          </div>
+
+          <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
+
+            <!-- ── Personal Details ── -->
+            <div class="section-label">Personal Details</div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="field-label" for="firstName">First Name <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <span class="input-icon">👤</span>
+                  <input type="text" id="firstName" formControlName="firstName"
+                    placeholder="Raj" class="glass-input"
+                    [class.glass-input--invalid]="isFieldInvalid('firstName')" />
+                </div>
+                <small class="field-error" *ngIf="isFieldInvalid('firstName')">Required.</small>
+              </div>
+
+              <div class="form-group">
+                <label class="field-label" for="lastName">Last Name <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <span class="input-icon">👤</span>
+                  <input type="text" id="lastName" formControlName="lastName"
+                    placeholder="Sharma" class="glass-input"
+                    [class.glass-input--invalid]="isFieldInvalid('lastName')" />
+                </div>
+                <small class="field-error" *ngIf="isFieldInvalid('lastName')">Required.</small>
+              </div>
+
+              <div class="form-group form-group--full">
+                <label class="field-label" for="email">Email <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <span class="input-icon">✉</span>
+                  <input type="email" id="email" formControlName="email"
+                    placeholder="yourname@example.com" class="glass-input"
+                    [class.glass-input--invalid]="isFieldInvalid('email')" />
+                </div>
+                <small class="field-error" *ngIf="isFieldInvalid('email')">Enter a valid email.</small>
+              </div>
+
+              <div class="form-group form-group--full">
+                <label class="field-label" for="mobile">Mobile <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <span class="input-icon">📱</span>
+                  <input type="tel" id="mobile" formControlName="mobile"
+                    placeholder="98765 43210" maxlength="10" class="glass-input"
+                    [class.glass-input--invalid]="isFieldInvalid('mobile')" />
+                </div>
+                <small class="field-error" *ngIf="isFieldInvalid('mobile')">Enter a valid 10-digit number.</small>
+              </div>
+            </div>
+
+            <!-- ── Student: Target Exam ── -->
+            <ng-container *ngIf="role === 'student'">
+              <div class="section-label">Target Exam</div>
+
+              <div class="form-group">
+                <label class="field-label">Select your exam(s)</label>
+                <div class="tags-container">
+                  <button *ngFor="let exam of examOptions" type="button" class="tag-btn"
+                    [class.tag-btn--selected]="isExamSelected(exam)"
+                    (click)="toggleExam(exam)">{{ exam }}</button>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top:10px">
+                <label class="field-label" for="state">State <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <span class="input-icon">📍</span>
+                  <select id="state" formControlName="state"
+                    class="glass-input glass-input--select"
+                    [class.glass-input--invalid]="isFieldInvalid('state')">
+                    <option value="">Select your state</option>
+                    <option *ngFor="let s of indianStates" [value]="s">{{ s }}</option>
+                  </select>
+                </div>
+                <small class="field-error" *ngIf="isFieldInvalid('state')">Please select your state.</small>
+              </div>
+            </ng-container>
+
+            <!-- ── Instructor: Teaching Profile ── -->
+            <ng-container *ngIf="role === 'instructor'">
+              <div class="section-label">Teaching Profile</div>
+
+              <div class="form-group">
+                <label class="field-label">Subject Expertise</label>
+                <div class="tags-container">
+                  <button *ngFor="let subj of subjectOptions" type="button" class="tag-btn"
+                    [class.tag-btn--selected]="isSubjectSelected(subj)"
+                    (click)="toggleSubject(subj)">{{ subj }}</button>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top:10px">
+                <label class="field-label" for="experience">Teaching Experience</label>
+                <div class="input-wrap">
+                  <span class="input-icon">📅</span>
+                  <select id="experience" formControlName="experience" class="glass-input glass-input--select">
+                    <option value="">Select years</option>
+                    <option *ngFor="let e of experienceOptions" [value]="e">{{ e }}</option>
+                  </select>
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- ── Security ── -->
+            <div class="section-label">Security</div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="field-label" for="password">Password <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <span class="input-icon">🔒</span>
+                  <input [type]="showPassword ? 'text' : 'password'"
+                    id="password" formControlName="password"
+                    placeholder="Min 8 chars"
+                    class="glass-input glass-input--has-eye"
+                    [class.glass-input--invalid]="isFieldInvalid('password')" />
+                  <button type="button" class="eye-btn" (click)="togglePassword('password')">
+                    {{ showPassword ? '🙈' : '👁' }}
+                  </button>
+                </div>
+                <div class="pwd-strength" *ngIf="signupForm.get('password')?.value">
+                  <div class="pwd-bars">
+                    <div *ngFor="let bar of [1,2,3,4]" class="pwd-bar"
+                      [class.pwd-bar--filled]="passwordStrength.score >= bar"
+                      [ngClass]="passwordStrength.score >= bar ? passwordStrength.cssClass : ''">
+                    </div>
+                  </div>
+                  <span class="pwd-label" [ngClass]="'pwd-label--' + passwordStrength.cssClass">
+                    {{ passwordStrength.label }}
+                  </span>
+                </div>
+                <small class="field-error" *ngIf="isFieldInvalid('password')">Min 8 characters.</small>
+              </div>
+
+              <div class="form-group">
+                <label class="field-label" for="confirmPwd">Confirm <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <span class="input-icon">✅</span>
+                  <input [type]="showConfirmPassword ? 'text' : 'password'"
+                    id="confirmPwd" formControlName="confirmPassword"
+                    placeholder="Re-enter"
+                    class="glass-input glass-input--has-eye"
+                    [class.glass-input--invalid]="isFieldInvalid('confirmPassword') || hasFormError('mismatch')" />
+                  <button type="button" class="eye-btn" (click)="togglePassword('confirm')">
+                    {{ showConfirmPassword ? '🙈' : '👁' }}
+                  </button>
+                </div>
+                <small class="field-error" *ngIf="hasFormError('mismatch')">Passwords don't match.</small>
+              </div>
+            </div>
+
+            <!-- Terms -->
+            <div class="terms-row">
+              <input type="checkbox" id="acceptTerms" formControlName="acceptTerms" class="checkbox" />
+              <label class="terms-text" for="acceptTerms">
+                I agree to the <a href="#" class="text-link">Terms</a> &
+                <a href="#" class="text-link">Privacy Policy</a>.
+                I consent to exam notifications.
+              </label>
+            </div>
+            <small class="field-error" *ngIf="isFieldInvalid('acceptTerms')">
+              Please accept the terms.
+            </small>
+
+            <!-- Submit -->
+            <button type="submit" class="submit-btn" [disabled]="signupForm.invalid || isLoading">
+              <span *ngIf="!isLoading">Create My Account <span class="btn-arrow">→</span></span>
+              <span *ngIf="isLoading" class="spinner"></span>
+            </button>
+
+          </form>
+
+          <p class="login-row">
+            Already have an account?
+            <a routerLink="/auth/login" class="text-link text-link--accent">Sign in here</a>
+          </p>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
