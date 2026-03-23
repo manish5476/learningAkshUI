@@ -1,4 +1,200 @@
-<div class="page-container fade-in">
+<div class="min-h-screen bg-[var(--bg-primary)] pb-20 transition-colors duration-300">
+  <p-toast position="top-right"></p-toast>
+
+  <!-- ========================================== -->
+  <!-- 1. HEADER & BREADCRUMBS                    -->
+  <!-- ========================================== -->
+  <div class="pt-6 sm:pt-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+      <div>
+        <nav
+          class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-3">
+          <a routerLink="/" class="hover:text-[var(--color-primary)] transition-colors"><i class="pi pi-home"></i></a>
+          <span>/</span>
+          <a routerLink="/categories" class="hover:text-[var(--color-primary)] transition-colors">Categories</a>
+          <span>/</span>
+          <span class="text-[var(--color-primary)]">Hierarchy Tree</span>
+        </nav>
+        <h1 class="text-3xl font-bold text-[var(--text-primary)] m-0 flex items-center gap-3"
+          style="font-family: var(--font-heading);">
+          <div
+            class="w-10 h-10 rounded-xl bg-[var(--color-primary-bg)] text-[var(--color-primary)] flex items-center justify-center">
+            <i class="pi pi-sitemap text-xl"></i>
+          </div>
+          Category Hierarchy
+        </h1>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 shrink-0">
+        <p-button icon="pi pi-expand" label="Expand All" size="small" [outlined]="true" severity="secondary"
+          (onClick)="expandAll()" [disabled]="loading()"></p-button>
+        <p-button icon="pi pi-compress" label="Collapse All" size="small" [outlined]="true" severity="secondary"
+          (onClick)="collapseAll()" [disabled]="loading()"></p-button>
+        <p-button [icon]="loading() ? 'pi pi-spin pi-spinner' : 'pi pi-refresh'" size="small" [outlined]="true"
+          severity="secondary" (onClick)="loadCategoryTree()" [disabled]="loading()"></p-button>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 2. TOOLBAR (Search & Stats)                -->
+    <!-- ========================================== -->
+    <div
+      class="flex flex-col md:flex-row items-center justify-between gap-4 p-2 pl-4 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-secondary)] mb-8 shadow-sm">
+      <div class="relative w-full md:max-w-md flex items-center">
+        <i class="pi pi-search absolute left-3 text-[var(--text-tertiary)]"></i>
+        <input type="text" pInputText [ngModel]="searchTerm()" (ngModelChange)="onSearchChange($event)"
+          placeholder="Search categories..."
+          class="w-full pl-10 pr-4 py-2 bg-transparent border-none outline-none text-[var(--text-primary)] placeholder-[var(--text-tertiary)] shadow-none focus:ring-0">
+        @if (searchTerm()) {
+        <button class="absolute right-3 text-[var(--text-tertiary)] hover:text-[var(--color-error)]"
+          (click)="clearSearch()">
+          <i class="pi pi-times-circle"></i>
+        </button>
+        }
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 pr-2 pb-2 md:pb-0">
+        <div
+          class="px-3 py-1.5 rounded-lg bg-[var(--bg-ternary)] text-[var(--text-secondary)] text-xs font-bold flex items-center gap-1.5">
+          <i class="pi pi-tags"></i> Total: {{ stats().total }}
+        </div>
+        <div
+          class="px-3 py-1.5 rounded-lg bg-[var(--color-success-bg)] text-[var(--color-success)] text-xs font-bold flex items-center gap-1.5">
+          <i class="pi pi-check-circle"></i> Active: {{ stats().active }}
+        </div>
+        <div
+          class="px-3 py-1.5 rounded-lg bg-[var(--color-error-bg)] text-[var(--color-error)] text-xs font-bold flex items-center gap-1.5">
+          <i class="pi pi-times-circle"></i> Inactive: {{ stats().inactive }}
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 3. MAIN TREE CONTAINER                     -->
+    <!-- ========================================== -->
+    <div
+      class="bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-2xl p-4 sm:p-6 lg:p-8 min-h-[50vh] shadow-sm">
+
+      @if (loading()) {
+      <div class="flex flex-col items-center justify-center py-20 animate-pulse">
+        <i class="pi pi-sitemap text-4xl text-[var(--text-tertiary)] mb-4"></i>
+        <p class="text-[var(--text-secondary)] font-bold tracking-widest uppercase text-sm">Building hierarchy...</p>
+      </div>
+      } @else if (treeData().length > 0 && !hasVisibleNodes()) {
+      <div class="flex flex-col items-center justify-center py-20 text-center">
+        <div class="w-16 h-16 rounded-full bg-[var(--bg-ternary)] flex items-center justify-center mb-4">
+          <i class="pi pi-search text-2xl text-[var(--text-tertiary)]"></i>
+        </div>
+        <h3 class="text-xl font-bold text-[var(--text-primary)] mb-2">No matches found</h3>
+        <p class="text-[var(--text-secondary)] mb-6">No categories matched "{{ searchTerm() }}"</p>
+        <p-button label="Clear Search" icon="pi pi-times" [outlined]="true" (onClick)="clearSearch()"></p-button>
+      </div>
+      } @else if (treeData().length === 0) {
+      <div class="flex flex-col items-center justify-center py-20 text-center">
+        <div class="w-16 h-16 rounded-full bg-[var(--bg-ternary)] flex items-center justify-center mb-4">
+          <i class="pi pi-folder-open text-2xl text-[var(--text-tertiary)]"></i>
+        </div>
+        <h3 class="text-xl font-bold text-[var(--text-primary)] mb-2">Tree is empty</h3>
+        <p class="text-[var(--text-secondary)]">No categories exist in the system yet.</p>
+      </div>
+      } @else {
+
+      <!-- FLEX WRAP CONTAINER FOR ROOT NODES -->
+      <!-- This allows collapsed root nodes to sit side-by-side as small cards -->
+      <div class="flex flex-wrap gap-4">
+        @for (node of treeData(); track node._id) {
+        <ng-container *ngTemplateOutlet="treeNodeTemplate; context: { $implicit: node }"></ng-container>
+        }
+      </div>
+
+      }
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- RECURSIVE TREE NODE TEMPLATE (Smart Expandable Card Grid)      -->
+<!-- ============================================================== -->
+<ng-template #treeNodeTemplate let-node>
+  @if (!node.hidden) {
+  <!-- 
+      MAGIC WIDTH LOGIC:
+      If expanded, it takes full width (`w-full`) so its children drop below it.
+      If collapsed, it stays compact (`sm:w-[320px]`) so multiple cards sit next to each other!
+    -->
+  <div class="flex flex-col transition-all duration-300"
+    [ngClass]="node.expanded ? 'w-full' : 'w-full sm:w-[320px] lg:w-[340px] shrink-0'">
+
+    <!-- The Compact Card -->
+    <div
+      class="group flex items-center justify-between p-3 rounded-xl border border-[var(--border-secondary)] bg-[var(--bg-primary)] hover:border-[var(--color-primary)] hover:shadow-md transition-all duration-200 cursor-pointer"
+      [ngClass]="{'border-[var(--color-primary)] bg-[var(--color-primary-bg)]/30': node.expanded}"
+      (click)="toggleNode(node)">
+
+      <div class="flex items-center gap-3 overflow-hidden">
+        <!-- Image/Icon Box -->
+        <div
+          class="w-10 h-10 shrink-0 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-secondary)] flex items-center justify-center overflow-hidden">
+          @if (node.image) {
+          <img [src]="node.image" [alt]="node.name" class="w-full h-full object-cover">
+          } @else {
+          <i [class]="node.icon || 'pi pi-folder'" class="text-[var(--text-tertiary)]"></i>
+          }
+        </div>
+
+        <!-- Text Details -->
+        <div class="flex flex-col min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-[var(--text-primary)] text-sm truncate">{{ node.name }}</span>
+            <!-- Status Dot -->
+            <span class="w-2 h-2 rounded-full shrink-0"
+              [ngClass]="node.isActive ? 'bg-[var(--color-success)]' : 'bg-[var(--color-error)]'"
+              [title]="node.isActive ? 'Active' : 'Inactive'"></span>
+          </div>
+          <span class="text-xs text-[var(--text-tertiary)] truncate">/{{ node.slug }}</span>
+        </div>
+      </div>
+
+      <!-- Right Side Actions -->
+      <div class="flex items-center gap-2 shrink-0 pl-2">
+        @if (node.children?.length) {
+        <!-- Sub-category Counter & Chevron -->
+        <span
+          class="px-2 py-1 rounded-md bg-[var(--color-primary-bg)] text-[var(--color-primary)] text-[10px] font-bold">
+          {{ node.children.length }} SUB
+        </span>
+        <button class="w-6 h-6 rounded flex items-center justify-center hover:bg-[var(--bg-ternary)] transition-colors">
+          <i class="pi text-xs text-[var(--text-secondary)] transition-transform"
+            [ngClass]="node.expanded ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+        </button>
+        } @else {
+        <!-- Quick Link for Leaf Nodes (Stops propagation so it doesn't try to expand an empty node) -->
+        <button pButton icon="pi pi-arrow-right"
+          class="w-8 h-8 p-0 p-button-rounded p-button-text p-button-secondary opacity-50 group-hover:opacity-100 group-hover:text-[var(--color-primary)] transition-all"
+          [routerLink]="['/categories', node._id, 'courses']" (click)="$event.stopPropagation()" pTooltip="View Courses"
+          tooltipPosition="top"></button>
+        }
+      </div>
+    </div>
+
+    <!-- Recursive Children Container -->
+    @if (node.expanded && node.children && node.children.length > 0) {
+    <!-- 
+          FLEX WRAP FOR CHILDREN:
+          This allows the children of THIS node to also sit side-by-side!
+        -->
+    <div class="flex flex-wrap gap-4 mt-3 ml-5 pl-4 border-l-2 border-[var(--border-secondary)] py-2">
+      @for (child of node.children; track child._id) {
+      <ng-container *ngTemplateOutlet="treeNodeTemplate; context: { $implicit: child }"></ng-container>
+      }
+    </div>
+    }
+
+  </div>
+  }
+</ng-template>
+<!-- <div class="page-container fade-in">
 
   <header class="page-header flex-col md:flex-row flex-between gap-xl mb-4xl">
     <div class="header-left flex-col gap-xs flex-grow-1">
@@ -136,169 +332,6 @@
       @if (node.expanded && node.children && node.children.length > 0) {
         <div class="node-children relative">
           <div class="tree-line absolute bg-border-primary border-radius-full" [style.left.rem]="(level * 2) + 2.1"></div>
-          @for (child of node.children; track child._id) {
-            <ng-container *ngTemplateOutlet="treeNodeTemplate; context: { $implicit: child, level: level + 1 }"></ng-container>
-          }
-        </div>
-      }
-
-    </div>
-  }
-</ng-template>
-
-
-<!-- <div class="page-container">
-
-  <div class="page-header">
-    <div class="header-left">
-      <nav class="breadcrumb">
-        <a routerLink="/" class="bc-link"><i class="pi pi-home"></i></a>
-        <span class="bc-sep">/</span>
-        <a routerLink="/categories" class="bc-link">Categories</a>
-        <span class="bc-sep">/</span>
-        <span class="bc-current">Hierarchy Tree</span>
-      </nav>
-
-      <h1 class="page-title">
-        <div class="title-icon"><i class="pi pi-sitemap"></i></div>
-        Category Tree
-      </h1>
-    </div>
-    
-    <div class="header-actions">
-      <button class="btn-secondary" (click)="loadCategoryTree()" [disabled]="loading()">
-        <i class="pi" [ngClass]="loading() ? 'pi-spin pi-spinner' : 'pi-refresh'"></i> Refresh
-      </button>
-      <button class="btn-secondary" (click)="expandAll()" [disabled]="loading()">
-        <i class="pi pi-expand"></i> Expand All
-      </button>
-      <button class="btn-secondary" (click)="collapseAll()" [disabled]="loading()">
-        <i class="pi pi-compress"></i> Collapse All
-      </button>
-    </div>
-  </div>
-
-  <div class="toolbar-section glass-panel">
-    <div class="search-wrapper">
-      <i class="pi pi-search search-icon"></i>
-      <input 
-        type="text" 
-        [ngModel]="searchTerm()" 
-        (ngModelChange)="onSearchChange($event)"
-        placeholder="Search categories..." 
-        class="custom-input">
-    </div>
-    
-    <div class="stats-badges">
-      <span class="stat-badge badge-primary">
-        <i class="pi pi-tags"></i> Total: {{ stats().total }}
-      </span>
-      <span class="stat-badge badge-success">
-        <i class="pi pi-check-circle"></i> Active: {{ stats().active }}
-      </span>
-      <span class="stat-badge badge-error">
-        <i class="pi pi-times-circle"></i> Inactive: {{ stats().inactive }}
-      </span>
-    </div>
-  </div>
-
-  <div class="tree-container glass-panel">
-    
-    @if (loading()) {
-      <div class="state-overlay">
-        <i class="pi pi-spin pi-spinner text-primary text-4xl mb-md"></i>
-        <p class="text-secondary text-lg">Building category hierarchy...</p>
-      </div>
-    } @else if (treeData().length > 0 && !hasVisibleNodes()) {
-      <div class="state-overlay">
-        <div class="empty-icon-wrapper">
-          <i class="pi pi-search"></i>
-        </div>
-        <h3 class="empty-title">No matches found</h3>
-        <p class="empty-subtitle">No categories matched your search for "{{ searchTerm() }}"</p>
-        <button class="btn-primary mt-lg" (click)="clearSearch()">Clear Search</button>
-      </div>
-    } @else if (treeData().length === 0) {
-      <div class="state-overlay">
-        <div class="empty-icon-wrapper">
-          <i class="pi pi-folder-open"></i>
-        </div>
-        <h3 class="empty-title">Tree is empty</h3>
-        <p class="empty-subtitle">No categories exist in the system yet.</p>
-      </div>
-    } @else {
-      <div class="custom-tree">
-        @for (node of treeData(); track node._id) {
-          <ng-container *ngTemplateOutlet="treeNodeTemplate; context: { $implicit: node, level: 0 }"></ng-container>
-        }
-      </div>
-    }
-
-  </div>
-</div>
-
-<ng-template #treeNodeTemplate let-node let-level="level">
-  @if (!node.hidden) {
-    <div class="node-wrapper">
-      
-      <div class="node-row" [style.padding-left.rem]="level * 2">
-        
-        <button 
-          class="node-toggle" 
-          [class.invisible]="!node.children || node.children.length === 0"
-          (click)="toggleNode(node)">
-          <i class="pi" [ngClass]="node.expanded ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
-        </button>
-
-        <div class="node-content surface-raised">
-          
-          <div class="node-info-main">
-            @if (node.image) {
-              <div class="node-thumbnail">
-                <img [src]="node.image" [alt]="node.name">
-              </div>
-            } @else {
-              <div class="node-icon-box">
-                <i [class]="node.icon || 'pi pi-folder'"></i>
-              </div>
-            }
-
-            <div class="node-text">
-              <div class="node-header">
-                <span class="node-name">{{ node.name }}</span>
-                <span class="status-indicator" 
-                      [ngClass]="node.isActive ? 'bg-success' : 'bg-error'" 
-                      [title]="node.isActive ? 'Active' : 'Inactive'">
-                </span>
-              </div>
-              <div class="node-meta">
-                <span class="node-slug">/{{ node.slug }}</span>
-                
-                @if (node.children?.length) {
-                  <span class="meta-dot">•</span>
-                  <span class="node-children-count">
-                    {{ node.children.length }} subcategor{{ node.children.length === 1 ? 'y' : 'ies' }}
-                  </span>
-                }
-              </div>
-            </div>
-          </div>
-
-          <div class="node-actions">
-            <span class="date-created hidden md:block" title="Created At">
-              <i class="pi pi-calendar"></i> {{ node.createdAt | date:'MMM d, y' }}
-            </span>
-            <a [routerLink]="['/categories', node._id, 'courses']" class="btn-view-courses">
-              View Courses <i class="pi pi-arrow-right"></i>
-            </a>
-          </div>
-
-        </div>
-      </div>
-
-      @if (node.expanded && node.children && node.children.length > 0) {
-        <div class="node-children">
-          <div class="tree-line" [style.left.rem]="(level * 2) + 1.25"></div>
           @for (child of node.children; track child._id) {
             <ng-container *ngTemplateOutlet="treeNodeTemplate; context: { $implicit: child, level: level + 1 }"></ng-container>
           }

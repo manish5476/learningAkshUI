@@ -239,31 +239,63 @@
 // ==========================================
 .editor-field {
   ::ng-deep .p-editor-container {
-    border-radius: var(--ui-border-radius-lg);
+    border-radius: var(--ui-border-radius-xl);
     overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-base);
 
     .p-editor-toolbar {
-      background: var(--bg-ternary);
-      border: 1px solid var(--local-border);
-      border-bottom: none;
-      padding: var(--spacing-md);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-secondary);
+      border-bottom: 1px solid var(--border-tertiary);
+      border-radius: var(--ui-border-radius-xl) var(--ui-border-radius-xl) 0 0;
+      padding: var(--spacing-lg);
+      
+      .ql-picker {
+        color: var(--text-primary);
+      }
+      .ql-stroke {
+        stroke: var(--text-primary);
+      }
+      .ql-fill {
+        fill: var(--text-primary);
+      }
     }
 
     .p-editor-content {
-      border: 1px solid var(--local-border);
-      min-height: 400px;
+      border: 1px solid var(--border-secondary);
+      border-top: none;
+      border-radius: 0 0 var(--ui-border-radius-xl) var(--ui-border-radius-xl);
+      min-height: 500px;
+      background: var(--bg-primary);
       
       .ql-editor {
         font-family: var(--font-body);
-        font-size: var(--font-size-base);
-        line-height: 1.6;
-        min-height: 400px;
+        font-size: var(--font-size-lg);
+        color: var(--text-primary);
+        line-height: 1.8;
+        padding: var(--spacing-3xl);
+        min-height: 500px;
+        
+        &.ql-blank::before {
+          color: var(--text-tertiary);
+          font-style: italic;
+        }
+
+        h1, h2, h3, h4 {
+          font-family: var(--font-heading);
+          font-weight: var(--font-weight-bold);
+          color: var(--text-primary);
+          margin-top: var(--spacing-2xl);
+          margin-bottom: var(--spacing-md);
+        }
       }
     }
 
     &:focus-within {
+      box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb, 59, 130, 246), 0.2);
       .p-editor-toolbar, .p-editor-content {
-        border-color: var(--component-border-focus);
+        border-color: var(--color-primary);
       }
     }
   }

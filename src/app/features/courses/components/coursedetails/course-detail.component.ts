@@ -238,6 +238,36 @@ export class CourseDetailComponent implements OnInit {
     });
   }
 
+  approveCourse(): void {
+    const c = this.course();
+    if (!c || !confirm(`Are you sure you want to approve "${c.title}"?`)) return;
+
+    this.courseService.approveCourse(c._id!)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.course.update(course => course ? { ...course, isApproved: true } : course);
+          this.messageService.showSuccess('Course approved successfully');
+        },
+        error: (error) => this.messageService.showError(error.message || 'Could not publish course')
+      });
+  }
+
+  rejectCourse(): void {
+    const c = this.course();
+    if (!c || !confirm(`Are you sure you want to reject "${c.title}"?`)) return;
+
+    this.courseService.rejectCourse(c._id!)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.course.update(course => course ? { ...course, isApproved: false } : course);
+          this.messageService.showSuccess('Course rejected successfully');
+        },
+        error: (error) => this.messageService.showError(error.message || 'Could not reject course')
+      });
+  }
+
   publishCourse(): void {
     const c = this.course();
     if (!c || !confirm(`Are you sure you want to publish "${c.title}"?`)) return;
